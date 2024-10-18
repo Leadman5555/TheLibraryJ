@@ -28,7 +28,7 @@ class BookDetail extends AbstractEntity {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "book_detail_id", referencedColumnName = "id")
-    private List<ChapterPreview> chapters;
+    private List<ChapterPreview> chapterPreviews;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "book_detail_id", referencedColumnName = "id")
     private List<Rating> ratings;
@@ -39,7 +39,7 @@ class BookDetail extends AbstractEntity {
         this.author = author;
         this.authorId = authorId;
         this.description = description;
-        this.chapters = chapters;
+        this.chapterPreviews = chapters;
         this.ratings = ratings;
     }
 }

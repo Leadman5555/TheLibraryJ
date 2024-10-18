@@ -1,4 +1,4 @@
-package org.library.thelibraryj.infrastructure.error;
+package org.library.thelibraryj.infrastructure.error.errorTypes;
 
 import java.util.UUID;
 

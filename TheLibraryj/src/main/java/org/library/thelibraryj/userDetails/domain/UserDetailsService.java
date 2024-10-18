@@ -1,11 +1,12 @@
 package org.library.thelibraryj.userDetails.domain;
 
 import io.vavr.control.Either;
-import org.library.thelibraryj.infrastructure.error.GeneralError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.userDetails.dto.UserDetailsResponse;
+import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-
+@Service
 record UserDetailsService() implements org.library.thelibraryj.userDetails.UserDetailsService {
 
     @Override

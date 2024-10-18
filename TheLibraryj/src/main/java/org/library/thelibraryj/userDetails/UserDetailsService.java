@@ -1,7 +1,7 @@
 package org.library.thelibraryj.userDetails;
 
 import io.vavr.control.Either;
-import org.library.thelibraryj.infrastructure.error.GeneralError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.userDetails.dto.UserDetailsResponse;
 import org.springframework.stereotype.Service;
 

@@ -4,9 +4,9 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.library.thelibraryj.book.dto.*;
-import org.library.thelibraryj.infrastructure.error.BookError;
-import org.library.thelibraryj.infrastructure.error.GeneralError;
-import org.library.thelibraryj.infrastructure.error.ServiceError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.userDetails.UserDetailsService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -57,7 +57,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(previewId)));
+                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(previewId, null)));
     }
 
     @Override
@@ -110,8 +110,21 @@ class BookService implements org.library.thelibraryj.book.BookService {
     }
 
     @Override
+    public Either<GeneralError, BookResponse> getBook(String title) {
+        Either<GeneralError, BookPreview> preview = Try.of(() -> bookPreviewRepository.findByTitle(title))
+                .toEither()
+                .map(Option::ofOptional)
+                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
+                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(null, title)));
+        if(preview.isLeft()) return Either.left(preview.getLeft());
+        Either<GeneralError, BookDetail> detail = getBookDetail(preview.get().getId());
+        if(detail.isLeft()) return Either.left(detail.getLeft());
+        return Either.right(mapper.bookToBookResponse(detail.get(), preview.get()));
+    }
+
+    @Override
     @Cacheable("bookPreviews")
-    public List<BookPreviewResponse> getBookPreviews() {
+    public List<BookPreviewResponse> getBookPreviewResponses() {
         return bookPreviewRepository.findAll().stream().map(mapper::bookPreviewToBookPreviewResponse).toList();
     }
 
