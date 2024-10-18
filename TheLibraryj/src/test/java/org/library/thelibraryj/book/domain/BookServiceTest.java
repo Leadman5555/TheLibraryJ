@@ -1,11 +1,9 @@
 package org.library.thelibraryj.book.domain;
 
-import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.book.dto.BookDetailsResponse;
 import org.library.thelibraryj.infrastructure.error.BookError;
-import org.library.thelibraryj.infrastructure.error.GeneralError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -36,8 +34,8 @@ public class BookServiceTest {
                 .build();
         when(bookDetailRepository.findById(detailId)).thenReturn(Optional.ofNullable(bookDetail));
         BookDetailsResponse mapped = bookMapper.bookDetailsToBookDetailsResponse(bookDetail);
-        Assertions.assertEquals(mapped, bookService.getBookDetails(detailId).get());
+        Assertions.assertEquals(mapped, bookService.getBookDetail(detailId).get());
         when(bookDetailRepository.findById(detailId)).thenReturn(Optional.empty());
-        Assertions.assertEquals(new BookError.BookEntityNotFound(detailId, null), bookService.getBookDetails(detailId).getLeft());
+        Assertions.assertEquals(new BookError.BookEntityNotFound(detailId, null), bookService.getBookDetail(detailId).getLeft());
     }
 }
