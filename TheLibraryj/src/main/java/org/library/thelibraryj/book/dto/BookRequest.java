@@ -1,6 +1,9 @@
 package org.library.thelibraryj.book.dto;
 
 import jakarta.validation.constraints.NotNull;
+import org.library.thelibraryj.book.domain.BookState;
 
-public record BookRequest(@NotNull String title, @NotNull String author, String description) {
+import java.util.UUID;
+
+public record BookRequest(String title, String description, BookState state, @NotNull UUID bookId) {
 }

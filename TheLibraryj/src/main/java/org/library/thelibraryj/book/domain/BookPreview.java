@@ -18,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Table(name = "library_book_previews")
 class BookPreview extends AbstractEntity {
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String title;
     @Column(nullable = false)
     private int chapterCount;
@@ -27,15 +27,15 @@ class BookPreview extends AbstractEntity {
     @Column(nullable = false)
     private  int ratingCount;
     @Column(nullable = false)
-    private UUID bookDetailsId;
+    private BookState bookState;
 
     @Builder
-    public BookPreview(UUID id, Long version, Instant createdAt, Instant updatedAt, String title, int chapterCount, float averageRating, int ratingCount, UUID bookDetailsId) {
+    public BookPreview(UUID id, Long version, Instant createdAt, Instant updatedAt, String title, int chapterCount, float averageRating, int ratingCount, BookState bookState) {
         super(id, version, createdAt, updatedAt);
         this.title = title;
         this.chapterCount = chapterCount;
         this.averageRating = averageRating;
         this.ratingCount = ratingCount;
-        this.bookDetailsId = bookDetailsId;
+        this.bookState = bookState;
     }
 }
