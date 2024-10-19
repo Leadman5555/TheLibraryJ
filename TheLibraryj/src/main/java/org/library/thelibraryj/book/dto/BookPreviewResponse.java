@@ -9,5 +9,5 @@ public record BookPreviewResponse(String title,
                                   float averageRating,
                                   int ratingCount,
                                   UUID id,
-                                  BookState state) {
+                                  BookState bookState) {
 }

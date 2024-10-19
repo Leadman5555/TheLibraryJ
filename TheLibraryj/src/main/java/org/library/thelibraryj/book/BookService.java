@@ -1,7 +1,11 @@
 package org.library.thelibraryj.book;
 
 import io.vavr.control.Either;
-import org.library.thelibraryj.book.dto.*;
+import org.library.thelibraryj.book.dto.BookCreationRequest;
+import org.library.thelibraryj.book.dto.BookDetailResponse;
+import org.library.thelibraryj.book.dto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.BookRequest;
+import org.library.thelibraryj.book.dto.BookResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 
 import java.util.List;

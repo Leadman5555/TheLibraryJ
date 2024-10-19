@@ -10,21 +10,25 @@ import org.springframework.http.HttpStatus;
 
 @Data
 public class ApiErrorWrapper {
-    @JsonProperty("Error")
+    @JsonProperty("error")
     private ApiErrorResponse errorResponse;
 
     public ApiErrorWrapper(GeneralError error) {
         this.errorResponse = generateWrapper(error);
     }
 
+    public ApiErrorWrapper(ApiErrorResponse errorResponse) {
+        this.errorResponse = errorResponse;
+    }
+
     private static ApiErrorResponse generateWrapper(GeneralError error){
         return switch (error){
             case BookError.BookDetailEntityNotFound e -> getErrorResponse(error, HttpStatus.BAD_REQUEST,
-                    "Book data (details) missing.");
+                    "Book data (details) missing. Id: " + e.missingEntityId());
             case BookError.BookPreviewEntityNotFound e -> getErrorResponse(error, HttpStatus.BAD_REQUEST,
-                    "Book data (preview) missing.");
+                    "Book data (preview) missing. Id: " + e.missingEntityId());
             case UserDetailsError.UserEntityNotFound e ->  getErrorResponse(error, HttpStatus.BAD_REQUEST,
-                    "User data (details) missing.");
+                    "User data (details) missing. Id: " + e.missingEntityId());
             case ServiceError.DatabaseError e -> getErrorResponse(error, HttpStatus.INTERNAL_SERVER_ERROR,
                     "Something went wrong on persistence layer. Consider reuploading corrupted/missing files.");
         };

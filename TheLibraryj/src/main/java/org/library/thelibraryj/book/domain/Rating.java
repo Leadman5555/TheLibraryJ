@@ -19,14 +19,14 @@ import java.util.UUID;
 @NoArgsConstructor
 class Rating extends AbstractEntity {
     @Column(nullable = false)
-    private int rating;
+    private int currentRating;
     @Column(nullable = false)
     private UUID userId;
 
     @Builder
-    public Rating(UUID id, Long version, Instant createdAt, Instant updatedAt, int rating, UUID userId) {
+    public Rating(UUID id, Long version, Instant createdAt, Instant updatedAt, int currentRating, UUID userId) {
         super(id, version, createdAt, updatedAt);
-        this.rating = rating;
+        this.currentRating = currentRating;
         this.userId = userId;
     }
 }

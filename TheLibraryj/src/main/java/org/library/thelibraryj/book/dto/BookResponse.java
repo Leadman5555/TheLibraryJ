@@ -12,7 +12,7 @@ public record BookResponse(String title,
                            int chapterCount,
                            float averageRating,
                            int ratingCount,
-                           List<ChapterPreviewResponse> chapters,
+                           List<ChapterPreviewResponse> chapterPreviews,
                            List<RatingResponse> ratings,
                            BookState bookState) {
 }
