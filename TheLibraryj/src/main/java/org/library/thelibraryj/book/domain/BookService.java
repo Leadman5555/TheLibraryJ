@@ -69,21 +69,18 @@ class BookService implements org.library.thelibraryj.book.BookService {
         Either<GeneralError, String> fetchedAuthor = userInfoService.getAuthorUsernameAndCheckValid(bookCreationRequest.authorId());
         if(fetchedAuthor.isLeft()) return Either.left(fetchedAuthor.getLeft());
 
-        UUID bookId = UUID.randomUUID();
         BookDetail detail = BookDetail.builder()
-                .id(bookId)
                 .author(fetchedAuthor.get())
                 .authorId(bookCreationRequest.authorId())
                 .description(bookCreationRequest.description())
                 .build();
         BookPreview preview = BookPreview.builder()
-                .id(bookId)
+                .bookDetail(detail)
                 .title(bookCreationRequest.title())
                 .ratingCount(0)
                 .averageRating(0)
                 .bookState(BookState.UNKNOWN)
                 .build();
-
         bookDetailRepository.save(detail);
         bookPreviewRepository.save(preview);
         return Either.right(mapper.bookToBookResponse(detail, preview));

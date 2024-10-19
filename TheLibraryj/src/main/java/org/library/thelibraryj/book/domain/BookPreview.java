@@ -1,8 +1,6 @@
 package org.library.thelibraryj.book.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import org.library.thelibraryj.infrastructure.model.AbstractEntity;
 
@@ -28,13 +26,19 @@ class BookPreview extends AbstractEntity {
     @Column(nullable = false)
     private BookState bookState;
 
+    @MapsId
+    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
+    private BookDetail bookDetail;
+
     @Builder
-    public BookPreview(UUID id, Long version, Instant createdAt, Instant updatedAt, String title, int chapterCount, float averageRating, int ratingCount, BookState bookState) {
+    public BookPreview(UUID id, Long version, Instant createdAt, Instant updatedAt, String title, int chapterCount, float averageRating, int ratingCount, BookState bookState, BookDetail bookDetail) {
         super(id, version, createdAt, updatedAt);
         this.title = title;
         this.chapterCount = chapterCount;
         this.averageRating = averageRating;
         this.ratingCount = ratingCount;
         this.bookState = bookState;
+        this.bookDetail = bookDetail;
     }
 }
