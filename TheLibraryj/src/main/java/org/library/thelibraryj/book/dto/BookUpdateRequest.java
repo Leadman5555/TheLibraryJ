@@ -5,5 +5,5 @@ import org.library.thelibraryj.book.domain.BookState;
 
 import java.util.UUID;
 
-public record BookRequest(String title, String description, BookState state, @NotNull UUID bookId) {
+public record BookUpdateRequest(String title, String description, BookState state, @NotNull UUID bookId) {
 }

@@ -8,10 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.library.thelibraryj.infrastructure.model.AbstractEntity;
 
 import java.time.Instant;
@@ -22,6 +19,8 @@ import java.util.UUID;
 @Entity
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
+@Setter
+@Getter
 @Table(name = "library_book_details")
 class BookDetail extends AbstractEntity {
     @Column(nullable = false)

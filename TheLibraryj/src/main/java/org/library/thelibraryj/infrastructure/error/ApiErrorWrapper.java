@@ -27,8 +27,10 @@ public class ApiErrorWrapper {
                     "Book data (details) missing. Id: " + e.missingEntityId());
             case BookError.BookPreviewEntityNotFound e -> getErrorResponse(error, HttpStatus.BAD_REQUEST,
                     "Book data (preview) missing. Id: " + e.missingEntityId());
-            case UserDetailsError.UserEntityNotFound e ->  getErrorResponse(error, HttpStatus.BAD_REQUEST,
+            case UserDetailsError.UserDetailsEntityNotFound e ->  getErrorResponse(error, HttpStatus.BAD_REQUEST,
                     "User data (details) missing. Id: " + e.missingEntityId());
+            case UserDetailsError.UserAccountTooYoung e ->getErrorResponse(error, HttpStatus.BAD_REQUEST,
+                    "User account too young to complete the desired action. Id: " + e.userId());
             case ServiceError.DatabaseError e -> getErrorResponse(error, HttpStatus.INTERNAL_SERVER_ERROR,
                     "Something went wrong on persistence layer. Consider reuploading corrupted/missing files.");
         };

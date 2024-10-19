@@ -38,17 +38,4 @@ public abstract class AbstractEntity implements Serializable {
 
     @LastModifiedDate
     private Instant updatedAt;
-
-    @Override
-    public String toString() {
-        return "uuid="
-                + id
-                + ", version="
-                + version
-                + ", createDate="
-                + createdAt
-                + ", lastModifiedDate="
-                + updatedAt
-                + ",";
-    }
 }

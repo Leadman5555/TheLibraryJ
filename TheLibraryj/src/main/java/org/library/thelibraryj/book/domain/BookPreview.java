@@ -3,10 +3,7 @@ package org.library.thelibraryj.book.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.library.thelibraryj.infrastructure.model.AbstractEntity;
 
 import java.time.Instant;
@@ -16,6 +13,8 @@ import java.util.UUID;
 @Data
 @Entity
 @NoArgsConstructor
+@Setter
+@Getter
 @Table(name = "library_book_previews")
 class BookPreview extends AbstractEntity {
     @Column(nullable = false, unique = true)

@@ -6,12 +6,12 @@ import io.vavr.control.Try;
 import org.library.thelibraryj.book.dto.BookCreationRequest;
 import org.library.thelibraryj.book.dto.BookDetailResponse;
 import org.library.thelibraryj.book.dto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.BookRequest;
+import org.library.thelibraryj.book.dto.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.BookResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
-import org.library.thelibraryj.userDetails.UserDetailsService;
+import org.library.thelibraryj.userInfo.UserInfoService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,13 +25,13 @@ class BookService implements org.library.thelibraryj.book.BookService {
     private final BookDetailRepository bookDetailRepository;
     private final BookPreviewRepository bookPreviewRepository;
     private final BookMapper mapper;
-    private final UserDetailsService userDetailsService;
+    private final UserInfoService userInfoService;
 
-    public BookService(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, BookMapper mapper, UserDetailsService userDetailsService) {
+    public BookService(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, BookMapper mapper, UserInfoService userInfoService) {
         this.bookDetailRepository = bookDetailRepository;
         this.bookPreviewRepository = bookPreviewRepository;
         this.mapper = mapper;
-        this.userDetailsService = userDetailsService;
+        this.userInfoService = userInfoService;
     }
 
     @Override
@@ -66,7 +66,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
 
     @Override
     public Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest) {
-        Either<GeneralError, String> fetchedAuthor = userDetailsService.getUsernameById(bookCreationRequest.authorId());
+        Either<GeneralError, String> fetchedAuthor = userInfoService.getAuthorUsernameAndCheckValid(bookCreationRequest.authorId());
         if(fetchedAuthor.isLeft()) return Either.left(fetchedAuthor.getLeft());
 
         UUID bookId = UUID.randomUUID();
@@ -89,23 +89,23 @@ class BookService implements org.library.thelibraryj.book.BookService {
         return Either.right(mapper.bookToBookResponse(detail, preview));
     }
 
-    public Either<GeneralError, BookResponse> updateBook(BookRequest bookRequest) {
-        Either<GeneralError, BookDetail> detail = getBookDetail(bookRequest.bookId());
+    public Either<GeneralError, BookResponse> updateBook(BookUpdateRequest bookUpdateRequest) {
+        Either<GeneralError, BookDetail> detail = getBookDetail(bookUpdateRequest.bookId());
         if(detail.isLeft()) return Either.left(detail.getLeft());
-        Either<GeneralError, BookPreview> preview = getBookPreview(bookRequest.bookId());
+        Either<GeneralError, BookPreview> preview = getBookPreview(bookUpdateRequest.bookId());
         if(preview.isLeft()) return Either.left(preview.getLeft());
 
         boolean previewChanged = false;
-        if(bookRequest.state() != null) {
-            preview.get().setBookState(bookRequest.state());
+        if(bookUpdateRequest.state() != null) {
+            preview.get().setBookState(bookUpdateRequest.state());
             previewChanged = true;
         }
-        if(bookRequest.title() != null) {
-            preview.get().setTitle(bookRequest.title());
+        if(bookUpdateRequest.title() != null) {
+            preview.get().setTitle(bookUpdateRequest.title());
             previewChanged = true;
         }
-        if(bookRequest.description() != null) {
-            detail.get().setDescription(bookRequest.description());
+        if(bookUpdateRequest.description() != null) {
+            detail.get().setDescription(bookUpdateRequest.description());
             bookDetailRepository.save(detail.get());
         }
         if(previewChanged) bookPreviewRepository.save(preview.get());

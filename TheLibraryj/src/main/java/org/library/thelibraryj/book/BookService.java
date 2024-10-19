@@ -4,7 +4,7 @@ import io.vavr.control.Either;
 import org.library.thelibraryj.book.dto.BookCreationRequest;
 import org.library.thelibraryj.book.dto.BookDetailResponse;
 import org.library.thelibraryj.book.dto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.BookRequest;
+import org.library.thelibraryj.book.dto.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.BookResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 
@@ -16,6 +16,6 @@ public interface BookService {
     Either<GeneralError, BookPreviewResponse> getBookPreviewResponse(UUID previewId);
     List<BookPreviewResponse> getBookPreviewResponses();
     Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest);
-    Either<GeneralError, BookResponse> updateBook(BookRequest bookRequest);
+    Either<GeneralError, BookResponse> updateBook(BookUpdateRequest bookUpdateRequest);
     Either<GeneralError, BookResponse> getBook(String title);
 }
