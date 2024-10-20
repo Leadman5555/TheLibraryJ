@@ -1,4 +1,4 @@
-package org.library.thelibraryj.book.domain;
+package org.library.thelibraryj.userInfo.domain;
 
 import io.hypersistence.utils.spring.repository.BaseJpaRepository;
 import org.springframework.stereotype.Repository;
@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-interface ChapterPreviewRepository extends BaseJpaRepository<ChapterPreview, UUID> {
+interface UserInfoRepository extends BaseJpaRepository<UserInfo, UUID> {
 }

@@ -53,12 +53,12 @@ public class BookServiceTest {
     @Test
     public void testGetBookPreviewResponsesAndCacheResponse(){
         List<BookPreview> baseList = List.of(BookPreview.builder().title("title1").build(), BookPreview.builder().title("title2").build());
-        when(bookPreviewRepository.findAll()).thenReturn(baseList);
+        when(bookPreviewRepository.getAllBookPreviewsEager()).thenReturn(baseList);
         List<BookPreviewResponse> fetchedList = bookService.getBookPreviewResponses();
         List<BookPreviewResponse> expectedList = baseList.stream().map(bookMapper::bookPreviewToBookPreviewResponse).toList();
         Assertions.assertEquals(expectedList, fetchedList);
         fetchedList = bookService.getBookPreviewResponses();
         Assertions.assertEquals(expectedList, fetchedList);
-        verify(bookPreviewRepository, times(1)).findAll();
+        verify(bookPreviewRepository, times(1)).getAllBookPreviewsEager();
     }
 }

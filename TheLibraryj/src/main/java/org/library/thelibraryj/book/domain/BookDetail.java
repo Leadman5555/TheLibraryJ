@@ -1,20 +1,20 @@
 package org.library.thelibraryj.book.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.library.thelibraryj.infrastructure.model.AbstractEntity;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Data
-@Entity
+@Entity(name = "bookDetail")
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Setter
-@Getter
 @Table(name = "library_book_details")
 class BookDetail extends AbstractEntity {
     @Column(nullable = false)
@@ -25,20 +25,31 @@ class BookDetail extends AbstractEntity {
     @Size(max = 2000)
     private String description;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinColumn(name = "book_detail_id", referencedColumnName = "id")
-    private List<ChapterPreview> chapterPreviews;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinColumn(name = "book_detail_id", referencedColumnName = "id")
-    private List<Rating> ratings;
-
     @Builder
-    public BookDetail(UUID id, Long version, Instant createdAt, Instant updatedAt, String author, UUID authorId, String description, List<ChapterPreview> chapters, List<Rating> ratings) {
+    public BookDetail(UUID id, Long version, Instant createdAt, Instant updatedAt, String author, UUID authorId, String description) {
         super(id, version, createdAt, updatedAt);
         this.author = author;
         this.authorId = authorId;
         this.description = description;
-        this.chapterPreviews = chapters;
-        this.ratings = ratings;
     }
+
+//    public void addChapter(ChapterPreview chapterPreview) {
+//        chapterPreviews.add(chapterPreview);
+//        chapterPreview.setBookDetail(this);
+//    }
+//
+//    public void removeChapter(ChapterPreview chapterPreview) {
+//        chapterPreviews.remove(chapterPreview);
+//        chapterPreview.setBookDetail(null);
+//    }
+//
+//    public void addRating(Rating rating) {
+//        ratings.add(rating);
+//        rating.setBookDetail(this);
+//    }
+//
+//    public void removeRating(Rating rating) {
+//        ratings.remove(rating);
+//        rating.setBookDetail(null);
+//    }
 }

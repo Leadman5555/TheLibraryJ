@@ -5,11 +5,12 @@ import lombok.*;
 import org.library.thelibraryj.infrastructure.model.AbstractEntity;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Entity
+@Entity(name = "bookPreview")
 @NoArgsConstructor
 @Setter
 @Getter
@@ -26,19 +27,25 @@ class BookPreview extends AbstractEntity {
     @Column(nullable = false)
     private BookState bookState;
 
+    @ElementCollection(targetClass = BookTag.class, fetch = FetchType.LAZY)
+    @CollectionTable(name = "book_tag", joinColumns =  @JoinColumn(name = "bookPreview_id"))
+    @Column(name = "tag")
+    private List<BookTag> bookTags;
+
     @MapsId
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "bookDetail_id")
     private BookDetail bookDetail;
 
     @Builder
-    public BookPreview(UUID id, Long version, Instant createdAt, Instant updatedAt, String title, int chapterCount, float averageRating, int ratingCount, BookState bookState, BookDetail bookDetail) {
+    public BookPreview(UUID id, Long version, Instant createdAt, Instant updatedAt, String title, int chapterCount, float averageRating, int ratingCount, BookState bookState,
+                       List<BookTag> bookTags) {
         super(id, version, createdAt, updatedAt);
         this.title = title;
         this.chapterCount = chapterCount;
         this.averageRating = averageRating;
         this.ratingCount = ratingCount;
         this.bookState = bookState;
-        this.bookDetail = bookDetail;
+        this.bookTags = bookTags;
     }
 }

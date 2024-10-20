@@ -1,7 +1,9 @@
 package org.library.thelibraryj.book.dto;
 
 import org.library.thelibraryj.book.domain.BookState;
+import org.library.thelibraryj.book.domain.BookTag;
 
+import java.util.List;
 import java.util.UUID;
 
 public record BookPreviewResponse(String title,
@@ -9,5 +11,6 @@ public record BookPreviewResponse(String title,
                                   float averageRating,
                                   int ratingCount,
                                   UUID id,
-                                  BookState bookState) {
+                                  BookState bookState,
+                                  List<BookTag> bookTags) {
 }
