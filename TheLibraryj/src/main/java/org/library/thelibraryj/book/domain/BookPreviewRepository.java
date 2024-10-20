@@ -24,4 +24,6 @@ interface BookPreviewRepository extends BaseJpaRepository<BookPreview, UUID> {
             where bd.id = :id
             """)
     Optional<BookPreview> getBookPreviewEager(UUID id);
+
+    boolean existsByTitle(String title);
 }

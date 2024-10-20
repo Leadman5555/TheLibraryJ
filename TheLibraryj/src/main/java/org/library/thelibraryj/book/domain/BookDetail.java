@@ -4,7 +4,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.library.thelibraryj.infrastructure.model.AbstractEntity;
 
 import java.time.Instant;
@@ -15,7 +19,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Setter
-@Table(name = "library_book_details")
+@Table(name = "library_bookDetails")
 class BookDetail extends AbstractEntity {
     @Column(nullable = false)
     private String author;
@@ -32,24 +36,4 @@ class BookDetail extends AbstractEntity {
         this.authorId = authorId;
         this.description = description;
     }
-
-//    public void addChapter(ChapterPreview chapterPreview) {
-//        chapterPreviews.add(chapterPreview);
-//        chapterPreview.setBookDetail(this);
-//    }
-//
-//    public void removeChapter(ChapterPreview chapterPreview) {
-//        chapterPreviews.remove(chapterPreview);
-//        chapterPreview.setBookDetail(null);
-//    }
-//
-//    public void addRating(Rating rating) {
-//        ratings.add(rating);
-//        rating.setBookDetail(this);
-//    }
-//
-//    public void removeRating(Rating rating) {
-//        ratings.remove(rating);
-//        rating.setBookDetail(null);
-//    }
 }

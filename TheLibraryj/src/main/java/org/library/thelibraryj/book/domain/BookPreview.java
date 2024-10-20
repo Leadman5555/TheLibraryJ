@@ -1,7 +1,20 @@
 package org.library.thelibraryj.book.domain;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.library.thelibraryj.infrastructure.model.AbstractEntity;
 
 import java.time.Instant;
@@ -14,7 +27,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Setter
 @Getter
-@Table(name = "library_book_previews")
+@Table(name = "library_bookPreviews")
 class BookPreview extends AbstractEntity {
     @Column(nullable = false, unique = true)
     private String title;

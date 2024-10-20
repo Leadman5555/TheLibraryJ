@@ -1,13 +1,7 @@
 package org.library.thelibraryj.book;
 
 import io.vavr.control.Either;
-import org.library.thelibraryj.book.dto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.BookResponse;
-import org.library.thelibraryj.book.dto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.RatingRequest;
-import org.library.thelibraryj.book.dto.RatingResponse;
+import org.library.thelibraryj.book.dto.*;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 
 import java.util.List;
@@ -27,6 +21,7 @@ public interface BookService {
     Either<GeneralError, BookResponse> getBook(String title);
 
     Either<GeneralError, RatingResponse> upsertRating(RatingRequest ratingRequest);
+    Either<GeneralError, ChapterPreviewResponse> createChapter(ChapterRequest chapterRequest);
 
     void resetBookPreviewsCache();
 }

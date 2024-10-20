@@ -1,7 +1,7 @@
 package org.library.thelibraryj.book.dto;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-public record ChapterPreviewResponse(String title, UUID id, Instant updatedAt) {
+public record ChapterPreviewResponse(int number, String title, UUID chapterId, LocalDateTime updatedAt) {
 }

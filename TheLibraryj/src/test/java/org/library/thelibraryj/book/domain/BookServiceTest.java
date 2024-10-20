@@ -38,13 +38,12 @@ public class BookServiceTest {
         BookDetail bookDetail = BookDetail.builder()
                 .id(detailId)
                 .author("Sample")
-                .chapters(chapterPreviews)
                 .build();
+        List<ChapterPreviewResponse> mapped2 = bookMapper.chapterPreviewsToChapterPreviewResponseList(chapterPreviews);
         when(bookDetailRepository.findById(detailId)).thenReturn(Optional.ofNullable(bookDetail));
-        BookDetailResponse mapped = bookMapper.bookDetailToBookDetailResponse(bookDetail);
+        BookDetailResponse mapped = bookMapper.bookDetailToBookDetailResponse(bookDetail, mapped2, null);
         BookDetailResponse fetched = bookService.getBookDetailResponse(detailId).get();
         Assertions.assertEquals(mapped, fetched);
-        List<ChapterPreviewResponse> mapped2 = bookMapper.chapterPreviewsToChapterPreviewResponseList(chapterPreviews);
         Assertions.assertEquals(mapped2, fetched.chapterPreviews());
         when(bookDetailRepository.findById(detailId)).thenReturn(Optional.empty());
         Assertions.assertEquals(new BookError.BookDetailEntityNotFound(detailId), bookService.getBookDetailResponse(detailId).getLeft());

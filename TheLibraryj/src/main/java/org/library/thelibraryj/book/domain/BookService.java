@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.HtmlUtils;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -87,6 +87,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
     public Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest) {
         Either<GeneralError, String> fetchedAuthor = userInfoService.getAuthorUsernameAndCheckValid(bookCreationRequest.authorId());
         if (fetchedAuthor.isLeft()) return Either.left(fetchedAuthor.getLeft());
+        if(bookPreviewRepository.existsByTitle(bookCreationRequest.title())) return Either.left(new BookError.DuplicateTitleError());
 
         BookDetail detail = BookDetail.builder()
                 .author(fetchedAuthor.get())
@@ -154,20 +155,24 @@ class BookService implements org.library.thelibraryj.book.BookService {
     public Either<GeneralError, RatingResponse> upsertRating(RatingRequest ratingRequest) {
         if (!userInfoService.existsById(ratingRequest.userId()))
             return Either.left(new UserDetailsError.UserDetailsEntityNotFound(ratingRequest.userId()));
+
         Either<GeneralError, BookPreview> ePreview = getBookPreviewLazy(ratingRequest.bookId());
         if (ePreview.isLeft()) return Either.left(ePreview.getLeft());
+
         Optional<Rating> prevRating = ratingRepository.getRatingForBookAndUser(ratingRequest.bookId(), ratingRequest.userId());
         BookPreview preview = ePreview.get();
         BookDetail detailReference = bookDetailRepository.getReferenceById(ratingRequest.bookId());
+
         final String escapedComment;
         if (ratingRequest.comment() == null) escapedComment = "";
         else escapedComment = escapeHtml(ratingRequest.comment());
+
         if (prevRating.isPresent()) {
             Rating rating = prevRating.get();
             preview.setAverageRating(
                     (preview.getAverageRating() * preview.getRatingCount() - rating.getCurrentRating() + ratingRequest.currentRating()) / preview.getRatingCount()
             );
-            rating.setCurrentRating(rating.getCurrentRating());
+            rating.setCurrentRating(ratingRequest.currentRating());
             rating.setComment(escapedComment);
             ratingRepository.update(rating);
         } else {
@@ -183,7 +188,12 @@ class BookService implements org.library.thelibraryj.book.BookService {
                     .build());
         }
         bookPreviewRepository.update(preview);
-        return Either.right(new RatingResponse(ratingRequest.userId(), ratingRequest.currentRating(), escapedComment, Instant.now()));
+        return Either.right(new RatingResponse(ratingRequest.userId(), ratingRequest.currentRating(), escapedComment, LocalDateTime.now()));
+    }
+
+    @Override
+    public Either<GeneralError, ChapterPreviewResponse> createChapter(ChapterRequest chapterRequest) {
+        return null
     }
 
     public BookResponse getBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager) {

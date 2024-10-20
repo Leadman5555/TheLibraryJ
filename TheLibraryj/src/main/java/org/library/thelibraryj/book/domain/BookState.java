@@ -4,6 +4,6 @@ public enum BookState {
     IN_PROGRESS,
     HIATUS,
     ABANDONED,
-    COMPLETE,
+    COMPLETED,
     UNKNOWN
 }

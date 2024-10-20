@@ -18,11 +18,10 @@ interface RatingRepository extends BaseJpaRepository<Rating, UUID> {
     """)
     List<Rating> getAllRatingsForBook(@Param("id") UUID id);
 
-    List<Rating> getAllByBookDetailId(UUID bookDetailId);
 
     @Query("""
     select r from Rating r
-    where r.bookDetail.id == :bookId and r.userId == :userId
+    where r.userId = :userId and r.bookDetail.id = :bookId
     """)
     Optional<Rating> getRatingForBookAndUser(UUID bookId, UUID userId);
 }
