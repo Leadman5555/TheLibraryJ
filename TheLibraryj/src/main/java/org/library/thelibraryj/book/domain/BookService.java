@@ -3,7 +3,17 @@ package org.library.thelibraryj.book.domain;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import org.library.thelibraryj.book.dto.*;
+import jakarta.validation.constraints.NotEmpty;
+import org.library.thelibraryj.book.dto.BookCreationRequest;
+import org.library.thelibraryj.book.dto.BookDetailResponse;
+import org.library.thelibraryj.book.dto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.BookResponse;
+import org.library.thelibraryj.book.dto.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
+import org.library.thelibraryj.book.dto.ChapterRequest;
+import org.library.thelibraryj.book.dto.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.RatingRequest;
+import org.library.thelibraryj.book.dto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
@@ -17,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.HtmlUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,16 +39,18 @@ class BookService implements org.library.thelibraryj.book.BookService {
     private final BookPreviewRepository bookPreviewRepository;
     private final RatingRepository ratingRepository;
     private final ChapterPreviewRepository chapterPreviewRepository;
+    private final ChapterRepository chapterRepository;
     private final BookMapper mapper;
     private final UserInfoService userInfoService;
 
-    public BookService(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, BookMapper mapper, UserInfoService userInfoService, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository) {
+    public BookService(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, BookMapper mapper, UserInfoService userInfoService, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository) {
         this.bookDetailRepository = bookDetailRepository;
         this.bookPreviewRepository = bookPreviewRepository;
         this.mapper = mapper;
         this.userInfoService = userInfoService;
         this.ratingRepository = ratingRepository;
         this.chapterPreviewRepository = chapterPreviewRepository;
+        this.chapterRepository = chapterRepository;
     }
 
     @Override
@@ -87,7 +100,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
     public Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest) {
         Either<GeneralError, String> fetchedAuthor = userInfoService.getAuthorUsernameAndCheckValid(bookCreationRequest.authorId());
         if (fetchedAuthor.isLeft()) return Either.left(fetchedAuthor.getLeft());
-        if(bookPreviewRepository.existsByTitle(bookCreationRequest.title())) return Either.left(new BookError.DuplicateTitleError());
+        if(bookPreviewRepository.existsByTitle(bookCreationRequest.title())) return Either.left(new BookError.DuplicateTitle());
 
         BookDetail detail = BookDetail.builder()
                 .author(fetchedAuthor.get())
@@ -191,9 +204,93 @@ class BookService implements org.library.thelibraryj.book.BookService {
         return Either.right(new RatingResponse(ratingRequest.userId(), ratingRequest.currentRating(), escapedComment, LocalDateTime.now()));
     }
 
+    public Either<GeneralError, BookDetail> getAndValidateChapterCreation(UUID bookId, UUID authorId) {
+        Either<GeneralError, BookDetail> bookDetail = getBookDetail(bookId);
+        if(bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
+        if(!bookDetail.get().getAuthorId().equals(authorId)) return Either.left(new BookError.UserNotAuthor(authorId));
+        return bookDetail;
+    }
+
     @Override
+    @Transactional
     public Either<GeneralError, ChapterPreviewResponse> createChapter(ChapterRequest chapterRequest) {
-        return null
+        Either<GeneralError, BookDetail> bookDetail = getAndValidateChapterCreation(chapterRequest.bookId(), chapterRequest.authorId());
+        if(bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
+        Chapter chapterToSave = Chapter.builder()
+                .text(chapterRequest.chapterText())
+                .build();
+        ChapterPreview previewToSave = ChapterPreview.builder()
+                .title(chapterRequest.title() == null ? "No title" : escapeHtml(chapterRequest.title()))
+                .number(chapterRequest.number())
+                .bookDetail(bookDetail.get())
+                .build();
+        chapterToSave.setChapterPreview(previewToSave);
+        chapterPreviewRepository.persist(previewToSave);
+        chapterRepository.persistAndFlush(chapterToSave);
+        return Either.right(mapper.chapterPreviewToChapterPreviewResponse(previewToSave));
+    }
+
+    @Override
+    @Transactional
+    public Either<GeneralError, List<ChapterPreviewResponse>> createChapters(@NotEmpty List<ChapterRequest> chapterRequests) {
+        Either<GeneralError, BookDetail> bookDetail = getAndValidateChapterCreation(chapterRequests.getFirst().bookId(), chapterRequests.getFirst().authorId());
+        if(bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
+        List<ChapterPreview> previewsToSave = new ArrayList<>();
+        for (ChapterRequest chapterRequest : chapterRequests) {
+            Chapter chapterToSave = Chapter.builder()
+                    .text(chapterRequest.chapterText())
+                    .build();
+            ChapterPreview previewToSave = ChapterPreview.builder()
+                    .title(chapterRequest.title() == null ? "No title" : escapeHtml(chapterRequest.title()))
+                    .number(chapterRequest.number())
+                    .bookDetail(bookDetail.get())
+                    .build();
+            chapterToSave.setChapterPreview(previewToSave);
+            previewsToSave.add(previewToSave);
+            chapterRepository.persist(chapterToSave);
+            chapterRepository.persist(chapterToSave);
+        }
+        chapterRepository.flush();
+        return Either.right(mapper.chapterPreviewsToChapterPreviewResponseList(previewsToSave));
+    }
+
+    public Either<GeneralError, UUID> getAuthorId(UUID bookId) {
+        return Try.of(() -> bookDetailRepository.getAuthorId(bookId))
+                .toEither()
+                .map(Option::ofOptional)
+                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
+                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookDetailEntityNotFound(bookId)));
+    }
+
+    @Override
+    @Transactional
+    public Either<GeneralError, Boolean> deleteChapter(ContentRemovalRequest removalRequest,int chapterNumber){
+        Either<GeneralError, UUID> fetchedAuthorId = getAuthorId(removalRequest.authorId());
+        if(fetchedAuthorId.isLeft()) return Either.left(fetchedAuthorId.getLeft());
+        if(!fetchedAuthorId.get().equals(removalRequest.authorId())) return Either.left(new BookError.UserNotAuthor(removalRequest.authorId()));
+        Either<GeneralError, UUID> fetchedChapterId = Try.of(() -> chapterPreviewRepository.findChapterPreviewByBookIdAndNumber(removalRequest.authorId(), chapterNumber))
+                .toEither()
+                .map(Option::ofOptional)
+                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
+                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.ChapterNotFound(removalRequest.bookId(), chapterNumber)));
+        if(fetchedChapterId.isLeft()) return Either.left(fetchedChapterId.getLeft());
+        chapterPreviewRepository.deleteById(fetchedChapterId.get());
+        chapterRepository.deleteById(fetchedChapterId.get());
+        return Either.right(true);
+    }
+
+    @Override
+    @Transactional
+    public Either<GeneralError, Boolean> deleteBook(ContentRemovalRequest removalRequest){
+        Either<GeneralError, UUID> fetchedAuthorId = getAuthorId(removalRequest.authorId());
+        if(fetchedAuthorId.isLeft()) return Either.left(fetchedAuthorId.getLeft());
+        if(!fetchedAuthorId.get().equals(removalRequest.authorId())) return Either.left(new BookError.UserNotAuthor(removalRequest.authorId()));
+        chapterRepository.deleteBook(removalRequest.bookId());
+        chapterRepository.deleteBook(removalRequest.bookId());
+        ratingRepository.deleteBook(removalRequest.bookId());
+        bookPreviewRepository.deleteById(removalRequest.bookId());
+        bookDetailRepository.deleteById(removalRequest.bookId());
+        return Either.right(true);
     }
 
     public BookResponse getBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager) {

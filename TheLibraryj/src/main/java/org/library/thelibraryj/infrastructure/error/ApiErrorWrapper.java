@@ -27,7 +27,9 @@ public class ApiErrorWrapper {
                     "Book data (details) missing. Id: " + e.missingEntityId());
             case BookError.BookPreviewEntityNotFound e -> getErrorResponse(error, HttpStatus.BAD_REQUEST,
                     "Book data (preview) missing. Id: " + e.missingEntityId());
-            case BookError.DuplicateTitleError e -> getErrorResponse(error, HttpStatus.CONFLICT, "Duplicate title");
+            case BookError.DuplicateTitle e -> getErrorResponse(error, HttpStatus.CONFLICT, "Duplicate title.");
+            case BookError.UserNotAuthor e -> getErrorResponse(error, HttpStatus.CONFLICT, "User is not the book author. Id: " + e.userId());
+            case BookError.ChapterNotFound e -> getErrorResponse(error, HttpStatus.BAD_REQUEST, "Chapter not found. BookId: " + e.bookId() + "; Chapter number: " + e.chapterNumber());
             case UserDetailsError.UserDetailsEntityNotFound e ->  getErrorResponse(error, HttpStatus.BAD_REQUEST,
                     "User data (details) missing. Id: " + e.missingEntityId());
             case UserDetailsError.UserAccountTooYoung e ->getErrorResponse(error, HttpStatus.BAD_REQUEST,

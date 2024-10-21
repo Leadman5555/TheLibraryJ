@@ -1,6 +1,7 @@
 package org.library.thelibraryj.book.domain;
 
 import io.hypersistence.utils.spring.repository.BaseJpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -26,4 +27,11 @@ interface BookPreviewRepository extends BaseJpaRepository<BookPreview, UUID> {
     Optional<BookPreview> getBookPreviewEager(UUID id);
 
     boolean existsByTitle(String title);
+
+    @Modifying
+    @Query("""
+    delete from bookPreview
+    where id = :bookId
+    """)
+    void deleteBook(UUID bookId);
 }

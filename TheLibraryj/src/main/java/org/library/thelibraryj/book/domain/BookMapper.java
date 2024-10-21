@@ -24,6 +24,8 @@ interface BookMapper {
 
     List<RatingResponse> ratingsToRatingResponseList(List<Rating> ratings);
 
+    ChapterPreviewResponse chapterPreviewToChapterPreviewResponse(ChapterPreview chapterPreview);
+
     static LocalDateTime map(Instant value){
         return LocalDateTime.ofInstant(value, ZoneOffset.ofHours(1));
     }

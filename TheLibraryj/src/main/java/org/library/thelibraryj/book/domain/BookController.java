@@ -4,9 +4,12 @@ import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.BookCreationRequest;
 import org.library.thelibraryj.book.dto.BookPreviewResponse;
 import org.library.thelibraryj.book.dto.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.ChapterRequest;
+import org.library.thelibraryj.book.dto.ContentRemovalRequest;
 import org.library.thelibraryj.book.dto.RatingRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -59,10 +62,31 @@ record BookController(BookService bookService) implements ErrorHandling {
         return handle(bookService.upsertRating(ratingRequest));
     }
 
+    @PutMapping("/book/chapter")
+    public ResponseEntity<String> upsertRating(@RequestBody ChapterRequest chapterRequest) {
+        return handle(bookService.createChapter(chapterRequest));
+    }
+
+    @PutMapping("/book/chapter/batch")
+    public ResponseEntity<String> upsertRating(@RequestBody List<ChapterRequest> chapterRequests) {
+        return handle(bookService.createChapters(chapterRequests));
+    }
+
+
     @PutMapping("/flush")
     public ResponseEntity<String> flushPreviewsCache() {
         bookService.resetBookPreviewsCache();
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/book/chapter/{number}")
+    public ResponseEntity<String> deleteChapter(@PathVariable Integer number, @RequestBody ContentRemovalRequest contentRemovalRequest) {
+        return handle(bookService.deleteChapter(contentRemovalRequest, number));
+    }
+
+    @DeleteMapping("/book")
+    public ResponseEntity<String> deleteBook(@RequestBody ContentRemovalRequest contentRemovalRequest) {
+        return handle(bookService.deleteBook(contentRemovalRequest));
     }
 
 }
