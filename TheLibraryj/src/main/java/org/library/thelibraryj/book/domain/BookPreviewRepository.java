@@ -26,6 +26,9 @@ interface BookPreviewRepository extends BaseJpaRepository<BookPreview, UUID> {
             """)
     Optional<BookPreview> getBookPreviewEager(UUID id);
 
+    @Query("""
+    select (count(b) > 0) from bookPreview b where b.title = :title
+    """)
     boolean existsByTitle(String title);
 
     @Modifying

@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.library.thelibraryj.infrastructure.model.AbstractEntity;
 
 import java.time.Instant;
@@ -18,7 +17,6 @@ import java.util.UUID;
 @Entity(name = "bookDetail")
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-@Setter
 @Table(name = "library_bookDetails")
 class BookDetail extends AbstractEntity {
     @Column(nullable = false)

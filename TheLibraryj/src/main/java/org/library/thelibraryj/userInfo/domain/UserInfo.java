@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Data
-@Entity
+@Entity(name = "userInfo")
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @Table(name = "library_user_info")

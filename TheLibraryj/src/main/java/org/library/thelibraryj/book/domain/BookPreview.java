@@ -1,21 +1,12 @@
 package org.library.thelibraryj.book.domain;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.library.thelibraryj.infrastructure.model.AbstractEntity;
+import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
 import java.util.List;
@@ -25,8 +16,6 @@ import java.util.UUID;
 @Data
 @Entity(name = "bookPreview")
 @NoArgsConstructor
-@Setter
-@Getter
 @Table(name = "library_bookPreviews")
 class BookPreview extends AbstractEntity {
     @Column(nullable = false, unique = true)
@@ -60,5 +49,9 @@ class BookPreview extends AbstractEntity {
         this.ratingCount = ratingCount;
         this.bookState = bookState;
         this.bookTags = bookTags;
+    }
+    @Transient
+    public void increaseChapterCount(int increment) {
+        this.chapterCount+=increment;
     }
 }

@@ -15,6 +15,7 @@ interface ChapterPreviewRepository extends BaseJpaRepository<ChapterPreview, UUI
     @Query("""
     select c from  chapterPreview c
     where c.bookDetail.id = :id
+    order by c.number asc
     """)
     List<ChapterPreview> getAllChapterPreviewsForBook(@Param("id") UUID id);
 

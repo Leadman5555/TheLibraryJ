@@ -100,7 +100,8 @@ class BookService implements org.library.thelibraryj.book.BookService {
     public Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest) {
         Either<GeneralError, String> fetchedAuthor = userInfoService.getAuthorUsernameAndCheckValid(bookCreationRequest.authorId());
         if (fetchedAuthor.isLeft()) return Either.left(fetchedAuthor.getLeft());
-        if(bookPreviewRepository.existsByTitle(bookCreationRequest.title())) return Either.left(new BookError.DuplicateTitle());
+        if (bookPreviewRepository.existsByTitle(bookCreationRequest.title()))
+            return Either.left(new BookError.DuplicateTitle());
 
         BookDetail detail = BookDetail.builder()
                 .author(fetchedAuthor.get())
@@ -117,7 +118,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
         preview.setBookDetail(detail);
         bookDetailRepository.persist(detail);
         bookPreviewRepository.persist(preview);
-        return Either.right(getBookResponse(detail, preview));
+        return Either.right(getLazyBookResponse(detail, preview));
     }
 
     @Transactional
@@ -147,7 +148,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
         }
         if (previewChanged) bookPreviewRepository.update(preview.get());
 
-        return Either.right(getBookResponse(detail.get(), preview.get()));
+        return Either.right(getEagerBookResponse(detail.get(), preview.get()));
     }
 
     @Override
@@ -160,7 +161,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
         if (preview.isLeft()) return Either.left(preview.getLeft());
         Either<GeneralError, BookDetail> detail = getBookDetail(preview.get().getId());
         if (detail.isLeft()) return Either.left(detail.getLeft());
-        return Either.right(getBookResponse(detail.get(), preview.get()));
+        return Either.right(getEagerBookResponse(detail.get(), preview.get()));
     }
 
     @Transactional
@@ -190,7 +191,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
             ratingRepository.update(rating);
         } else {
             preview.setAverageRating(
-                    (preview.getAverageRating() + ratingRequest.currentRating()) / (preview.getRatingCount() + 1)
+                    (preview.getAverageRating() * preview.getRatingCount() + ratingRequest.currentRating()) / (preview.getRatingCount() + 1)
             );
             preview.setRatingCount(preview.getRatingCount() + 1);
             ratingRepository.persist(Rating.builder()
@@ -206,8 +207,8 @@ class BookService implements org.library.thelibraryj.book.BookService {
 
     public Either<GeneralError, BookDetail> getAndValidateChapterCreation(UUID bookId, UUID authorId) {
         Either<GeneralError, BookDetail> bookDetail = getBookDetail(bookId);
-        if(bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
-        if(!bookDetail.get().getAuthorId().equals(authorId)) return Either.left(new BookError.UserNotAuthor(authorId));
+        if (bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
+        if (!bookDetail.get().getAuthorId().equals(authorId)) return Either.left(new BookError.UserNotAuthor(authorId));
         return bookDetail;
     }
 
@@ -215,7 +216,9 @@ class BookService implements org.library.thelibraryj.book.BookService {
     @Transactional
     public Either<GeneralError, ChapterPreviewResponse> createChapter(ChapterRequest chapterRequest) {
         Either<GeneralError, BookDetail> bookDetail = getAndValidateChapterCreation(chapterRequest.bookId(), chapterRequest.authorId());
-        if(bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
+        if (bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
+        Either<GeneralError, BookPreview> bookPreview = getBookPreviewLazy(chapterRequest.bookId());
+        if (bookPreview.isLeft()) return Either.left(bookPreview.getLeft());
         Chapter chapterToSave = Chapter.builder()
                 .text(chapterRequest.chapterText())
                 .build();
@@ -225,7 +228,9 @@ class BookService implements org.library.thelibraryj.book.BookService {
                 .bookDetail(bookDetail.get())
                 .build();
         chapterToSave.setChapterPreview(previewToSave);
-        chapterPreviewRepository.persist(previewToSave);
+        bookPreview.get().increaseChapterCount(1);
+        bookPreviewRepository.update(bookPreview.get());
+        previewToSave = chapterPreviewRepository.persist(previewToSave);
         chapterRepository.persistAndFlush(chapterToSave);
         return Either.right(mapper.chapterPreviewToChapterPreviewResponse(previewToSave));
     }
@@ -234,7 +239,9 @@ class BookService implements org.library.thelibraryj.book.BookService {
     @Transactional
     public Either<GeneralError, List<ChapterPreviewResponse>> createChapters(@NotEmpty List<ChapterRequest> chapterRequests) {
         Either<GeneralError, BookDetail> bookDetail = getAndValidateChapterCreation(chapterRequests.getFirst().bookId(), chapterRequests.getFirst().authorId());
-        if(bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
+        if (bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
+        Either<GeneralError, BookPreview> bookPreview = getBookPreviewLazy(chapterRequests.getFirst().bookId());
+        if (bookPreview.isLeft()) return Either.left(bookPreview.getLeft());
         List<ChapterPreview> previewsToSave = new ArrayList<>();
         for (ChapterRequest chapterRequest : chapterRequests) {
             Chapter chapterToSave = Chapter.builder()
@@ -246,10 +253,11 @@ class BookService implements org.library.thelibraryj.book.BookService {
                     .bookDetail(bookDetail.get())
                     .build();
             chapterToSave.setChapterPreview(previewToSave);
-            previewsToSave.add(previewToSave);
-            chapterRepository.persist(chapterToSave);
+            previewsToSave.add(chapterPreviewRepository.persist(previewToSave));
             chapterRepository.persist(chapterToSave);
         }
+        bookPreview.get().increaseChapterCount(chapterRequests.size());
+        bookPreviewRepository.update(bookPreview.get());
         chapterRepository.flush();
         return Either.right(mapper.chapterPreviewsToChapterPreviewResponseList(previewsToSave));
     }
@@ -264,16 +272,17 @@ class BookService implements org.library.thelibraryj.book.BookService {
 
     @Override
     @Transactional
-    public Either<GeneralError, Boolean> deleteChapter(ContentRemovalRequest removalRequest,int chapterNumber){
+    public Either<GeneralError, Boolean> deleteChapter(ContentRemovalRequest removalRequest, int chapterNumber) {
         Either<GeneralError, UUID> fetchedAuthorId = getAuthorId(removalRequest.authorId());
-        if(fetchedAuthorId.isLeft()) return Either.left(fetchedAuthorId.getLeft());
-        if(!fetchedAuthorId.get().equals(removalRequest.authorId())) return Either.left(new BookError.UserNotAuthor(removalRequest.authorId()));
+        if (fetchedAuthorId.isLeft()) return Either.left(fetchedAuthorId.getLeft());
+        if (!fetchedAuthorId.get().equals(removalRequest.authorId()))
+            return Either.left(new BookError.UserNotAuthor(removalRequest.authorId()));
         Either<GeneralError, UUID> fetchedChapterId = Try.of(() -> chapterPreviewRepository.findChapterPreviewByBookIdAndNumber(removalRequest.authorId(), chapterNumber))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
                 .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.ChapterNotFound(removalRequest.bookId(), chapterNumber)));
-        if(fetchedChapterId.isLeft()) return Either.left(fetchedChapterId.getLeft());
+        if (fetchedChapterId.isLeft()) return Either.left(fetchedChapterId.getLeft());
         chapterPreviewRepository.deleteById(fetchedChapterId.get());
         chapterRepository.deleteById(fetchedChapterId.get());
         return Either.right(true);
@@ -281,10 +290,11 @@ class BookService implements org.library.thelibraryj.book.BookService {
 
     @Override
     @Transactional
-    public Either<GeneralError, Boolean> deleteBook(ContentRemovalRequest removalRequest){
+    public Either<GeneralError, Boolean> deleteBook(ContentRemovalRequest removalRequest) {
         Either<GeneralError, UUID> fetchedAuthorId = getAuthorId(removalRequest.authorId());
-        if(fetchedAuthorId.isLeft()) return Either.left(fetchedAuthorId.getLeft());
-        if(!fetchedAuthorId.get().equals(removalRequest.authorId())) return Either.left(new BookError.UserNotAuthor(removalRequest.authorId()));
+        if (fetchedAuthorId.isLeft()) return Either.left(fetchedAuthorId.getLeft());
+        if (!fetchedAuthorId.get().equals(removalRequest.authorId()))
+            return Either.left(new BookError.UserNotAuthor(removalRequest.authorId()));
         chapterRepository.deleteBook(removalRequest.bookId());
         chapterRepository.deleteBook(removalRequest.bookId());
         ratingRepository.deleteBook(removalRequest.bookId());
@@ -293,7 +303,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
         return Either.right(true);
     }
 
-    public BookResponse getBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager) {
+    public BookResponse getEagerBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager) {
         return new BookResponse(
                 bookPreviewEager.getTitle(),
                 bookDetail.getAuthor(),
@@ -304,6 +314,22 @@ class BookService implements org.library.thelibraryj.book.BookService {
                 bookPreviewEager.getRatingCount(),
                 getChapterPreviewResponsesForBook(bookDetail.getId()),
                 getRatingResponsesForBook(bookDetail.getId()),
+                bookPreviewEager.getBookTags(),
+                bookPreviewEager.getBookState()
+        );
+    }
+
+    private static BookResponse getLazyBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager) {
+        return new BookResponse(
+                bookPreviewEager.getTitle(),
+                bookDetail.getAuthor(),
+                bookDetail.getAuthorId(),
+                bookDetail.getDescription(),
+                bookPreviewEager.getChapterCount(),
+                bookPreviewEager.getAverageRating(),
+                bookPreviewEager.getRatingCount(),
+                List.of(),
+                List.of(),
                 bookPreviewEager.getBookTags(),
                 bookPreviewEager.getBookState()
         );
