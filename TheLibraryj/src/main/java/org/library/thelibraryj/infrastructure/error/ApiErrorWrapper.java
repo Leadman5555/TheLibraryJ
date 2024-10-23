@@ -23,14 +23,14 @@ public class ApiErrorWrapper {
 
     private static ApiErrorResponse generateWrapper(GeneralError error){
         return switch (error){
-            case BookError.BookDetailEntityNotFound e -> getErrorResponse(error, HttpStatus.BAD_REQUEST,
+            case BookError.BookDetailEntityNotFound e -> getErrorResponse(error, HttpStatus.NOT_FOUND,
                     "Book data (details) missing. Id: " + e.missingEntityId());
-            case BookError.BookPreviewEntityNotFound e -> getErrorResponse(error, HttpStatus.BAD_REQUEST,
+            case BookError.BookPreviewEntityNotFound e -> getErrorResponse(error, HttpStatus.NOT_FOUND,
                     "Book data (preview) missing. Id: " + e.missingEntityId());
             case BookError.DuplicateTitle e -> getErrorResponse(error, HttpStatus.CONFLICT, "Duplicate title.");
             case BookError.UserNotAuthor e -> getErrorResponse(error, HttpStatus.CONFLICT, "User is not the book author. Id: " + e.userId());
-            case BookError.ChapterNotFound e -> getErrorResponse(error, HttpStatus.BAD_REQUEST, "Chapter not found. BookId: " + e.bookId() + "; Chapter number: " + e.chapterNumber());
-            case UserDetailsError.UserDetailsEntityNotFound e ->  getErrorResponse(error, HttpStatus.BAD_REQUEST,
+            case BookError.ChapterNotFound e -> getErrorResponse(error, HttpStatus.NOT_FOUND, "Chapter not found. BookId: " + e.bookId() + "; Chapter number: " + e.chapterNumber());
+            case UserDetailsError.UserDetailsEntityNotFound e ->  getErrorResponse(error, HttpStatus.NOT_FOUND,
                     "User data (details) missing. Id: " + e.missingEntityId());
             case UserDetailsError.UserAccountTooYoung e ->getErrorResponse(error, HttpStatus.BAD_REQUEST,
                     "User account too young to complete the desired action. Id: " + e.userId());

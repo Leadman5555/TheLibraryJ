@@ -12,6 +12,7 @@ import org.library.thelibraryj.book.dto.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.ChapterRequest;
 import org.library.thelibraryj.book.dto.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.ContentRemovalSuccess;
 import org.library.thelibraryj.book.dto.RatingRequest;
 import org.library.thelibraryj.book.dto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
@@ -113,7 +114,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
                 .ratingCount(0)
                 .averageRating(0)
                 .bookState(BookState.UNKNOWN)
-                .bookTags(bookCreationRequest.tags())
+                .bookTags(bookCreationRequest.tags().isEmpty() ? List.of(BookTag.UNTAGGED) : bookCreationRequest.tags())
                 .build();
         preview.setBookDetail(detail);
         bookDetailRepository.persist(detail);
@@ -272,7 +273,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
 
     @Override
     @Transactional
-    public Either<GeneralError, Boolean> deleteChapter(ContentRemovalRequest removalRequest, int chapterNumber) {
+    public Either<GeneralError, ContentRemovalSuccess> deleteChapter(ContentRemovalRequest removalRequest, int chapterNumber) {
         Either<GeneralError, UUID> fetchedAuthorId = getAuthorId(removalRequest.authorId());
         if (fetchedAuthorId.isLeft()) return Either.left(fetchedAuthorId.getLeft());
         if (!fetchedAuthorId.get().equals(removalRequest.authorId()))
@@ -285,22 +286,22 @@ class BookService implements org.library.thelibraryj.book.BookService {
         if (fetchedChapterId.isLeft()) return Either.left(fetchedChapterId.getLeft());
         chapterPreviewRepository.deleteById(fetchedChapterId.get());
         chapterRepository.deleteById(fetchedChapterId.get());
-        return Either.right(true);
+        return Either.right(new ContentRemovalSuccess(removalRequest.bookId(), removalRequest.authorId()));
     }
 
     @Override
     @Transactional
-    public Either<GeneralError, Boolean> deleteBook(ContentRemovalRequest removalRequest) {
+    public Either<GeneralError, ContentRemovalSuccess> deleteBook(ContentRemovalRequest removalRequest) {
         Either<GeneralError, UUID> fetchedAuthorId = getAuthorId(removalRequest.authorId());
         if (fetchedAuthorId.isLeft()) return Either.left(fetchedAuthorId.getLeft());
         if (!fetchedAuthorId.get().equals(removalRequest.authorId()))
             return Either.left(new BookError.UserNotAuthor(removalRequest.authorId()));
         chapterRepository.deleteBook(removalRequest.bookId());
-        chapterRepository.deleteBook(removalRequest.bookId());
+        chapterPreviewRepository.deleteBook(removalRequest.bookId());
         ratingRepository.deleteBook(removalRequest.bookId());
         bookPreviewRepository.deleteById(removalRequest.bookId());
         bookDetailRepository.deleteById(removalRequest.bookId());
-        return Either.right(true);
+        return Either.right(new ContentRemovalSuccess(removalRequest.bookId(), removalRequest.authorId()));
     }
 
     public BookResponse getEagerBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager) {

@@ -5,7 +5,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.library.thelibraryj.book.dto.*;
+import org.library.thelibraryj.book.dto.BookCreationRequest;
+import org.library.thelibraryj.book.dto.BookDetailResponse;
+import org.library.thelibraryj.book.dto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.BookResponse;
+import org.library.thelibraryj.book.dto.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
+import org.library.thelibraryj.book.dto.ChapterRequest;
+import org.library.thelibraryj.book.dto.RatingRequest;
+import org.library.thelibraryj.book.dto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.mockito.InjectMocks;
@@ -64,7 +72,7 @@ public class BookServiceTest {
                 .title(title)
                 .bookState(BookState.UNKNOWN)
                 .averageRating(0)
-                .bookTags(List.of())
+                .bookTags(List.of(BookTag.UNTAGGED))
                 .ratingCount(0).build();
         bookPreview.setBookDetail(bookDetail);
         chapterPreview = new ChapterPreview(UUID.randomUUID(), 0L, Instant.now(), Instant.now(), title, 1, bookDetail);

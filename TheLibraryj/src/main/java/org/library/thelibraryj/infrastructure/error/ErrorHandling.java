@@ -8,12 +8,13 @@ import io.vavr.control.Either;
 import io.vavr.control.Try;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.exception.JsonDeserializationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 public interface ErrorHandling {
     ObjectWriter ow = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).registerModule(new JavaTimeModule()).writerWithDefaultPrettyPrinter();
-    private static ResponseEntity<String> createSuccessResponse(Object responseBody) {
-        return ResponseEntity.status(200).body(toJson(responseBody));
+    private static ResponseEntity<String> createSuccessResponse(Object responseBody, HttpStatus successReturn) {
+        return ResponseEntity.status(successReturn).body(toJson(responseBody));
     }
 
     private static ResponseEntity<String> createErrorResponse(ApiErrorWrapper errorWrapper) {
@@ -25,8 +26,8 @@ public interface ErrorHandling {
                 .getOrElseThrow(e ->new JsonDeserializationException(object.getClass().getSimpleName()));
     }
 
-    default ResponseEntity<String> handle(Either<GeneralError, ?> serviceReturn){
+    default ResponseEntity<String> handle(Either<GeneralError, ?> serviceReturn, HttpStatus successReturn){
         return serviceReturn.mapLeft(ApiErrorWrapper::new)
-                .fold(ErrorHandling::createErrorResponse, ErrorHandling::createSuccessResponse);
+                .fold(ErrorHandling::createErrorResponse, e -> createSuccessResponse(e, successReturn));
     }
 }

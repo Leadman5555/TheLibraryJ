@@ -60,7 +60,7 @@ public class BookControllerTest {
         mockMvc.perform(get(ENDPOINT + "/" + invalidId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.message", is("Book data (details) missing. Id: " + invalidId)));
     }
 }

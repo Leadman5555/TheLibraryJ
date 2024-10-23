@@ -9,6 +9,7 @@ import org.library.thelibraryj.book.dto.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.ChapterRequest;
 import org.library.thelibraryj.book.dto.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.ContentRemovalSuccess;
 import org.library.thelibraryj.book.dto.RatingRequest;
 import org.library.thelibraryj.book.dto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
@@ -33,9 +34,9 @@ public interface BookService {
     Either<GeneralError, ChapterPreviewResponse> createChapter(ChapterRequest chapterRequest);
     Either<GeneralError, List<ChapterPreviewResponse>> createChapters(List<ChapterRequest> chapterRequests);
 
-    Either<GeneralError, Boolean> deleteChapter(ContentRemovalRequest contentRemovalRequest,int chapterNumber);
+    Either<GeneralError, ContentRemovalSuccess> deleteChapter(ContentRemovalRequest contentRemovalRequest, int chapterNumber);
 
-    Either<GeneralError, Boolean> deleteBook(ContentRemovalRequest contentRemovalRequest);
+    Either<GeneralError, ContentRemovalSuccess> deleteBook(ContentRemovalRequest contentRemovalRequest);
 
     void resetBookPreviewsCache();
 }
