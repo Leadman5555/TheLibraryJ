@@ -27,7 +27,7 @@ class Chapter extends AbstractEntity {
 
     @MapsId
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "chapterPreview_id")
+    @JoinColumn(name = "chapter_preview_id")
     private ChapterPreview chapterPreview;
 
     @Builder

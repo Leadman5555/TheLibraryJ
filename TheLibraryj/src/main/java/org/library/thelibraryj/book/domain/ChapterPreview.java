@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @Data
 @Entity(name = "chapterPreview")
-@Table(name = "library_chapterPreviews")
+@Table(name = "library_chapter_previews")
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 class ChapterPreview extends AbstractEntity {
@@ -27,7 +27,7 @@ class ChapterPreview extends AbstractEntity {
     private int number;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "bookDetail_id")
+    @JoinColumn(name = "book_detail_id")
     private BookDetail bookDetail;
 
     @Builder

@@ -30,7 +30,7 @@ class Rating extends AbstractEntity {
     private String comment;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "bookDetail_id")
+    @JoinColumn(name = "book_detail_id")
     private BookDetail bookDetail;
 
     @Builder

@@ -18,7 +18,7 @@ import org.library.thelibraryj.book.dto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
-import org.library.thelibraryj.infrastructure.error.errorTypes.UserDetailsError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -65,7 +65,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
         return Either.left(fetched.getLeft());
     }
 
-    public Either<GeneralError, BookDetail> getBookDetail(UUID detailId) {
+    Either<GeneralError, BookDetail> getBookDetail(UUID detailId) {
         return Try.of(() -> bookDetailRepository.findById(detailId))
                 .toEither()
                 .map(Option::ofOptional)
@@ -80,7 +80,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
         return Either.left(fetched.getLeft());
     }
 
-    public Either<GeneralError, BookPreview> getBookPreviewLazy(UUID previewId) {
+    Either<GeneralError, BookPreview> getBookPreviewLazy(UUID previewId) {
         return Try.of(() -> bookPreviewRepository.findById(previewId))
                 .toEither()
                 .map(Option::ofOptional)
@@ -88,7 +88,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
                 .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(previewId, null)));
     }
 
-    public Either<GeneralError, BookPreview> getBookPreviewEager(UUID previewId) {
+    Either<GeneralError, BookPreview> getBookPreviewEager(UUID previewId) {
         return Try.of(() -> bookPreviewRepository.getBookPreviewEager(previewId))
                 .toEither()
                 .map(Option::ofOptional)
@@ -169,7 +169,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
     @Override
     public Either<GeneralError, RatingResponse> upsertRating(RatingRequest ratingRequest) {
         if (!userInfoService.existsById(ratingRequest.userId()))
-            return Either.left(new UserDetailsError.UserDetailsEntityNotFound(ratingRequest.userId()));
+            return Either.left(new UserInfoError.UserInfoEntityNotFound(ratingRequest.userId()));
 
         Either<GeneralError, BookPreview> ePreview = getBookPreviewLazy(ratingRequest.bookId());
         if (ePreview.isLeft()) return Either.left(ePreview.getLeft());
@@ -206,7 +206,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
         return Either.right(new RatingResponse(ratingRequest.userId(), ratingRequest.currentRating(), escapedComment, LocalDateTime.now()));
     }
 
-    public Either<GeneralError, BookDetail> getAndValidateChapterCreation(UUID bookId, UUID authorId) {
+    Either<GeneralError, BookDetail> getAndValidateChapterCreation(UUID bookId, UUID authorId) {
         Either<GeneralError, BookDetail> bookDetail = getBookDetail(bookId);
         if (bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
         if (!bookDetail.get().getAuthorId().equals(authorId)) return Either.left(new BookError.UserNotAuthor(authorId));
@@ -263,7 +263,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
         return Either.right(mapper.chapterPreviewsToChapterPreviewResponseList(previewsToSave));
     }
 
-    public Either<GeneralError, UUID> getAuthorId(UUID bookId) {
+    Either<GeneralError, UUID> getAuthorId(UUID bookId) {
         return Try.of(() -> bookDetailRepository.getAuthorId(bookId))
                 .toEither()
                 .map(Option::ofOptional)
@@ -304,7 +304,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
         return Either.right(new ContentRemovalSuccess(removalRequest.bookId(), removalRequest.authorId()));
     }
 
-    public BookResponse getEagerBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager) {
+    BookResponse getEagerBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager) {
         return new BookResponse(
                 bookPreviewEager.getTitle(),
                 bookDetail.getAuthor(),
@@ -336,20 +336,29 @@ class BookService implements org.library.thelibraryj.book.BookService {
         );
     }
 
-    public List<RatingResponse> getRatingResponsesForBook(UUID bookId) {
+    List<RatingResponse> getRatingResponsesForBook(UUID bookId) {
         return mapper.ratingsToRatingResponseList(getRatingsForBook(bookId));
     }
 
-    public List<Rating> getRatingsForBook(UUID bookId) {
+    List<Rating> getRatingsForBook(UUID bookId) {
         return ratingRepository.getAllRatingsForBook(bookId);
     }
 
-    public List<ChapterPreviewResponse> getChapterPreviewResponsesForBook(UUID bookId) {
+    List<ChapterPreviewResponse> getChapterPreviewResponsesForBook(UUID bookId) {
         return mapper.chapterPreviewsToChapterPreviewResponseList(getChapterPreviewsForBook(bookId));
     }
 
-    public List<ChapterPreview> getChapterPreviewsForBook(UUID bookId) {
+    List<ChapterPreview> getChapterPreviewsForBook(UUID bookId) {
         return chapterPreviewRepository.getAllChapterPreviewsForBook(bookId);
+    }
+
+    @Transactional
+    public void updateAuthorUsername(UUID authorId, String newUsername) {
+        List<BookDetail> toUpdate = bookDetailRepository.getBookDetailByAuthorId(authorId);
+        for (BookDetail bookDetail : toUpdate) {
+            bookDetail.setAuthor(newUsername);
+            bookDetailRepository.update(bookDetail);
+        }
     }
 
     @Override

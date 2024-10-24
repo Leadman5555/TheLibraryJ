@@ -28,7 +28,7 @@ public class BookControllerTest {
     @MockBean
     private BookService bookService;
 
-    private static final String URL_BASE = "/v0.1";
+    private static final String URL_BASE = "/v0.2";
 
     private static final String ENDPOINT =  URL_BASE + "/books";
 
