@@ -21,7 +21,7 @@ import java.util.UUID;
 @Table(name = "library_chapters")
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-public class Chapter extends AbstractEntity {
+class Chapter extends AbstractEntity {
     @Column
     private String text;
 
