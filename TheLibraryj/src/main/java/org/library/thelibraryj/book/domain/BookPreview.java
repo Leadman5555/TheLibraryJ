@@ -24,7 +24,7 @@ import java.util.UUID;
 @Data
 @Entity(name = "bookPreview")
 @NoArgsConstructor
-@Table(name = "library_bookPreviews")
+@Table(name = "library_book_previews")
 class BookPreview extends AbstractEntity {
     @Column(nullable = false, unique = true)
     private String title;
@@ -38,13 +38,13 @@ class BookPreview extends AbstractEntity {
     private BookState bookState;
 
     @ElementCollection(targetClass = BookTag.class, fetch = FetchType.LAZY)
-    @CollectionTable(name = "book_tag", joinColumns =  @JoinColumn(name = "bookPreview_id"))
+    @CollectionTable(name = "book_tag", joinColumns =  @JoinColumn(name = "book_preview_id"))
     @Column(name = "tag")
     private List<BookTag> bookTags;
 
     @MapsId
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "bookDetail_id")
+    @JoinColumn(name = "book_detail_id")
     private BookDetail bookDetail;
 
     @Builder

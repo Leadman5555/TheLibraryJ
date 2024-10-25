@@ -17,7 +17,7 @@ import java.util.UUID;
 @Entity(name = "bookDetail")
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
-@Table(name = "library_bookDetails")
+@Table(name = "library_book_details")
 class BookDetail extends AbstractEntity {
     @Column(nullable = false)
     private String author;
