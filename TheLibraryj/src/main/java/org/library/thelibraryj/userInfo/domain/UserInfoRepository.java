@@ -10,4 +10,5 @@ import java.util.UUID;
 interface UserInfoRepository extends BaseJpaRepository<UserInfo, UUID> {
     Optional<UserInfo> findByUsername(String username);
     boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 }

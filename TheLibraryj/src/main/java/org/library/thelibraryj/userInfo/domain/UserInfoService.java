@@ -11,7 +11,9 @@ import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
 import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,21 +26,23 @@ import static java.lang.Integer.min;
 
 @Service
 @Transactional
-class UserInfoService implements org.library.thelibraryj.userInfo.UserInfoService {
+class UserInfoService implements org.library.thelibraryj.userInfo.UserInfoService{
 
     private final UserInfoRepository userInfoRepository;
     private final UserInfoMapper userInfoMapper;
-    private final BookService bookService;
+    private final UserInfoConfig userInfoConfig;
+    private BookService bookService;
+    private ApplicationContext context;
 
-    @Value("${library.user.minimal_age_hours}")
-    private int minimalAccountAge;
-    @Value("${library.user.username_change_cooldown_days}")
-    private int usernameChangeCooldown;
+    @Autowired
+    public void setBookService(@Lazy BookService bookService) {
+        this.bookService = bookService;
+    }
 
-    public UserInfoService(UserInfoRepository userInfoRepository, UserInfoMapper userInfoMapper, BookService bookService) {
+    public UserInfoService(UserInfoRepository userInfoRepository, UserInfoMapper userInfoMapper, UserInfoConfig config) {
         this.userInfoRepository = userInfoRepository;
         this.userInfoMapper = userInfoMapper;
-        this.bookService = bookService;
+        userInfoConfig = config;
     }
 
     @Override
@@ -62,12 +66,12 @@ class UserInfoService implements org.library.thelibraryj.userInfo.UserInfoServic
     }
 
     @Override
-    public Either<GeneralError, String> getAuthorUsernameAndCheckValid(UUID userId) {
+    public Either<GeneralError, String> getAuthorUsernameAndCheckAccountAge(UUID userId) {
         Either<GeneralError, UserInfo> fetchedE = getUserInfoById(userId);
         if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         UserInfo fetched = fetchedE.get();
-        long ageDiff = ChronoUnit.HOURS.between(Instant.now(), fetched.getCreatedAt());
-        if(ageDiff < minimalAccountAge)
+        long ageDiff = ChronoUnit.HOURS.between(fetched.getCreatedAt(), Instant.now());
+        if(ageDiff < userInfoConfig.getMinimal_age_hours())
             return Either.left(new UserInfoError.UserAccountTooYoung(userId, ageDiff));
         return Either.right(fetched.getUsername());
     }
@@ -75,7 +79,7 @@ class UserInfoService implements org.library.thelibraryj.userInfo.UserInfoServic
     @Transactional
     @Override
     public Either<GeneralError, UserInfoResponse> createUserInfo(UserInfoRequest userInfoRequest) {
-        if(userInfoRepository.existsByUsername(userInfoRequest.username())) return Either.left(new UserInfoError.UsernameNotUnique());
+        //unique username/email verification moved to userAuth
         UserInfo mapped = userInfoMapper.userInfoRequestToUserInfo(userInfoRequest);
         mapped.setRank(0);
         mapped.setDataUpdatedAt(Instant.now());
@@ -100,17 +104,25 @@ class UserInfoService implements org.library.thelibraryj.userInfo.UserInfoServic
     @Transactional
     @Override
     public Either<GeneralError, UserInfoResponse> updateUserInfoUsername(UserInfoUsernameUpdateRequest userInfoUsernameUpdateRequest) {
-        if(userInfoRepository.existsByUsername(userInfoUsernameUpdateRequest.username()))
+        if(userInfoExistsByUsername(userInfoUsernameUpdateRequest.username()))
             return Either.left(new UserInfoError.UsernameNotUnique());
         Either<GeneralError, UserInfo> fetchedE = getUserInfoById(userInfoUsernameUpdateRequest.userId());
         if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         UserInfo fetched = fetchedE.get();
-        long cooldownDiff = ChronoUnit.DAYS.between(Instant.now(), fetched.getDataUpdatedAt());
-        if(cooldownDiff < usernameChangeCooldown)
-            return Either.left(new UserInfoError.UsernameUpdateCooldown(cooldownDiff));
+        long cooldownDiff = ChronoUnit.DAYS.between(fetched.getDataUpdatedAt(), Instant.now());
+        if(cooldownDiff < userInfoConfig.getUsername_change_cooldown_days())
+            return Either.left(new UserInfoError.UsernameUpdateCooldown(userInfoConfig.getUsername_change_cooldown_days() - cooldownDiff));
         fetched.setUsername(userInfoUsernameUpdateRequest.username());
         userInfoRepository.update(fetched);
         bookService.updateAuthorUsername(userInfoUsernameUpdateRequest.userId(), userInfoUsernameUpdateRequest.username());
         return Either.right(userInfoMapper.userInfoToUserInfoResponse(fetched));
+    }
+
+    public boolean userInfoExistsByUsername(String username) {
+        return userInfoRepository.existsByUsername(username);
+    }
+
+    public boolean userInfoExistsByEmail(String email) {
+        return userInfoRepository.existsByEmail(email);
     }
 }

@@ -77,7 +77,7 @@ CREATE TABLE library.library_user_info
     data_updated_at TIMESTAMP,
     username     VARCHAR(20) UNIQUE NOT NULL,
     email        VARCHAR(50) UNIQUE NOT NULL,
-    rank         TINYINT            NOT NULL DEFAULT 0,
+    rank         INTEGER      NOT NULL DEFAULT 0,
     user_auth_id UUID               NOT NULL,
     CONSTRAINT pk_library_user_info PRIMARY KEY (id)
 );

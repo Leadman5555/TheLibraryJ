@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface UserInfoService {
     boolean existsById(UUID userId);
     Either<GeneralError, UserInfoResponse> getUserInfoResponseById(UUID userId);
-    Either<GeneralError, String> getAuthorUsernameAndCheckValid(UUID userId);
+    Either<GeneralError, String> getAuthorUsernameAndCheckAccountAge(UUID userId);
     Either<GeneralError, UserInfoResponse> createUserInfo(UserInfoRequest userInfoRequest);
     Either<GeneralError, UserInfoResponse> updateRank(UserInfoRankUpdateRequest userInfoRankUpdateRequest);
     Either<GeneralError, UserInfoResponse> updateUserInfoUsername(UserInfoUsernameUpdateRequest userInfoUsernameUpdateRequest);

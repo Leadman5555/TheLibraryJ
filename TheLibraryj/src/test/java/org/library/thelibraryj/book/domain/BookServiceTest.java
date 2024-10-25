@@ -58,6 +58,7 @@ public class BookServiceTest {
 
     @BeforeEach
     public void setUp() {
+        bookService.setUserInfoService(userInfoService);
         bookId = UUID.randomUUID();
         authorId = UUID.randomUUID();
         title = "Sample title";
@@ -121,7 +122,7 @@ public class BookServiceTest {
         );
         bookPreview.setBookDetail(bookDetail);
         when(bookPreviewRepository.existsByTitle(title)).thenReturn(false);
-        when(userInfoService.getAuthorUsernameAndCheckValid(authorId)).thenReturn(Either.right(author));
+        when(userInfoService.getAuthorUsernameAndCheckAccountAge(authorId)).thenReturn(Either.right(author));
         BookResponse response = bookService.createBook(bookCreationRequest).get();
         verify(bookDetailRepository).persist(bookDetail);
         verify(bookPreviewRepository).persist(bookPreview);

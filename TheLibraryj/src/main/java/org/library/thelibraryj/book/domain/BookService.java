@@ -4,24 +4,16 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import jakarta.validation.constraints.NotEmpty;
-import org.library.thelibraryj.book.dto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.BookResponse;
-import org.library.thelibraryj.book.dto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
-import org.library.thelibraryj.book.dto.ChapterRequest;
-import org.library.thelibraryj.book.dto.ContentRemovalRequest;
-import org.library.thelibraryj.book.dto.ContentRemovalSuccess;
-import org.library.thelibraryj.book.dto.RatingRequest;
-import org.library.thelibraryj.book.dto.RatingResponse;
+import org.library.thelibraryj.book.dto.*;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.library.thelibraryj.userInfo.UserInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,20 +27,26 @@ import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
-class BookService implements org.library.thelibraryj.book.BookService {
+class BookService implements org.library.thelibraryj.book.BookService{
     private final BookDetailRepository bookDetailRepository;
     private final BookPreviewRepository bookPreviewRepository;
     private final RatingRepository ratingRepository;
     private final ChapterPreviewRepository chapterPreviewRepository;
     private final ChapterRepository chapterRepository;
     private final BookMapper mapper;
-    private final UserInfoService userInfoService;
+    private UserInfoService userInfoService;
 
-    public BookService(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, BookMapper mapper, UserInfoService userInfoService, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository) {
+
+
+    @Autowired
+    public void setUserInfoService(@Lazy UserInfoService userInfoService) {
+        this.userInfoService = userInfoService;
+    }
+
+    public BookService(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository) {
         this.bookDetailRepository = bookDetailRepository;
         this.bookPreviewRepository = bookPreviewRepository;
         this.mapper = mapper;
-        this.userInfoService = userInfoService;
         this.ratingRepository = ratingRepository;
         this.chapterPreviewRepository = chapterPreviewRepository;
         this.chapterRepository = chapterRepository;
@@ -99,7 +97,7 @@ class BookService implements org.library.thelibraryj.book.BookService {
     @Transactional
     @Override
     public Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest) {
-        Either<GeneralError, String> fetchedAuthor = userInfoService.getAuthorUsernameAndCheckValid(bookCreationRequest.authorId());
+        Either<GeneralError, String> fetchedAuthor = userInfoService.getAuthorUsernameAndCheckAccountAge(bookCreationRequest.authorId());
         if (fetchedAuthor.isLeft()) return Either.left(fetchedAuthor.getLeft());
         if (bookPreviewRepository.existsByTitle(bookCreationRequest.title()))
             return Either.left(new BookError.DuplicateTitle());
