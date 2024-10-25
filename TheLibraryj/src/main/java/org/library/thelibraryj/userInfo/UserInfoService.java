@@ -13,6 +13,7 @@ import java.util.UUID;
 @Service
 public interface UserInfoService {
     boolean existsById(UUID userId);
+    boolean existsByUsername(String username);
     Either<GeneralError, UserInfoResponse> getUserInfoResponseById(UUID userId);
     Either<GeneralError, String> getAuthorUsernameAndCheckAccountAge(UUID userId);
     Either<GeneralError, UserInfoResponse> createUserInfo(UserInfoRequest userInfoRequest);
