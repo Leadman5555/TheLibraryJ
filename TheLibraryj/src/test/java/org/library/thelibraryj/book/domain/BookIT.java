@@ -30,7 +30,7 @@ public class BookIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String BASE_URL = "/v0.2" + "/books";
+    private static final String BASE_URL =  "/v0.2" + "/books";
     private final UUID bookId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
@@ -40,7 +40,7 @@ public class BookIT {
     public void setUp() {
         ResourceDatabasePopulator scriptExecutor = new ResourceDatabasePopulator();
         scriptExecutor.addScript(new ClassPathResource("schema.sql"));
-        scriptExecutor.addScript(new ClassPathResource("/bookDb/bookITInit.sql"));
+        scriptExecutor.addScript(new ClassPathResource("dataInit.sql"));
         scriptExecutor.setSeparator("@@");
         scriptExecutor.execute(this.dataSource);
     }
@@ -52,7 +52,7 @@ public class BookIT {
         Assertions.assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         Assertions.assertNotNull(response.getBody());
         JSONObject object = new JSONObject(response.getBody());
-        Assertions.assertEquals("sample author", object.getString("author"));
+        Assertions.assertEquals("USER1", object.getString("author"));
     }
 
     @Test

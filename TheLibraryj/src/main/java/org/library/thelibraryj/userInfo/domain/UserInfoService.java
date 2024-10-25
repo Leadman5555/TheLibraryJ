@@ -35,7 +35,7 @@ class UserInfoService implements org.library.thelibraryj.userInfo.UserInfoServic
     private ApplicationContext context;
 
     @Autowired
-    public void setBookService(@Lazy BookService bookService) {
+    void setBookService(@Lazy BookService bookService) {
         this.bookService = bookService;
     }
 
@@ -50,7 +50,7 @@ class UserInfoService implements org.library.thelibraryj.userInfo.UserInfoServic
         return userInfoRepository.existsById(userId);
     }
 
-    public Either<GeneralError, UserInfo> getUserInfoById(UUID userId) {
+    Either<GeneralError, UserInfo> getUserInfoById(UUID userId) {
         return Try.of(() -> userInfoRepository.findById(userId))
                 .toEither()
                 .map(Option::ofOptional)
@@ -104,7 +104,7 @@ class UserInfoService implements org.library.thelibraryj.userInfo.UserInfoServic
     @Transactional
     @Override
     public Either<GeneralError, UserInfoResponse> updateUserInfoUsername(UserInfoUsernameUpdateRequest userInfoUsernameUpdateRequest) {
-        if(userInfoExistsByUsername(userInfoUsernameUpdateRequest.username()))
+        if(existsByUsername(userInfoUsernameUpdateRequest.username()))
             return Either.left(new UserInfoError.UsernameNotUnique());
         Either<GeneralError, UserInfo> fetchedE = getUserInfoById(userInfoUsernameUpdateRequest.userId());
         if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
@@ -113,16 +113,14 @@ class UserInfoService implements org.library.thelibraryj.userInfo.UserInfoServic
         if(cooldownDiff < userInfoConfig.getUsername_change_cooldown_days())
             return Either.left(new UserInfoError.UsernameUpdateCooldown(userInfoConfig.getUsername_change_cooldown_days() - cooldownDiff));
         fetched.setUsername(userInfoUsernameUpdateRequest.username());
+        fetched.setDataUpdatedAt(Instant.now());
         userInfoRepository.update(fetched);
         bookService.updateAuthorUsername(userInfoUsernameUpdateRequest.userId(), userInfoUsernameUpdateRequest.username());
         return Either.right(userInfoMapper.userInfoToUserInfoResponse(fetched));
     }
 
-    public boolean userInfoExistsByUsername(String username) {
+    @Override
+    public boolean existsByUsername(String username) {
         return userInfoRepository.existsByUsername(username);
-    }
-
-    public boolean userInfoExistsByEmail(String email) {
-        return userInfoRepository.existsByEmail(email);
     }
 }

@@ -1,6 +1,7 @@
 package org.library.thelibraryj.book.domain;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.BookCreationRequest;
 import org.library.thelibraryj.book.dto.BookPreviewResponse;
@@ -69,7 +70,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @PostMapping("/book")
-    public ResponseEntity<String> createBook(@RequestBody BookCreationRequest bookCreationRequest) {
+    public ResponseEntity<String> createBook(@RequestBody @Valid BookCreationRequest bookCreationRequest) {
         return handle(bookService.createBook(bookCreationRequest), HttpStatus.CREATED);
     }
 
@@ -78,7 +79,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @PostMapping("/book/chapter")
-    public ResponseEntity<String> createChapter(@RequestBody ChapterRequest chapterRequest) {
+    public ResponseEntity<String> createChapter(@RequestBody @Valid ChapterRequest chapterRequest) {
         return handle(bookService.createChapter(chapterRequest), HttpStatus.CREATED);
     }
 
@@ -87,7 +88,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @PostMapping("/book/chapter/batch")
-    public ResponseEntity<String> createChapters(@RequestBody List<ChapterRequest> chapterRequests) {
+    public ResponseEntity<String> createChapters(@RequestBody @Valid List<ChapterRequest> chapterRequests) {
         return handle(bookService.createChapters(chapterRequests), HttpStatus.CREATED);
     }
 
@@ -96,7 +97,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @PatchMapping("/book")
-    public ResponseEntity<String> updateBook(@RequestBody BookUpdateRequest bookUpdateRequest) {
+    public ResponseEntity<String> updateBook(@RequestBody @Valid BookUpdateRequest bookUpdateRequest) {
         return handle(bookService.updateBook(bookUpdateRequest), HttpStatus.OK);
     }
 
@@ -105,7 +106,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @PutMapping("/rating")
-    public ResponseEntity<String> upsertRating(@RequestBody RatingRequest ratingRequest) {
+    public ResponseEntity<String> upsertRating(@RequestBody @Valid RatingRequest ratingRequest) {
         return handle(bookService.upsertRating(ratingRequest), HttpStatus.OK);
     }
 
@@ -125,7 +126,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @DeleteMapping("/book/chapter/{number}")
-    public ResponseEntity<String> deleteChapter(@PathVariable Integer number, @RequestBody ContentRemovalRequest contentRemovalRequest) {
+    public ResponseEntity<String> deleteChapter(@PathVariable Integer number, @RequestBody @Valid ContentRemovalRequest contentRemovalRequest) {
         return handle(bookService.deleteChapter(contentRemovalRequest, number), HttpStatus.OK);
     }
 
@@ -134,7 +135,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @DeleteMapping("/book")
-    public ResponseEntity<String> deleteBook(@RequestBody ContentRemovalRequest contentRemovalRequest) {
+    public ResponseEntity<String> deleteBook(@RequestBody @Valid ContentRemovalRequest contentRemovalRequest) {
         return handle(bookService.deleteBook(contentRemovalRequest), HttpStatus.OK);
     }
 
