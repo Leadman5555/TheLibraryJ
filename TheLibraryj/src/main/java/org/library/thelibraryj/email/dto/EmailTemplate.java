@@ -11,7 +11,7 @@ public abstract class EmailTemplate {
     protected Map<String, Object> parameters;
 
     public EmailTemplate(String templateName) {
-        this.templateName = templateName + ".html";
+        this.templateName = templateName;
     }
 
     public void addParameter(String key, Object value) {

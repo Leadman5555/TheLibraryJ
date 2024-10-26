@@ -15,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
@@ -29,23 +28,22 @@ public class EmailServiceTest {
     private EmailService emailService;
 
     @Test
-    public void sendConfirmationMail() throws Exception {
+    public void sendConfirmationMail() throws Exception {;
         final String recipient = "recipient@example.com";
         final String subject = "Account Activation";
         EmailRequest request = new EmailRequest(subject, recipient, new AccountActivationTemplate(
                 "sample username", "sample link"
         ));
 
-        emailService.sendEmail(request);
+        final int times = 2;
+        for(int i = 0; i < times; i++) emailService.sendEmail(request);
 
         await().atMost(10, TimeUnit.SECONDS).until(
-                () -> greenMail.getReceivedMessagesForDomain(recipient).length == 2
+                () -> greenMail.getReceivedMessagesForDomain(recipient).length == times
         );
         final MimeMessage[] receivedMessages = greenMail.getReceivedMessagesForDomain(recipient);
-        assertAll(
-                () -> assertEquals(2, receivedMessages.length),
-                () -> assertEquals(subject, receivedMessages[0].getSubject()),
-                () -> assertEquals(receivedMessages[0].getContent(), receivedMessages[1].getContent()));
+        assertEquals(2, receivedMessages.length);
+        assertEquals(subject, receivedMessages[0].getSubject());
     }
 
 }

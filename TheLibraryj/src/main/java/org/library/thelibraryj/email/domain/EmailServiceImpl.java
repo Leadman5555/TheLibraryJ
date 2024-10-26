@@ -3,7 +3,7 @@ package org.library.thelibraryj.email.domain;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.library.thelibraryj.email.dto.EmailRequest;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -16,12 +16,12 @@ import java.util.Map;
 
 
 @Service
-class EmailService implements org.library.thelibraryj.email.EmailService{
+class EmailServiceImpl implements org.library.thelibraryj.email.EmailService {
 
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine emailTemplateEngine;
 
-    public EmailService(JavaMailSender mailSender, SpringTemplateEngine emailTemplateEngine) {
+    public EmailServiceImpl(JavaMailSender mailSender, SpringTemplateEngine emailTemplateEngine) {
         this.mailSender = mailSender;
         this.emailTemplateEngine = emailTemplateEngine;
     }
@@ -38,10 +38,10 @@ class EmailService implements org.library.thelibraryj.email.EmailService{
         helper.setTo(emailRequest.recipient());
         helper.setSubject(emailRequest.subject());
         helper.setText(renderedHtml, true);
-        Object imageQuestion = params.get("image");
-        if(imageQuestion != null) {
+        Object imageQuestion = params.get("image_name");
+        if (imageQuestion != null) {
             String imageName = imageQuestion.toString();
-            helper.addInline(imageName , new FileSystemResource("/templates/email/images" + imageName), "image/jpg");
+            helper.addInline(imageName, new ClassPathResource("/templates/email/images/" + imageName), "image/jpg");
         }
         mailSender.send(mailToSend);
     }

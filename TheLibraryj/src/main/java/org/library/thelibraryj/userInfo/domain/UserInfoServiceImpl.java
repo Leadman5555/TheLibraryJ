@@ -26,7 +26,7 @@ import static java.lang.Integer.min;
 
 @Service
 @Transactional
-class UserInfoService implements org.library.thelibraryj.userInfo.UserInfoService{
+class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoService{
 
     private final UserInfoRepository userInfoRepository;
     private final UserInfoMapper userInfoMapper;
@@ -39,7 +39,7 @@ class UserInfoService implements org.library.thelibraryj.userInfo.UserInfoServic
         this.bookService = bookService;
     }
 
-    public UserInfoService(UserInfoRepository userInfoRepository, UserInfoMapper userInfoMapper, UserInfoConfig config) {
+    public UserInfoServiceImpl(UserInfoRepository userInfoRepository, UserInfoMapper userInfoMapper, UserInfoConfig config) {
         this.userInfoRepository = userInfoRepository;
         this.userInfoMapper = userInfoMapper;
         userInfoConfig = config;

@@ -27,12 +27,14 @@ class EmailConfiguration {
     @Bean
     public SpringResourceTemplateResolver setUpEmailTemplateResolver() {
         SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();
-        resolver.setPrefix("/templates/email");
+        resolver.setPrefix("classpath:/templates/email/");
         resolver.setTemplateMode(TemplateMode.HTML);
         resolver.setCharacterEncoding("UTF-8");
         resolver.setSuffix(".html");
+        resolver.setCacheable(false);
         return resolver;
     }
+
     @Bean
     public SpringTemplateEngine emailTemplateEngine() {
         SpringTemplateEngine engine = new SpringTemplateEngine();

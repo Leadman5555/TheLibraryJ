@@ -38,7 +38,7 @@ public class UserInfoServiceTest {
     @Spy
     private UserInfoMapper userInfoMapper = new UserInfoMapperImpl();
     @InjectMocks
-    private UserInfoService userInfoService;
+    private UserInfoServiceImpl userInfoService;
 
     private UUID userId;
     private String username;
