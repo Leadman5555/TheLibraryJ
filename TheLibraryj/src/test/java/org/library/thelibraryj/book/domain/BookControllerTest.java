@@ -2,6 +2,7 @@ package org.library.thelibraryj.book.domain;
 
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
+import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.BookDetailResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.springframework.beans.factory.annotation.Autowired;

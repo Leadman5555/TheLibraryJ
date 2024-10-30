@@ -37,7 +37,7 @@ import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
-class BookService implements org.library.thelibraryj.book.BookService{
+class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     private final BookDetailRepository bookDetailRepository;
     private final BookPreviewRepository bookPreviewRepository;
     private final RatingRepository ratingRepository;
@@ -53,7 +53,7 @@ class BookService implements org.library.thelibraryj.book.BookService{
         this.userInfoService = userInfoService;
     }
 
-    public BookService(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository) {
+    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository) {
         this.bookDetailRepository = bookDetailRepository;
         this.bookPreviewRepository = bookPreviewRepository;
         this.mapper = mapper;

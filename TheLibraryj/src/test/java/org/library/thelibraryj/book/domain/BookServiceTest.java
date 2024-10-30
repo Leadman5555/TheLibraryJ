@@ -5,15 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.library.thelibraryj.book.dto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.BookResponse;
-import org.library.thelibraryj.book.dto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
-import org.library.thelibraryj.book.dto.ChapterRequest;
-import org.library.thelibraryj.book.dto.RatingRequest;
-import org.library.thelibraryj.book.dto.RatingResponse;
+import org.library.thelibraryj.book.dto.*;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.mockito.InjectMocks;
@@ -26,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,7 +38,7 @@ public class BookServiceTest {
     @Spy
     private BookMapper bookMapper = new BookMapperImpl();
     @InjectMocks
-    private BookService bookService;
+    private BookServiceImpl bookService;
     private UUID bookId;
     private UUID authorId;
     private String title;
@@ -97,10 +90,10 @@ public class BookServiceTest {
         when(ratingRepository.getAllRatingsForBook(bookId)).thenReturn(List.of(rating));
         BookDetailResponse mapped = bookMapper.bookDetailToBookDetailResponse(bookDetail, mappedChapters, mappedRatings);
         BookDetailResponse fetched = bookService.getBookDetailResponse(bookId).get();
-        Assertions.assertEquals(mapped, fetched);
-        Assertions.assertEquals(mappedChapters, fetched.chapterPreviews());
+        assertEquals(mapped, fetched);
+        assertEquals(mappedChapters, fetched.chapterPreviews());
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.empty());
-        Assertions.assertEquals(new BookError.BookDetailEntityNotFound(bookId), bookService.getBookDetailResponse(bookId).getLeft());
+        assertEquals(new BookError.BookDetailEntityNotFound(bookId), bookService.getBookDetailResponse(bookId).getLeft());
     }
 
     @Test
@@ -109,7 +102,7 @@ public class BookServiceTest {
         when(bookPreviewRepository.getAllBookPreviewsEager()).thenReturn(baseList);
         List<BookPreviewResponse> fetchedList = bookService.getBookPreviewResponses();
         List<BookPreviewResponse> expectedList = baseList.stream().map(bookMapper::bookPreviewToBookPreviewResponse).toList();
-        Assertions.assertEquals(expectedList, fetchedList);
+        assertEquals(expectedList, fetchedList);
     }
 
     @Test
@@ -126,8 +119,8 @@ public class BookServiceTest {
         BookResponse response = bookService.createBook(bookCreationRequest).get();
         verify(bookDetailRepository).persist(bookDetail);
         verify(bookPreviewRepository).persist(bookPreview);
-        Assertions.assertEquals(bookDetail.getAuthor(), response.author());
-        Assertions.assertEquals(bookPreview.getTitle(), response.title());
+        assertEquals(bookDetail.getAuthor(), response.author());
+        assertEquals(bookPreview.getTitle(), response.title());
 
         UUID bookId = UUID.randomUUID();
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
@@ -137,7 +130,7 @@ public class BookServiceTest {
         verify(bookDetailRepository, never()).update(bookDetail);
         verify(bookPreviewRepository).update(bookPreview);
         Assertions.assertNotEquals(response.bookState(), updated.bookState());
-        Assertions.assertEquals(response.title(), updated.title());
+        assertEquals(response.title(), updated.title());
     }
 
     @Test
@@ -152,10 +145,10 @@ public class BookServiceTest {
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
         BookResponse response = bookService.getBook(title).get();
         Assertions.assertAll(
-                () -> Assertions.assertEquals(author, response.author()),
-                () -> Assertions.assertEquals(title, response.title()),
-                () -> Assertions.assertEquals(1, response.chapterPreviews().size()),
-                () -> Assertions.assertEquals(1, response.ratings().size())
+                () -> assertEquals(author, response.author()),
+                () -> assertEquals(title, response.title()),
+                () -> assertEquals(1, response.chapterPreviews().size()),
+                () -> assertEquals(1, response.ratings().size())
         );
     }
 

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title th:text="${subject}"></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<p>Greetings disciple, <span th:text="${username}">unknown name</span></p>
+<p>
+    You have been accepted to the Library Sect. <br/>
+    One last formality awaits you before you can make use of our boundless resources. <br/>
+    Bellow you shall find a dark blue formation array. Interacting with it will let you complete your initialization.
+    <br/>
+    <a th:href="@{${activation_link}}">Confirm my sect recruitment.</a>
+</p>
+<p>
+    Congratulations on joining the Library, junior! <br/>
+</p>
+<p>
+    Wishing you a peaceful journey,<br/>
+    <em>Outer Court Elder, <br/> Head of Admissions, Zhao Jiang</em>
+</p>
+<p>
+    <img th:src="|cid:${image_name}|" src="images/default.jpg" alt="Visual clue lost in transmission"/>
+</p>
+</body>
+</html>

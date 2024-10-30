@@ -3,6 +3,7 @@ package org.library.thelibraryj.userInfo.domain;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
+import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
 import org.springframework.http.HttpStatus;
