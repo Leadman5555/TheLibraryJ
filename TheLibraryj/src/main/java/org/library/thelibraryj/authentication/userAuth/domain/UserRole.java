@@ -2,7 +2,7 @@ package org.library.thelibraryj.authentication.userAuth.domain;
 
 import org.springframework.security.core.GrantedAuthority;
 
-enum UserRole implements GrantedAuthority {
+public enum UserRole implements GrantedAuthority {
     ADMIN(getCode.ADMIN),
     USER(getCode.USER);
 

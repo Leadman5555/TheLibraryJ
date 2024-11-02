@@ -20,7 +20,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @NoArgsConstructor
-@Table("library_user_auth")
+@Table(name = "library_user_auth")
 class UserAuth extends AbstractEntity implements UserDetails {
     @Column(nullable = false)
     private char[] password;
@@ -63,5 +63,10 @@ class UserAuth extends AbstractEntity implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    @Override
+    public String getPassword() {
+        return new String(password);
     }
 }

@@ -23,14 +23,14 @@ CREATE TABLE library.library_book_previews
     chapter_count  INT          NOT NULL,
     average_rating FLOAT        NOT NULL,
     rating_count   INT          NOT NULL,
-    book_state     TINYINT      NOT NULL,
+    book_state     SMALLINT      NOT NULL,
     CONSTRAINT pk_library_book_previews PRIMARY KEY (book_detail_id)
 );
 DROP TABLE IF EXISTS library.book_tag;
 CREATE TABLE library.book_tag
 (
     book_preview_id UUID NOT NULL,
-    tag             TINYINT
+    tag             SMALLINT
 );
 DROP TABLE IF EXISTS library.library_chapter_previews;
 CREATE TABLE library.library_chapter_previews
@@ -88,7 +88,6 @@ CREATE TABLE  library.library_user_auth
     version      BIGINT             NOT NULL DEFAULT 0,
     created_at   TIMESTAMP,
     updated_at   TIMESTAMP,
-    data_updated_at TIMESTAMP,
     password VARCHAR(200) NOT NULL,
     email        VARCHAR(50) UNIQUE NOT NULL,
     role         VARCHAR(5)      NOT NULL,

@@ -5,6 +5,7 @@ import lombok.Data;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.springframework.http.HttpStatus;
 
@@ -38,6 +39,10 @@ public class ApiErrorWrapper {
                     "User account too young to complete the desired action. Missing account age (hours):" + e.accountAgeMissing() + " Id: " + e.userId());
             case UserInfoError.UsernameNotUnique e ->  getErrorResponse(error, HttpStatus.CONFLICT, "Username not unique");
             case UserInfoError.UsernameUpdateCooldown e ->  getErrorResponse(error, HttpStatus.BAD_REQUEST, "Username update cooldown has not yet finished. Time left (hours): " + e.cooldownDurationLeft());
+            case UserAuthError.UserAuthNotFoundId e -> getErrorResponse(error, HttpStatus.NOT_FOUND, "User authentication data missing. Id: " + e.id());
+            case UserAuthError.EmailNotUnique e ->  getErrorResponse(error, HttpStatus.CONFLICT, "Email not unique. Duplicate email: " + e.email());
+            case UserAuthError.UserAuthNotFoundEmail e -> getErrorResponse(error, HttpStatus.NOT_FOUND, "User authentication data missing. Email: " + e.email());
+            case UserAuthError.UsernameNotUnique e -> getErrorResponse(error, HttpStatus.CONFLICT, "Username not unique. Duplicate username: " + e.username());
             case ServiceError.DatabaseError e -> getErrorResponse(error, HttpStatus.INTERNAL_SERVER_ERROR,
                     "Something went wrong on persistence layer. Consider reuploading corrupted/missing files.");
         };

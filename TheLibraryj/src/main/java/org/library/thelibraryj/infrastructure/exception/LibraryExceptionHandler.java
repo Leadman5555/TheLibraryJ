@@ -5,6 +5,7 @@ import org.library.thelibraryj.infrastructure.error.ApiErrorResponse;
 import org.library.thelibraryj.infrastructure.error.ApiErrorWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -53,6 +54,18 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
+    @ExceptionHandler({UsernameNotFoundException.class})
+    public ResponseEntity<ApiErrorWrapper> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest request) {
+        final ApiErrorWrapper error = new ApiErrorWrapper(
+                ApiErrorResponse.builder()
+                        .code(HttpStatus.NOT_FOUND.value())
+                        .message(ex.getMessage())
+                        .status(HttpStatus.NOT_FOUND.getReasonPhrase())
+                        .path("Path: " + extractRequest(request))
+                        .build()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
 
     private static String extractRequest(WebRequest request) {
         return request instanceof ServletWebRequest svr ?  svr.getRequest().getRequestURI() : "Unknown URL";

@@ -13,7 +13,7 @@ CREATE TABLE library.library_chapters(chapter_preview_id UUID   NOT NULL,   vers
 DROP TABLE IF EXISTS library.library_ratings;
 CREATE TABLE library.library_ratings(id             UUID   NOT NULL,    version        BIGINT NOT NULL DEFAULT 0,created_at     TIMESTAMP,updated_at     TIMESTAMP,current_rating INT    NOT NULL,user_id        UUID   NOT NULL,comment        VARCHAR(255),book_detail_id UUID   NOT NULL,CONSTRAINT pk_library_ratings PRIMARY KEY (id));
 DROP TABLE IF EXISTS library.library_user_info;
-CREATE TABLE library.library_user_info(id         UUID   NOT NULL,    version    BIGINT NOT NULL DEFAULT 0,created_at TIMESTAMP,updated_at TIMESTAMP,  data_updated_at TIMESTAMP, username   VARCHAR(20) UNIQUE NOT NULL, email      VARCHAR(50) UNIQUE NOT NULL, rank       INTEGER NOT NULL DEFAULT 0, user_auth_id UUID NOT NULL, CONSTRAINT pk_library_user_info PRIMARY KEY (id));
+CREATE TABLE library.library_user_info(id         UUID   NOT NULL,    version    BIGINT NOT NULL DEFAULT 0,created_at TIMESTAMP,updated_at TIMESTAMP, username   VARCHAR(20) UNIQUE NOT NULL, email      VARCHAR(50) UNIQUE NOT NULL, rank       INTEGER NOT NULL DEFAULT 0, user_auth_id UUID NOT NULL, CONSTRAINT pk_library_user_auth PRIMARY KEY (id));
 ALTER TABLE library.library_book_previews ADD CONSTRAINT uc_library_bookpreviews_title UNIQUE (title);
 ALTER TABLE library.library_book_previews ADD CONSTRAINT fk_library_bookpreviews_on_bookdetail FOREIGN KEY (book_detail_id) REFERENCES library.library_book_details (id);
 ALTER TABLE library.library_chapter_previews    ADD CONSTRAINT fk_library_chapterpreviews_on_bookdetail FOREIGN KEY (book_detail_id) REFERENCES library.library_book_details (id);
