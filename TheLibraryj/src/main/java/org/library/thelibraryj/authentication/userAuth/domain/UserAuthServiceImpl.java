@@ -4,8 +4,8 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
-import org.library.thelibraryj.authentication.userAuth.dto.UserAuthRequest;
 import org.library.thelibraryj.authentication.userAuth.dto.UserAuthResponse;
+import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
@@ -35,19 +35,21 @@ class UserAuthServiceImpl implements UserAuthService {
 
     @Transactional
     @Override
-    public Either<GeneralError, UserCreationResponse> createNewUser(UserAuthRequest userAuthRequest) {
-        if(existsByEmail(userAuthRequest.email())) return Either.left(new UserAuthError.EmailNotUnique(userAuthRequest.email()));
-        if(userInfoService.existsByUsername(userAuthRequest.username())) return Either.left(new UserAuthError.UsernameNotUnique(userAuthRequest.username()));
-        UserAuth newUserAuth = mapper.userAuthRequestToUserAuth(userAuthRequest);
+    public Either<GeneralError, UserCreationResponse> createNewUser(UserCreationRequest userCreationRequest) {
+        if (existsByEmail(userCreationRequest.email()))
+            return Either.left(new UserAuthError.EmailNotUnique(userCreationRequest.email()));
+        if (userInfoService.existsByUsername(userCreationRequest.username()))
+            return Either.left(new UserAuthError.UsernameNotUnique(userCreationRequest.username()));
+        UserAuth newUserAuth = mapper.userAuthRequestToUserAuth(userCreationRequest);
         newUserAuth.setRole(UserRole.USER);
         UserAuth createdAuth = userAuthRepository.persist(newUserAuth);
         UserInfoResponse createdInfo = userInfoService.createUserInfo(new UserInfoRequest(
-                userAuthRequest.username(),
-                userAuthRequest.email(),
+                userCreationRequest.username(),
+                userCreationRequest.email(),
                 createdAuth.getId()
-        )).get();
+        ));
         userAuthRepository.flush();
-        return Either.right(mapper.userAuthAndUserInfoResponseToUserCreationResponse(createdAuth, createdInfo));
+        return Either.right(mapper.userAuthAndUserInfoResponseToUserCreationResponse(createdInfo, createdAuth));
     }
 
     @Override
@@ -68,7 +70,7 @@ class UserAuthServiceImpl implements UserAuthService {
     @Override
     public Either<GeneralError, Boolean> enableUser(UUID userId) {
         Either<GeneralError, UserAuth> fetched = findById(userId);
-        if(fetched.isRight()) return Either.left(fetched.getLeft());
+        if (fetched.isLeft()) return Either.left(fetched.getLeft());
         UserAuth toUpdate = fetched.get();
         toUpdate.setEnabled(true);
         userAuthRepository.update(toUpdate);
@@ -77,11 +79,22 @@ class UserAuthServiceImpl implements UserAuthService {
 
     @Transactional
     @Override
-    public Either<GeneralError, Boolean> updatePassword(UUID userId, String newEncryptedPassword) {
+    public Either<GeneralError, Boolean> disableUser(UUID userId) {
         Either<GeneralError, UserAuth> fetched = findById(userId);
-        if(fetched.isRight()) return Either.left(fetched.getLeft());
+        if (fetched.isLeft()) return Either.left(fetched.getLeft());
         UserAuth toUpdate = fetched.get();
-        toUpdate.setPassword(newEncryptedPassword.toCharArray());
+        toUpdate.setEnabled(false);
+        userAuthRepository.update(toUpdate);
+        return Either.right(true);
+    }
+
+    @Transactional
+    @Override
+    public Either<GeneralError, Boolean> updatePassword(UUID userId, char[] newEncryptedPassword) {
+        Either<GeneralError, UserAuth> fetched = findById(userId);
+        if (fetched.isLeft()) return Either.left(fetched.getLeft());
+        UserAuth toUpdate = fetched.get();
+        toUpdate.setPassword(newEncryptedPassword);
         userAuthRepository.update(toUpdate);
         return Either.right(true);
     }

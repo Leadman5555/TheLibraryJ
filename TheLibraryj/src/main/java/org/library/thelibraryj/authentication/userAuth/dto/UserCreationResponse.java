@@ -5,5 +5,6 @@ import org.library.thelibraryj.authentication.userAuth.domain.UserRole;
 import java.time.Instant;
 import java.util.UUID;
 
-public record UserCreationResponse(UUID userId, String username, String email, int rank, UserRole role, boolean isEnabled, Instant dataUpdatedAt) {
+public record UserCreationResponse(UUID userId, String username, int rank, Instant dataUpdatedAt, String email,
+                                   boolean isEnabled, UserRole role) {
 }

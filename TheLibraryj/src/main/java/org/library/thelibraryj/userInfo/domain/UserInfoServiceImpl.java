@@ -78,13 +78,13 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
 
     @Transactional
     @Override
-    public Either<GeneralError, UserInfoResponse> createUserInfo(UserInfoRequest userInfoRequest) {
+    public UserInfoResponse createUserInfo(UserInfoRequest userInfoRequest) {
         UserInfo mapped = userInfoMapper.userInfoRequestToUserInfo(userInfoRequest);
         mapped.setRank(0);
         mapped.setDataUpdatedAt(Instant.now());
         userInfoRepository.persist(mapped);
         userInfoRepository.flush();
-        return Either.right(userInfoMapper.userInfoToUserInfoResponse(mapped));
+        return userInfoMapper.userInfoToUserInfoResponse(mapped);
     }
 
     @Transactional

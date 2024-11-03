@@ -16,7 +16,7 @@ public interface UserInfoService {
     boolean existsByUsername(String username);
     Either<GeneralError, UserInfoResponse> getUserInfoResponseById(UUID userId);
     Either<GeneralError, String> getAuthorUsernameAndCheckAccountAge(UUID userId);
-    Either<GeneralError, UserInfoResponse> createUserInfo(UserInfoRequest userInfoRequest);
+    UserInfoResponse createUserInfo(UserInfoRequest userInfoRequest);
     Either<GeneralError, UserInfoResponse> updateRank(UserInfoRankUpdateRequest userInfoRankUpdateRequest);
     Either<GeneralError, UserInfoResponse> updateUserInfoUsername(UserInfoUsernameUpdateRequest userInfoUsernameUpdateRequest);
 }

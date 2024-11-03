@@ -24,6 +24,7 @@ interface BookMapper {
 
     List<RatingResponse> ratingsToRatingResponseList(List<Rating> ratings);
 
+    @Mapping(source = "id", target = "chapterId")
     ChapterPreviewResponse chapterPreviewToChapterPreviewResponse(ChapterPreview chapterPreview);
 
     static LocalDateTime map(Instant value){

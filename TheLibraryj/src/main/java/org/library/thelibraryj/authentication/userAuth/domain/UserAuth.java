@@ -16,9 +16,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 
-@Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
+@Data
 @NoArgsConstructor
 @Table(name = "library_user_auth")
 class UserAuth extends AbstractEntity implements UserDetails {
@@ -68,5 +68,14 @@ class UserAuth extends AbstractEntity implements UserDetails {
     @Override
     public String getPassword() {
         return new String(password);
+    }
+
+    public boolean getIsEnabled() {
+        return isEnabled;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return isEnabled;
     }
 }
