@@ -2,8 +2,8 @@ package org.library.thelibraryj.authentication;
 
 import java.util.Arrays;
 
-interface PasswordControl {
-    static void zeroPassword(char[] passwordToZero){
+public interface PasswordControl {
+    default void zeroPassword(char[] passwordToZero){
         Arrays.fill(passwordToZero, '0');
     }
 }

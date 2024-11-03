@@ -1,10 +1,8 @@
-package org.library.thelibraryj.email.dto.templates;
-
-import org.library.thelibraryj.email.dto.EmailTemplate;
+package org.library.thelibraryj.email.template;
 
 import java.util.Map;
 
-public class AccountActivationTemplate extends EmailTemplate {
+public final class AccountActivationTemplate extends EmailTemplate {
 
     public AccountActivationTemplate(String username, String activationLink) {
         super("activation-email-template.html");

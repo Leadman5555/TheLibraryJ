@@ -33,7 +33,7 @@ public class UserInfoControllerTest {
     @MockBean
     private UserInfoService userInfoService;
 
-    private static final String URL_BASE = "/v0.2";
+    private static final String URL_BASE = "/v0.3";
 
     private static final String ENDPOINT =  URL_BASE + "/user";
 

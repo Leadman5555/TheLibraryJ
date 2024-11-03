@@ -1,8 +1,6 @@
 package org.library.thelibraryj.authentication.userAuth.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -27,6 +25,7 @@ class UserAuth extends AbstractEntity implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private UserRole role;
     @Column(nullable = false)
     private boolean isEnabled;

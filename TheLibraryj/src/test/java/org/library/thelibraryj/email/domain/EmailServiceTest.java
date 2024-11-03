@@ -8,7 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.library.thelibraryj.email.EmailService;
 import org.library.thelibraryj.email.dto.EmailRequest;
-import org.library.thelibraryj.email.dto.templates.AccountActivationTemplate;
+import org.library.thelibraryj.email.template.EmailTemplate;
+import org.library.thelibraryj.email.template.AccountActivationTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -30,10 +31,11 @@ public class EmailServiceTest {
     @Test
     public void sendConfirmationMail() throws Exception {;
         final String recipient = "recipient@example.com";
-        final String subject = "Account Activation";
-        EmailRequest request = new EmailRequest(subject, recipient, new AccountActivationTemplate(
+        EmailTemplate template = new AccountActivationTemplate(
                 "sample username", "sample link"
-        ));
+        );
+        final String subject = template.getSubject();
+        EmailRequest request = new EmailRequest(recipient, template);
 
         final int times = 2;
         for(int i = 0; i < times; i++) emailService.sendEmail(request);

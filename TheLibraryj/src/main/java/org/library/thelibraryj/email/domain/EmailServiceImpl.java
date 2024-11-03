@@ -36,7 +36,7 @@ class EmailServiceImpl implements org.library.thelibraryj.email.EmailService {
         final MimeMessage mailToSend = mailSender.createMimeMessage();
         final MimeMessageHelper helper = new MimeMessageHelper(mailToSend, true, "UTF-8");
         helper.setTo(emailRequest.recipient());
-        helper.setSubject(emailRequest.subject());
+        helper.setSubject(emailRequest.template().getSubject());
         helper.setText(renderedHtml, true);
         Object imageQuestion = params.get("image_name");
         if (imageQuestion != null) {

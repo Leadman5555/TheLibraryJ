@@ -1,3 +1,5 @@
 package org.library.thelibraryj.email.dto;
 
-public record EmailRequest(String subject, String recipient, EmailTemplate template) { }
+import org.library.thelibraryj.email.template.EmailTemplate;
+
+public record EmailRequest(String recipient, EmailTemplate template) { }
