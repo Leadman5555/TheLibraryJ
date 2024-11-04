@@ -7,4 +7,5 @@ public sealed interface UserAuthError extends GeneralError {
     record UserAuthNotFoundId(UUID id) implements UserAuthError {}
     record UsernameNotUnique(String username) implements UserAuthError {}
     record EmailNotUnique(String email) implements UserAuthError {}
+    record UserNotEnabled(String email) implements UserAuthError {}
 }

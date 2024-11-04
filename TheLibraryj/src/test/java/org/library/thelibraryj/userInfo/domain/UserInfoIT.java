@@ -31,7 +31,7 @@ public class UserInfoIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String VERSION = "/v0.2";
+    private static final String VERSION = "/v0.3";
     private static final String BASE_URL = VERSION + "/user";
     private final UUID bookId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
@@ -74,8 +74,8 @@ public class UserInfoIT {
         Assertions.assertEquals(HttpStatus.CONFLICT.value(), usernameAlreadyExistingResponse.getStatusCode().value());
 
         UserInfoUsernameUpdateRequest request2 = new UserInfoUsernameUpdateRequest(
-          userId,
-          "other new username"
+                userId,
+                "other new username"
         );
         HttpEntity<UserInfoUsernameUpdateRequest> requestEntity2 = new HttpEntity<>(request2);
         ResponseEntity<String> usernameOnCooldownChangeResponse = restTemplate.exchange(

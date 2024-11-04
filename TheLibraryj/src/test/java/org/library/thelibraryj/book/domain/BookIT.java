@@ -16,6 +16,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.sql.DataSource;
@@ -30,7 +32,7 @@ public class BookIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String BASE_URL =  "/v0.3" + "/books";
+    private static final String BASE_URL = "/v0.3" + "/books";
     private final UUID bookId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
@@ -45,6 +47,8 @@ public class BookIT {
         scriptExecutor.execute(this.dataSource);
     }
 
+    @WithMockUser
+    @WithUserDetails
     @Test
     public void shouldReturnBookDetailById() throws Exception {
         ResponseEntity<String> response = restTemplate.getForEntity(
@@ -111,7 +115,7 @@ public class BookIT {
         ContentRemovalRequest requestChapter = new ContentRemovalRequest(userId, bookId);
         HttpEntity<ContentRemovalRequest> requestEntityChapter = new HttpEntity<>(requestChapter);
         ResponseEntity<String> responseChapter = restTemplate.exchange(
-                BASE_URL+"/book/chapter/" + 1, HttpMethod.DELETE, requestEntityChapter, String.class
+                BASE_URL + "/book/chapter/" + 1, HttpMethod.DELETE, requestEntityChapter, String.class
         );
         Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), responseChapter.getStatusCode().value());
 

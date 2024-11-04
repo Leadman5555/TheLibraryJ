@@ -17,7 +17,7 @@ public enum UserRole implements GrantedAuthority {
         return authority;
     }
 
-    public static class getCode{
+    public static class getCode {
         public static final String ADMIN = "ADMIN";
         public static final String USER = "USER";
     }

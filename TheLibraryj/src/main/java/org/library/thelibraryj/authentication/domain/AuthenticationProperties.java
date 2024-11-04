@@ -9,6 +9,6 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "library.auth")
 @Getter
 @Setter
-public class AuthenticationProperties {
+class AuthenticationProperties {
     private String activation_link;
 }

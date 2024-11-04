@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -25,10 +26,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 class SecurityConfiguration {
     private static final String[] AUTH_WHITELIST = {
-            "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**"
+            "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.3/auth/**"
     };
     private final UserAuthService userAuthService;
+
     @Bean
+    @Profile(value = {"development"})
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
@@ -38,7 +41,7 @@ class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .headers(headers -> headers
-                    .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
 
         return http.build();
     }

@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class EmailServiceTest {
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
-            .withConfiguration(GreenMailConfiguration.aConfig().withUser("user", "password"))
+            .withConfiguration(GreenMailConfiguration.aConfig().withUser("username", "password"))
             .withPerMethodLifecycle(false);
 
     @Autowired

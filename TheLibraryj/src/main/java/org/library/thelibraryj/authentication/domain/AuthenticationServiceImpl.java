@@ -13,22 +13,44 @@ import org.library.thelibraryj.email.EmailService;
 import org.library.thelibraryj.email.dto.EmailRequest;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
+import org.library.thelibraryj.jwtAuth.JwtService;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
-public record AuthenticationServiceImpl(UserAuthService userAuthService, EmailService emailService, AuthenticationProperties properties, PasswordEncoder passwordEncoder) implements AuthenticationService {
+@Service
+record AuthenticationServiceImpl(UserAuthService userAuthService, EmailService emailService,
+                                 AuthenticationProperties properties,
+                                 PasswordEncoder passwordEncoder,
+                                 AuthenticationManager authenticationManager,
+                                 JwtService jwtService) implements org.library.thelibraryj.authentication.domain.PasswordControl, AuthenticationService {
     @Override
     public Either<GeneralError, AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
-        return null;
+        UserDetails fetched = userAuthService.loadUserByUsername(authenticationRequest.email());
+        if (!fetched.isEnabled()) return Either.left(new UserAuthError.UserNotEnabled(authenticationRequest.email()));
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(authenticationRequest.email(),
+                        new String(authenticationRequest.password()),
+                        fetched.getAuthorities())
+        );
+        zeroPassword(authenticationRequest.password());
+        return Either.right(new AuthenticationResponse(
+                jwtService().generateToken(fetched.getUsername())
+        ));
     }
 
     @Override
-    public Either<GeneralError, Boolean> register(RegisterRequest registerRequest) throws MessagingException {
+    public Either<GeneralError, UserCreationResponse> register(RegisterRequest registerRequest) throws MessagingException {
         Either<GeneralError, UserCreationResponse> createdUser = createUser(registerRequest);
-        if(createdUser.isLeft()) return Either.left(createdUser.getLeft());
+        if (createdUser.isLeft()) return Either.left(createdUser.getLeft());
         emailService.sendEmail(new EmailRequest(
-                registerRequest.email(), new AccountActivationTemplate(registerRequest.username(), properties.getActivation_link())
+                registerRequest.email(),
+                new AccountActivationTemplate(registerRequest.username(), properties.getActivation_link())
         ));
-        return null;
+        return createdUser;
     }
 
     private Either<GeneralError, UserCreationResponse> createUser(RegisterRequest registerRequest) {
@@ -37,7 +59,7 @@ public record AuthenticationServiceImpl(UserAuthService userAuthService, EmailSe
                 passwordEncoder.encode(new String(registerRequest.password())).toCharArray(),
                 registerRequest.username()
         );
-        registerRequest.zeroPassword(registerRequest.password());
+        zeroPassword(registerRequest.password());
         return userAuthService.createNewUser(creationRequest);
     }
 }
