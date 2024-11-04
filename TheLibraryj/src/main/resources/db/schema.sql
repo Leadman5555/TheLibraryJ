@@ -19,18 +19,18 @@ CREATE TABLE library.library_book_previews
     version        BIGINT       NOT NULL DEFAULT 0,
     created_at     TIMESTAMP,
     updated_at     TIMESTAMP,
-    title          VARCHAR(255) NOT NULL,
+    title          VARCHAR(255) UNIQUE NOT NULL,
     chapter_count  INT          NOT NULL,
     average_rating FLOAT        NOT NULL,
     rating_count   INT          NOT NULL,
-    book_state     TINYINT      NOT NULL,
+    book_state     SMALLINT      NOT NULL,
     CONSTRAINT pk_library_book_previews PRIMARY KEY (book_detail_id)
 );
 DROP TABLE IF EXISTS library.book_tag;
 CREATE TABLE library.book_tag
 (
     book_preview_id UUID NOT NULL,
-    tag             TINYINT
+    tag             SMALLINT
 );
 DROP TABLE IF EXISTS library.library_chapter_previews;
 CREATE TABLE library.library_chapter_previews
@@ -81,8 +81,20 @@ CREATE TABLE library.library_user_info
     user_auth_id UUID               NOT NULL,
     CONSTRAINT pk_library_user_info PRIMARY KEY (id)
 );
-ALTER TABLE library.library_book_previews
-    ADD CONSTRAINT uc_library_bookpreviews_title UNIQUE (title);
+DROP TABLE IF EXISTS library.library_user_auth;
+CREATE TABLE  library.library_user_auth
+(
+    id           UUID               NOT NULL,
+    version      BIGINT             NOT NULL DEFAULT 0,
+    created_at   TIMESTAMP,
+    updated_at   TIMESTAMP,
+    password VARCHAR(200) NOT NULL,
+    email        VARCHAR(50) UNIQUE NOT NULL,
+    role         VARCHAR(5)      NOT NULL,
+    is_enabled BOOLEAN NOT NULL DEFAULT false,
+    CONSTRAINT pk_library_user_auth PRIMARY KEY (id)
+);
+
 ALTER TABLE library.library_book_previews
     ADD CONSTRAINT fk_library_bookpreviews_on_bookdetail FOREIGN KEY (book_detail_id) REFERENCES library.library_book_details (id);
 ALTER TABLE library.library_chapter_previews

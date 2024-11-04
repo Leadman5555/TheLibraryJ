@@ -5,5 +5,5 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record UserInfoRequest(@NotBlank String username, @NotBlank String email, @NotNull UUID authUserId) {
+public record UserInfoRequest(@NotBlank String username, @NotBlank String email, @NotNull UUID userAuthId) {
 }
