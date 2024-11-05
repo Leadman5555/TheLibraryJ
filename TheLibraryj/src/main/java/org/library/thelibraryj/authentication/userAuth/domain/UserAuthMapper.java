@@ -15,5 +15,6 @@ interface UserAuthMapper {
 
     @Mapping(source = "userInfoResponse.username", target = "username")
     @Mapping(source = "userAuth.email", target = "email")
+    @Mapping(source = "userAuth.id", target = "userAuthId")
     UserCreationResponse userAuthAndUserInfoResponseToUserCreationResponse(UserInfoResponse userInfoResponse, UserAuth userAuth);
 }

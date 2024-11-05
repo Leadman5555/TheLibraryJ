@@ -1,6 +1,7 @@
 package org.library.thelibraryj.email.template;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 public final class AccountActivationTemplate extends EmailTemplate {
@@ -13,7 +14,7 @@ public final class AccountActivationTemplate extends EmailTemplate {
                 "username", username,
                 "activation_link", activationLink,
                 "image_name", imageName,
-                "expires_at", expiresAt
+                "expires_at", ChronoUnit.HOURS.between(Instant.now(), expiresAt) + " hours"
         );
     }
 }

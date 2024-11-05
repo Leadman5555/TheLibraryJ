@@ -32,7 +32,7 @@ public class BookIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String BASE_URL = "/v0.3" + "/books";
+    private static final String BASE_URL = "/v0.4" + "/books";
     private final UUID bookId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");

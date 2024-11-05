@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Instant;
 
 @RestController
-@RequestMapping("email")
+@RequestMapping("${library.mapping}/email")
 record EmailControllerDELETEME(EmailService emailService) {
 
     @Operation(

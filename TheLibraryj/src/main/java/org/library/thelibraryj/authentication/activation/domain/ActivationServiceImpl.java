@@ -48,12 +48,13 @@ class ActivationServiceImpl implements ActivationService {
                 .isUsed(false)
                 .build();
         activationTokenRepository.persist(newToken);
-        return new ActivationTokenResponse(newToken.toString(), newToken.getExpiresAt());
+        return new ActivationTokenResponse(newToken.getToken().toString(), newToken.getExpiresAt());
     }
 
+    @Transactional
     @Override
     public Either<GeneralError, Boolean> useActivationToken(UUID token) {
-        Either<GeneralError, ActivationToken> fetched = Try.of(() -> activationTokenRepository.findById(token))
+        Either<GeneralError, ActivationToken> fetched = Try.of(() -> activationTokenRepository.findByToken(token))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
@@ -64,10 +65,10 @@ class ActivationServiceImpl implements ActivationService {
         if(activationToken.isUsed()) return Either.left(new ActivationError.ActivationTokenAlreadyUsed(activationToken.getForUserId()));
         activationToken.setUsed(true);
         activationTokenRepository.update(activationToken);
-        userAuthService.enableUser(activationToken.getForUserId());
-        return Either.right(true);
+        return userAuthService.enableUser(activationToken.getForUserId());
     }
 
+    @Transactional
     @Override
     public void deleteAllUsedAndExpiredTokens() {
         activationTokenRepository.deleteAllUsedAndExpired();

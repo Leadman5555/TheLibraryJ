@@ -118,7 +118,7 @@ record BookController(BookService bookService) implements ErrorHandling {
     @PutMapping("/flush")
     public ResponseEntity<String> flushPreviewsCache() {
         bookService.resetBookPreviewsCache();
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(

@@ -24,7 +24,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-record AuthenticationServiceImpl(UserAuthService userAuthService, EmailService emailService,
+record AuthenticationServiceImpl(UserAuthService userAuthService,
+                                 EmailService emailService,
                                  AuthenticationProperties properties,
                                  PasswordEncoder passwordEncoder,
                                  AuthenticationManager authenticationManager,
@@ -49,7 +50,7 @@ record AuthenticationServiceImpl(UserAuthService userAuthService, EmailService e
     public Either<GeneralError, UserCreationResponse> register(RegisterRequest registerRequest) throws MessagingException {
         Either<GeneralError, UserCreationResponse> createdUser = createUser(registerRequest);
         if (createdUser.isLeft()) return Either.left(createdUser.getLeft());
-        ActivationTokenResponse createdToken = activationService.createFirstActivationToken(createdUser.get().userId());
+        ActivationTokenResponse createdToken = activationService.createFirstActivationToken(createdUser.get().userAuthId());
         emailService.sendEmail(new EmailRequest(
                 registerRequest.email(),
                 new AccountActivationTemplate(
