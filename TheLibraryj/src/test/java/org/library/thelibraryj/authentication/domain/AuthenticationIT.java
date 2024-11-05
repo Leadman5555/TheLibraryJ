@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -73,7 +74,7 @@ public class AuthenticationIT {
         );
         final MimeMessage[] receivedMessages = greenMail.getReceivedMessagesForDomain(email);
         assertEquals(1, receivedMessages.length);
-        assertEquals(new AccountActivationTemplate("", "").getSubject(), receivedMessages[0].getSubject());
+        assertEquals(new AccountActivationTemplate("", "", Instant.now()).getSubject(), receivedMessages[0].getSubject());
 
         assertEquals(HttpStatus.CREATED.value(), registerResponse.getStatusCode().value());
         assertNotNull(registerResponse.getBody());

@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableJpaRepositories(
         value = {"org.library.thelibraryj.book.domain","org.library.thelibraryj.userInfo.domain",
-        "org.library.thelibraryj.authentication.userAuth.domain"},
+        "org.library.thelibraryj.authentication.userAuth.domain", "org.library.thelibraryj.authentication.activation.domain"},
         repositoryBaseClass = BaseJpaRepositoryImpl.class
 )
 public class RepositoryConfiguration {

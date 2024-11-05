@@ -94,6 +94,19 @@ CREATE TABLE library.library_user_auth
     is_enabled BOOLEAN            NOT NULL DEFAULT false,
     CONSTRAINT pk_library_user_auth PRIMARY KEY (id)
 );
+DROP TABLE IF EXISTS library.library_activation_tokens;
+CREATE TABLE library.library_activation_tokens
+(
+    id          UUID      NOT NULL,
+    token       UUID      NOT NULL,
+    for_user_id UUID      NOT NULL,
+    version     BIGINT    NOT NULL DEFAULT 0,
+    created_at  TIMESTAMP,
+    updated_at  TIMESTAMP,
+    expires_at  TIMESTAMP NOT NULL,
+    is_used     BOOLEAN   NOT NULL DEFAULT false,
+    CONSTRAINT pk_library_activation_tokens PRIMARY KEY (id)
+);
 
 ALTER TABLE library.library_book_previews
     ADD CONSTRAINT fk_library_bookpreviews_on_bookdetail FOREIGN KEY (book_detail_id) REFERENCES library.library_book_details (id);

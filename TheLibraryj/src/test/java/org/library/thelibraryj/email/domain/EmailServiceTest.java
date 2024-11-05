@@ -13,6 +13,7 @@ import org.library.thelibraryj.email.template.AccountActivationTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
@@ -32,7 +33,7 @@ public class EmailServiceTest {
     public void sendConfirmationMail() throws Exception {;
         final String recipient = "recipient@example.com";
         EmailTemplate template = new AccountActivationTemplate(
-                "sample username", "sample link"
+                "sample username", "sample link", Instant.now()
         );
         final String subject = template.getSubject();
         EmailRequest request = new EmailRequest(recipient, template);

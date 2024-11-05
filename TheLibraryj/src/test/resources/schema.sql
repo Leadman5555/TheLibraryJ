@@ -16,6 +16,8 @@ DROP TABLE IF EXISTS library.library_user_info;
 CREATE TABLE library.library_user_info(id         UUID   NOT NULL,    version    BIGINT NOT NULL DEFAULT 0,created_at TIMESTAMP,updated_at TIMESTAMP,data_updated_at TIMESTAMP, username   VARCHAR(20) UNIQUE NOT NULL, email      VARCHAR(50) UNIQUE NOT NULL, rank       INTEGER NOT NULL DEFAULT 0, user_auth_id UUID NOT NULL, CONSTRAINT pk_library_user_info PRIMARY KEY (id));
 DROP TABLE IF EXISTS library.library_user_auth;
 CREATE TABLE  library.library_user_auth(id           UUID               NOT NULL,   version      BIGINT             NOT NULL DEFAULT 0,created_at   TIMESTAMP,updated_at   TIMESTAMP,password VARCHAR(200) NOT NULL,email        VARCHAR(50) UNIQUE NOT NULL,role         VARCHAR(5)      NOT NULL,is_enabled BOOLEAN NOT NULL DEFAULT false,CONSTRAINT pk_library_user_auth PRIMARY KEY (id));
+DROP TABLE IF EXISTS library.library_activation_tokens;
+CREATE TABLE library.library_activation_tokens(id          UUID      NOT NULL,token       UUID      NOT NULL,for_user_id UUID      NOT NULL,version     BIGINT    NOT NULL DEFAULT 0,created_at  TIMESTAMP,updated_at  TIMESTAMP,expires_at  TIMESTAMP NOT NULL,is_used     BOOLEAN   NOT NULL DEFAULT false,CONSTRAINT pk_library_activation_tokens PRIMARY KEY (id));
 ALTER TABLE library.library_book_previews ADD CONSTRAINT uc_library_bookpreviews_title UNIQUE (title);
 ALTER TABLE library.library_book_previews ADD CONSTRAINT fk_library_bookpreviews_on_bookdetail FOREIGN KEY (book_detail_id) REFERENCES library.library_book_details (id);
 ALTER TABLE library.library_chapter_previews    ADD CONSTRAINT fk_library_chapterpreviews_on_bookdetail FOREIGN KEY (book_detail_id) REFERENCES library.library_book_details (id);

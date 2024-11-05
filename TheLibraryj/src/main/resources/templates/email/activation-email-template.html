@@ -5,13 +5,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-<p>Greetings disciple, <span th:text="${username}">unknown name</span></p>
+<p>Greetings disciple, <span th:text="${username}">Name lost in transmission</span></p>
 <p>
     You have been accepted to the Library Sect. <br/>
     One last formality awaits you before you can make use of our boundless resources. <br/>
     Bellow you shall find a dark blue formation array. Interacting with it will let you complete your initialization.
     <br/>
-    <a th:href="@{${activation_link}}">Confirm my sect recruitment.</a>
+    <a th:href="@{${activation_link}}">Confirm my sect recruitment.</a> <br/>
+    Be prudent junior for the formation array will run out of energy in <span th:text="${expires_at}">Expiration time lost in transmission</span>
 </p>
 <p>
     Congratulations on joining the Library, junior! <br/>
