@@ -29,7 +29,7 @@ public class UserAuthMapperTest {
         );
         UserCreationResponse mapped = userAuthMapper.userAuthAndUserInfoResponseToUserCreationResponse(userInfo, userAuth);
         Assertions.assertAll(
-                ()-> Assertions.assertEquals(userInfo.userId(), mapped.userId()),
+                ()-> Assertions.assertEquals(userAuth.getId(), mapped.userAuthId()),
                 () ->Assertions.assertEquals(userAuth.getEmail(), mapped.email()),
                 () -> Assertions.assertEquals(userInfo.username(), mapped.username()),
                 () -> Assertions.assertEquals(userInfo.dataUpdatedAt(), mapped.dataUpdatedAt()),

@@ -31,7 +31,7 @@ public class UserInfoIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String VERSION = "/v0.3";
+    private static final String VERSION = "/v0.4";
     private static final String BASE_URL = VERSION + "/user";
     private final UUID bookId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");

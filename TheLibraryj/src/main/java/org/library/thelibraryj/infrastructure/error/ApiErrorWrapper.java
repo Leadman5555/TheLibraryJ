@@ -2,6 +2,7 @@ package org.library.thelibraryj.infrastructure.error;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import org.library.thelibraryj.infrastructure.error.errorTypes.ActivationError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
@@ -51,6 +52,14 @@ public class ApiErrorWrapper {
                     getErrorResponse(error, HttpStatus.CONFLICT, "Username not unique. Duplicate username: " + e.username());
             case UserAuthError.UserNotEnabled e ->
                     getErrorResponse(error, HttpStatus.BAD_REQUEST, "User not enabled. Email: " + e.email());
+            case ActivationError.UserAlreadyEnabled e ->
+                    getErrorResponse(error, HttpStatus.BAD_REQUEST, "User already enabled. Id: " + e.userId());
+            case ActivationError.ActivationTokenNotFound e ->
+                    getErrorResponse(error, HttpStatus.NOT_FOUND, "Activation token missing. Token id: " + e.tokenId());
+            case ActivationError.ActivationTokenExpired e ->
+                    getErrorResponse(error, HttpStatus.BAD_REQUEST, "Activation token had already expired. Token for user with id: " + e.userId());
+            case ActivationError.ActivationTokenAlreadyUsed e ->
+                    getErrorResponse(error, HttpStatus.BAD_REQUEST, "Activation token has already been used. Token for user with id: " + e.userId());
             case ServiceError.DatabaseError e -> getErrorResponse(error, HttpStatus.INTERNAL_SERVER_ERROR,
                     "Something went wrong on persistence layer. Consider reuploading corrupted/missing files.");
         };

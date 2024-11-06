@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -40,7 +41,7 @@ public class AuthenticationIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String BASE_URL = "/v0.3" + "/auth";
+    private static final String BASE_URL = "/v0.4" + "/auth";
     private final UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
 
@@ -73,7 +74,7 @@ public class AuthenticationIT {
         );
         final MimeMessage[] receivedMessages = greenMail.getReceivedMessagesForDomain(email);
         assertEquals(1, receivedMessages.length);
-        assertEquals(new AccountActivationTemplate("", "").getSubject(), receivedMessages[0].getSubject());
+        assertEquals(new AccountActivationTemplate("", "", Instant.now()).getSubject(), receivedMessages[0].getSubject());
 
         assertEquals(HttpStatus.CREATED.value(), registerResponse.getStatusCode().value());
         assertNotNull(registerResponse.getBody());

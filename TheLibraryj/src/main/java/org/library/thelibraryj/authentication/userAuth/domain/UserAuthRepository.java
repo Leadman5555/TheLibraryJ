@@ -13,7 +13,7 @@ interface UserAuthRepository extends BaseJpaRepository<UserAuth, UUID> {
     Optional<UserAuth> findByEmail(String username);
     boolean existsByEmail(String email);
     @Query("""
-    SELECT u.isEnabled FROM UserAuth u
+    SELECT u.isEnabled FROM userAuth u
     where u.id = :id
     """)
     Optional<Boolean> isEnabled(@Param("id") UUID id);

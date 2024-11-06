@@ -3,6 +3,8 @@ package org.library.thelibraryj.authentication.domain;
 import io.vavr.control.Either;
 import jakarta.mail.MessagingException;
 import org.library.thelibraryj.authentication.AuthenticationService;
+import org.library.thelibraryj.authentication.activation.ActivationService;
+import org.library.thelibraryj.authentication.activation.dto.ActivationTokenResponse;
 import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
 import org.library.thelibraryj.authentication.dto.AuthenticationResponse;
 import org.library.thelibraryj.authentication.dto.RegisterRequest;
@@ -22,10 +24,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-record AuthenticationServiceImpl(UserAuthService userAuthService, EmailService emailService,
+record AuthenticationServiceImpl(UserAuthService userAuthService,
+                                 EmailService emailService,
                                  AuthenticationProperties properties,
                                  PasswordEncoder passwordEncoder,
                                  AuthenticationManager authenticationManager,
+                                 ActivationService activationService,
                                  JwtService jwtService) implements org.library.thelibraryj.authentication.domain.PasswordControl, AuthenticationService {
     @Override
     public Either<GeneralError, AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
@@ -46,10 +50,14 @@ record AuthenticationServiceImpl(UserAuthService userAuthService, EmailService e
     public Either<GeneralError, UserCreationResponse> register(RegisterRequest registerRequest) throws MessagingException {
         Either<GeneralError, UserCreationResponse> createdUser = createUser(registerRequest);
         if (createdUser.isLeft()) return Either.left(createdUser.getLeft());
+        ActivationTokenResponse createdToken = activationService.createFirstActivationToken(createdUser.get().userAuthId());
         emailService.sendEmail(new EmailRequest(
                 registerRequest.email(),
-                new AccountActivationTemplate(registerRequest.username(), properties.getActivation_link())
-        ));
+                new AccountActivationTemplate(
+                        registerRequest.username(),
+                        properties.getActivation_link() + createdToken.token(),
+                        createdToken.expiresAt()
+                )));
         return createdUser;
     }
 
