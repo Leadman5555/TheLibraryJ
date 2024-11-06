@@ -4,7 +4,6 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
-import org.library.thelibraryj.authentication.userAuth.dto.UserAuthResponse;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
@@ -100,12 +99,12 @@ class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
-    public Either<GeneralError, UserAuthResponse> getResponseByEmail(String email) {
-        Either<GeneralError, UserAuth> fetched = findByEmail(email);
-        if (fetched.isRight()) return Either.right(mapper.userAuthToUserAuthResponse(
-                fetched.get()
-        ));
-        return Either.left(fetched.getLeft());
+    public Either<GeneralError, UUID> getAuthIdByEmail(String email) {
+        return Try.of(() -> userAuthRepository.getIdByEmail(email))
+                .toEither()
+                .map(Option::ofOptional)
+                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
+                .flatMap(optionalEntity -> optionalEntity.toEither(new UserAuthError.UserAuthNotFoundEmail(email)));
     }
 
     @Override

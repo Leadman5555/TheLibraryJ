@@ -1,10 +1,10 @@
-package org.library.thelibraryj.authentication.activation.domain;
+package org.library.thelibraryj.authentication.tokenServices.domain;
 
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import org.library.thelibraryj.authentication.activation.ActivationService;
-import org.library.thelibraryj.authentication.activation.dto.ActivationTokenResponse;
+import org.library.thelibraryj.authentication.tokenServices.ActivationService;
+import org.library.thelibraryj.authentication.tokenServices.dto.activation.ActivationTokenResponse;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ActivationError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
@@ -19,14 +19,14 @@ import java.util.UUID;
 @Service
 @Transactional(readOnly = true)
 class ActivationServiceImpl implements ActivationService {
-    private final ActivationTokenRepository activationTokenRepository;
+    private final TokenRepository tokenRepository;
     private final UserAuthService userAuthService;
 
     @Value("${library.activation.expiration_time_seconds}")
     private long expirationTimeSeconds;
 
-    public ActivationServiceImpl(ActivationTokenRepository activationTokenRepository, UserAuthService userAuthService) {
-        this.activationTokenRepository = activationTokenRepository;
+    public ActivationServiceImpl(TokenRepository tokenRepository, UserAuthService userAuthService) {
+        this.tokenRepository = tokenRepository;
         this.userAuthService = userAuthService;
     }
 
@@ -41,36 +41,36 @@ class ActivationServiceImpl implements ActivationService {
     @Transactional
     @Override
     public ActivationTokenResponse createFirstActivationToken(UUID idForToken) {
-        ActivationToken newToken = ActivationToken.builder()
+        Token newToken = Token.builder()
                 .token(UUID.randomUUID())
                 .expiresAt(Instant.now().plusSeconds(expirationTimeSeconds))
                 .forUserId(idForToken)
                 .isUsed(false)
                 .build();
-        activationTokenRepository.persist(newToken);
+        tokenRepository.persist(newToken);
         return new ActivationTokenResponse(newToken.getToken().toString(), newToken.getExpiresAt());
     }
 
     @Transactional
     @Override
-    public Either<GeneralError, Boolean> useActivationToken(UUID token) {
-        Either<GeneralError, ActivationToken> fetched = Try.of(() -> activationTokenRepository.findByToken(token))
+    public Either<GeneralError, Boolean> consumeActivationToken(UUID tokenId) {
+        Either<GeneralError, Token> fetched = Try.of(() -> tokenRepository.findByToken(tokenId))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new ActivationError.ActivationTokenNotFound(token)));
+                .flatMap(optionalEntity -> optionalEntity.toEither(new ActivationError.ActivationTokenNotFound(tokenId)));
         if(fetched.isLeft()) return Either.left(fetched.getLeft());
-        ActivationToken activationToken = fetched.get();
-        if(activationToken.hasExpired()) return Either.left(new ActivationError.ActivationTokenExpired(activationToken.getForUserId()));
-        if(activationToken.isUsed()) return Either.left(new ActivationError.ActivationTokenAlreadyUsed(activationToken.getForUserId()));
-        activationToken.setUsed(true);
-        activationTokenRepository.update(activationToken);
-        return userAuthService.enableUser(activationToken.getForUserId());
+        Token token = fetched.get();
+        if(token.hasExpired()) return Either.left(new ActivationError.ActivationTokenExpired(token.getForUserId()));
+        if(token.isUsed()) return Either.left(new ActivationError.ActivationTokenAlreadyUsed(token.getForUserId()));
+        token.setUsed(true);
+        tokenRepository.update(token);
+        return userAuthService.enableUser(token.getForUserId());
     }
 
     @Transactional
     @Override
     public void deleteAllUsedAndExpiredTokens() {
-        activationTokenRepository.deleteAllUsedAndExpired();
+        tokenRepository.deleteAllUsedAndExpired();
     }
 }

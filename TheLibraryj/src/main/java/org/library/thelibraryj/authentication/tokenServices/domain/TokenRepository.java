@@ -1,4 +1,4 @@
-package org.library.thelibraryj.authentication.activation.domain;
+package org.library.thelibraryj.authentication.tokenServices.domain;
 
 import io.hypersistence.utils.spring.repository.BaseJpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -9,13 +9,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-interface ActivationTokenRepository extends BaseJpaRepository<ActivationToken, UUID> {
+interface TokenRepository extends BaseJpaRepository<Token, UUID> {
     @Modifying
     @Query("""
-    DELETE FROM activationToken
+    DELETE FROM token
     WHERE isUsed = true OR expiresAt > CURRENT_TIMESTAMP
 """)
     void deleteAllUsedAndExpired();
 
-    Optional<ActivationToken> findByToken(UUID token);
+    Optional<Token> findByToken(UUID token);
 }

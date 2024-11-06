@@ -42,8 +42,6 @@ public class AuthenticationIT {
     private DataSource dataSource;
 
     private static final String BASE_URL = "/v0.4" + "/auth";
-    private final UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-    private final UUID userId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
 
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)

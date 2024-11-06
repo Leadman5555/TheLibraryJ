@@ -3,8 +3,9 @@ package org.library.thelibraryj.authentication.domain;
 import io.vavr.control.Either;
 import jakarta.mail.MessagingException;
 import org.library.thelibraryj.authentication.AuthenticationService;
-import org.library.thelibraryj.authentication.activation.ActivationService;
-import org.library.thelibraryj.authentication.activation.dto.ActivationTokenResponse;
+import org.library.thelibraryj.authentication.PasswordControl;
+import org.library.thelibraryj.authentication.tokenServices.ActivationService;
+import org.library.thelibraryj.authentication.tokenServices.dto.activation.ActivationTokenResponse;
 import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
 import org.library.thelibraryj.authentication.dto.AuthenticationResponse;
 import org.library.thelibraryj.authentication.dto.RegisterRequest;
@@ -30,7 +31,7 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
                                  PasswordEncoder passwordEncoder,
                                  AuthenticationManager authenticationManager,
                                  ActivationService activationService,
-                                 JwtService jwtService) implements org.library.thelibraryj.authentication.domain.PasswordControl, AuthenticationService {
+                                 JwtService jwtService) implements PasswordControl, AuthenticationService {
     @Override
     public Either<GeneralError, AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
         UserDetails fetched = userAuthService.loadUserByUsername(authenticationRequest.email());
