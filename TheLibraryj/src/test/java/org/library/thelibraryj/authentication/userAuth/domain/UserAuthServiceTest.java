@@ -64,7 +64,7 @@ public class UserAuthServiceTest {
     public void testCreateNewUser() {
         UserCreationRequest request = new UserCreationRequest(email, password, username);
         UserInfoRequest infoRequest = new UserInfoRequest(username, email, id);
-        UserInfoResponse infoResponse = new UserInfoResponse(UUID.randomUUID(), username, email, 0, Instant.now());
+        UserInfoResponse infoResponse = new UserInfoResponse(UUID.randomUUID(), UUID.randomUUID(), username, email, 0, Instant.now());
         UserAuth newAuth = mapper.userAuthRequestToUserAuth(request);
         newAuth.setRole(UserRole.USER);
         when(userAuthRepository.persist(newAuth)).thenReturn(userAuth);

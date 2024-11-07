@@ -3,6 +3,7 @@ package org.library.thelibraryj.userInfo.domain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class UserInfoIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String VERSION = "/v0.4";
+    private static final String VERSION = TestProperties.BASE_URL;
     private static final String BASE_URL = VERSION + "/user";
     private final UUID bookId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");

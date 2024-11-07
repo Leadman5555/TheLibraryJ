@@ -94,8 +94,8 @@ CREATE TABLE library.library_user_auth
     is_enabled BOOLEAN            NOT NULL DEFAULT false,
     CONSTRAINT pk_library_user_auth PRIMARY KEY (id)
 );
-DROP TABLE IF EXISTS library.library_activation_tokens;
-CREATE TABLE library.library_activation_tokens
+DROP TABLE IF EXISTS library.library_tokens;
+CREATE TABLE library.library_tokens
 (
     id          UUID      NOT NULL,
     token       UUID      NOT NULL,
@@ -105,7 +105,7 @@ CREATE TABLE library.library_activation_tokens
     updated_at  TIMESTAMP,
     expires_at  TIMESTAMP NOT NULL,
     is_used     BOOLEAN   NOT NULL DEFAULT false,
-    CONSTRAINT pk_library_activation_tokens PRIMARY KEY (id)
+    CONSTRAINT pk_library_tokens PRIMARY KEY (id)
 );
 
 ALTER TABLE library.library_book_previews

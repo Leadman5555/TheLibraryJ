@@ -7,8 +7,10 @@ import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
+import org.library.thelibraryj.authentication.dto.BasicUserDataRequest;
 import org.library.thelibraryj.authentication.dto.RegisterRequest;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -41,9 +44,8 @@ public class AuthenticationIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String BASE_URL = "/v0.4" + "/auth";
-    private final UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-    private final UUID userId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
+    private static final String BASE_URL = TestProperties.BASE_URL + "/auth";
+private static final UUID notEnabledUserId = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
 
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
@@ -133,4 +135,51 @@ public class AuthenticationIT {
         assertEquals(HttpStatus.BAD_REQUEST.value(), authResponse4.getStatusCode().value());
     }
 
+    @Test
+    public void shouldResendActivationEmail() throws Exception {
+        final String email = "sample.email2@gmail.com";
+        final String username = "user2";
+
+        Connection connection = dataSource.getConnection();
+
+        Statement checkIfDisabled = connection.createStatement();
+        checkIfDisabled.execute("SELECT is_enabled FROM library.library_user_auth WHERE id  = '" + notEnabledUserId + "'");
+        ResultSet resultSetInfo = checkIfDisabled.getResultSet();
+        resultSetInfo.next();
+        assertFalse(resultSetInfo.getBoolean("is_enabled"));
+
+        BasicUserDataRequest requestEntity = new BasicUserDataRequest(username, email);
+        ResponseEntity<String> registerResponse = restTemplate.postForEntity(
+                BASE_URL + "/activation", requestEntity, String.class
+        );
+        assertEquals(HttpStatus.NO_CONTENT.value(), registerResponse.getStatusCode().value());
+
+        await().atMost(10, TimeUnit.SECONDS).until(
+                () -> greenMail.getReceivedMessagesForDomain(email).length == 1
+        );
+        final MimeMessage[] receivedMessages = greenMail.getReceivedMessagesForDomain(email);
+        assertEquals(1, receivedMessages.length);
+        assertEquals(new AccountActivationTemplate("", "", Instant.now()).getSubject(), receivedMessages[0].getSubject());
+
+
+
+        Statement checkCreatedAuth = connection.createStatement();
+        checkCreatedAuth.execute("SELECT token FROM library.library_tokens WHERE for_user_id = '" + notEnabledUserId + "'");
+        ResultSet resultSet = checkCreatedAuth.getResultSet();
+        resultSet.next();
+        UUID newToken = resultSet.getObject("token", UUID.class);
+
+        ResponseEntity<String> activationResponse = restTemplate.exchange(
+                BASE_URL + "/activation/" + newToken, HttpMethod.PATCH, null, String.class
+        );
+        assertEquals(HttpStatus.NO_CONTENT.value(), activationResponse.getStatusCode().value());
+
+        Statement checkIfEnabled = connection.createStatement();
+        checkIfEnabled.execute("SELECT is_enabled FROM library.library_user_auth WHERE id  = '" + notEnabledUserId + "'");
+        resultSetInfo = checkIfEnabled.getResultSet();
+        resultSetInfo.next();
+        assertTrue(resultSetInfo.getBoolean("is_enabled"));
+
+        connection.close();
+    }
 }

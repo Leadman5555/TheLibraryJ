@@ -1,4 +1,4 @@
-package org.library.thelibraryj.authentication.activation.dto;
+package org.library.thelibraryj.authentication.tokenServices.dto.activation;
 
 import java.time.Instant;
 

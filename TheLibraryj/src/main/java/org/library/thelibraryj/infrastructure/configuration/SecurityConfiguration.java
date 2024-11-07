@@ -26,7 +26,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 class SecurityConfiguration {
     private static final String[] AUTH_WHITELIST = {
-            "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.4/auth/**", "/v0.4/**"
+            "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.5/auth/**", "/v0.5/**"
     };
     private final UserAuthService userAuthService;
 

@@ -2,6 +2,7 @@ package org.library.thelibraryj.userInfo.domain;
 
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
+import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
@@ -33,7 +34,7 @@ public class UserInfoControllerTest {
     @MockBean
     private UserInfoService userInfoService;
 
-    private static final String URL_BASE = "/v0.4";
+    private static final String URL_BASE = TestProperties.BASE_URL;
 
     private static final String ENDPOINT =  URL_BASE + "/user";
 
@@ -41,7 +42,7 @@ public class UserInfoControllerTest {
 
     @Test
     public void testGetUserInfoResponseById() throws Exception {
-        when(userInfoService.getUserInfoResponseById(userId)).thenReturn(Either.right(new UserInfoResponse(userId, null, null, 0, null)));
+        when(userInfoService.getUserInfoResponseById(userId)).thenReturn(Either.right(new UserInfoResponse(userId, null, null, null,0, null)));
         mockMvc.perform(get(ENDPOINT + '/' + userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -52,7 +53,7 @@ public class UserInfoControllerTest {
     @Test
     public void testUpdateUserInfoRank() throws Exception {
         UserInfoRankUpdateRequest request = new UserInfoRankUpdateRequest(userId, 10);
-        UserInfoResponse response = new UserInfoResponse(userId, "sample", "sample", 10, Instant.now());
+        UserInfoResponse response = new UserInfoResponse(userId, UUID.randomUUID(), "sample", "email@sample.com",10, Instant.now());
         when(userInfoService.updateRank(request)).thenReturn(Either.right(response));
 
         mockMvc.perform(patch(ENDPOINT + "/profile/rank")

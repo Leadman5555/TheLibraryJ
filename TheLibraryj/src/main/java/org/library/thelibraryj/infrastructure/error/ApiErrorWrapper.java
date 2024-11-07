@@ -5,6 +5,7 @@ import lombok.Data;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ActivationError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.PasswordResetError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
@@ -23,6 +24,7 @@ public class ApiErrorWrapper {
         this.errorResponse = errorResponse;
     }
 
+    @SuppressWarnings("unused")
     private static ApiErrorResponse generateWrapper(GeneralError error) {
         return switch (error) {
             case BookError.BookDetailEntityNotFound e -> getErrorResponse(error, HttpStatus.NOT_FOUND,
@@ -60,6 +62,12 @@ public class ApiErrorWrapper {
                     getErrorResponse(error, HttpStatus.BAD_REQUEST, "Activation token had already expired. Token for user with id: " + e.userId());
             case ActivationError.ActivationTokenAlreadyUsed e ->
                     getErrorResponse(error, HttpStatus.BAD_REQUEST, "Activation token has already been used. Token for user with id: " + e.userId());
+            case PasswordResetError.PasswordResetTokenNotFound e ->
+                    getErrorResponse(error, HttpStatus.NOT_FOUND, "Password reset token missing. Token id: " + e.tokenId());
+            case PasswordResetError.PasswordResetTokenExpired e ->
+                    getErrorResponse(error, HttpStatus.BAD_REQUEST, "Password reset token had already expired. Token for user with id: " + e.userId());
+            case PasswordResetError.PasswordResetTokenAlreadyUsed e ->
+                    getErrorResponse(error, HttpStatus.BAD_REQUEST, "Password reset token has already been used. Token for user with id: " + e.userId());
             case ServiceError.DatabaseError e -> getErrorResponse(error, HttpStatus.INTERNAL_SERVER_ERROR,
                     "Something went wrong on persistence layer. Consider reuploading corrupted/missing files.");
         };

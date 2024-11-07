@@ -3,6 +3,7 @@ package org.library.thelibraryj.book.domain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.book.dto.ContentRemovalRequest;
 import org.library.thelibraryj.book.dto.RatingRequest;
@@ -32,7 +33,7 @@ public class BookIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String BASE_URL = "/v0.4" + "/books";
+    private static final String BASE_URL = TestProperties.BASE_URL + "/books";
     private final UUID bookId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");

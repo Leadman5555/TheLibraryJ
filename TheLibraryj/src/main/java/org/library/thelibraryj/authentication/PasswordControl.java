@@ -1,8 +1,8 @@
-package org.library.thelibraryj.authentication.domain;
+package org.library.thelibraryj.authentication;
 
 import java.util.Arrays;
 
-sealed interface PasswordControl permits AuthenticationServiceImpl {
+public interface PasswordControl {
     default void zeroPassword(char[] passwordToZero) {
         Arrays.fill(passwordToZero, '0');
     }

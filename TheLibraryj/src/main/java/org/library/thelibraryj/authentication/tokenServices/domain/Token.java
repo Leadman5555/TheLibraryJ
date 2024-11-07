@@ -1,4 +1,4 @@
-package org.library.thelibraryj.authentication.activation.domain;
+package org.library.thelibraryj.authentication.tokenServices.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,11 +14,11 @@ import org.library.thelibraryj.infrastructure.model.AbstractEntity;
 import java.time.Instant;
 import java.util.UUID;
 
-@Entity(name = "activationToken")
+@Entity(name = "token")
 @NoArgsConstructor
-@Table(name = "library_activation_tokens")
+@Table(name = "library_tokens")
 @EqualsAndHashCode(callSuper = true)
-class ActivationToken extends AbstractEntity {
+class Token extends AbstractEntity {
     @Column(nullable = false)
     @Getter
     private UUID token;
@@ -33,7 +33,7 @@ class ActivationToken extends AbstractEntity {
     private boolean isUsed;
 
     @Builder
-    public ActivationToken(UUID id, Long version, Instant createdAt, Instant updatedAt, UUID token, Instant expiresAt, UUID forUserId, boolean isUsed) {
+    public Token(UUID id, Long version, Instant createdAt, Instant updatedAt, UUID token, Instant expiresAt, UUID forUserId, boolean isUsed) {
         super(id, version, createdAt, updatedAt);
         this.token = token;
         this.expiresAt = expiresAt;
@@ -50,3 +50,4 @@ class ActivationToken extends AbstractEntity {
         return isUsed;
     }
 }
+
