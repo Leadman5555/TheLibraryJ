@@ -14,10 +14,6 @@ public abstract sealed class EmailTemplate implements EmailTemplateInterface per
         this.templateName = templateName;
     }
 
-    public void addParameter(String key, Object value) {
-        this.parameters.put(key, value);
-    }
-
     @Override
     public String getSubject() {
         return parameters.get("subject").toString();

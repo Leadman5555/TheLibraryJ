@@ -1,7 +1,6 @@
 package org.library.thelibraryj.book.domain;
 
 import io.hypersistence.utils.spring.repository.BaseJpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,14 +17,6 @@ interface BookDetailRepository extends BaseJpaRepository<BookDetail, UUID> {
         where bd.id = :bookId
     """)
     Optional<UUID> getAuthorId(@Param("bookId") UUID bookId);
-
-    @Modifying
-    @Query("""
-    delete from bookDetail
-    where id = :bookId
-    """)
-    void deleteBook(@Param("bookId") UUID bookId);
-
 
     List<BookDetail> getBookDetailByAuthorId(UUID authorId);
 }

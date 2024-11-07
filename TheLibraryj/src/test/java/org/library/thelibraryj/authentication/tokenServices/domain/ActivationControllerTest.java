@@ -2,6 +2,7 @@ package org.library.thelibraryj.authentication.tokenServices.domain;
 
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
+import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.authentication.tokenServices.ActivationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,7 +26,7 @@ public class ActivationControllerTest {
     @MockBean
     private ActivationService activationService;
 
-    private static final String URL_BASE = "/v0.4";
+    private static final String URL_BASE = TestProperties.BASE_URL;
 
     private static final String ENDPOINT =  URL_BASE + "/auth/activation";
 

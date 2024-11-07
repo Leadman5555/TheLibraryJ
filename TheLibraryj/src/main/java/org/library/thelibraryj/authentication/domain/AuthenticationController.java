@@ -5,6 +5,7 @@ import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.library.thelibraryj.authentication.AuthenticationService;
 import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
+import org.library.thelibraryj.authentication.dto.BasicUserDataRequest;
 import org.library.thelibraryj.authentication.dto.RegisterRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.springframework.http.HttpStatus;
@@ -34,5 +35,14 @@ record AuthenticationController(AuthenticationService authenticationService) imp
     @PostMapping
     public ResponseEntity<String> login(@RequestBody @Valid AuthenticationRequest authenticationRequest) {
         return handle(authenticationService.authenticate(authenticationRequest), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Resends an activation email for given email address on success.",
+            tags = {"authentication", "activation"}
+    )
+    @PostMapping("/activation")
+    public ResponseEntity<String> resendActivationEmail(@RequestBody @Valid BasicUserDataRequest basicUserDataRequest) throws MessagingException {
+        return handle(authenticationService.resendActivationEmail(basicUserDataRequest), HttpStatus.NO_CONTENT);
     }
 }

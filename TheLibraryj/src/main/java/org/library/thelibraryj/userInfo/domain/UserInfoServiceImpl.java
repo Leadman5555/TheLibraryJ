@@ -12,7 +12,6 @@ import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
 import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +31,6 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     private final UserInfoMapper userInfoMapper;
     private final UserInfoConfig userInfoConfig;
     private BookService bookService;
-    private ApplicationContext context;
 
     @Autowired
     void setBookService(@Lazy BookService bookService) {

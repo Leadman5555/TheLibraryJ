@@ -4,6 +4,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
+import org.library.thelibraryj.authentication.userAuth.dto.BasicUserAuthData;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
@@ -57,12 +58,14 @@ class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
-    public Either<GeneralError, Boolean> isEnabled(UUID userId) {
-        return Try.of(() -> userAuthRepository.isEnabled(userId))
+    public Either<GeneralError, BasicUserAuthData> getBasicUserAuthDataByEmail(String email) {
+        Either<GeneralError, Object[][]> fetched =  Try.of(() -> userAuthRepository.getBasicUserAuthData(email))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new UserAuthError.UserAuthNotFoundId(userId)));
+                .flatMap(optionalEntity -> optionalEntity.toEither(new UserAuthError.UserAuthNotFoundEmail(email)));
+        if(fetched.isLeft()) return Either.left(fetched.getLeft());
+        return Either.right(new BasicUserAuthData((UUID) fetched.get()[0][0], (boolean) fetched.get()[0][1]));
     }
 
     @Transactional

@@ -2,7 +2,13 @@ package org.library.thelibraryj.infrastructure.error;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.library.thelibraryj.infrastructure.error.errorTypes.*;
+import org.library.thelibraryj.infrastructure.error.errorTypes.ActivationError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.PasswordResetError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.springframework.http.HttpStatus;
 
 @Data
@@ -18,6 +24,7 @@ public class ApiErrorWrapper {
         this.errorResponse = errorResponse;
     }
 
+    @SuppressWarnings("unused")
     private static ApiErrorResponse generateWrapper(GeneralError error) {
         return switch (error) {
             case BookError.BookDetailEntityNotFound e -> getErrorResponse(error, HttpStatus.NOT_FOUND,

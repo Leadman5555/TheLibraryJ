@@ -12,11 +12,14 @@ import java.util.UUID;
 interface UserAuthRepository extends BaseJpaRepository<UserAuth, UUID> {
     Optional<UserAuth> findByEmail(String username);
     boolean existsByEmail(String email);
+
     @Query("""
-    SELECT isEnabled FROM userAuth
-    where id = :id
-    """)
-    Optional<Boolean> isEnabled(@Param("id") UUID id);
+    SELECT id, isEnabled FROM userAuth
+    WHERE email = :email
+""")
+    Optional<Object[][]> getBasicUserAuthData(String email);
+
+
     @Query("""
     SELECT id FROM userAuth WHERE email = :email
 """)

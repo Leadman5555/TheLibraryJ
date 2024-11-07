@@ -7,7 +7,7 @@ import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import java.util.UUID;
 
 public interface ActivationService {
-    Either<GeneralError, ActivationTokenResponse> createActivationToken(UUID idForToken);
+    Either<GeneralError, ActivationTokenResponse> createActivationToken(String forEmail);
     ActivationTokenResponse createFirstActivationToken(UUID idForToken);
     Either<GeneralError, Boolean> consumeActivationToken(UUID token);
     void deleteAllUsedAndExpiredTokens();

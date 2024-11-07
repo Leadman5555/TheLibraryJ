@@ -2,6 +2,7 @@ package org.library.thelibraryj.book.domain;
 
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
+import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.BookDetailResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
@@ -29,7 +30,7 @@ public class BookControllerTest {
     @MockBean
     private BookService bookService;
 
-    private static final String URL_BASE = "/v0.4";
+    private static final String URL_BASE = TestProperties.BASE_URL;
 
     private static final String ENDPOINT =  URL_BASE + "/books";
 

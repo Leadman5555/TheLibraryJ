@@ -6,6 +6,7 @@ import io.vavr.control.Try;
 import org.library.thelibraryj.authentication.tokenServices.ActivationService;
 import org.library.thelibraryj.authentication.tokenServices.dto.activation.ActivationTokenResponse;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
+import org.library.thelibraryj.authentication.userAuth.dto.BasicUserAuthData;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ActivationError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
@@ -30,12 +31,14 @@ class ActivationServiceImpl implements ActivationService {
         this.userAuthService = userAuthService;
     }
 
+    @Transactional
     @Override
-    public Either<GeneralError, ActivationTokenResponse> createActivationToken(UUID idForToken) {
-        Either<GeneralError, Boolean> isEnabledQueryResult = userAuthService.isEnabled(idForToken);
-        if(isEnabledQueryResult.isLeft()) return Either.left(isEnabledQueryResult.getLeft());
-        if(isEnabledQueryResult.get()) return Either.left(new ActivationError.UserAlreadyEnabled(idForToken));
-        return Either.right(createFirstActivationToken(idForToken));
+    public Either<GeneralError, ActivationTokenResponse> createActivationToken(String forEmail) {
+        Either<GeneralError, BasicUserAuthData> basicAuthDataQueryResult = userAuthService.getBasicUserAuthDataByEmail(forEmail);
+        if(basicAuthDataQueryResult.isLeft()) return Either.left(basicAuthDataQueryResult.getLeft());
+        BasicUserAuthData basicUserAuthData = basicAuthDataQueryResult.get();
+        if(basicUserAuthData.isEnabled()) return Either.left(new ActivationError.UserAlreadyEnabled(basicUserAuthData.userAuthId()));
+        return Either.right(createFirstActivationToken(basicUserAuthData.userAuthId()));
     }
 
     @Transactional

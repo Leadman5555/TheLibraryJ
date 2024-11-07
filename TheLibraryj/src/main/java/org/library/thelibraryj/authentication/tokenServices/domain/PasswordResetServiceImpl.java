@@ -50,7 +50,7 @@ class PasswordResetServiceImpl implements PasswordControl {
         tokenRepository.persist(newToken);
         emailService.sendEmail(new EmailRequest(
                 forEmail,
-                new PasswordResetTemplate(properties.getActivation_link(), newToken.getExpiresAt())
+                new PasswordResetTemplate(properties.getActivation_link() + newToken.getToken(), newToken.getExpiresAt())
         ));
         return Either.right(true);
     }

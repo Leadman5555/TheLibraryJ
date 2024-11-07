@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.library.thelibraryj.authentication.tokenServices.dto.activation.ActivationTokenResponse;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
+import org.library.thelibraryj.authentication.userAuth.dto.BasicUserAuthData;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ActivationError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.mockito.InjectMocks;
@@ -41,9 +42,13 @@ public class ActivationServiceTest {
 
     @Test
     public void testCreateActivationToken() {
-        when(userAuthService.isEnabled(userId)).thenReturn(Either.right(false));
+        final String userEmail = "sample@email.com";
+        when(userAuthService.getBasicUserAuthDataByEmail(userEmail)).thenReturn(Either.right(new BasicUserAuthData(
+                userId,
+                false
+        )));
         Instant expectedTime = Instant.now().plusSeconds(expirationTimeSeconds);
-        Either<GeneralError, ActivationTokenResponse> response = activationService.createActivationToken(userId);
+        Either<GeneralError, ActivationTokenResponse> response = activationService.createActivationToken(userEmail);
         verify(activationTokenRepository).persist(any(Token.class));
         Assertions.assertTrue(response.isRight());
         Assertions.assertTrue(response.get().expiresAt().minusSeconds(expectedTime.getEpochSecond()).getEpochSecond() < 5);

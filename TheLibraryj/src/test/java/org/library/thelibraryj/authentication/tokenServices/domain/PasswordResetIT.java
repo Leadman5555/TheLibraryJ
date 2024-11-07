@@ -7,6 +7,7 @@ import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.authentication.tokenServices.dto.password.PasswordResetRequest;
 import org.library.thelibraryj.email.template.PasswordResetTemplate;
@@ -41,7 +42,7 @@ public class PasswordResetIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String BASE_URL = "/v0.4" + "/auth/password";
+    private static final String BASE_URL = TestProperties.BASE_URL + "/auth/password";
     private static final String user1email = "sample.email1@gmail.com";
     private final UUID user1Id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 

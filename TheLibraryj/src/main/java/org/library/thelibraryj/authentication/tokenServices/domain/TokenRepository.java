@@ -13,7 +13,7 @@ interface TokenRepository extends BaseJpaRepository<Token, UUID> {
     @Modifying
     @Query("""
     DELETE FROM token
-    WHERE isUsed = true OR expiresAt > CURRENT_TIMESTAMP
+    WHERE isUsed = true OR expiresAt < CURRENT_TIMESTAMP
 """)
     void deleteAllUsedAndExpired();
 
