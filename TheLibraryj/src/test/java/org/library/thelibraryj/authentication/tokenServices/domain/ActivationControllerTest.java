@@ -4,6 +4,7 @@ import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.authentication.tokenServices.ActivationService;
+import org.library.thelibraryj.jwtAuth.domain.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -17,18 +18,21 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ActivationController.class)
+@WebMvcTest(value = ActivationController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class ActivationControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
+    private JwtFilter disabledFilter;
+
+    @MockBean
     private ActivationService activationService;
 
     private static final String URL_BASE = TestProperties.BASE_URL;
 
-    private static final String ENDPOINT =  URL_BASE + "/auth/activation";
+    private static final String ENDPOINT =  URL_BASE + "/na/auth/activation";
 
     @Test
     public void testConsumeActivationToken() throws Exception {

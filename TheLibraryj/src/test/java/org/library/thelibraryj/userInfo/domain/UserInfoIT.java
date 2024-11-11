@@ -44,6 +44,7 @@ public class UserInfoIT {
         scriptExecutor.addScript(new ClassPathResource("dataInit.sql"));
         scriptExecutor.setSeparator("@@");
         scriptExecutor.execute(this.dataSource);
+        TestProperties.fillHeaders();
     }
 
     @Test
@@ -53,7 +54,7 @@ public class UserInfoIT {
                 userId,
                 newUsername
         );
-        HttpEntity<UserInfoUsernameUpdateRequest> requestEntity = new HttpEntity<>(request);
+        HttpEntity<UserInfoUsernameUpdateRequest> requestEntity = new HttpEntity<>(request, TestProperties.headers);
         ResponseEntity<String> usernameChangeResponse = restTemplate.exchange(
                 BASE_URL + "/profile/username", HttpMethod.PATCH, requestEntity, String.class
         );
@@ -63,7 +64,7 @@ public class UserInfoIT {
         Assertions.assertEquals(newUsername, object.getString("username"));
 
         ResponseEntity<String> userBookDetailResponse = restTemplate.getForEntity(
-                VERSION + "/books/" + bookId, String.class);
+                VERSION + "/na/books/" + bookId, String.class);
         Assertions.assertEquals(HttpStatus.OK.value(), userBookDetailResponse.getStatusCode().value());
         Assertions.assertNotNull(userBookDetailResponse.getBody());
         JSONObject object2 = new JSONObject(userBookDetailResponse.getBody());
@@ -78,7 +79,7 @@ public class UserInfoIT {
                 userId,
                 "other new username"
         );
-        HttpEntity<UserInfoUsernameUpdateRequest> requestEntity2 = new HttpEntity<>(request2);
+        HttpEntity<UserInfoUsernameUpdateRequest> requestEntity2 = new HttpEntity<>(request2, TestProperties.headers);
         ResponseEntity<String> usernameOnCooldownChangeResponse = restTemplate.exchange(
                 BASE_URL + "/profile/username", HttpMethod.PATCH, requestEntity2, String.class
         );

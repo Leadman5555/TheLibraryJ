@@ -26,41 +26,41 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("${library.mapping}/books")
+@RequestMapping("${library.mapping}")
 record BookController(BookService bookService) implements ErrorHandling {
 
     @Operation(
             summary = "Retrieve all book previews with their tags",
-            tags = "book"
+            tags = {"book", "no auth required"}
     )
-    @GetMapping
+    @GetMapping("/na/books")
     public List<BookPreviewResponse> getBookPreviews() {
         return bookService.getBookPreviewResponses();
     }
 
     @Operation(
             summary = "Retrieve a book detail with ratings and chapter previews by book Id",
-            tags = "book"
+            tags = {"book", "no auth required"}
     )
-    @GetMapping("/{id}")
+    @GetMapping("/na/books/{id}")
     public ResponseEntity<String> getBookDetail(@PathVariable UUID id) {
         return handle(bookService.getBookDetailResponse(id), HttpStatus.OK);
     }
 
     @Operation(
             summary = "Retrieve a book previews with its tags by book Id",
-            tags = "book"
+            tags = {"book", "no auth required"}
     )
-    @GetMapping("/preview/{id}")
+    @GetMapping("na/books/preview/{id}")
     public ResponseEntity<String> getBookPreview(@PathVariable UUID id) {
         return handle(bookService.getBookPreviewResponse(id), HttpStatus.OK);
     }
 
     @Operation(
             summary = "Retrieve a book detail with ratings and chapter previews by book title",
-            tags = "book"
+            tags = {"book", "no auth required"}
     )
-    @GetMapping("/book/{title}")
+    @GetMapping("na/books/book/{title}")
     public ResponseEntity<String> getBookDetailById(@PathVariable String title) {
         return handle(bookService.getBook(title), HttpStatus.OK);
     }
@@ -69,7 +69,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             summary = "Create a new book entry",
             tags = "book"
     )
-    @PostMapping("/book")
+    @PostMapping("books/book")
     public ResponseEntity<String> createBook(@RequestBody @Valid BookCreationRequest bookCreationRequest) {
         return handle(bookService.createBook(bookCreationRequest), HttpStatus.CREATED);
     }
@@ -78,7 +78,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             summary = "Create a new chapter entry",
             tags = "book"
     )
-    @PostMapping("/book/chapter")
+    @PostMapping("books/book/chapter")
     public ResponseEntity<String> createChapter(@RequestBody @Valid ChapterRequest chapterRequest) {
         return handle(bookService.createChapter(chapterRequest), HttpStatus.CREATED);
     }
@@ -87,7 +87,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             summary = "Create new chapter entries in batch",
             tags = "book"
     )
-    @PostMapping("/book/chapter/batch")
+    @PostMapping("books/book/chapter/batch")
     public ResponseEntity<String> createChapters(@RequestBody @Valid List<ChapterRequest> chapterRequests) {
         return handle(bookService.createChapters(chapterRequests), HttpStatus.CREATED);
     }
@@ -96,7 +96,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             summary = "Update an existing book entry",
             tags = "book"
     )
-    @PatchMapping("/book")
+    @PatchMapping("books/book")
     public ResponseEntity<String> updateBook(@RequestBody @Valid BookUpdateRequest bookUpdateRequest) {
         return handle(bookService.updateBook(bookUpdateRequest), HttpStatus.OK);
     }
@@ -105,7 +105,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             summary = "Create or update if already exists a new rating entry ",
             tags = "book"
     )
-    @PutMapping("/rating")
+    @PutMapping("books/rating")
     public ResponseEntity<String> upsertRating(@RequestBody @Valid RatingRequest ratingRequest) {
         return handle(bookService.upsertRating(ratingRequest), HttpStatus.OK);
     }
@@ -115,7 +115,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             summary = "Reset the book previews cache. Cache resets automatically every 10 minutes",
             tags = "book"
     )
-    @PutMapping("/flush")
+    @PutMapping("books/flush")
     public ResponseEntity<String> flushPreviewsCache() {
         bookService.resetBookPreviewsCache();
         return ResponseEntity.noContent().build();
@@ -125,7 +125,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             summary = "Remove a single chapter entry from a book",
             tags = "book"
     )
-    @DeleteMapping("/book/chapter/{number}")
+    @DeleteMapping("books/book/chapter/{number}")
     public ResponseEntity<String> deleteChapter(@PathVariable Integer number, @RequestBody @Valid ContentRemovalRequest contentRemovalRequest) {
         return handle(bookService.deleteChapter(contentRemovalRequest, number), HttpStatus.OK);
     }
@@ -134,7 +134,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             summary = "Remove a single book entry with all its associated chapters and ratings",
             tags = "book"
     )
-    @DeleteMapping("/book")
+    @DeleteMapping("books/book")
     public ResponseEntity<String> deleteBook(@RequestBody @Valid ContentRemovalRequest contentRemovalRequest) {
         return handle(bookService.deleteBook(contentRemovalRequest), HttpStatus.OK);
     }

@@ -44,8 +44,8 @@ public class AuthenticationIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String BASE_URL = TestProperties.BASE_URL + "/auth";
-private static final UUID notEnabledUserId = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
+    private static final String BASE_URL = TestProperties.BASE_URL + "/na/auth";
+    private static final UUID notEnabledUserId = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
 
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
@@ -160,7 +160,6 @@ private static final UUID notEnabledUserId = UUID.fromString("123e4567-e89b-12d3
         final MimeMessage[] receivedMessages = greenMail.getReceivedMessagesForDomain(email);
         assertEquals(1, receivedMessages.length);
         assertEquals(new AccountActivationTemplate("", "", Instant.now()).getSubject(), receivedMessages[0].getSubject());
-
 
 
         Statement checkCreatedAuth = connection.createStatement();

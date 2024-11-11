@@ -4,6 +4,7 @@ import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.authentication.tokenServices.dto.password.PasswordResetRequest;
+import org.library.thelibraryj.jwtAuth.domain.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,9 +25,12 @@ public class PasswordControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @MockBean
+    private JwtFilter disabledFilter;
+
     private static final String URL_BASE = TestProperties.BASE_URL;
 
-    private static final String ENDPOINT =  URL_BASE + "/auth/password";
+    private static final String ENDPOINT =  URL_BASE + "/na/auth/password";
 
     @MockBean
     private PasswordResetServiceImpl passwordResetService;

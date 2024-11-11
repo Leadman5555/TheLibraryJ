@@ -4,6 +4,7 @@ import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
+import org.library.thelibraryj.jwtAuth.domain.JwtFilter;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
@@ -25,25 +26,29 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(UserInfoController.class)
+@WebMvcTest(controllers = {UserInfoController.class})
 @AutoConfigureMockMvc(addFilters = false)
 public class UserInfoControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
+    private JwtFilter disabledFilter;
+
+    @MockBean
     private UserInfoService userInfoService;
 
     private static final String URL_BASE = TestProperties.BASE_URL;
 
-    private static final String ENDPOINT =  URL_BASE + "/user";
+    private static final String ENDPOINT =  URL_BASE;
 
     private static final UUID userId = UUID.randomUUID();
+
 
     @Test
     public void testGetUserInfoResponseById() throws Exception {
         when(userInfoService.getUserInfoResponseById(userId)).thenReturn(Either.right(new UserInfoResponse(userId, null, null, null,0, null)));
-        mockMvc.perform(get(ENDPOINT + '/' + userId)
+        mockMvc.perform(get(ENDPOINT + "/na/user/" + userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -56,7 +61,7 @@ public class UserInfoControllerTest {
         UserInfoResponse response = new UserInfoResponse(userId, UUID.randomUUID(), "sample", "email@sample.com",10, Instant.now());
         when(userInfoService.updateRank(request)).thenReturn(Either.right(response));
 
-        mockMvc.perform(patch(ENDPOINT + "/profile/rank")
+        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"userId\":\"" + userId + "\",\"rankChange\":\"10\"}"))
@@ -67,7 +72,7 @@ public class UserInfoControllerTest {
         UserInfoRankUpdateRequest request2 = new UserInfoRankUpdateRequest(invalidId, -10);
         when(userInfoService.updateRank(request2)).thenReturn(Either.left(new UserInfoError.UserInfoEntityNotFound(invalidId)));
 
-        mockMvc.perform(patch(ENDPOINT + "/profile/rank")
+        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"userId\":\"" + invalidId + "\",\"rankChange\":\"-10\"}"))
@@ -79,7 +84,7 @@ public class UserInfoControllerTest {
     public void testUpdateUserInfoUsername() throws Exception {
         UserInfoUsernameUpdateRequest request = new UserInfoUsernameUpdateRequest(userId, "new username");
         when(userInfoService.updateUserInfoUsername(request)).thenReturn(Either.left(new UserInfoError.UsernameNotUnique()));
-        mockMvc.perform(patch(ENDPOINT + "/profile/username")
+        mockMvc.perform(patch(ENDPOINT + "/user/profile/username")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"userId\":\"" + userId + "\",\"username\":\"new username\"}"))

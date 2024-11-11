@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("${library.mapping}/auth/activation")
+@RequestMapping("${library.mapping}/na/auth/activation")
 record ActivationController(ActivationService activationService) implements ErrorHandling {
     @Operation(
             summary = "Enable an account by consuming an already existing account activation token.",
-            tags = {"authentication", "activation"}
+            tags = {"authentication", "activation", "no auth required"}
     )
     @PatchMapping("/{tokenId}")
     public ResponseEntity<String> consumeActivationToken(@PathVariable("tokenId") UUID tokenId) {
@@ -27,7 +27,7 @@ record ActivationController(ActivationService activationService) implements Erro
 
     @Operation(
             summary = "Deletes all activation token records from the database that are already used and/or expired.",
-            tags = {"authentication", "activation"}
+            tags = {"authentication", "activation", "no auth required"}
     )
     @DeleteMapping
     public ResponseEntity<String> deleteAllUsedAndExpiredTokens() {
