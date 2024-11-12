@@ -5,7 +5,7 @@ import org.springframework.util.MultiValueMap;
 
 
 public class TestProperties {
-    public static final String BASE_URL = "/v0.6";
+    public static final String BASE_URL = "/v0.7";
     public static final MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 
     public static void fillHeaders() {

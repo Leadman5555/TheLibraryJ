@@ -2,7 +2,7 @@ package org.library.thelibraryj.infrastructure.configuration;
 
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
-import org.library.thelibraryj.jwtAuth.domain.JwtFilter;
+import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,7 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 class SecurityConfiguration {
     private static final String[] AUTH_WHITELIST = {
-            "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.6/na/**"
+            "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.7/na/**"
     };
     private final UserAuthService userAuthService;
     private final JwtFilter jwtFilter;

@@ -4,7 +4,7 @@ import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.authentication.tokenServices.dto.password.PasswordResetRequest;
-import org.library.thelibraryj.jwtAuth.domain.JwtFilter;
+import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

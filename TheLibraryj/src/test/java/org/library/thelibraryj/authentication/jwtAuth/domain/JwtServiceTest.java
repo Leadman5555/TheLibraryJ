@@ -1,4 +1,4 @@
-package org.library.thelibraryj.jwtAuth.domain;
+package org.library.thelibraryj.authentication.jwtAuth.domain;
 
 import io.jsonwebtoken.MalformedJwtException;
 import org.junit.jupiter.api.Assertions;

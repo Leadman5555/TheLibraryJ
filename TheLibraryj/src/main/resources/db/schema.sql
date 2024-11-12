@@ -70,7 +70,7 @@ CREATE TABLE library.library_ratings
 DROP TABLE IF EXISTS library.library_user_info;
 CREATE TABLE library.library_user_info
 (
-    username        VARCHAR(20) UNIQUE NOT NULL,
+    username        VARCHAR(25) UNIQUE NOT NULL,
     email           VARCHAR(48) UNIQUE NOT NULL,
     id              UUID               NOT NULL,
     user_auth_id    UUID               NOT NULL,

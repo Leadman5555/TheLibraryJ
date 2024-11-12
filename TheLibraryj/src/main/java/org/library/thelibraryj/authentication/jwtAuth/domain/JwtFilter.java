@@ -1,4 +1,4 @@
-package org.library.thelibraryj.jwtAuth.domain;
+package org.library.thelibraryj.authentication.jwtAuth.domain;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -6,9 +6,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.library.thelibraryj.jwtAuth.JwtService;
+import org.library.thelibraryj.authentication.jwtAuth.JwtService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -38,9 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 if (jwtService.validateToken(token, fetchedDetails.getUsername())) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(fetchedDetails, null, fetchedDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
-                    emptyContext.setAuthentication(authToken);
-                    SecurityContextHolder.setContext(emptyContext);
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
             filterChain.doFilter(request, response);

@@ -1,4 +1,4 @@
-package org.library.thelibraryj.jwtAuth.domain;
+package org.library.thelibraryj.authentication.jwtAuth.domain;
 
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletException;
@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.library.thelibraryj.authentication.jwtAuth.JwtService;
 import org.library.thelibraryj.authentication.userAuth.domain.UserRole;
-import org.library.thelibraryj.jwtAuth.JwtService;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;

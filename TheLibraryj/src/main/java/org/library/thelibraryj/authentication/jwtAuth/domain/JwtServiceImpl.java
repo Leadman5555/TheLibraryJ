@@ -1,11 +1,11 @@
-package org.library.thelibraryj.jwtAuth.domain;
+package org.library.thelibraryj.authentication.jwtAuth.domain;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.library.thelibraryj.jwtAuth.JwtService;
+import org.library.thelibraryj.authentication.jwtAuth.JwtService;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;

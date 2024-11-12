@@ -1,4 +1,4 @@
-package org.library.thelibraryj.jwtAuth;
+package org.library.thelibraryj.authentication.jwtAuth;
 
 import java.util.Map;
 

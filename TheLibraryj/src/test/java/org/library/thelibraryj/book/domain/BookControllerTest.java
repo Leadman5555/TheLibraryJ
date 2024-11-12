@@ -6,7 +6,7 @@ import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.BookDetailResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
-import org.library.thelibraryj.jwtAuth.domain.JwtFilter;
+import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

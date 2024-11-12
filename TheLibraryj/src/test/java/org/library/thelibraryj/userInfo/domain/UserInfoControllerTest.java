@@ -4,7 +4,7 @@ import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
-import org.library.thelibraryj.jwtAuth.domain.JwtFilter;
+import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoResponse;

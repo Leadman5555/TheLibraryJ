@@ -121,4 +121,9 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     public boolean existsByUsername(String username) {
         return userInfoRepository.existsByUsername(username);
     }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userInfoRepository.existsByEmail(email);
+    }
 }

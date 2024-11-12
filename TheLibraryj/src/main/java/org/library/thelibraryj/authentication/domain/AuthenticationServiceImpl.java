@@ -18,7 +18,7 @@ import org.library.thelibraryj.email.dto.EmailRequest;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
-import org.library.thelibraryj.jwtAuth.JwtService;
+import org.library.thelibraryj.authentication.jwtAuth.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;

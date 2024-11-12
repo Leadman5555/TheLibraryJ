@@ -1,4 +1,4 @@
-package org.library.thelibraryj.jwtAuth.domain;
+package org.library.thelibraryj.authentication.jwtAuth.domain;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
