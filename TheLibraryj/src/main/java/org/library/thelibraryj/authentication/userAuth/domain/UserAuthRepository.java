@@ -17,8 +17,13 @@ interface UserAuthRepository extends BaseJpaRepository<UserAuth, UUID> {
     SELECT id, isEnabled FROM userAuth
     WHERE email = :email
 """)
-    Optional<Object[][]> getBasicUserAuthData(String email);
+    Optional<Object> getBasicUserAuthData(String email);
 
+    @Query("""
+    SELECT role, isEnabled, isGoogle FROM userAuth
+    WHERE email = :email
+""")
+    Optional<Object> getLoginData(String email);
 
     @Query("""
     SELECT id FROM userAuth WHERE email = :email

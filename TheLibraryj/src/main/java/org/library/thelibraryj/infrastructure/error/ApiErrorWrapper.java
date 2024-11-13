@@ -45,17 +45,19 @@ public class ApiErrorWrapper {
             case UserInfoError.UsernameUpdateCooldown e ->
                     getErrorResponse(error, HttpStatus.BAD_REQUEST, "Username update cooldown has not yet finished. Time left (hours): " + e.cooldownDurationLeft());
             case UserAuthError.UserAuthNotFoundId e ->
-                    getErrorResponse(error, HttpStatus.NOT_FOUND, "User authentication data missing. Id: " + e.id() + "; Note: Google users cannot use local user authentication features.");
+                    getErrorResponse(error, HttpStatus.NOT_FOUND, "User authentication data missing. Id: " + e.id());
             case UserAuthError.EmailNotUnique e ->
                     getErrorResponse(error, HttpStatus.CONFLICT, "Email not unique. Duplicate email: " + e.email());
             case UserAuthError.UserAuthNotFoundEmail e ->
-                    getErrorResponse(error, HttpStatus.NOT_FOUND, "User authentication data missing. Email: " + e.email() + "; Note: Google users cannot use local user authentication features.");
+                    getErrorResponse(error, HttpStatus.NOT_FOUND, "User authentication data missing. Email: " + e.email());
             case UserAuthError.UsernameNotUnique e ->
                     getErrorResponse(error, HttpStatus.CONFLICT, "Username not unique. Duplicate username: " + e.username());
             case UserAuthError.UserNotEnabled e ->
                     getErrorResponse(error, HttpStatus.BAD_REQUEST, "User not enabled. Email: " + e.email());
             case UserAuthError.GoogleApiNotResponding e ->
                 getErrorResponse(error, HttpStatus.SERVICE_UNAVAILABLE, "Google api not responding to query.");
+            case UserAuthError.UserIsGoogleRegistered e ->
+                getErrorResponse(error, HttpStatus.BAD_REQUEST, "Google registered user can only login by Google api. Email: " + e.email());
             case ActivationError.UserAlreadyEnabled e ->
                     getErrorResponse(error, HttpStatus.BAD_REQUEST, "User already enabled. Id: " + e.userId());
             case ActivationError.ActivationTokenNotFound e ->

@@ -33,14 +33,17 @@ class UserAuth extends AbstractEntity implements UserDetails {
     private UserRole role;
     @Column(nullable = false)
     private boolean isEnabled;
+    @Column(nullable = false)
+    private boolean isGoogle;
 
     @Builder
-    public UserAuth(UUID id, Long version, Instant createdAt, Instant updatedAt, char[] password, String email, UserRole role, boolean isEnabled) {
+    public UserAuth(UUID id, Long version, Instant createdAt, Instant updatedAt, char[] password, String email, UserRole role, boolean isEnabled, boolean isGoogle) {
         super(id, version, createdAt, updatedAt);
         this.password = password;
         this.email = email;
         this.role = role;
         this.isEnabled = isEnabled;
+        this.isGoogle = isGoogle;
     }
 
     @Override

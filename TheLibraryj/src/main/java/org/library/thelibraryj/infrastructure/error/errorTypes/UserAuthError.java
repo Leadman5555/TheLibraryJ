@@ -9,4 +9,5 @@ public sealed interface UserAuthError extends GeneralError {
     record EmailNotUnique(String email) implements UserAuthError {}
     record UserNotEnabled(String email) implements UserAuthError {}
     record GoogleApiNotResponding() implements UserAuthError {}
+    record UserIsGoogleRegistered(String email) implements UserAuthError {}
 }

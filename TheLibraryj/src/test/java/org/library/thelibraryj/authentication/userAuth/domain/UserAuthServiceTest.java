@@ -56,6 +56,7 @@ public class UserAuthServiceTest {
                 password,
                 email,
                 UserRole.USER,
+                false,
                 false
         );
     }
