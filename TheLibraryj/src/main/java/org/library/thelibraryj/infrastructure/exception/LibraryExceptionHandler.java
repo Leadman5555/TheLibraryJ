@@ -5,6 +5,7 @@ import org.library.thelibraryj.infrastructure.error.ApiErrorResponse;
 import org.library.thelibraryj.infrastructure.error.ApiErrorWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -87,12 +88,38 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         final ApiErrorWrapper error = new ApiErrorWrapper(
                 ApiErrorResponse.builder()
                         .code(HttpStatus.SERVICE_UNAVAILABLE.value())
-                        .message("Google api not responding: " + ex.getMessage())
+                        .message("Google api not responding. Message from Google api: " + ex.getMessage())
                         .status(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase())
                         .path("Path: " + extractRequest(request))
                         .build()
         );
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
+    }
+
+    @ExceptionHandler({GoogleTokenVerificationException.class})
+    public ResponseEntity<ApiErrorWrapper> handleGoogleTokenVerificationException(GoogleTokenVerificationException ex, WebRequest request) {
+        final ApiErrorWrapper error = new ApiErrorWrapper(
+                ApiErrorResponse.builder()
+                        .code(HttpStatus.FORBIDDEN.value())
+                        .message("Google token invalid. Authorization failed: " + ex.getMessage())
+                        .status(HttpStatus.FORBIDDEN.getReasonPhrase())
+                        .path("Path: " + extractRequest(request))
+                        .build()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    @ExceptionHandler({AccessDeniedException.class})
+    public ResponseEntity<ApiErrorWrapper> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+        final ApiErrorWrapper error = new ApiErrorWrapper(
+                ApiErrorResponse.builder()
+                        .code(HttpStatus.FORBIDDEN.value())
+                        .message("Authorization failed: " + ex.getMessage())
+                        .status(HttpStatus.FORBIDDEN.getReasonPhrase())
+                        .path("Path: " + extractRequest(request))
+                        .build()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
     private static String extractRequest(WebRequest request) {

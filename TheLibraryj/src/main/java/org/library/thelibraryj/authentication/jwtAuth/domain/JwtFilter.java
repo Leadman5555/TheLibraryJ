@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.authentication.jwtAuth.JwtService;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,15 +33,16 @@ public class JwtFilter extends OncePerRequestFilter {
         } else {
             final String token = authHeader.substring(7);
             final String subject = jwtService.extractSubject(token);
-            if (subject != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails fetchedDetails = userDetailsService.loadUserByUsername(subject);
-                if (jwtService.validateToken(token, fetchedDetails.getUsername())) {
+            if(subject == null) throw new AccessDeniedException("Invalid JWT token");
+            UserDetails fetchedDetails = userDetailsService.loadUserByUsername(subject);
+            if (jwtService.validateToken(token, fetchedDetails.getUsername())) {
+                if(SecurityContextHolder.getContext().getAuthentication() == null){
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(fetchedDetails, null, fetchedDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
-            }
-            filterChain.doFilter(request, response);
+                filterChain.doFilter(request, response);
+            }else throw new AccessDeniedException("Invalid JWT token");
         }
     }
 }
