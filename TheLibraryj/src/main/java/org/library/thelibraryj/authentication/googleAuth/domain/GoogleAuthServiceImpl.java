@@ -6,11 +6,12 @@ import com.google.api.client.json.gson.GsonFactory;
 import io.vavr.control.Either;
 import org.library.thelibraryj.authentication.googleAuth.GoogleAuthService;
 import org.library.thelibraryj.authentication.jwtAuth.JwtService;
+import org.library.thelibraryj.authentication.userAuth.UserAuthService;
+import org.library.thelibraryj.authentication.userAuth.dto.GoogleUserCreationRequest;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.exception.GoogleApiNotRespondingException;
 import org.library.thelibraryj.infrastructure.exception.GoogleTokenVerificationException;
 import org.library.thelibraryj.userInfo.UserInfoService;
-import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -22,15 +23,17 @@ import java.util.Random;
 @Service
 class GoogleAuthServiceImpl implements GoogleAuthService {
     private final UserInfoService userInfoService;
+    private final UserAuthService userAuthService;
     private final GoogleAuthProperties properties;
     private final GoogleIdTokenVerifier googleIdTokenVerifier;
     private final JwtService jwtService;
 
-    GoogleAuthServiceImpl(UserInfoService userInfoService, GoogleAuthProperties properties, GoogleIdTokenVerifier googleIdTokenVerifier, JwtService jwtService) {
+    GoogleAuthServiceImpl(UserInfoService userInfoService, GoogleAuthProperties properties, GoogleIdTokenVerifier googleIdTokenVerifier, JwtService jwtService, UserAuthService userAuthService) {
         this.userInfoService = userInfoService;
         this.properties = properties;
         this.googleIdTokenVerifier = googleIdTokenVerifier;
         this.jwtService = jwtService;
+        this.userAuthService = userAuthService;
     }
 
     @Override
@@ -72,17 +75,14 @@ class GoogleAuthServiceImpl implements GoogleAuthService {
     private void createUserIfNotRegistered(String defaultUsername, String email) {
         if (!userInfoService.existsByEmail(email)) {
             if (defaultUsername.length() > 20) defaultUsername = defaultUsername.substring(0, 20);
-
             if (userInfoService.existsByUsername(defaultUsername)) {
                 byte[] padding = new byte[24 - defaultUsername.length()];
                 new Random().nextBytes(padding);
                 defaultUsername += new String(padding, StandardCharsets.UTF_8);
             }
-
-            userInfoService.createUserInfo(new UserInfoRequest(
-                    defaultUsername,
+            userAuthService.createNewGoogleUser(new GoogleUserCreationRequest(
                     email,
-                    properties.getDefault_google_id()
+                    defaultUsername
             ));
         }
     }
