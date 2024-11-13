@@ -13,6 +13,5 @@ class GoogleAuthProperties {
     private String clientId;
     private String clientSecret;
     private String redirectUri;
-    private String introspectionUri;
     private UUID default_google_id;
 }

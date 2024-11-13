@@ -82,6 +82,19 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
+    @ExceptionHandler({GoogleApiNotRespondingException.class})
+    public ResponseEntity<ApiErrorWrapper> handleGoogleApiNotRespondingException(GoogleApiNotRespondingException ex, WebRequest request) {
+        final ApiErrorWrapper error = new ApiErrorWrapper(
+                ApiErrorResponse.builder()
+                        .code(HttpStatus.SERVICE_UNAVAILABLE.value())
+                        .message("Google api not responding: " + ex.getMessage())
+                        .status(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase())
+                        .path("Path: " + extractRequest(request))
+                        .build()
+        );
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
+    }
+
     private static String extractRequest(WebRequest request) {
         return request instanceof ServletWebRequest svr ? svr.getRequest().getRequestURI() : "Unknown URL";
     }

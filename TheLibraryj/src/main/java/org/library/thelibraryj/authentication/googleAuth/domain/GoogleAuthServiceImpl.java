@@ -5,18 +5,13 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeToken
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import io.vavr.control.Either;
 import org.library.thelibraryj.authentication.googleAuth.GoogleAuthService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -27,11 +22,12 @@ import java.util.Random;
 class GoogleAuthServiceImpl implements GoogleAuthService {
     private final UserInfoService userInfoService;
     private final GoogleAuthProperties properties;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final WebClient googleWebClient;
 
-    GoogleAuthServiceImpl(UserInfoService userInfoService, GoogleAuthProperties properties) {
+    GoogleAuthServiceImpl(UserInfoService userInfoService, GoogleAuthProperties properties, WebClient googleWebClient) {
         this.userInfoService = userInfoService;
         this.properties = properties;
+        this.googleWebClient = googleWebClient;
     }
 
     @Override
@@ -45,6 +41,7 @@ class GoogleAuthServiceImpl implements GoogleAuthService {
 
     @Override
     public Either<GeneralError, String> getGoogleAuthToken(String code) throws IOException {
+        //"https://oauth2.googleapis.com/token"
         GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(
                 new NetHttpTransport(),
                 new GsonFactory(),
@@ -53,21 +50,21 @@ class GoogleAuthServiceImpl implements GoogleAuthService {
                 code,
                 properties.getRedirectUri()
         ).execute();
-        final ResponseEntity<String> response = restTemplate.exchange(
-                "https://www.googleapis.com/oauth2/v3/userinfo?alt=json&access_token=" + tokenResponse.getAccessToken(),
-                HttpMethod.GET,
-                null,
-                String.class
-        );
-        if (response.getStatusCode() != HttpStatus.OK) return Either.left(null);
-        createUserIfNotRegistered(new Gson().fromJson(response.getBody(), JsonObject.class));
+
+        GoogleUserInfo onSuccessResponse = googleWebClient.get()
+                .uri(uriBuilder -> uriBuilder.queryParam("access_token", tokenResponse.getIdToken()).build())
+                .retrieve()
+                .bodyToMono(GoogleUserInfo.class)
+                .block();
+        createUserIfNotRegistered(onSuccessResponse); //Mono block() can never return null here
         return Either.right(tokenResponse.getIdToken());
     }
 
-    private void createUserIfNotRegistered(JsonObject userDataJson) {
-        final String email = userDataJson.get("email").getAsString();
-        if (!userInfoService.existsByEmail(email)) {
-            String defaultUsername = userDataJson.get("name").getAsString() + userDataJson.get("family_name").getAsString();
+    private record GoogleUserInfo(String name, String family_name, String email){}
+
+    private void createUserIfNotRegistered(GoogleUserInfo userData) {
+        if (!userInfoService.existsByEmail(userData.email)) {
+            String defaultUsername = userData.name + userData.family_name;
             if (defaultUsername.length() > 20) defaultUsername = defaultUsername.substring(0, 20);
 
             if (userInfoService.existsByUsername(defaultUsername)) {
@@ -78,7 +75,7 @@ class GoogleAuthServiceImpl implements GoogleAuthService {
 
             userInfoService.createUserInfo(new UserInfoRequest(
                     defaultUsername,
-                    email,
+                    userData.email,
                     properties.getDefault_google_id()
             ));
         }
