@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
 @ContextConfiguration(classes = TheLibraryJApplication.class)
-public class AuthenticationIT {
+public class  AuthenticationIT {
     @Autowired
     private TestRestTemplate restTemplate;
 

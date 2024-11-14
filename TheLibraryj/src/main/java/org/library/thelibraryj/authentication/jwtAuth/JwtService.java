@@ -1,11 +1,11 @@
 package org.library.thelibraryj.authentication.jwtAuth;
 
-import java.util.Map;
+import org.springframework.lang.Nullable;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public interface JwtService {
     String generateToken(String subject);
-    String generateToken(String subject, Map<String, Object> claimsToInclude);
-    String extractSubject(String token);
-    boolean validateToken(String token, String subject);
+    @Nullable
+    UserDetails validateToken(String token);
 
 }

@@ -4,6 +4,7 @@ import io.vavr.control.Either;
 import org.library.thelibraryj.authentication.userAuth.dto.BasicUserAuthData;
 import org.library.thelibraryj.authentication.userAuth.dto.GoogleUserCreationRequest;
 import org.library.thelibraryj.authentication.userAuth.dto.LoginDataResponse;
+import org.library.thelibraryj.authentication.userAuth.dto.PasswordResetDataResponse;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
@@ -19,6 +20,6 @@ public interface UserAuthService extends UserDetailsService {
    Either<GeneralError, Boolean> enableUser(UUID userId);
    Either<GeneralError, Boolean> disableUser(UUID userId);
    Either<GeneralError, Boolean> updatePassword(UUID userId, char[] newEncryptedPassword);
-   Either<GeneralError, UUID> getAuthIdByEmail(String email);
+   Either<GeneralError, PasswordResetDataResponse> getPasswordResetDataByEmail(String email);
    Either<GeneralError, LoginDataResponse> getLoginDataByEmail(String email);
 }

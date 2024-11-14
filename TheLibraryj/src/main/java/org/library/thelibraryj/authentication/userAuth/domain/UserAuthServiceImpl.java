@@ -120,12 +120,15 @@ class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
-    public Either<GeneralError, UUID> getAuthIdByEmail(String email) {
-        return Try.of(() -> userAuthRepository.getIdByEmail(email))
+    public Either<GeneralError, PasswordResetDataResponse> getPasswordResetDataByEmail(String email) {
+        Either<GeneralError, Object> fetched = Try.of(() -> userAuthRepository.getPasswordResetData(email))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
                 .flatMap(optionalEntity -> optionalEntity.toEither(new UserAuthError.UserAuthNotFoundEmail(email)));
+        if (fetched.isLeft()) return Either.left(fetched.getLeft());
+        Object[] values = (Object[]) fetched.get();
+        return Either.right(new PasswordResetDataResponse((UUID) values[0], (boolean) values[1]));
     }
 
     @Override

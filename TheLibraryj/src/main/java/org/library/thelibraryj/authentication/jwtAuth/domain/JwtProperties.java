@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Data
 class JwtProperties {
-    private String secret_key;
+    private String client_id;
+    private String aud;
     private int expiration_time_ms;
 }

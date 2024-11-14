@@ -7,12 +7,14 @@ import jakarta.mail.MessagingException;
 import org.library.thelibraryj.authentication.PasswordControl;
 import org.library.thelibraryj.authentication.tokenServices.dto.password.PasswordResetRequest;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
+import org.library.thelibraryj.authentication.userAuth.dto.PasswordResetDataResponse;
 import org.library.thelibraryj.email.EmailService;
 import org.library.thelibraryj.email.dto.EmailRequest;
 import org.library.thelibraryj.email.template.PasswordResetTemplate;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.PasswordResetError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,12 +41,13 @@ class PasswordResetServiceImpl implements PasswordControl {
     }
 
     public Either<GeneralError, Boolean> startPasswordResetProcedure(String forEmail) throws MessagingException {
-        Either<GeneralError, UUID> fetchedAuthId = userAuthService.getAuthIdByEmail(forEmail);
-        if(fetchedAuthId.isLeft()) return Either.left(fetchedAuthId.getLeft());
+        Either<GeneralError, PasswordResetDataResponse> fetchedData = userAuthService.getPasswordResetDataByEmail(forEmail);
+        if(fetchedData.isLeft()) return Either.left(fetchedData.getLeft());
+        if(fetchedData.get().isGoogle()) return Either.left(new UserAuthError.UserIsGoogleRegistered(forEmail));
         Token newToken = Token.builder()
                 .token(UUID.randomUUID())
                 .expiresAt(Instant.now().plusSeconds(properties.getExpiration_time_seconds()))
-                .forUserId(fetchedAuthId.get())
+                .forUserId(fetchedData.get().userAuthId())
                 .isUsed(false)
                 .build();
         tokenRepository.persist(newToken);
