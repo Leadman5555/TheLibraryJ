@@ -1,5 +1,6 @@
 package org.library.thelibraryj.infrastructure.exception;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import jakarta.mail.MessagingException;
 import org.library.thelibraryj.infrastructure.error.ApiErrorResponse;
 import org.library.thelibraryj.infrastructure.error.ApiErrorWrapper;
@@ -109,12 +110,12 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
-    @ExceptionHandler({AccessDeniedException.class})
-    public ResponseEntity<ApiErrorWrapper> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+    @ExceptionHandler({AccessDeniedException.class, JWTVerificationException.class})
+    public ResponseEntity<ApiErrorWrapper> handleAccessDeniedException(RuntimeException ex, WebRequest request) {
         final ApiErrorWrapper error = new ApiErrorWrapper(
                 ApiErrorResponse.builder()
                         .code(HttpStatus.FORBIDDEN.value())
-                        .message("Authorization failed: " + ex.getMessage())
+                        .message("Authorization failed; Jwt token Invalid. Reason: " + ex.getMessage())
                         .status(HttpStatus.FORBIDDEN.getReasonPhrase())
                         .path("Path: " + extractRequest(request))
                         .build()

@@ -53,7 +53,7 @@ public class EmailServiceTest {
             );
             final MimeMessage[] receivedMessages = greenMail.getReceivedMessagesForDomain(recipient);
             assertEquals(finalCurrentEmailCount, receivedMessages.length);
-            assertEquals(subject, receivedMessages[finalCurrentEmailCount].getSubject());
+            assertEquals(subject, receivedMessages[finalCurrentEmailCount-1].getSubject());
         }
     }
 

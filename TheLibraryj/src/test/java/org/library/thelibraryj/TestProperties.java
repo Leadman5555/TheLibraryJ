@@ -10,7 +10,7 @@ public class TestProperties {
 
     public static void fillHeaders() {
         headers.clear();
-        final String alwaysValidTokenForUser1 = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW1wbGUuZW1haWwxQGdtYWlsLmNvbSIsImlhdCI6MTczMTMyMjE5NCwiZXhwIjo5OTk5OTk5OTk5fQ.WT26Q3mS5Rb9VzIf8PoiJ1Z1IYBmdLi_poYBCPTQyZM";
+        final String alwaysValidTokenForUser1 = "eyJhbGciOiJFUzI1NiJ9.eyJpYXQiOjE3MzE2MTQ0OTEsInN1YiI6InNhbXBsZS5lbWFpbDFAZ21haWwuY29tIiwiaXNzIjoiYTM4MWU0Mjc5Zjg2NDk2MzljMjE3ZTk1Yjk4ZmMyYTA1NTU3Y2MxNmFjZGQ2Y2NmMWMzMDVkZjI2OGQzY2I4MyIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MiIsImV4cCI6OTk5OTk5OTk5OX0.RGHc_rTxTzYIQpZL8iY85-iRWFsvSAyXg1oQt1RJH4ieinVTC6bvm812Pg6zvCFgjkDPEYgsVs_FjRdYb469pQ";
         headers.add("Authorization", ("Bearer " + alwaysValidTokenForUser1));
     }
 }

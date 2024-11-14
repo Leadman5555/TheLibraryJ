@@ -37,7 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
                 filterChain.doFilter(request, response);
-            }else throw new AccessDeniedException("Invalid JWT token");
+            }else throw new AccessDeniedException("Invalid JWT claims.");
         }
     }
 }

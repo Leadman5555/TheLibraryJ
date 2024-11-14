@@ -30,6 +30,7 @@ class SecurityConfiguration {
             "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.7/na/**"
     };
     private final UserAuthService userAuthService;
+    private final FilterChainExceptionHandler filterChainExceptionHandler;
     private final JwtFilter jwtFilter;
 
     @Bean
@@ -41,6 +42,7 @@ class SecurityConfiguration {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
+                .addFilterBefore(filterChainExceptionHandler, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));

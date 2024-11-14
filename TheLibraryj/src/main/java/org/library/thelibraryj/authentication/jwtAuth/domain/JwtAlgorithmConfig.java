@@ -26,8 +26,9 @@ class JwtAlgorithmConfig {
 
     @Bean
     public Algorithm jwtSigningAlgorithm() throws NoSuchAlgorithmException, InvalidKeySpecException {
+        //ES256: ECDSA; SHA-256 hash using P-256 elliptic curve
         final KeyFactory keyFactory = KeyFactory.getInstance("EC");
-        return Algorithm.ECDSA512(
+        return Algorithm.ECDSA256(
                 (ECPublicKey) keyFactory.generatePublic(new X509EncodedKeySpec(Base64.decodeBase64(publicKey))),
                 (ECPrivateKey) keyFactory.generatePrivate(new PKCS8EncodedKeySpec(Base64.decodeBase64(privateKey)))
         );

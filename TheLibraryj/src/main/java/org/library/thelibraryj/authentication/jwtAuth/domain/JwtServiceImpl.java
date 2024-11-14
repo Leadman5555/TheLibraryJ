@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 
 @Service
-record JwtServiceImpl(JwtProperties properties, Algorithm jwtSigningAlgorithm, UserDetailsService userDetailsService) implements JwtService {
+record JwtServiceImpl(JwtProperties properties, Algorithm jwtSigningAlgorithm,
+                      UserDetailsService userDetailsService) implements JwtService {
     @Override
     public String generateToken(String subject) {
         return JWT.create()
@@ -27,10 +28,9 @@ record JwtServiceImpl(JwtProperties properties, Algorithm jwtSigningAlgorithm, U
     @Override
     @Nullable
     public UserDetails validateToken(String token) {
-        DecodedJWT decodedJWT =  JWT.require(jwtSigningAlgorithm).build().verify(token);
-        UserDetails fetchedDetails = userDetailsService.loadUserByUsername(decodedJWT.getSubject());
-        if(!fetchedDetails.getUsername().equals(decodedJWT.getSubject())) return null;
-        if(decodedJWT.getExpiresAt().before(new Date())) return null;
-        return fetchedDetails;
+        DecodedJWT decodedJWT = JWT.require(jwtSigningAlgorithm).build().verify(token);
+        if (!decodedJWT.getAudience().getFirst().equals(properties.getAud())
+                || !decodedJWT.getIssuer().equals(properties.getClient_id())) return null;
+        return userDetailsService.loadUserByUsername(decodedJWT.getSubject());
     }
 }
