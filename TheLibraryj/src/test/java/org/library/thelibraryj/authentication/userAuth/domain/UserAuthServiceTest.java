@@ -63,7 +63,7 @@ public class UserAuthServiceTest {
 
     @Test
     public void testCreateNewUser() {
-        UserCreationRequest request = new UserCreationRequest(email, password, username);
+        UserCreationRequest request = new UserCreationRequest(email, password, username, null);
         UserInfoRequest infoRequest = new UserInfoRequest(username, email, id);
         UserInfoResponse infoResponse = new UserInfoResponse(UUID.randomUUID(), UUID.randomUUID(), username, email, 0, Instant.now());
         UserAuth newAuth = mapper.userAuthRequestToUserAuth(request);

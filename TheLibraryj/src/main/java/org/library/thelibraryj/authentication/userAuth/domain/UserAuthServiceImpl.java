@@ -15,7 +15,7 @@ import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
+import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -46,12 +46,13 @@ class UserAuthServiceImpl implements UserAuthService {
             return Either.left(new UserAuthError.UsernameNotUnique(userCreationRequest.username()));
         UserAuth newUserAuth = mapper.userAuthRequestToUserAuth(userCreationRequest);
         newUserAuth.setRole(UserRole.USER);
+        newUserAuth.setGoogle(false);
         UserAuth createdAuth = userAuthRepository.persist(newUserAuth);
-        UserInfoResponse createdInfo = userInfoService.createUserInfo(new UserInfoRequest(
+        UserInfoWithImageResponse createdInfo = userInfoService.createUserInfoWithImage(new UserInfoRequest(
                 userCreationRequest.username(),
                 userCreationRequest.email(),
                 createdAuth.getId()
-        ));
+        ), userCreationRequest.profileImage());
         userAuthRepository.flush();
         return Either.right(mapper.userAuthAndUserInfoResponseToUserCreationResponse(createdInfo, createdAuth));
     }

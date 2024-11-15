@@ -66,7 +66,7 @@ public class  AuthenticationIT {
         final String email = "sample@email.com";
         final char[] password = "password".toCharArray();
         final String username = "sampleUsername";
-        RegisterRequest requestEntity = new RegisterRequest(email, password, username);
+        RegisterRequest requestEntity = new RegisterRequest(email, password, username, null);
         ResponseEntity<String> registerResponse = restTemplate.postForEntity(
                 BASE_URL + "/register", requestEntity, String.class
         );

@@ -1,4 +1,4 @@
-package org.library.thelibraryj.book.domain;
+package org.library.thelibraryj.userInfo.domain;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -8,13 +8,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 @Component
-class BookImageHandler {
+class UserInfoImageHandler {
     private byte[] defaultImage;
     private final Path basePath;
 
-    public BookImageHandler(@Value("${library.book.image_source}") String imageSourcePath) {
+    public UserInfoImageHandler(@Value("${library.user_info.image_source}") String imageSourcePath) {
         try {
             defaultImage = Files.readAllBytes(Path.of(imageSourcePath, "default.jpg"));
         } catch (IOException e) {
@@ -23,18 +24,20 @@ class BookImageHandler {
         basePath = Path.of(imageSourcePath);
     }
 
-    public byte[] fetchCoverImage(String forTitle) {
+    public byte[] fetchProfileImage(UUID forUUID) {
         try {
-            return Files.readAllBytes(basePath.resolve(forTitle));
+            return Files.readAllBytes(basePath.resolve(forUUID + ".jpg"));
         } catch (IOException e) {
             return defaultImage;
         }
     }
 
-    public void upsertCoverImage(String forTitle, MultipartFile image) {
+    public boolean upsertProfileImageImage(UUID forUUID, MultipartFile image) {
         try {
-            Files.copy(image.getInputStream(), basePath.resolve(forTitle + ".jpg"), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(image.getInputStream(), basePath.resolve(forUUID + ".jpg"), StandardCopyOption.REPLACE_EXISTING);
+            return true;
         } catch (IOException _) {
+            return false;
         }
     }
 }

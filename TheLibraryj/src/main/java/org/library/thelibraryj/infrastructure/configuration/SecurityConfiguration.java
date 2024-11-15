@@ -1,7 +1,6 @@
 package org.library.thelibraryj.infrastructure.configuration;
 
 import lombok.RequiredArgsConstructor;
-import org.library.thelibraryj.authentication.userAuth.UserAuthService;
 import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -29,7 +29,7 @@ class SecurityConfiguration {
     private static final String[] AUTH_WHITELIST = {
             "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.8/na/**"
     };
-    private final UserAuthService userAuthService;
+    private final UserDetailsService userDetailsService;
     private final FilterChainExceptionHandler filterChainExceptionHandler;
     private final JwtFilter jwtFilter;
 
@@ -53,7 +53,7 @@ class SecurityConfiguration {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(userAuthService);
+        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthenticationProvider;
     }

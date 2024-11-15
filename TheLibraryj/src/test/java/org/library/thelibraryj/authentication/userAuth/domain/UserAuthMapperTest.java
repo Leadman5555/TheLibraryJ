@@ -3,7 +3,7 @@ package org.library.thelibraryj.authentication.userAuth.domain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
-import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
+import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -21,13 +21,14 @@ public class UserAuthMapperTest {
                 .password(("password").toCharArray())
                 .isEnabled(true)
                 .build();
-        UserInfoResponse userInfo = new UserInfoResponse(
+        UserInfoWithImageResponse userInfo = new UserInfoWithImageResponse(
                 UUID.randomUUID(),
                 userAuthId,
                 "username",
                 userAuth.getEmail(),
                 4,
-                Instant.now()
+                Instant.now(),
+                null
         );
         UserCreationResponse mapped = userAuthMapper.userAuthAndUserInfoResponseToUserCreationResponse(userInfo, userAuth);
         Assertions.assertAll(

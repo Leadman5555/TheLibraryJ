@@ -7,4 +7,5 @@ public sealed interface UserInfoError extends GeneralError{
     record UserAccountTooYoung(UUID userId, long accountAgeMissing) implements UserInfoError {}
     record UsernameNotUnique() implements UserInfoError {}
     record UsernameUpdateCooldown(long cooldownDurationLeft) implements UserInfoError {}
+    record ProfileImageUpdateFailed() implements UserInfoError {}
 }

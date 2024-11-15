@@ -9,6 +9,7 @@ import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
 import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -47,7 +48,7 @@ public class UserInfoControllerTest {
 
     @Test
     public void testGetUserInfoResponseById() throws Exception {
-        when(userInfoService.getUserInfoResponseById(userId)).thenReturn(Either.right(new UserInfoResponse(userId, null, null, null,0, null)));
+        when(userInfoService.getUserInfoResponseById(userId)).thenReturn(Either.right(new UserInfoWithImageResponse(userId, null, null, null,0, null, null)));
         mockMvc.perform(get(ENDPOINT + "/na/user/" + userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

@@ -109,7 +109,7 @@ public class BookServiceTest {
         List<BookPreview> baseList = List.of(BookPreview.builder().title(title + '1').build(), BookPreview.builder().title(title + '2').build());
         when(bookPreviewRepository.getAllBookPreviewsEager()).thenReturn(baseList);
         List<BookPreviewResponse> fetchedList = bookService.getBookPreviewResponses();
-        List<BookPreviewResponse> expectedList = baseList.stream().map(bookMapper::bookPreviewToBookPreviewResponse).toList();
+        List<BookPreviewResponse> expectedList = baseList.stream().map((BookPreview bookPreview1) -> bookMapper.bookPreviewToBookPreviewResponse(bookPreview1, null)).toList();
         assertEquals(expectedList, fetchedList);
     }
 
