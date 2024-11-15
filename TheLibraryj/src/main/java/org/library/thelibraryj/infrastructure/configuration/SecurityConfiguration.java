@@ -27,7 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 class SecurityConfiguration {
     private static final String[] AUTH_WHITELIST = {
-            "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.7/na/**"
+            "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.8/na/**"
     };
     private final UserAuthService userAuthService;
     private final FilterChainExceptionHandler filterChainExceptionHandler;

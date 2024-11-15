@@ -16,5 +16,6 @@ public record BookResponse(String title,
                            List<ChapterPreviewResponse> chapterPreviews,
                            List<RatingResponse> ratings,
                            List<BookTag> bookTags,
-                           BookState bookState) {
+                           BookState bookState,
+                           byte[] coverImage) {
 }

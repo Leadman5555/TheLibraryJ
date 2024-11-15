@@ -4,17 +4,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import jakarta.validation.constraints.NotEmpty;
-import org.library.thelibraryj.book.dto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.BookResponse;
-import org.library.thelibraryj.book.dto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
-import org.library.thelibraryj.book.dto.ChapterRequest;
-import org.library.thelibraryj.book.dto.ContentRemovalRequest;
-import org.library.thelibraryj.book.dto.ContentRemovalSuccess;
-import org.library.thelibraryj.book.dto.RatingRequest;
-import org.library.thelibraryj.book.dto.RatingResponse;
+import org.library.thelibraryj.book.dto.*;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
@@ -44,8 +34,8 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     private final ChapterPreviewRepository chapterPreviewRepository;
     private final ChapterRepository chapterRepository;
     private final BookMapper mapper;
+    private final BookImageHandler bookImageHandler;
     private UserInfoService userInfoService;
-
 
 
     @Autowired
@@ -53,13 +43,14 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
         this.userInfoService = userInfoService;
     }
 
-    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository) {
+    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository, BookImageHandler bookImageHandler) {
         this.bookDetailRepository = bookDetailRepository;
         this.bookPreviewRepository = bookPreviewRepository;
         this.mapper = mapper;
         this.ratingRepository = ratingRepository;
         this.chapterPreviewRepository = chapterPreviewRepository;
         this.chapterRepository = chapterRepository;
+        this.bookImageHandler = bookImageHandler;
     }
 
     @Override
@@ -84,7 +75,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     @Override
     public Either<GeneralError, BookPreviewResponse> getBookPreviewResponse(UUID detailId) {
         Either<GeneralError, BookPreview> fetched = getBookPreviewEager(detailId);
-        if (fetched.isRight()) return Either.right(mapper.bookPreviewToBookPreviewResponse(fetched.get()));
+        if (fetched.isRight()) return Either.right(mapper.bookPreviewWithCoverToBookPreviewResponse(fetched.get(), bookImageHandler.fetchCoverImage(fetched.get().getTitle())));
         return Either.left(fetched.getLeft());
     }
 
@@ -127,6 +118,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
         preview.setBookDetail(detail);
         bookDetailRepository.persist(detail);
         bookPreviewRepository.persist(preview);
+        if(bookCreationRequest.coverImage() != null) bookImageHandler.upsertCoverImage(bookCreationRequest.title(), bookCreationRequest.coverImage());
         return Either.right(getLazyBookResponse(detail, preview));
     }
 
@@ -156,7 +148,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
             bookDetailRepository.update(detail.get());
         }
         if (previewChanged) bookPreviewRepository.update(preview.get());
-
+        if(bookUpdateRequest.coverImage() != null) bookImageHandler.upsertCoverImage(bookUpdateRequest.title(), bookUpdateRequest.coverImage());
         return Either.right(getEagerBookResponse(detail.get(), preview.get()));
     }
 
@@ -324,7 +316,8 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
                 getChapterPreviewResponsesForBook(bookDetail.getId()),
                 getRatingResponsesForBook(bookDetail.getId()),
                 bookPreviewEager.getBookTags(),
-                bookPreviewEager.getBookState()
+                bookPreviewEager.getBookState(),
+                bookImageHandler.fetchCoverImage(bookPreviewEager.getTitle())
         );
     }
 
@@ -340,7 +333,8 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
                 List.of(),
                 List.of(),
                 bookPreviewEager.getBookTags(),
-                bookPreviewEager.getBookState()
+                bookPreviewEager.getBookState(),
+                null
         );
     }
 
@@ -372,7 +366,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     @Override
     @Cacheable("bookPreviews")
     public List<BookPreviewResponse> getBookPreviewResponses() {
-        return bookPreviewRepository.getAllBookPreviewsEager().stream().map(mapper::bookPreviewToBookPreviewResponse).toList();
+        return bookPreviewRepository.getAllBookPreviewsEager().stream().map(this::mapPreviewWithCover).toList();
     }
 
     @Override
@@ -387,5 +381,9 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
 
     private static String escapeHtml(String toEscape) {
         return HtmlUtils.htmlEscape(toEscape);
+    }
+
+    private BookPreviewResponse mapPreviewWithCover(BookPreview bookPreview) {
+        return mapper.bookPreviewWithCoverToBookPreviewResponse(bookPreview, bookImageHandler.fetchCoverImage(bookPreview.getTitle()));
     }
 }

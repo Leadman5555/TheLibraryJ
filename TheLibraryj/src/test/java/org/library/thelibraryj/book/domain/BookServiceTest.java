@@ -5,7 +5,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.library.thelibraryj.book.dto.*;
+import org.library.thelibraryj.book.dto.BookCreationRequest;
+import org.library.thelibraryj.book.dto.BookDetailResponse;
+import org.library.thelibraryj.book.dto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.BookResponse;
+import org.library.thelibraryj.book.dto.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
+import org.library.thelibraryj.book.dto.ChapterRequest;
+import org.library.thelibraryj.book.dto.RatingRequest;
+import org.library.thelibraryj.book.dto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.mockito.InjectMocks;
@@ -111,7 +119,8 @@ public class BookServiceTest {
                 title,
                 authorId,
                 description,
-                List.of()
+                List.of(),
+                null
         );
         bookPreview.setBookDetail(bookDetail);
         when(bookPreviewRepository.existsByTitle(title)).thenReturn(false);
@@ -125,7 +134,7 @@ public class BookServiceTest {
         UUID bookId = UUID.randomUUID();
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
         when(bookPreviewRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookPreview));
-        BookUpdateRequest bookUpdateRequest = new BookUpdateRequest(null, null, BookState.IN_PROGRESS, null, bookId);
+        BookUpdateRequest bookUpdateRequest = new BookUpdateRequest(null, null, BookState.IN_PROGRESS, null, null, bookId);
         BookResponse updated = bookService.updateBook(bookUpdateRequest).get();
         verify(bookDetailRepository, never()).update(bookDetail);
         verify(bookPreviewRepository).update(bookPreview);
