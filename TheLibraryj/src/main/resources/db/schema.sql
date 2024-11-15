@@ -70,7 +70,7 @@ CREATE TABLE library.library_ratings
 DROP TABLE IF EXISTS library.library_user_info;
 CREATE TABLE library.library_user_info
 (
-    username        VARCHAR(20) UNIQUE NOT NULL,
+    username        VARCHAR(25) UNIQUE NOT NULL,
     email           VARCHAR(48) UNIQUE NOT NULL,
     id              UUID               NOT NULL,
     user_auth_id    UUID               NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE library.library_user_info
 DROP TABLE IF EXISTS library.library_user_auth;
 CREATE TABLE library.library_user_auth
 (
-    password   VARCHAR(200)       NOT NULL,
+    password   VARCHAR(200),
     email      VARCHAR(48) UNIQUE NOT NULL,
     id         UUID               NOT NULL,
     version    BIGINT             NOT NULL DEFAULT 0,
@@ -92,6 +92,7 @@ CREATE TABLE library.library_user_auth
     updated_at TIMESTAMP,
     role       VARCHAR(8)         NOT NULL,
     is_enabled BOOLEAN            NOT NULL DEFAULT false,
+    is_google  BOOLEAN            NOT NULL DEFAULT false,
     CONSTRAINT pk_library_user_auth PRIMARY KEY (id)
 );
 DROP TABLE IF EXISTS library.library_tokens;

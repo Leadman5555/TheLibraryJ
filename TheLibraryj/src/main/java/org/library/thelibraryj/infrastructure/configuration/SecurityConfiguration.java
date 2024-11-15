@@ -2,9 +2,9 @@ package org.library.thelibraryj.infrastructure.configuration;
 
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
+import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,6 +19,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @RequiredArgsConstructor
 @Configuration
@@ -26,12 +27,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 class SecurityConfiguration {
     private static final String[] AUTH_WHITELIST = {
-            "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.5/auth/**", "/v0.5/**"
+            "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.7/na/**"
     };
     private final UserAuthService userAuthService;
+    private final FilterChainExceptionHandler filterChainExceptionHandler;
+    private final JwtFilter jwtFilter;
 
     @Bean
-    @Profile(value = {"development"})
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
@@ -40,6 +42,8 @@ class SecurityConfiguration {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
+                .addFilterBefore(filterChainExceptionHandler, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
 

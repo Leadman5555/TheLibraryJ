@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("${library.mapping}/auth")
+@RequestMapping("${library.mapping}/na/auth")
 record AuthenticationController(AuthenticationService authenticationService) implements ErrorHandling {
 
     @Operation(
             summary = "Allows for creation of a new user account. Sends activation email on success.",
-            tags = "authentication"
+            tags = {"authentication", "no auth required"}
     )
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Valid RegisterRequest registerRequest) throws MessagingException {
@@ -30,7 +30,7 @@ record AuthenticationController(AuthenticationService authenticationService) imp
 
     @Operation(
             summary = "Returns a valid JWT token on successful login attempt.",
-            tags = "authentication"
+            tags = {"authentication", "no auth required"}
     )
     @PostMapping
     public ResponseEntity<String> login(@RequestBody @Valid AuthenticationRequest authenticationRequest) {
@@ -39,7 +39,7 @@ record AuthenticationController(AuthenticationService authenticationService) imp
 
     @Operation(
             summary = "Resends an activation email for given email address on success.",
-            tags = {"authentication", "activation"}
+            tags = {"authentication", "activation", "no auth required"}
     )
     @PostMapping("/activation")
     public ResponseEntity<String> resendActivationEmail(@RequestBody @Valid BasicUserDataRequest basicUserDataRequest) throws MessagingException {

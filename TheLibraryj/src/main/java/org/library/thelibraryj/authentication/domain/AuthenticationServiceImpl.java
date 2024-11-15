@@ -4,13 +4,15 @@ import io.vavr.control.Either;
 import jakarta.mail.MessagingException;
 import org.library.thelibraryj.authentication.AuthenticationService;
 import org.library.thelibraryj.authentication.PasswordControl;
-import org.library.thelibraryj.authentication.dto.BasicUserDataRequest;
-import org.library.thelibraryj.authentication.tokenServices.ActivationService;
-import org.library.thelibraryj.authentication.tokenServices.dto.activation.ActivationTokenResponse;
 import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
 import org.library.thelibraryj.authentication.dto.AuthenticationResponse;
+import org.library.thelibraryj.authentication.dto.BasicUserDataRequest;
 import org.library.thelibraryj.authentication.dto.RegisterRequest;
+import org.library.thelibraryj.authentication.jwtAuth.JwtService;
+import org.library.thelibraryj.authentication.tokenServices.ActivationService;
+import org.library.thelibraryj.authentication.tokenServices.dto.activation.ActivationTokenResponse;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
+import org.library.thelibraryj.authentication.userAuth.dto.LoginDataResponse;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
 import org.library.thelibraryj.email.EmailService;
@@ -18,10 +20,8 @@ import org.library.thelibraryj.email.dto.EmailRequest;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
-import org.library.thelibraryj.jwtAuth.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -35,16 +35,19 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
                                  JwtService jwtService) implements PasswordControl, AuthenticationService {
     @Override
     public Either<GeneralError, AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
-        UserDetails fetched = userAuthService.loadUserByUsername(authenticationRequest.email());
+        Either<GeneralError, LoginDataResponse> fetchedE = userAuthService.getLoginDataByEmail(authenticationRequest.email());
+        if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
+        LoginDataResponse fetched = fetchedE.get();
+        if(fetched.isGoogleUser()) return Either.left(new UserAuthError.UserIsGoogleRegistered(authenticationRequest.email()));
         if (!fetched.isEnabled()) return Either.left(new UserAuthError.UserNotEnabled(authenticationRequest.email()));
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authenticationRequest.email(),
                         new String(authenticationRequest.password()),
-                        fetched.getAuthorities())
+                        fetched.grantedAuthorities())
         );
         zeroPassword(authenticationRequest.password());
         return Either.right(new AuthenticationResponse(
-                jwtService().generateToken(fetched.getUsername())
+                jwtService().generateToken(authenticationRequest.email())
         ));
     }
 

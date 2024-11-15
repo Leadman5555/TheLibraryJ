@@ -42,7 +42,7 @@ public class PasswordResetIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String BASE_URL = TestProperties.BASE_URL + "/auth/password";
+    private static final String BASE_URL = TestProperties.BASE_URL + "/na/auth/password";
     private static final String user1email = "sample.email1@gmail.com";
     private final UUID user1Id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
@@ -84,7 +84,6 @@ public class PasswordResetIT {
         assertEquals(new PasswordResetTemplate("", Instant.now()).getSubject(), receivedMessages[0].getSubject());
 
         assertEquals(HttpStatus.NO_CONTENT.value(), resetStartResponse.getStatusCode().value());
-
 
 
         Statement checkCreatedToken = connection.createStatement();

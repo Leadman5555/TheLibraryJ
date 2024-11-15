@@ -8,12 +8,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.library.thelibraryj.email.EmailService;
 import org.library.thelibraryj.email.dto.EmailRequest;
-import org.library.thelibraryj.email.template.EmailTemplate;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
+import org.library.thelibraryj.email.template.EmailTemplate;
+import org.library.thelibraryj.email.template.PasswordResetTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
@@ -30,23 +32,29 @@ public class EmailServiceTest {
     private EmailService emailService;
 
     @Test
-    public void sendConfirmationMail() throws Exception {;
+    public void renderTemplatesAndSendMails() throws Exception {
+        List<EmailTemplate> templateList = List.of(
+                new AccountActivationTemplate(
+                        "sample username", "sample link", Instant.now().plusSeconds(30)
+                ),
+                new PasswordResetTemplate("sample link", Instant.now().plusSeconds(30))
+        );
         final String recipient = "recipient@example.com";
-        EmailTemplate template = new AccountActivationTemplate(
-                "sample username", "sample link", Instant.now()
-        );
-        final String subject = template.getSubject();
-        EmailRequest request = new EmailRequest(recipient, template);
+        int currentEmailCount = 0;
+        for (EmailTemplate template : templateList) {
+            final String subject = template.getSubject();
+            EmailRequest request = new EmailRequest(recipient, template);
 
-        final int times = 2;
-        for(int i = 0; i < times; i++) emailService.sendEmail(request);
+            emailService.sendEmail(request);
 
-        await().atMost(10, TimeUnit.SECONDS).until(
-                () -> greenMail.getReceivedMessagesForDomain(recipient).length == times
-        );
-        final MimeMessage[] receivedMessages = greenMail.getReceivedMessagesForDomain(recipient);
-        assertEquals(2, receivedMessages.length);
-        assertEquals(subject, receivedMessages[0].getSubject());
+            int finalCurrentEmailCount = ++currentEmailCount;
+            await().atMost(5, TimeUnit.SECONDS).until(
+                    () -> greenMail.getReceivedMessagesForDomain(recipient).length == finalCurrentEmailCount
+            );
+            final MimeMessage[] receivedMessages = greenMail.getReceivedMessagesForDomain(recipient);
+            assertEquals(finalCurrentEmailCount, receivedMessages.length);
+            assertEquals(subject, receivedMessages[finalCurrentEmailCount-1].getSubject());
+        }
     }
 
 }

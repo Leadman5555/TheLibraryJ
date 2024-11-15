@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("${library.mapping}/auth/password")
+@RequestMapping("${library.mapping}/na/auth/password")
 record PasswordResetController(PasswordResetServiceImpl passwordResetService) implements ErrorHandling {
 
     @Operation(
             summary = "Starts the password reset procedure, creating a reset token and sending a password reset email to the user of given email address.",
-            tags = {"authentication", "password"}
+            tags = {"authentication", "password", "no auth required"}
     )
     @PostMapping("/{emailAddress}")
     public ResponseEntity<String> startPasswordResetProcedure(@PathVariable String emailAddress) throws MessagingException {
@@ -29,7 +29,7 @@ record PasswordResetController(PasswordResetServiceImpl passwordResetService) im
 
     @Operation(
             summary = "Consumes an existing password reset token, changing the user's password to the new one if successful.",
-            tags = {"authentication", "password"}
+            tags = {"authentication", "password", "no auth required"}
     )
     @PatchMapping
     public ResponseEntity<String> consumePasswordResetToken(@RequestBody @Valid PasswordResetRequest passwordResetRequest) {

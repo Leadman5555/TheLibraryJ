@@ -18,15 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("${library.mapping}/user")
+@RequestMapping("${library.mapping}")
 record UserInfoController(UserInfoService userInfoService) implements ErrorHandling {
 
 
     @Operation(
             summary = "Fetch a single UserInfo record by Id",
-            tags = "user"
+            tags = {"user", "no auth required"}
     )
-    @GetMapping("/{id}")
+    @GetMapping("na/user/{id}")
     public ResponseEntity<String> getUserInfoResponseById(@PathVariable("id") UUID id) {
         return handle(userInfoService.getUserInfoResponseById(id), HttpStatus.OK);
     }
@@ -35,7 +35,7 @@ record UserInfoController(UserInfoService userInfoService) implements ErrorHandl
             summary = "Update user's rank (negative change means decreasing the rank)",
             tags = "user"
     )
-    @PatchMapping("/profile/rank")
+    @PatchMapping("/user/profile/rank")
     public ResponseEntity<String> updateUserInfoRank(@RequestBody @Valid UserInfoRankUpdateRequest userInfoRankUpdateRequest) {
         return handle(userInfoService.updateRank(userInfoRankUpdateRequest), HttpStatus.OK);
     }
@@ -44,7 +44,7 @@ record UserInfoController(UserInfoService userInfoService) implements ErrorHandl
             summary = "Change the user's username and reflect the change on all his books",
             tags = "user"
     )
-    @PatchMapping("/profile/username")
+    @PatchMapping("/user/profile/username")
     public ResponseEntity<String> updateUserInfoUsername(@RequestBody @Valid UserInfoUsernameUpdateRequest userInfoUsernameUpdateRequest) {
         return handle(userInfoService.updateUserInfoUsername(userInfoUsernameUpdateRequest), HttpStatus.OK);
     }

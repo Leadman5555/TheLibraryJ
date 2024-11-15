@@ -14,6 +14,7 @@ import java.util.UUID;
 public interface UserInfoService {
     boolean existsById(UUID userId);
     boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
     Either<GeneralError, UserInfoResponse> getUserInfoResponseById(UUID userId);
     Either<GeneralError, String> getAuthorUsernameAndCheckAccountAge(UUID userId);
     UserInfoResponse createUserInfo(UserInfoRequest userInfoRequest);

@@ -1,10 +1,12 @@
 package org.library.thelibraryj.infrastructure.exception;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import jakarta.mail.MessagingException;
 import org.library.thelibraryj.infrastructure.error.ApiErrorResponse;
 import org.library.thelibraryj.infrastructure.error.ApiErrorWrapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -77,6 +79,45 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
                         .message(uri.equals("/login") ? "Wrong password or email" : ex.getMessage())
                         .status(HttpStatus.FORBIDDEN.getReasonPhrase())
                         .path("Path: " + uri)
+                        .build()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    @ExceptionHandler({GoogleApiNotRespondingException.class})
+    public ResponseEntity<ApiErrorWrapper> handleGoogleApiNotRespondingException(GoogleApiNotRespondingException ex, WebRequest request) {
+        final ApiErrorWrapper error = new ApiErrorWrapper(
+                ApiErrorResponse.builder()
+                        .code(HttpStatus.SERVICE_UNAVAILABLE.value())
+                        .message("Google api not responding. Message from Google api: " + ex.getMessage())
+                        .status(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase())
+                        .path("Path: " + extractRequest(request))
+                        .build()
+        );
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
+    }
+
+    @ExceptionHandler({GoogleTokenVerificationException.class})
+    public ResponseEntity<ApiErrorWrapper> handleGoogleTokenVerificationException(GoogleTokenVerificationException ex, WebRequest request) {
+        final ApiErrorWrapper error = new ApiErrorWrapper(
+                ApiErrorResponse.builder()
+                        .code(HttpStatus.FORBIDDEN.value())
+                        .message("Google token invalid. Authorization failed: " + ex.getMessage())
+                        .status(HttpStatus.FORBIDDEN.getReasonPhrase())
+                        .path("Path: " + extractRequest(request))
+                        .build()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    @ExceptionHandler({AccessDeniedException.class, JWTVerificationException.class})
+    public ResponseEntity<ApiErrorWrapper> handleAccessDeniedException(RuntimeException ex, WebRequest request) {
+        final ApiErrorWrapper error = new ApiErrorWrapper(
+                ApiErrorResponse.builder()
+                        .code(HttpStatus.FORBIDDEN.value())
+                        .message("Authorization failed; Jwt token Invalid. Reason: " + ex.getMessage())
+                        .status(HttpStatus.FORBIDDEN.getReasonPhrase())
+                        .path("Path: " + extractRequest(request))
                         .build()
         );
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);

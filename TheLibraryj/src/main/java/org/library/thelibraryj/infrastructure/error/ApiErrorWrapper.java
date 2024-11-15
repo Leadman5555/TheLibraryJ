@@ -54,6 +54,10 @@ public class ApiErrorWrapper {
                     getErrorResponse(error, HttpStatus.CONFLICT, "Username not unique. Duplicate username: " + e.username());
             case UserAuthError.UserNotEnabled e ->
                     getErrorResponse(error, HttpStatus.BAD_REQUEST, "User not enabled. Email: " + e.email());
+            case UserAuthError.GoogleApiNotResponding e ->
+                getErrorResponse(error, HttpStatus.SERVICE_UNAVAILABLE, "Google api not responding to query.");
+            case UserAuthError.UserIsGoogleRegistered e ->
+                getErrorResponse(error, HttpStatus.BAD_REQUEST, "Google registered user can only login and change their password by Google api. Email: " + e.email());
             case ActivationError.UserAlreadyEnabled e ->
                     getErrorResponse(error, HttpStatus.BAD_REQUEST, "User already enabled. Id: " + e.userId());
             case ActivationError.ActivationTokenNotFound e ->
