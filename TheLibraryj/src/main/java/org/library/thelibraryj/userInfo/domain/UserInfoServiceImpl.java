@@ -7,7 +7,13 @@ import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
-import org.library.thelibraryj.userInfo.dto.*;
+import org.library.thelibraryj.userInfo.dto.UserInfoImageUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
+import org.library.thelibraryj.userInfo.dto.UserInfoScoreUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -31,6 +37,11 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     private final UserInfoConfig userInfoConfig;
     private final UserInfoImageHandler userInfoImageHandler;
     private BookService bookService;
+
+    private final static int points_for_comment = 1;
+    private final static int points_for_review = 1;
+    private final static int points_for_author = 3;
+    private final static int[] rank_requirements = {3, 5, 10, 20, 40, 60, 100, 200, 500, 1000};
 
     @Autowired
     void setBookService(@Lazy BookService bookService) {
@@ -85,6 +96,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 mappedSaved.username(),
                 mappedSaved.email(),
                 mappedSaved.rank(),
+                mappedSaved.currentScore(),
                 mappedSaved.dataUpdatedAt(),
                 userInfoImageHandler.fetchProfileImage(mappedSaved.userId())
         );
@@ -103,14 +115,34 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
 
     @Transactional
     @Override
-    public Either<GeneralError, UserInfoResponse> updateRank(UserInfoRankUpdateRequest userInfoRankUpdateRequest) {
+    public Either<GeneralError, UserInfoResponse> forceUpdateRank(UserInfoRankUpdateRequest userInfoRankUpdateRequest) {
         Either<GeneralError, UserInfo> fetchedE = getUserInfoById(userInfoRankUpdateRequest.userId());
         if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         UserInfo fetched = fetchedE.get();
         int newRank = fetched.getRank() + userInfoRankUpdateRequest.rankChange();
         fetched.setRank(
-                max(min(newRank, 10), 0)
+                max(min(newRank, rank_requirements.length), 0)
         );
+        userInfoRepository.update(fetched);
+        return Either.right(userInfoMapper.userInfoToUserInfoResponse(fetched));
+    }
+
+    @Transactional
+    @Override
+    public Either<GeneralError, UserInfoResponse> updateRank(UUID userId) {
+        Either<GeneralError, UserInfo> fetchedE = getUserInfoById(userId);
+        if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
+        UserInfo fetched = fetchedE.get();
+        int newRank = fetched.getRank();
+        int currentPoints = fetched.getCurrentScore();
+
+        while(newRank < rank_requirements.length && currentPoints - rank_requirements[newRank] >=0){
+            currentPoints -= rank_requirements[newRank];
+            newRank++;
+        }
+        if(newRank == fetched.getRank()) return Either.left(new UserInfoError.UserNotEligibleForRankIncrease(userId, currentPoints - rank_requirements[newRank]));
+        fetched.setRank(newRank);
+        fetched.setCurrentScore(currentPoints);
         userInfoRepository.update(fetched);
         return Either.right(userInfoMapper.userInfoToUserInfoResponse(fetched));
     }
@@ -140,6 +172,22 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         if (userInfoImageHandler.upsertProfileImageImage(userInfoImageUpdateRequest.userId(), userInfoImageUpdateRequest.newImage()))
             return Either.left(new UserInfoError.ProfileImageUpdateFailed());
         return Either.right(userInfoMapper.userInfoToUserInfoWithImageResponse(fetchedE.get(), userInfoImageUpdateRequest.newImage().getBytes()));
+    }
+
+    @Transactional
+    @Override
+    public void updateRatingScore(UserInfoScoreUpdateRequest userInfoScoreUpdateRequest) {
+        Either<GeneralError, UserInfo> user = getUserInfoById(userInfoScoreUpdateRequest.forUser());
+        if(user.isRight()){
+            if(userInfoScoreUpdateRequest.hadComment()) user.get().incrementScore(points_for_comment + points_for_review);
+            else user.get().incrementScore(points_for_review);
+            userInfoRepository.update(user.get());
+        }
+        Either<GeneralError, UserInfo> author = getUserInfoById(userInfoScoreUpdateRequest.forAuthor());
+        if(author.isRight()){
+            author.get().incrementScore(points_for_author);
+            userInfoRepository.update(author.get());
+        }
     }
 
     @Override

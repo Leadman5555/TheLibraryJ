@@ -8,4 +8,5 @@ public sealed interface UserInfoError extends GeneralError{
     record UsernameNotUnique() implements UserInfoError {}
     record UsernameUpdateCooldown(long cooldownDurationLeft) implements UserInfoError {}
     record ProfileImageUpdateFailed() implements UserInfoError {}
+    record UserNotEligibleForRankIncrease(UUID userId, int missingScore) implements UserInfoError {}
 }

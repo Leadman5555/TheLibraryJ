@@ -6,6 +6,7 @@ import org.library.thelibraryj.userInfo.dto.UserInfoImageUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
+import org.library.thelibraryj.userInfo.dto.UserInfoScoreUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,9 @@ public interface UserInfoService {
     Either<GeneralError, String> getAuthorUsernameAndCheckAccountAge(UUID userId);
     UserInfoWithImageResponse createUserInfoWithImage(UserInfoRequest userInfoRequest, MultipartFile imageFile);
     UserInfoResponse createUserInfo(UserInfoRequest userInfoRequest);
-    Either<GeneralError, UserInfoResponse> updateRank(UserInfoRankUpdateRequest userInfoRankUpdateRequest);
+    Either<GeneralError, UserInfoResponse> forceUpdateRank(UserInfoRankUpdateRequest userInfoRankUpdateRequest);
+    Either<GeneralError, UserInfoResponse> updateRank(UUID userId);
     Either<GeneralError, UserInfoResponse> updateUserInfoUsername(UserInfoUsernameUpdateRequest userInfoUsernameUpdateRequest);
     Either<GeneralError, UserInfoWithImageResponse> updateProfileImage(UserInfoImageUpdateRequest userInfoImageUpdateRequest) throws IOException;
+    void updateRatingScore(UserInfoScoreUpdateRequest userInfoScoreUpdateRequest);
 }

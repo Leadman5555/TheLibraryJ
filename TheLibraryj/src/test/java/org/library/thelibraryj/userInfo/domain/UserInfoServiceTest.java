@@ -77,9 +77,20 @@ public class UserInfoServiceTest {
 
     @Test
     public void testUpdateRank(){
+        userInfo.setCurrentScore(600);
+        when(userInfoRepository.findById(userId)).thenReturn(Optional.ofNullable(userInfo));
+        Either<GeneralError, UserInfoResponse> response = userInfoService.updateRank(userId);
+        Assertions.assertTrue(response.isRight());
+        Assertions.assertEquals(8 , response.get().rank());
+        Assertions.assertEquals(240, response.get().currentScore());
+        verify(userInfoRepository).update(userInfo);
+    }
+
+    @Test
+    public void testForceUpdateRank(){
         when(userInfoRepository.findById(userId)).thenReturn(Optional.ofNullable(userInfo));
         UserInfoRankUpdateRequest request = new UserInfoRankUpdateRequest(userInfo.getId(), 10);
-        Either<GeneralError, UserInfoResponse> response = userInfoService.updateRank(request);
+        Either<GeneralError, UserInfoResponse> response = userInfoService.forceUpdateRank(request);
         Assertions.assertTrue(response.isRight());
         Assertions.assertEquals(10, response.get().rank());
         verify(userInfoRepository).update(userInfo);

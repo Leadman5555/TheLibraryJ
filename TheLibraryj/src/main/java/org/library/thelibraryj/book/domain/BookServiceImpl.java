@@ -4,12 +4,23 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import jakarta.validation.constraints.NotEmpty;
-import org.library.thelibraryj.book.dto.*;
+import org.library.thelibraryj.book.dto.BookCreationRequest;
+import org.library.thelibraryj.book.dto.BookDetailResponse;
+import org.library.thelibraryj.book.dto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.BookResponse;
+import org.library.thelibraryj.book.dto.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
+import org.library.thelibraryj.book.dto.ChapterRequest;
+import org.library.thelibraryj.book.dto.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.ContentRemovalSuccess;
+import org.library.thelibraryj.book.dto.RatingRequest;
+import org.library.thelibraryj.book.dto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.library.thelibraryj.userInfo.UserInfoService;
+import org.library.thelibraryj.userInfo.dto.UserInfoScoreUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -36,7 +47,6 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     private final BookMapper mapper;
     private final BookImageHandler bookImageHandler;
     private UserInfoService userInfoService;
-
 
     @Autowired
     public void setUserInfoService(@Lazy UserInfoService userInfoService) {
@@ -176,7 +186,6 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
 
         Optional<Rating> prevRating = ratingRepository.getRatingForBookAndUser(ratingRequest.bookId(), ratingRequest.userId());
         BookPreview preview = ePreview.get();
-        BookDetail detailReference = bookDetailRepository.getReferenceById(ratingRequest.bookId());
 
         final String escapedComment;
         if (ratingRequest.comment() == null) escapedComment = "";
@@ -191,6 +200,12 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
             rating.setComment(escapedComment);
             ratingRepository.update(rating);
         } else {
+            BookDetail detail = getBookDetail(ratingRequest.bookId()).get();
+            userInfoService.updateRatingScore(new UserInfoScoreUpdateRequest(
+                    ratingRequest.userId(),
+                    detail.getAuthorId(),
+                    ratingRequest.comment() != null
+            ));
             preview.setAverageRating(
                     (preview.getAverageRating() * preview.getRatingCount() + ratingRequest.currentRating()) / (preview.getRatingCount() + 1)
             );
@@ -199,7 +214,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
                     .currentRating(ratingRequest.currentRating())
                     .userId(ratingRequest.userId())
                     .comment(escapedComment)
-                    .bookDetail(detailReference)
+                    .bookDetail(detail)
                     .build());
         }
         bookPreviewRepository.update(preview);

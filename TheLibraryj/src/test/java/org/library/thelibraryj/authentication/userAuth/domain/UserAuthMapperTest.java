@@ -27,6 +27,7 @@ public class UserAuthMapperTest {
                 "username",
                 userAuth.getEmail(),
                 4,
+                0,
                 Instant.now(),
                 null
         );
