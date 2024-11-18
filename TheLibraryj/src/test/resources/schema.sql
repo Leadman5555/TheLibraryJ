@@ -11,7 +11,7 @@ CREATE TABLE library.library_chapter_previews(id             UUID   NOT NULL,   
 DROP TABLE IF EXISTS library.library_chapters;
 CREATE TABLE library.library_chapters(chapter_preview_id UUID   NOT NULL,   version            BIGINT NOT NULL DEFAULT 0,created_at         TIMESTAMP,updated_at         TIMESTAMP,text               TEXT,CONSTRAINT pk_library_chapters PRIMARY KEY (chapter_preview_id));
 DROP TABLE IF EXISTS library.library_ratings;
-CREATE TABLE library.library_ratings(id             UUID   NOT NULL,    version        BIGINT NOT NULL DEFAULT 0,created_at     TIMESTAMP,updated_at     TIMESTAMP,current_rating INT    NOT NULL,user_id        UUID   NOT NULL,comment        VARCHAR(255),book_detail_id UUID   NOT NULL,CONSTRAINT pk_library_ratings PRIMARY KEY (id));
+CREATE TABLE library.library_ratings(username        VARCHAR(25) UNIQUE NOT NULL, id             UUID   NOT NULL,    version        BIGINT NOT NULL DEFAULT 0,created_at     TIMESTAMP,updated_at     TIMESTAMP,current_rating INT    NOT NULL,user_id        UUID   NOT NULL,comment        VARCHAR(255),book_detail_id UUID   NOT NULL,CONSTRAINT pk_library_ratings PRIMARY KEY (id));
 DROP TABLE IF EXISTS library.library_user_info;
 CREATE TABLE library.library_user_info(id         UUID   NOT NULL,    version    BIGINT NOT NULL DEFAULT 0,created_at TIMESTAMP,updated_at TIMESTAMP,data_updated_at TIMESTAMP, username   VARCHAR(25) UNIQUE NOT NULL, email      VARCHAR(50) UNIQUE NOT NULL, rank       INTEGER NOT NULL DEFAULT 0, current_score   INTEGER            NOT NULL DEFAULT 0, user_auth_id UUID NOT NULL, CONSTRAINT pk_library_user_info PRIMARY KEY (id));
 DROP TABLE IF EXISTS library.library_user_auth;

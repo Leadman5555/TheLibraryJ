@@ -58,6 +58,7 @@ DROP TABLE IF EXISTS library.library_ratings;
 CREATE TABLE library.library_ratings
 (
     comment        VARCHAR(252),
+    username        VARCHAR(25) UNIQUE NOT NULL,
     id             UUID   NOT NULL,
     user_id        UUID   NOT NULL,
     book_detail_id UUID   NOT NULL,

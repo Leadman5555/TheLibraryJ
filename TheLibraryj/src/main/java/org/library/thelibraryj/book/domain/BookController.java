@@ -2,6 +2,7 @@ package org.library.thelibraryj.book.domain;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.BookCreationRequest;
 import org.library.thelibraryj.book.dto.BookPreviewResponse;
@@ -12,6 +13,8 @@ import org.library.thelibraryj.book.dto.RatingRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -27,7 +30,9 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("${library.mapping}")
-record BookController(BookService bookService) implements ErrorHandling {
+@RequiredArgsConstructor
+class BookController implements ErrorHandling {
+    private final BookService bookService;
 
     @Operation(
             summary = "Retrieve all book previews with their tags",
@@ -70,6 +75,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @PostMapping("books/book")
+    @PreAuthorize("#bookCreationRequest.authorEmail == authentication.principal.username")
     public ResponseEntity<String> createBook(@RequestBody @Valid BookCreationRequest bookCreationRequest) {
         return handle(bookService.createBook(bookCreationRequest), HttpStatus.CREATED);
     }
@@ -79,6 +85,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @PostMapping("books/book/chapter")
+    @PreAuthorize("#chapterRequest.authorEmail == authentication.principal.username")
     public ResponseEntity<String> createChapter(@RequestBody @Valid ChapterRequest chapterRequest) {
         return handle(bookService.createChapter(chapterRequest), HttpStatus.CREATED);
     }
@@ -88,6 +95,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @PostMapping("books/book/chapter/batch")
+    @PreFilter("#filterObject.authorEmail == authentication.principal.username")
     public ResponseEntity<String> createChapters(@RequestBody @Valid List<ChapterRequest> chapterRequests) {
         return handle(bookService.createChapters(chapterRequests), HttpStatus.CREATED);
     }
@@ -97,6 +105,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @PatchMapping("books/book")
+    @PreAuthorize("hasRole('ADMIN') or #bookUpdateRequest.authorEmail == authentication.principal.username")
     public ResponseEntity<String> updateBook(@RequestBody @Valid BookUpdateRequest bookUpdateRequest) {
         return handle(bookService.updateBook(bookUpdateRequest), HttpStatus.OK);
     }
@@ -106,6 +115,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @PutMapping("books/rating")
+    @PreAuthorize("hasRole('ADMIN') or #ratingRequest.userEmail == authentication.principal.username")
     public ResponseEntity<String> upsertRating(@RequestBody @Valid RatingRequest ratingRequest) {
         return handle(bookService.upsertRating(ratingRequest), HttpStatus.OK);
     }
@@ -116,6 +126,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @PutMapping("books/flush")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> flushPreviewsCache() {
         bookService.resetBookPreviewsCache();
         return ResponseEntity.noContent().build();
@@ -126,6 +137,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @DeleteMapping("books/book/chapter/{number}")
+    @PreAuthorize("hasRole('ADMIN') or #contentRemovalRequest.userEmail == authentication.principal.username")
     public ResponseEntity<String> deleteChapter(@PathVariable Integer number, @RequestBody @Valid ContentRemovalRequest contentRemovalRequest) {
         return handle(bookService.deleteChapter(contentRemovalRequest, number), HttpStatus.OK);
     }
@@ -135,6 +147,7 @@ record BookController(BookService bookService) implements ErrorHandling {
             tags = "book"
     )
     @DeleteMapping("books/book")
+    @PreAuthorize("hasRole('ADMIN') or #contentRemovalRequest.userEmail == authentication.principal.username")
     public ResponseEntity<String> deleteBook(@RequestBody @Valid ContentRemovalRequest contentRemovalRequest) {
         return handle(bookService.deleteBook(contentRemovalRequest), HttpStatus.OK);
     }

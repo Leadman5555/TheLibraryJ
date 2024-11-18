@@ -33,13 +33,17 @@ public class ApiErrorWrapper {
                     "Book data (preview) missing. Id: " + e.missingEntityId());
             case BookError.DuplicateTitle e -> getErrorResponse(error, HttpStatus.CONFLICT, "Duplicate title.");
             case BookError.UserNotAuthor e ->
-                    getErrorResponse(error, HttpStatus.CONFLICT, "User is not the book author. Id: " + e.userId());
+                    getErrorResponse(error, HttpStatus.CONFLICT, "User is not the book author. Email: " + e.userEmail());
             case BookError.ChapterNotFound e ->
                     getErrorResponse(error, HttpStatus.NOT_FOUND, "Chapter not found. BookId: " + e.bookId() + "; Chapter number: " + e.chapterNumber());
             case UserInfoError.UserInfoEntityNotFound e -> getErrorResponse(error, HttpStatus.NOT_FOUND,
-                    "User data (details) missing. Id: " + e.missingEntityId());
+                    "User data (details) missing. Email: " + e.missingEntityEmail());
+            case UserInfoError.UserInfoEntityNotFoundById e -> getErrorResponse(error, HttpStatus.NOT_FOUND,
+                    "User data (details) missing by Id");
+            case UserInfoError.UserInfoEntityNotFoundUsername e -> getErrorResponse(error, HttpStatus.NOT_FOUND,
+                    "User data (details) missing. Username: " + e.missingEntityUsername());
             case UserInfoError.UserAccountTooYoung e -> getErrorResponse(error, HttpStatus.BAD_REQUEST,
-                    "User account too young to complete the desired action. Missing account age (hours):" + e.accountAgeMissing() + " Id: " + e.userId());
+                    "User account too young to complete the desired action. Missing account age (hours):" + e.accountAgeMissing() + " Email: " + e.userEmail());
             case UserInfoError.UsernameNotUnique e ->
                     getErrorResponse(error, HttpStatus.CONFLICT, "Username not unique");
             case UserInfoError.UsernameUpdateCooldown e ->

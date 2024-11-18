@@ -29,6 +29,16 @@ record UserInfoController(UserInfoService userInfoService) implements ErrorHandl
     }
 
     @Operation(
+            summary = "Fetch a single UserInfo record by username",
+            tags = {"user", "no auth required"}
+    )
+    @GetMapping("na/user/username/{username}")
+    public ResponseEntity<String> getUserInfoResponseByUsername(@PathVariable("username") String username) {
+        return handle(userInfoService.getUserInfoResponseByUsername(username), HttpStatus.OK);
+    }
+
+
+    @Operation(
             summary = "Forcibly updates user's rank (negative change means decreasing the rank)",
             tags = "user"
     )

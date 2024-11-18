@@ -10,5 +10,5 @@ import java.util.List;
 import java.util.UUID;
 
 public record BookUpdateRequest(@Nullable String title, @Nullable String description, @Nullable BookState state, @Nullable
-                                MultipartFile coverImage, List<BookTag> bookTags, @NotNull UUID bookId) {
+                                MultipartFile coverImage, List<BookTag> bookTags, @NotNull UUID bookId, @NotNull String authorEmail) {
 }

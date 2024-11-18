@@ -7,6 +7,8 @@ import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
+import org.library.thelibraryj.userInfo.dto.BookCreationUserData;
+import org.library.thelibraryj.userInfo.dto.RatingUpsertData;
 import org.library.thelibraryj.userInfo.dto.UserInfoImageUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
@@ -16,6 +18,7 @@ import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -65,7 +68,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFound(userId)));
+                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundById()));
     }
 
     @Override
@@ -76,41 +79,80 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     }
 
     @Override
-    public Either<GeneralError, String> getAuthorUsernameAndCheckAccountAge(UUID userId) {
-        Either<GeneralError, UserInfo> fetchedE = getUserInfoById(userId);
-        if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
-        UserInfo fetched = fetchedE.get();
-        long ageDiff = ChronoUnit.HOURS.between(fetched.getCreatedAt(), Instant.now());
+    public Either<GeneralError, UserInfoWithImageResponse> getUserInfoResponseByUsername(String username) {
+        Either<GeneralError, UserInfo> fetched = Try.of(() -> userInfoRepository.getByUsername(username))
+                .toEither()
+                .map(Option::ofOptional)
+                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
+                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundUsername(username)));
+        if(fetched.isLeft()) return Either.left(fetched.getLeft());
+        return Either.right(userInfoMapper.userInfoToUserInfoWithImageResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(fetched.get().getId())));
+    }
+
+    @Override
+    public Either<GeneralError, UUID> getUserInfoIdByEmail(String email) {
+        return Try.of(() -> userInfoRepository.getIdByEmail(email))
+                .toEither()
+                .map(Option::ofOptional)
+                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
+                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundUsername(email)));
+    }
+
+    @Override
+    public Either<GeneralError, RatingUpsertData> getUsernameAndIdByEmail(String email) {
+        Either<GeneralError, Object> fetched = Try.of(() -> userInfoRepository.getRatingUpsertData(email))
+                .toEither()
+                .map(Option::ofOptional)
+                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
+                .flatMap(optionalEntity -> optionalEntity.toEither(new UserInfoError.UserInfoEntityNotFound(email)));
+        if (fetched.isLeft()) return Either.left(fetched.getLeft());
+        Object[] values = (Object[]) fetched.get();
+        return Either.right(new RatingUpsertData((UUID) values[0], (String) values[1]));
+    }
+
+    @Override
+    public Either<GeneralError, BookCreationUserData> getAndValidateAuthorData(String authorEmail) {
+        Either<GeneralError, Object> fetched = Try.of(() -> userInfoRepository.getBookCreationUserData(authorEmail))
+                .toEither()
+                .map(Option::ofOptional)
+                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
+                .flatMap(optionalEntity -> optionalEntity.toEither(new UserInfoError.UserInfoEntityNotFound(authorEmail)));
+        if (fetched.isLeft()) return Either.left(fetched.getLeft());
+        Object[] values = (Object[]) fetched.get();
+        long ageDiff = ChronoUnit.HOURS.between((Instant) values[2], Instant.now());
         if (ageDiff < userInfoConfig.getMinimal_age_hours())
-            return Either.left(new UserInfoError.UserAccountTooYoung(userId, ageDiff));
-        return Either.right(fetched.getUsername());
+            return Either.left(new UserInfoError.UserAccountTooYoung(authorEmail, ageDiff));
+        return Either.right(new BookCreationUserData((UUID) values[0], (String) values[1]));
     }
 
     @Transactional
     @Override
-    public UserInfoWithImageResponse createUserInfoWithImage(UserInfoRequest userInfoRequest, MultipartFile profileImage) {
-        UserInfoResponse mappedSaved = createUserInfo(userInfoRequest);
-        if (profileImage != null) userInfoImageHandler.upsertProfileImageImage(mappedSaved.userId(), profileImage);
-        return new UserInfoWithImageResponse(mappedSaved.userId(),
-                mappedSaved.userAuthId(),
-                mappedSaved.username(),
-                mappedSaved.email(),
-                mappedSaved.rank(),
-                mappedSaved.currentScore(),
-                mappedSaved.dataUpdatedAt(),
-                userInfoImageHandler.fetchProfileImage(mappedSaved.userId())
+    public UserInfoWithImageResponse createUserInfoWithImage(UserInfoRequest userInfoRequest, @Nullable MultipartFile profileImage) {
+        UserInfo created = createUserInfoInternal(userInfoRequest);
+        if (profileImage != null) userInfoImageHandler.upsertProfileImageImage(created.getId(), profileImage);
+        return new UserInfoWithImageResponse(
+                created.getUsername(),
+                created.getEmail(),
+                created.getRank(),
+                created.getCurrentScore(),
+                created.getDataUpdatedAt(),
+                userInfoImageHandler.fetchProfileImage(created.getId())
         );
     }
 
-    @Transactional
     @Override
     public UserInfoResponse createUserInfo(UserInfoRequest userInfoRequest) {
+        return userInfoMapper.userInfoToUserInfoResponse(createUserInfoInternal(userInfoRequest));
+    }
+
+    @Transactional
+    UserInfo createUserInfoInternal(UserInfoRequest userInfoRequest){
         UserInfo mapped = userInfoMapper.userInfoRequestToUserInfo(userInfoRequest);
         mapped.setRank(0);
         mapped.setDataUpdatedAt(Instant.now());
         UserInfo saved = userInfoRepository.persist(mapped);
         userInfoRepository.flush();
-        return userInfoMapper.userInfoToUserInfoResponse(saved);
+        return saved;
     }
 
     @Transactional
@@ -161,7 +203,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         fetched.setUsername(userInfoUsernameUpdateRequest.username());
         fetched.setDataUpdatedAt(Instant.now());
         userInfoRepository.update(fetched);
-        bookService.updateAuthorUsername(userInfoUsernameUpdateRequest.userId(), userInfoUsernameUpdateRequest.username());
+        bookService.updateAllForNewUsername(userInfoUsernameUpdateRequest.userId(), userInfoUsernameUpdateRequest.username());
         return Either.right(userInfoMapper.userInfoToUserInfoResponse(fetched));
     }
 

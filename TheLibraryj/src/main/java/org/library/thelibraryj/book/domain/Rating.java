@@ -25,7 +25,8 @@ class Rating extends AbstractEntity {
     private int currentRating;
     @Column(nullable = false)
     private UUID userId;
-
+    @Column(nullable = false)
+    private String username;
     @Column
     private String comment;
 

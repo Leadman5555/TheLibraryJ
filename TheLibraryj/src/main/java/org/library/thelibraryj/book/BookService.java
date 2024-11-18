@@ -37,6 +37,6 @@ public interface BookService {
     Either<GeneralError, ContentRemovalSuccess> deleteChapter(ContentRemovalRequest contentRemovalRequest, int chapterNumber);
 
     Either<GeneralError, ContentRemovalSuccess> deleteBook(ContentRemovalRequest contentRemovalRequest);
-    void updateAuthorUsername(UUID authorId, String username);
+    void updateAllForNewUsername(UUID forUserId, String newUsername);
     void resetBookPreviewsCache();
 }

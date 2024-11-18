@@ -24,7 +24,7 @@ interface RatingRepository extends BaseJpaRepository<Rating, UUID> {
     select r from rating r
     where r.userId = :userId and r.bookDetail.id = :bookId
     """)
-    Optional<Rating> getRatingForBookAndUser(UUID bookId, UUID userId);
+    Optional<Rating> getRatingForBookAndUser(@Param("bookId") UUID bookId, @Param("userId") UUID userId);
 
     @Modifying
     @Query("""
@@ -32,4 +32,6 @@ interface RatingRepository extends BaseJpaRepository<Rating, UUID> {
     where bookDetail.id = :bookId
     """)
     void deleteBook(UUID bookId);
+
+    List<Rating> getRatingsByUserId(UUID userId);
 }
