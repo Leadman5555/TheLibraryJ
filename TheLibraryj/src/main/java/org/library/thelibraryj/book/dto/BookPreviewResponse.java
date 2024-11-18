@@ -12,5 +12,6 @@ public record BookPreviewResponse(String title,
                                   int ratingCount,
                                   UUID id,
                                   BookState bookState,
-                                  List<BookTag> bookTags) {
+                                  List<BookTag> bookTags,
+                                  byte[] coverImage) {
 }

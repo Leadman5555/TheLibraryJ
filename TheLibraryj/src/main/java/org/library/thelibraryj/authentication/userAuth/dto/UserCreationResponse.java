@@ -6,5 +6,5 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record UserCreationResponse(UUID userAuthId, String username, int rank, Instant dataUpdatedAt, String email,
-                                   boolean isEnabled, UserRole role) {
+                                   boolean isEnabled, UserRole role, byte[] profileImage) {
 }

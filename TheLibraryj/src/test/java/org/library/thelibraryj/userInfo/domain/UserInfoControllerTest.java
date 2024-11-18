@@ -3,12 +3,13 @@ package org.library.thelibraryj.userInfo.domain;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
-import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
+import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
 import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -47,7 +48,7 @@ public class UserInfoControllerTest {
 
     @Test
     public void testGetUserInfoResponseById() throws Exception {
-        when(userInfoService.getUserInfoResponseById(userId)).thenReturn(Either.right(new UserInfoResponse(userId, null, null, null,0, null)));
+        when(userInfoService.getUserInfoResponseById(userId)).thenReturn(Either.right(new UserInfoWithImageResponse(userId, null, null, null,0, 0, null, null)));
         mockMvc.perform(get(ENDPOINT + "/na/user/" + userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -56,12 +57,12 @@ public class UserInfoControllerTest {
     }
 
     @Test
-    public void testUpdateUserInfoRank() throws Exception {
+    public void testForceUpdateUserInfoRank() throws Exception {
         UserInfoRankUpdateRequest request = new UserInfoRankUpdateRequest(userId, 10);
-        UserInfoResponse response = new UserInfoResponse(userId, UUID.randomUUID(), "sample", "email@sample.com",10, Instant.now());
-        when(userInfoService.updateRank(request)).thenReturn(Either.right(response));
+        UserInfoResponse response = new UserInfoResponse(userId, UUID.randomUUID(), "sample", "email@sample.com",10, 0, Instant.now());
+        when(userInfoService.forceUpdateRank(request)).thenReturn(Either.right(response));
 
-        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank")
+        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/force")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"userId\":\"" + userId + "\",\"rankChange\":\"10\"}"))
@@ -70,14 +71,35 @@ public class UserInfoControllerTest {
 
         UUID invalidId = UUID.randomUUID();
         UserInfoRankUpdateRequest request2 = new UserInfoRankUpdateRequest(invalidId, -10);
-        when(userInfoService.updateRank(request2)).thenReturn(Either.left(new UserInfoError.UserInfoEntityNotFound(invalidId)));
+        when(userInfoService.forceUpdateRank(request2)).thenReturn(Either.left(new UserInfoError.UserInfoEntityNotFound(invalidId)));
 
-        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank")
+        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/force")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"userId\":\"" + invalidId + "\",\"rankChange\":\"-10\"}"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.message", is("User data (details) missing. Id: " + invalidId)));
+    }
+
+    @Test
+    public void testUpdateUserInfoRank() throws Exception {
+        UserInfoResponse response = new UserInfoResponse(userId, UUID.randomUUID(), "sample", "email@sample.com",10, 10000, Instant.now());
+        when(userInfoService.updateRank(userId)).thenReturn(Either.right(response));
+
+        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{'rank': 10}"));
+
+        int missingScore = 10;
+        when(userInfoService.updateRank(userId)).thenReturn(Either.left(new UserInfoError.UserNotEligibleForRankIncrease(userId, missingScore)));
+
+        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.message", is("User not eligible for rank increase. Missing score: " + missingScore + " Id: " + userId)));
     }
 
     @Test

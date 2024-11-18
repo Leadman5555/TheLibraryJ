@@ -82,7 +82,8 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
         UserCreationRequest creationRequest = new UserCreationRequest(
                 registerRequest.email(),
                 passwordEncoder.encode(new String(registerRequest.password())).toCharArray(),
-                registerRequest.username()
+                registerRequest.username(),
+                registerRequest.profileImage()
         );
         zeroPassword(registerRequest.password());
         return userAuthService.createNewUser(creationRequest);

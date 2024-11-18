@@ -79,6 +79,7 @@ CREATE TABLE library.library_user_info
     updated_at      TIMESTAMP,
     data_updated_at TIMESTAMP,
     rank            INTEGER            NOT NULL DEFAULT 0,
+    current_score   INTEGER            NOT NULL DEFAULT 0,
     CONSTRAINT pk_library_user_info PRIMARY KEY (id)
 );
 DROP TABLE IF EXISTS library.library_user_auth;

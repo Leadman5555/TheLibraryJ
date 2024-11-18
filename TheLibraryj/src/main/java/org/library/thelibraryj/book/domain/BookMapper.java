@@ -17,7 +17,8 @@ interface BookMapper {
     BookDetailResponse bookDetailToBookDetailResponse(BookDetail bookDetail, List<ChapterPreviewResponse> chapterPreviews,
                                                       List<RatingResponse> ratings);
 
-    BookPreviewResponse bookPreviewToBookPreviewResponse(BookPreview bookPreview);
+    BookPreviewResponse bookPreviewToBookPreviewResponse(BookPreview bookPreview, byte[] coverImage);
+    BookPreviewResponse bookPreviewWithCoverToBookPreviewResponse(BookPreview bookPreview, byte[] coverImage);
 
     @Mapping(source = "id", target = "chapterId")
     List<ChapterPreviewResponse> chapterPreviewsToChapterPreviewResponseList(List<ChapterPreview> chapterPreviews);
