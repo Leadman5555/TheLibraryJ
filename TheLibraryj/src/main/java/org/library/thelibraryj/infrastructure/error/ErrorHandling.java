@@ -23,7 +23,7 @@ public interface ErrorHandling {
 
     private static String toJson(Object object) {
         return Try.of(() -> ow.writeValueAsString(object))
-                .getOrElseThrow(e ->new JsonDeserializationException(object.getClass().getSimpleName()));
+                .getOrElseThrow(() ->new JsonDeserializationException(object.getClass().getSimpleName()));
     }
 
     default ResponseEntity<String> handle(Either<GeneralError, ?> serviceReturn, HttpStatus successReturn){

@@ -2,6 +2,7 @@ package org.library.thelibraryj.infrastructure.exception;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import jakarta.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.infrastructure.error.ApiErrorResponse;
 import org.library.thelibraryj.infrastructure.error.ApiErrorWrapper;
 import org.springframework.http.HttpStatus;
@@ -16,111 +17,120 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
+@Slf4j
 public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({Exception.class})
     public ResponseEntity<ApiErrorWrapper> handleDefault(Exception ex, WebRequest request) {
-        final ApiErrorWrapper error = new ApiErrorWrapper(
-                ApiErrorResponse.builder()
-                        .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                        .message(ex.getMessage())
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                        .path(extractRequest(request))
-                        .build()
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        HttpStatus errorStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message(ex.getMessage())
+                .status(errorStatus.getReasonPhrase())
+                .path(extractRequest(request))
+                .build();
+        logServerError(errorResponse);
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
     @ExceptionHandler({JsonDeserializationException.class})
     public ResponseEntity<ApiErrorWrapper> handleJsonDeserializationException(JsonDeserializationException ex, WebRequest request) {
-        final ApiErrorWrapper error = new ApiErrorWrapper(
-                ApiErrorResponse.builder()
-                        .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                        .message("Something on external layer went wrong. Request was nevertheless accepted and processed on server. Additional info: " + ex.getMessage())
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                        .path("Path: " + extractRequest(request) + " For entity: " + ex.getEntityName())
-                        .build()
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        HttpStatus errorStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message("Something on external layer went wrong. Request was nevertheless accepted and processed on server. Additional info: " + ex.getMessage())
+                .status(errorStatus.getReasonPhrase())
+                .path("Path: " + extractRequest(request) + " For entity: " + ex.getEntityName())
+                .build();
+        logServerError(errorResponse);
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
     @ExceptionHandler({MessagingException.class})
     public ResponseEntity<ApiErrorWrapper> handleMessageConstraintException(MessagingException ex, WebRequest request) {
-        final ApiErrorWrapper error = new ApiErrorWrapper(
-                ApiErrorResponse.builder()
-                        .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                        .message("Something with email service went wrong: " + ex.getMessage())
-                        .status(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                        .path("Path: " + extractRequest(request))
-                        .build()
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        HttpStatus errorStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message("Error when sending mail message: " + ex.getMessage())
+                .status(errorStatus.getReasonPhrase())
+                .path("Path: " + extractRequest(request))
+                .build();
+        logServerError(errorResponse);
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
     @ExceptionHandler({UsernameNotFoundException.class})
     public ResponseEntity<ApiErrorWrapper> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest request) {
-        final ApiErrorWrapper error = new ApiErrorWrapper(
-                ApiErrorResponse.builder()
-                        .code(HttpStatus.NOT_FOUND.value())
-                        .message("Account with given email address does not exist.")
-                        .status(HttpStatus.NOT_FOUND.getReasonPhrase())
-                        .path("Path: " + extractRequest(request))
-                        .build()
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        HttpStatus errorStatus = HttpStatus.NOT_FOUND;
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message("Account with given email address does not exist.")
+                .status(errorStatus.getReasonPhrase())
+                .path("Path: " + extractRequest(request))
+                .build();
+        logError(errorResponse);
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
     @ExceptionHandler({BadCredentialsException.class})
     public ResponseEntity<ApiErrorWrapper> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
         final String uri = extractRequest(request);
-        final ApiErrorWrapper error = new ApiErrorWrapper(
-                ApiErrorResponse.builder()
-                        .code(HttpStatus.FORBIDDEN.value())
-                        .message(uri.equals("/login") ? "Wrong password or email" : ex.getMessage())
-                        .status(HttpStatus.FORBIDDEN.getReasonPhrase())
-                        .path("Path: " + uri)
-                        .build()
-        );
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        HttpStatus errorStatus = HttpStatus.FORBIDDEN;
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message(uri.equals("/login") ? "Wrong password or email" : ex.getMessage())
+                .status(errorStatus.getReasonPhrase())
+                .path("Path: " + uri)
+                .build();
+        logError(errorResponse);
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
     @ExceptionHandler({GoogleApiNotRespondingException.class})
     public ResponseEntity<ApiErrorWrapper> handleGoogleApiNotRespondingException(GoogleApiNotRespondingException ex, WebRequest request) {
-        final ApiErrorWrapper error = new ApiErrorWrapper(
-                ApiErrorResponse.builder()
-                        .code(HttpStatus.SERVICE_UNAVAILABLE.value())
-                        .message("Google api not responding. Message from Google api: " + ex.getMessage())
-                        .status(HttpStatus.SERVICE_UNAVAILABLE.getReasonPhrase())
-                        .path("Path: " + extractRequest(request))
-                        .build()
-        );
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(error);
+        HttpStatus errorStatus = HttpStatus.SERVICE_UNAVAILABLE;
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message("Google api not responding. Message from Google api: " + ex.getMessage())
+                .status(errorStatus.getReasonPhrase())
+                .path("Path: " + extractRequest(request))
+                .build();
+        logError(errorResponse);
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
     @ExceptionHandler({GoogleTokenVerificationException.class})
     public ResponseEntity<ApiErrorWrapper> handleGoogleTokenVerificationException(GoogleTokenVerificationException ex, WebRequest request) {
-        final ApiErrorWrapper error = new ApiErrorWrapper(
-                ApiErrorResponse.builder()
-                        .code(HttpStatus.FORBIDDEN.value())
-                        .message("Google token invalid. Authorization failed: " + ex.getMessage())
-                        .status(HttpStatus.FORBIDDEN.getReasonPhrase())
-                        .path("Path: " + extractRequest(request))
-                        .build()
-        );
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        HttpStatus errorStatus = HttpStatus.FORBIDDEN;
+        final ApiErrorResponse errorResponse =  ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message("Google token invalid. Authorization failed: " + ex.getMessage())
+                .status(errorStatus.getReasonPhrase())
+                .path("Path: " + extractRequest(request))
+                .build();
+        logError(errorResponse);
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
     @ExceptionHandler({AccessDeniedException.class, JWTVerificationException.class})
     public ResponseEntity<ApiErrorWrapper> handleAccessDeniedException(RuntimeException ex, WebRequest request) {
-        final ApiErrorWrapper error = new ApiErrorWrapper(
-                ApiErrorResponse.builder()
-                        .code(HttpStatus.FORBIDDEN.value())
-                        .message("Authorization failed; Jwt token Invalid. Reason: " + ex.getMessage())
-                        .status(HttpStatus.FORBIDDEN.getReasonPhrase())
-                        .path("Path: " + extractRequest(request))
-                        .build()
-        );
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+        HttpStatus errorStatus = HttpStatus.FORBIDDEN;
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message("Authorization failed: Jwt token invalid or permission lacking. Reason: " + ex.getMessage())
+                .status(errorStatus.getReasonPhrase())
+                .path("Path: " + extractRequest(request))
+                .build();
+        logError(errorResponse);
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
+    }
+
+    private static void logError(ApiErrorResponse error) {
+        log.info("{} at {}", error.message(), error.path());
+    }
+
+    private static void logServerError(ApiErrorResponse error) {
+        log.error("{} at {}", error.message(), error.path());
     }
 
     private static String extractRequest(WebRequest request) {

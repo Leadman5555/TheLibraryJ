@@ -163,6 +163,6 @@ class UserAuthServiceImpl implements UserAuthService {
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new UserAuthError.UserAuthNotFoundId(id)));
+                .flatMap(optionalEntity -> optionalEntity.toEither(new UserAuthError.UserAuthNotFoundId()));
     }
 }

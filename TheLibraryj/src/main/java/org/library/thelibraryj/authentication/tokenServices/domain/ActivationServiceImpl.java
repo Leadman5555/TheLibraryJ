@@ -37,7 +37,7 @@ class ActivationServiceImpl implements ActivationService {
         Either<GeneralError, BasicUserAuthData> basicAuthDataQueryResult = userAuthService.getBasicUserAuthDataByEmail(forEmail);
         if(basicAuthDataQueryResult.isLeft()) return Either.left(basicAuthDataQueryResult.getLeft());
         BasicUserAuthData basicUserAuthData = basicAuthDataQueryResult.get();
-        if(basicUserAuthData.isEnabled()) return Either.left(new ActivationError.UserAlreadyEnabled(basicUserAuthData.userAuthId()));
+        if(basicUserAuthData.isEnabled()) return Either.left(new ActivationError.UserAlreadyEnabled(forEmail));
         return Either.right(createFirstActivationToken(basicUserAuthData.userAuthId()));
     }
 
@@ -64,8 +64,8 @@ class ActivationServiceImpl implements ActivationService {
                 .flatMap(optionalEntity -> optionalEntity.toEither(new ActivationError.ActivationTokenNotFound(tokenId)));
         if(fetched.isLeft()) return Either.left(fetched.getLeft());
         Token token = fetched.get();
-        if(token.hasExpired()) return Either.left(new ActivationError.ActivationTokenExpired(token.getForUserId()));
-        if(token.isUsed()) return Either.left(new ActivationError.ActivationTokenAlreadyUsed(token.getForUserId()));
+        if(token.hasExpired()) return Either.left(new ActivationError.ActivationTokenExpired(token.getToken()));
+        if(token.isUsed()) return Either.left(new ActivationError.ActivationTokenAlreadyUsed(token.getToken()));
         token.setUsed(true);
         tokenRepository.update(token);
         return userAuthService.enableUser(token.getForUserId());

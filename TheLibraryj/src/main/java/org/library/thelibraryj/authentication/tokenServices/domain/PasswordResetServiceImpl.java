@@ -66,8 +66,8 @@ class PasswordResetServiceImpl implements PasswordControl {
                 .flatMap(optionalEntity -> optionalEntity.toEither(new PasswordResetError.PasswordResetTokenNotFound(request.tokenId())));
         if(fetched.isLeft()) return Either.left(fetched.getLeft());
         Token token = fetched.get();
-        if(token.hasExpired()) return Either.left(new PasswordResetError.PasswordResetTokenExpired(token.getForUserId()));
-        if(token.isUsed()) return Either.left(new PasswordResetError.PasswordResetTokenAlreadyUsed(token.getForUserId()));
+        if(token.hasExpired()) return Either.left(new PasswordResetError.PasswordResetTokenExpired(token.getId()));
+        if(token.isUsed()) return Either.left(new PasswordResetError.PasswordResetTokenAlreadyUsed(token.getId()));
         token.setUsed(true);
         tokenRepository.update(token);
         char[] encrypted = passwordEncoder.encode(new String(request.newPassword())).toCharArray();
