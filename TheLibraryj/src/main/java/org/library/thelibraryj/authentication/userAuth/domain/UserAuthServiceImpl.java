@@ -4,12 +4,8 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
-import org.library.thelibraryj.authentication.userAuth.dto.BasicUserAuthData;
-import org.library.thelibraryj.authentication.userAuth.dto.GoogleUserCreationRequest;
-import org.library.thelibraryj.authentication.userAuth.dto.LoginDataResponse;
-import org.library.thelibraryj.authentication.userAuth.dto.PasswordResetDataResponse;
-import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
-import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
+import org.library.thelibraryj.authentication.userAuth.dto.*;
+import org.library.thelibraryj.authentication.userAuth.dto.UserCreationData;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
@@ -39,7 +35,7 @@ class UserAuthServiceImpl implements UserAuthService {
 
     @Transactional
     @Override
-    public Either<GeneralError, UserCreationResponse> createNewUser(UserCreationRequest userCreationRequest) {
+    public Either<GeneralError, UserCreationData> createNewUser(UserCreationRequest userCreationRequest) {
         if (existsByEmail(userCreationRequest.email()))
             return Either.left(new UserAuthError.EmailNotUnique(userCreationRequest.email()));
         if (userInfoService.existsByUsername(userCreationRequest.username()))

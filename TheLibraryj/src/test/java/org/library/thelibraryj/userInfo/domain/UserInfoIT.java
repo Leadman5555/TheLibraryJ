@@ -36,6 +36,7 @@ public class UserInfoIT {
     private static final String BASE_URL = VERSION + "/user";
     private final UUID bookId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+    private static final String email = "sample.email1@gmail.com";
 
     @BeforeEach
     public void setUp() {
@@ -44,14 +45,14 @@ public class UserInfoIT {
         scriptExecutor.addScript(new ClassPathResource("dataInit.sql"));
         scriptExecutor.setSeparator("@@");
         scriptExecutor.execute(this.dataSource);
-        TestProperties.fillHeaders();
+        TestProperties.fillHeadersForUser1();
     }
 
     @Test
     public void shouldUpdateUserUsernameAndBookDetailAuthor() throws Exception {
         final String newUsername = "new username";
         UserInfoUsernameUpdateRequest request = new UserInfoUsernameUpdateRequest(
-                userId,
+                email,
                 newUsername
         );
         HttpEntity<UserInfoUsernameUpdateRequest> requestEntity = new HttpEntity<>(request, TestProperties.headers);
@@ -76,7 +77,7 @@ public class UserInfoIT {
         Assertions.assertEquals(HttpStatus.CONFLICT.value(), usernameAlreadyExistingResponse.getStatusCode().value());
 
         UserInfoUsernameUpdateRequest request2 = new UserInfoUsernameUpdateRequest(
-                userId,
+                email,
                 "other new username"
         );
         HttpEntity<UserInfoUsernameUpdateRequest> requestEntity2 = new HttpEntity<>(request2, TestProperties.headers);

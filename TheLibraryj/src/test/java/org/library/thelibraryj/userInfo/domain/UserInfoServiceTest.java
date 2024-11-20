@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
+import org.library.thelibraryj.userInfo.dto.BookCreationUserData;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
 import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
@@ -43,6 +44,7 @@ public class UserInfoServiceTest {
     private UUID userId;
     private String username;
     private UserInfo userInfo;
+    private String userEmail;
 
     @BeforeEach
     public void setUp() {
@@ -51,9 +53,11 @@ public class UserInfoServiceTest {
         userInfoConfig.setUsername_change_cooldown_days(90);
         userId = UUID.randomUUID();
         username = "sample username";
+        userEmail = "sample@example.com";
         Instant oldTime = (LocalDateTime.of(2000,10, 1,1,1).toInstant(ZoneOffset.UTC));
         userInfo = UserInfo.builder()
                 .id(userId)
+                .email(userEmail)
                 .username(username)
                 .rank(5)
                 .createdAt(oldTime)
@@ -64,15 +68,23 @@ public class UserInfoServiceTest {
 
 
     @Test
-    public void testGetAuthorUsernameAndCheckAccountAge(){
-        when(userInfoRepository.findById(userId)).thenReturn(Optional.ofNullable(userInfo));
-        Either<GeneralError, String> response = userInfoService.getAuthorUsernameAndCheckAccountAge(userId);
+    public void testGetAndValidateAuthorData(){
+        when(userInfoRepository.getBookCreationUserData(userEmail)).thenReturn(Optional.of(new Object[]{
+                userId,
+                username,
+                Instant.now().minusSeconds(10000000)
+        }));
+        Either<GeneralError, BookCreationUserData> response = userInfoService.getAndValidateAuthorData(userEmail);
         Assertions.assertTrue(response.isRight());
-        Assertions.assertEquals(username, response.get());
+        Assertions.assertEquals(username, response.get().authorUsername());
 
-        userInfo.setCreatedAt(Instant.now());
-        Either<GeneralError, String> response2 = userInfoService.getAuthorUsernameAndCheckAccountAge(userId);
-        Assertions.assertFalse(response2.isRight());
+        when(userInfoRepository.getBookCreationUserData(userEmail)).thenReturn(Optional.of(new Object[]{
+                userId,
+                username,
+                Instant.now()
+        }));
+        Either<GeneralError, BookCreationUserData> response2 = userInfoService.getAndValidateAuthorData(userEmail);
+        Assertions.assertTrue(response2.isLeft());
     }
 
     @Test
@@ -88,8 +100,8 @@ public class UserInfoServiceTest {
 
     @Test
     public void testForceUpdateRank(){
-        when(userInfoRepository.findById(userId)).thenReturn(Optional.ofNullable(userInfo));
-        UserInfoRankUpdateRequest request = new UserInfoRankUpdateRequest(userInfo.getId(), 10);
+        when(userInfoRepository.getByEmail(userEmail)).thenReturn(Optional.ofNullable(userInfo));
+        UserInfoRankUpdateRequest request = new UserInfoRankUpdateRequest(userEmail, 10);
         Either<GeneralError, UserInfoResponse> response = userInfoService.forceUpdateRank(request);
         Assertions.assertTrue(response.isRight());
         Assertions.assertEquals(10, response.get().rank());
@@ -100,8 +112,8 @@ public class UserInfoServiceTest {
     public void testUpdateUserInfoUsername(){
         final String newUsername = "new username";
         when(userInfoRepository.existsByUsername(newUsername)).thenReturn(false);
-        when(userInfoRepository.findById(userId)).thenReturn(Optional.ofNullable(userInfo));
-        UserInfoUsernameUpdateRequest request = new UserInfoUsernameUpdateRequest(userId, newUsername);
+        when(userInfoRepository.getByEmail(userEmail)).thenReturn(Optional.ofNullable(userInfo));
+        UserInfoUsernameUpdateRequest request = new UserInfoUsernameUpdateRequest(userEmail, newUsername);
         Either<GeneralError, UserInfoResponse> response = userInfoService.updateUserInfoUsername(request);
         Assertions.assertTrue(response.isRight());
         Assertions.assertEquals(newUsername, response.get().username());

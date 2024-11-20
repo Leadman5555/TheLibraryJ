@@ -5,13 +5,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.library.thelibraryj.authentication.userAuth.dto.UserCreationData;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
-import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
+import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -65,26 +66,33 @@ public class UserAuthServiceTest {
     public void testCreateNewUser() {
         UserCreationRequest request = new UserCreationRequest(email, password, username, null);
         UserInfoRequest infoRequest = new UserInfoRequest(username, email, id);
-        UserInfoResponse infoResponse = new UserInfoResponse(UUID.randomUUID(), UUID.randomUUID(), username, email, 0, 0, Instant.now());
+        UserInfoResponse infoResponse = new UserInfoResponse(username, email, 0, 0, Instant.now());
         UserAuth newAuth = mapper.userAuthRequestToUserAuth(request);
         newAuth.setRole(UserRole.USER);
         when(userAuthRepository.persist(newAuth)).thenReturn(userAuth);
         when(userAuthRepository.existsByEmail(email)).thenReturn(false);
         when(userInfoService.existsByUsername(username)).thenReturn(false);
-        when(userInfoService.createUserInfo(infoRequest)).thenReturn(infoResponse);
-        Either<GeneralError, UserCreationResponse> response = userAuthService.createNewUser(request);
+        when(userInfoService.createUserInfoWithImage(infoRequest, null)).thenReturn(new UserInfoWithImageResponse(
+                username,
+                email,
+                0,
+                0,
+                Instant.now(),
+                null
+        ));
+        Either<GeneralError, UserCreationData> response = userAuthService.createNewUser(request);
         Assertions.assertTrue(response.isRight());
         Assertions.assertEquals(UserRole.USER, response.get().role());
         Assertions.assertEquals(email, response.get().email());
         Assertions.assertFalse(response.get().isEnabled());
 
         when(userInfoService.existsByUsername(username)).thenReturn(true);
-        Either<GeneralError, UserCreationResponse> response2 = userAuthService.createNewUser(request);
+        Either<GeneralError, UserCreationData> response2 = userAuthService.createNewUser(request);
         Assertions.assertTrue(response2.isLeft());
         Assertions.assertEquals(UserAuthError.UsernameNotUnique.class, response2.getLeft().getClass());
 
         when(userAuthRepository.existsByEmail(email)).thenReturn(true);
-        Either<GeneralError, UserCreationResponse> response3 = userAuthService.createNewUser(request);
+        Either<GeneralError, UserCreationData> response3 = userAuthService.createNewUser(request);
         Assertions.assertTrue(response3.isLeft());
         Assertions.assertEquals(UserAuthError.EmailNotUnique.class, response3.getLeft().getClass());
     }

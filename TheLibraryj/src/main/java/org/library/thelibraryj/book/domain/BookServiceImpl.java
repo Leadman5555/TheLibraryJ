@@ -206,6 +206,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
                     .userId(userId)
                     .comment(escapedComment)
                     .bookDetail(detail)
+                    .username(fetchedE.get().username())
                     .build());
         }
         bookPreviewRepository.update(preview);
@@ -282,7 +283,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     @Override
     @Transactional
     public Either<GeneralError, ContentRemovalSuccess> deleteChapter(ContentRemovalRequest removalRequest, int chapterNumber) {
-        Either<GeneralError, UUID> validated = validateUUIDs(removalRequest.userEmail());
+        Either<GeneralError, UUID> validated = validateUUIDs(removalRequest.userEmail(), removalRequest.bookId());
         if(validated.isLeft()) return Either.left(validated.getLeft());
         Either<GeneralError, UUID> fetchedChapterId = Try.of(() -> chapterPreviewRepository.findChapterPreviewByBookIdAndNumber(validated.get(), chapterNumber))
                 .toEither()
@@ -298,7 +299,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     @Override
     @Transactional
     public Either<GeneralError, ContentRemovalSuccess> deleteBook(ContentRemovalRequest removalRequest) {
-        Either<GeneralError, UUID> validated = validateUUIDs(removalRequest.userEmail());
+        Either<GeneralError, UUID> validated = validateUUIDs(removalRequest.userEmail(), removalRequest.bookId());
         if(validated.isLeft()) return Either.left(validated.getLeft());
         chapterRepository.deleteBook(removalRequest.bookId());
         chapterPreviewRepository.deleteBook(removalRequest.bookId());
@@ -323,11 +324,11 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
         }
     }
 
-    Either<GeneralError, UUID> validateUUIDs(String forEmail){
+    Either<GeneralError, UUID> validateUUIDs(String forEmail, UUID bookId){
         Either<GeneralError,UUID> fetchedAuthIdFromEmail = userInfoService.getUserInfoIdByEmail(forEmail);
         if(fetchedAuthIdFromEmail.isLeft()) return Either.left(fetchedAuthIdFromEmail.getLeft());
         UUID userId = fetchedAuthIdFromEmail.get();
-        Either<GeneralError, UUID> fetchedAuthorId = getAuthorId(userId);
+        Either<GeneralError, UUID> fetchedAuthorId = getAuthorId(bookId);
         if (fetchedAuthorId.isLeft()) return Either.left(fetchedAuthorId.getLeft());
         if (!fetchedAuthorId.get().equals(userId))
             return Either.left(new BookError.UserNotAuthor(forEmail));

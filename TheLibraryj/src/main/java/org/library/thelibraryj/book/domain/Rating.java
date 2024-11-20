@@ -35,11 +35,12 @@ class Rating extends AbstractEntity {
     private BookDetail bookDetail;
 
     @Builder
-    public Rating(UUID id, Long version, Instant createdAt, Instant updatedAt, int currentRating, UUID userId, String comment, BookDetail bookDetail) {
+    public Rating(UUID id, Long version, Instant createdAt, Instant updatedAt, int currentRating, UUID userId, String comment, BookDetail bookDetail, String username) {
         super(id, version, createdAt, updatedAt);
         this.currentRating = currentRating;
         this.userId = userId;
         this.comment = comment;
         this.bookDetail = bookDetail;
+        this.username = username;
     }
 }

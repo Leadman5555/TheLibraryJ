@@ -17,7 +17,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.sql.DataSource;
@@ -38,6 +37,8 @@ public class BookIT {
     private final UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
     private final UUID userId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
     private final UUID chapterId = UUID.fromString("123e4567-e89b-12d3-a456-999994174001");
+    private static final String authorEmail1 = "sample.email1@gmail.com";
+    private static final String authorEmail2 = "sample.email2@gmail.com";
 
     @BeforeEach
     public void setUp() {
@@ -46,10 +47,9 @@ public class BookIT {
         scriptExecutor.addScript(new ClassPathResource("dataInit.sql"));
         scriptExecutor.setSeparator("@@");
         scriptExecutor.execute(this.dataSource);
-        TestProperties.fillHeaders();
+        TestProperties.fillHeadersForUser1();
     }
 
-    @WithMockUser
     @Test
     public void shouldReturnBookDetailById() throws Exception {
         ResponseEntity<String> response = restTemplate.getForEntity(
@@ -63,7 +63,7 @@ public class BookIT {
     @Test
     public void shouldAddAndUpdateRating() throws Exception {
         RatingRequest updateRatingRequest = new RatingRequest(
-                userId,
+                authorEmail1,
                 4,
                 bookId,
                 "sample"
@@ -75,7 +75,7 @@ public class BookIT {
         Assertions.assertEquals(HttpStatus.OK.value(), ratingResponse.getStatusCode().value());
         Assertions.assertNotNull(ratingResponse.getBody());
         RatingRequest createRatingRequest = new RatingRequest(
-                userId2,
+                authorEmail1,
                 10,
                 bookId,
                 "sample"
@@ -86,6 +86,19 @@ public class BookIT {
         );
         Assertions.assertEquals(HttpStatus.OK.value(), ratingResponse2.getStatusCode().value());
         Assertions.assertNotNull(ratingResponse2.getBody());
+        RatingRequest createRatingRequest2 = new RatingRequest(
+                authorEmail2,
+                4,
+                bookId,
+                "sample"
+        );
+        TestProperties.fillHeadersForUser2();
+        HttpEntity<RatingRequest> requestEntity3 = new HttpEntity<>(createRatingRequest2, TestProperties.headers);
+        ResponseEntity<String> ratingResponse3 = restTemplate.exchange(
+                BASE_AUTH_URL + "/rating", HttpMethod.PUT, requestEntity3, String.class
+        );
+        Assertions.assertEquals(HttpStatus.OK.value(), ratingResponse3.getStatusCode().value());
+        Assertions.assertNotNull(ratingResponse3.getBody());
 
 
         ResponseEntity<String> previewResponse = restTemplate.getForEntity(
@@ -99,8 +112,8 @@ public class BookIT {
     }
 
     @Test
-    public void shouldDeleteBookAndAllConnected() throws Exception {
-        ContentRemovalRequest request = new ContentRemovalRequest(userId, bookId);
+    public void shouldDeleteBookAndAllConnected() {
+        ContentRemovalRequest request = new ContentRemovalRequest(bookId, authorEmail1);
         HttpEntity<ContentRemovalRequest> requestEntity = new HttpEntity<>(request, TestProperties.headers);
         ResponseEntity<String> response = restTemplate.exchange(
                 BASE_AUTH_URL + "/book", HttpMethod.DELETE, requestEntity, String.class
@@ -113,7 +126,7 @@ public class BookIT {
         ResponseEntity<String> responsePreview = restTemplate.getForEntity(
                 BASE_URL + "/preview/" + bookId, String.class);
         Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), responsePreview.getStatusCode().value());
-        ContentRemovalRequest requestChapter = new ContentRemovalRequest(userId, bookId);
+        ContentRemovalRequest requestChapter = new ContentRemovalRequest(bookId, authorEmail1);
         HttpEntity<ContentRemovalRequest> requestEntityChapter = new HttpEntity<>(requestChapter, TestProperties.headers);
         ResponseEntity<String> responseChapter = restTemplate.exchange(
                 BASE_AUTH_URL + "/chapter/" + 1, HttpMethod.DELETE, requestEntityChapter, String.class

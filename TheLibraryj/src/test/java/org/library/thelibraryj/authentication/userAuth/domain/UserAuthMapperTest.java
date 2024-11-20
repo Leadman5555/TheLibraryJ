@@ -2,7 +2,7 @@ package org.library.thelibraryj.authentication.userAuth.domain;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
+import org.library.thelibraryj.authentication.userAuth.dto.UserCreationData;
 import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
 
 import java.time.Instant;
@@ -13,25 +13,24 @@ public class UserAuthMapperTest {
     @Test
     public void testUserCreationResponseMapping() {
         UserAuthMapper userAuthMapper = new UserAuthMapperImpl();
-        UUID userAuthId = UUID.randomUUID();
+        final UUID userAuthId = UUID.randomUUID();
+        final String userEmail = "sample@email.com";
         UserAuth userAuth = UserAuth.builder()
                 .id(userAuthId)
-                .email("sample@email.com")
+                .email(userEmail)
                 .role(UserRole.USER)
                 .password(("password").toCharArray())
                 .isEnabled(true)
                 .build();
         UserInfoWithImageResponse userInfo = new UserInfoWithImageResponse(
-                UUID.randomUUID(),
-                userAuthId,
                 "username",
-                userAuth.getEmail(),
+                userEmail,
                 4,
-                0,
+                20,
                 Instant.now(),
                 null
         );
-        UserCreationResponse mapped = userAuthMapper.userAuthAndUserInfoResponseToUserCreationResponse(userInfo, userAuth);
+        UserCreationData mapped = userAuthMapper.userAuthAndUserInfoResponseToUserCreationResponse(userInfo, userAuth);
         Assertions.assertAll(
                 () -> Assertions.assertEquals(userAuth.getId(), mapped.userAuthId()),
                 () -> Assertions.assertEquals(userAuth.getEmail(), mapped.email()),
@@ -39,7 +38,7 @@ public class UserAuthMapperTest {
                 () -> Assertions.assertEquals(userInfo.dataUpdatedAt(), mapped.dataUpdatedAt()),
                 () -> Assertions.assertEquals(userAuth.isEnabled(), mapped.isEnabled()),
                 () -> Assertions.assertEquals(userInfo.rank(), mapped.rank()),
-                () -> Assertions.assertEquals(userInfo.userAuthId(), mapped.userAuthId()
-                ));
+                () -> Assertions.assertEquals(userInfo.currentScore(), mapped.currentScore())
+                );
     }
 }

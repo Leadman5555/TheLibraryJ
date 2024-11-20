@@ -16,6 +16,8 @@ import org.library.thelibraryj.book.dto.RatingRequest;
 import org.library.thelibraryj.book.dto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.userInfo.UserInfoService;
+import org.library.thelibraryj.userInfo.dto.BookCreationUserData;
+import org.library.thelibraryj.userInfo.dto.RatingUpsertData;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -43,12 +45,15 @@ public class BookServiceTest {
     private RatingRepository ratingRepository;
     @Mock
     private UserInfoService userInfoService;
+    @Mock
+    private BookImageHandler bookImageHandler;
     @Spy
     private BookMapper bookMapper = new BookMapperImpl();
     @InjectMocks
     private BookServiceImpl bookService;
     private UUID bookId;
     private UUID authorId;
+    private String authorEmail;
     private String title;
     private String author;
     private String description;
@@ -65,6 +70,7 @@ public class BookServiceTest {
         title = "Sample title";
         author = "Sample author";
         description = "Sample description";
+        authorEmail = "author@email.com";
         bookDetail = BookDetail.builder()
                 .authorId(authorId)
                 .author(author)
@@ -106,6 +112,7 @@ public class BookServiceTest {
 
     @Test
     public void testGetBookPreviewResponses() {
+        when(bookImageHandler.fetchCoverImage(anyString())).thenReturn(null);
         List<BookPreview> baseList = List.of(BookPreview.builder().title(title + '1').build(), BookPreview.builder().title(title + '2').build());
         when(bookPreviewRepository.getAllBookPreviewsEager()).thenReturn(baseList);
         List<BookPreviewResponse> fetchedList = bookService.getBookPreviewResponses();
@@ -115,16 +122,20 @@ public class BookServiceTest {
 
     @Test
     public void testCreateAndUpdateBook() {
+        when(bookImageHandler.fetchCoverImage(anyString())).thenReturn(null);
         BookCreationRequest bookCreationRequest = new BookCreationRequest(
                 title,
-                authorId,
                 description,
                 List.of(),
-                null
+                null,
+                authorEmail
         );
         bookPreview.setBookDetail(bookDetail);
         when(bookPreviewRepository.existsByTitle(title)).thenReturn(false);
-        when(userInfoService.getAuthorUsernameAndCheckAccountAge(authorId)).thenReturn(Either.right(author));
+        when(userInfoService.getAndValidateAuthorData(authorEmail)).thenReturn(Either.right(new BookCreationUserData(
+                authorId,
+                author
+        )));
         BookResponse response = bookService.createBook(bookCreationRequest).get();
         verify(bookDetailRepository).persist(bookDetail);
         verify(bookPreviewRepository).persist(bookPreview);
@@ -134,7 +145,8 @@ public class BookServiceTest {
         UUID bookId = UUID.randomUUID();
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
         when(bookPreviewRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookPreview));
-        BookUpdateRequest bookUpdateRequest = new BookUpdateRequest(null, null, BookState.IN_PROGRESS, null, null, bookId);
+        when(userInfoService.getUserInfoIdByEmail(authorEmail)).thenReturn(Either.right(authorId));
+        BookUpdateRequest bookUpdateRequest = new BookUpdateRequest(null, null, BookState.IN_PROGRESS, null, null, bookId, authorEmail);
         BookResponse updated = bookService.updateBook(bookUpdateRequest).get();
         verify(bookDetailRepository, never()).update(bookDetail);
         verify(bookPreviewRepository).update(bookPreview);
@@ -144,6 +156,7 @@ public class BookServiceTest {
 
     @Test
     public void testGetBook() {
+        when(bookImageHandler.fetchCoverImage(anyString())).thenReturn(null);
         bookDetail.setId(bookId);
         bookPreview.setId(bookId);
         when(ratingRepository.getAllRatingsForBook(bookId))
@@ -163,11 +176,14 @@ public class BookServiceTest {
 
     @Test
     public void testUpsertRating() {
-        when(userInfoService.existsById(authorId)).thenReturn(true);
         when(bookPreviewRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookPreview));
-        when(bookDetailRepository.getReferenceById(bookId)).thenReturn(bookDetail);
+        when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
         when(ratingRepository.getRatingForBookAndUser(bookId, authorId)).thenReturn(Optional.empty());
-        RatingRequest request = new RatingRequest(rating.getUserId(), rating.getCurrentRating(), bookId, rating.getComment());
+        when(userInfoService.getUsernameAndIdByEmail(authorEmail)).thenReturn(Either.right(new RatingUpsertData(
+                authorId,
+                authorEmail
+        )));
+        RatingRequest request = new RatingRequest(authorEmail, rating.getCurrentRating(), bookId, rating.getComment());
         bookService.upsertRating(request);
         when(ratingRepository.getRatingForBookAndUser(bookId,authorId)).thenReturn(Optional.ofNullable(rating));
         bookService.upsertRating(request);
@@ -179,7 +195,8 @@ public class BookServiceTest {
     public void testCreateChapter(){
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
         when(bookPreviewRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookPreview));
-        ChapterRequest request = new ChapterRequest(chapterPreview.getNumber(), chapterPreview.getTitle(), "text", bookId, authorId);
+        when(userInfoService.getUserInfoIdByEmail(authorEmail)).thenReturn(Either.right(authorId));
+        ChapterRequest request = new ChapterRequest(chapterPreview.getNumber(), chapterPreview.getTitle(), "text", bookId, authorEmail);
         Chapter chapter = Chapter.builder().text("text").build();
         chapter.setChapterPreview(chapterPreview);
         bookService.createChapter(request);

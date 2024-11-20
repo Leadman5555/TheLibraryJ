@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class, ThymeleafAutoConfiguration.class})
 @EnableAsync
 @EnableScheduling
-@EnableMethodSecurity
+@EnableMethodSecurity(proxyTargetClass = true)
 public class TheLibraryJApplication {
 
 	public static void main(String[] args) {

@@ -1,7 +1,5 @@
 package org.library.thelibraryj.infrastructure.error.errorTypes;
 
-import java.util.UUID;
-
 public sealed interface UserInfoError extends GeneralError{
     record UserInfoEntityNotFound(String missingEntityEmail) implements UserInfoError {}
     record UserInfoEntityNotFoundById() implements UserInfoError {}
@@ -10,5 +8,5 @@ public sealed interface UserInfoError extends GeneralError{
     record UsernameNotUnique() implements UserInfoError {}
     record UsernameUpdateCooldown(long cooldownDurationLeft) implements UserInfoError {}
     record ProfileImageUpdateFailed() implements UserInfoError {}
-    record UserNotEligibleForRankIncrease(UUID userId, int missingScore) implements UserInfoError {}
+    record UserNotEligibleForRankIncrease(String email, int missingScore) implements UserInfoError {}
 }

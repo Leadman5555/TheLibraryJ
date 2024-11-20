@@ -51,7 +51,7 @@ public class ApiErrorWrapper {
             case UserInfoError.ProfileImageUpdateFailed e ->
                     getErrorResponse(error, HttpStatus.INTERNAL_SERVER_ERROR, "Profile picture update failed.");
             case UserInfoError.UserNotEligibleForRankIncrease e ->
-                    getErrorResponse(error, HttpStatus.BAD_REQUEST, "User not eligible for rank increase. Missing score: " + e.missingScore() + " Id: " + e.userId());
+                    getErrorResponse(error, HttpStatus.BAD_REQUEST, "User not eligible for rank increase. Missing score: " + e.missingScore() + " Email: " + e.email());
             case UserAuthError.UserAuthNotFoundId e ->
                     getErrorResponse(error, HttpStatus.NOT_FOUND, "User authentication data missing. Id: " + e.id());
             case UserAuthError.EmailNotUnique e ->

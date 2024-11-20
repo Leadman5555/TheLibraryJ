@@ -19,6 +19,8 @@ interface UserInfoRepository extends BaseJpaRepository<UserInfo, UUID> {
 """)
     Optional<UUID> getIdByEmail(@Param("email") String email);
 
+    Optional<UserInfo> getByEmail(@Param("email") String email);
+
     @Query("""
     SELECT id, username, createdAt  FROM userInfo
     WHERE email = :email

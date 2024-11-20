@@ -53,7 +53,7 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Retrieve a book previews with its tags by book Id",
+            summary = "Retrieve a book preview with its tags by book Id",
             tags = {"book", "no auth required"}
     )
     @GetMapping("na/books/preview/{id}")
@@ -62,11 +62,11 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Retrieve a book detail with ratings and chapter previews by book title",
+            summary = "Retrieve a whole book by title",
             tags = {"book", "no auth required"}
     )
     @GetMapping("na/books/book/{title}")
-    public ResponseEntity<String> getBookDetailById(@PathVariable String title) {
+    public ResponseEntity<String> getBookByTitle(@PathVariable String title) {
         return handle(bookService.getBook(title), HttpStatus.OK);
     }
 

@@ -3,15 +3,16 @@ package org.library.thelibraryj.book.domain;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
+import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.BookDetailResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
-import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(BookController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@WithMockUser(roles = "ADMIN")
 public class BookControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -51,7 +53,7 @@ public class BookControllerTest {
 
     @Test
     public void testGetBookDetail() throws Exception {
-        BookDetailResponse detailResponse = new BookDetailResponse("author", UUID.randomUUID(), "des", null, null);
+        BookDetailResponse detailResponse = new BookDetailResponse("author", "des", null, null);
         when(bookService.getBookDetailResponse(bookId)).thenReturn(Either.right(detailResponse));
 
         mockMvc.perform(get(ENDPOINT + "/na/books/" + bookId)

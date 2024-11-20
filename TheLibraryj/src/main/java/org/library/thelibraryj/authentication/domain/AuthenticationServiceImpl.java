@@ -13,6 +13,7 @@ import org.library.thelibraryj.authentication.tokenServices.ActivationService;
 import org.library.thelibraryj.authentication.tokenServices.dto.activation.ActivationTokenResponse;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
 import org.library.thelibraryj.authentication.userAuth.dto.LoginDataResponse;
+import org.library.thelibraryj.authentication.userAuth.dto.UserCreationData;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
 import org.library.thelibraryj.email.EmailService;
@@ -53,11 +54,20 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
 
     @Override
     public Either<GeneralError, UserCreationResponse> register(RegisterRequest registerRequest) throws MessagingException {
-        Either<GeneralError, UserCreationResponse> createdUser = createUser(registerRequest);
+        Either<GeneralError, UserCreationData> createdUser = createUser(registerRequest);
         if (createdUser.isLeft()) return Either.left(createdUser.getLeft());
-        ActivationTokenResponse createdToken = activationService.createFirstActivationToken(createdUser.get().userAuthId());
+        UserCreationData data = createdUser.get();
+        ActivationTokenResponse createdToken = activationService.createFirstActivationToken(data.userAuthId());
         sendActivationMail(registerRequest.username(), registerRequest.email(), createdToken);
-        return createdUser;
+        return Either.right(new UserCreationResponse(
+                data.username(),
+                data.rank(),
+                data.currentScore(),
+                data.dataUpdatedAt(),
+                data.email(),
+                data.isEnabled(),
+                data.profileImage()
+        ));
     }
 
     @Override
@@ -78,7 +88,7 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
                 )));
     }
 
-    private Either<GeneralError, UserCreationResponse> createUser(RegisterRequest registerRequest) {
+    private Either<GeneralError, UserCreationData> createUser(RegisterRequest registerRequest) {
         UserCreationRequest creationRequest = new UserCreationRequest(
                 registerRequest.email(),
                 passwordEncoder.encode(new String(registerRequest.password())).toCharArray(),
