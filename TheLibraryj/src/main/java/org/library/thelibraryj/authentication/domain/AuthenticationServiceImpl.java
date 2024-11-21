@@ -6,7 +6,6 @@ import org.library.thelibraryj.authentication.AuthenticationService;
 import org.library.thelibraryj.authentication.PasswordControl;
 import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
 import org.library.thelibraryj.authentication.dto.AuthenticationResponse;
-import org.library.thelibraryj.authentication.dto.BasicUserDataRequest;
 import org.library.thelibraryj.authentication.dto.RegisterRequest;
 import org.library.thelibraryj.authentication.jwtAuth.JwtService;
 import org.library.thelibraryj.authentication.tokenServices.ActivationService;
@@ -71,10 +70,10 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
     }
 
     @Override
-    public Either<GeneralError, Boolean> resendActivationEmail(BasicUserDataRequest basicUserDataRequest) throws MessagingException {
-        Either<GeneralError, ActivationTokenResponse> createdTokenE = activationService.createActivationToken(basicUserDataRequest.email());
+    public Either<GeneralError, Boolean> resendActivationEmail(String email) throws MessagingException {
+        Either<GeneralError, ActivationTokenResponse> createdTokenE = activationService.createActivationToken(email);
         if(createdTokenE.isLeft()) return Either.left(createdTokenE.getLeft());
-        sendActivationMail(basicUserDataRequest.username(), basicUserDataRequest.email(), createdTokenE.get());
+        sendActivationMail(email,email, createdTokenE.get());
         return Either.right(true);
     }
 

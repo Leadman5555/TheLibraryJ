@@ -49,7 +49,7 @@ public class ApiErrorWrapper {
             case UserInfoError.UsernameNotUnique e ->
                     getErrorResponseAndLog(error, HttpStatus.CONFLICT, "Username not unique");
             case UserInfoError.UsernameUpdateCooldown e ->
-                    getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Username update cooldown has not yet finished. Time left (hours): " + e.cooldownDurationLeft());
+                    getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Username update cooldown has not yet finished. Time left (hours): " + e.cooldownDurationLeft() + ". For email: " + e.userEmail());
             case UserInfoError.ProfileImageUpdateFailed e ->
                     getErrorResponseAndLog(error, HttpStatus.INTERNAL_SERVER_ERROR, "Profile picture update failed.");
             case UserInfoError.UserNotEligibleForRankIncrease e ->

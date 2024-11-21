@@ -1,28 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
+<style>
+    body {
+        background-color: #80bcca;
+    }
+
+    h1 {
+        color: white;
+        text-align: center;
+    }
+
+    p {
+        border: 10px double #4c6c7a;
+        font-family: verdana, sans-serif;
+        font-size: 15px;
+    }
+    p.title {
+        text-align: center;
+        font-family: "Bell MT",sans-serif;
+        font-size: 25px;
+        border: none;
+    }
+    img {
+        border: none;
+        align-content: center;
+    }
+    p.signoff, p.nested-img {
+        border: none;
+        text-align: center;
+        align-content: center;
+    }
+</style>
 <head>
     <title th:text="${subject}"></title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-<p>Greetings disciple, <span th:text="${username}">Name lost in transmission</span></p>
+<p class="title">Greetings disciple, <span th:text="${username}">[name lost in transmission]</span>!</p>
 <p>
     You have been accepted to the Library Sect. <br/>
     One last formality awaits you before you can make use of our boundless resources. <br/>
     Bellow you shall find a dark blue formation array. Interacting with it will let you complete your initialization.
     <br/>
     <a th:href="@{${activation_link}}">Confirm my sect recruitment.</a> <br/>
-    Be prudent junior for the formation array will run out of energy in about <span th:text="${expires_at}">Expiration time lost in transmission</span> <br/>
+    Be prudent junior for the formation array will run out of energy in about <span th:text="${expires_at}">[Expiration time lost in transmission]</span> <br/>
 </p>
-<p>
+<p class="signoff">
     Congratulations on joining the Library, junior! <br/>
 </p>
-<p>
+<p class="signoff">
     Wishing you a peaceful journey,<br/>
     <em>Outer Court Elder, <br/> Head of Admissions, Zhao Jiang</em>
 </p>
-<p>
-    <img th:src="|cid:${image_name}|" src="images/default.jpg" alt="Visual clue lost in transmission"/>
+<p class="nested-img">
+    <img th:src="|cid:${image_name}|" src="images/default.jpg" alt="[Visual clue lost in transmission]"/>
 </p>
 </body>
 </html>

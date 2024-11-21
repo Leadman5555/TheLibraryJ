@@ -121,7 +121,7 @@ public class UserInfoServiceTest {
         userInfo.setDataUpdatedAt(Instant.now());
         Either<GeneralError, UserInfoResponse> response2 = userInfoService.updateUserInfoUsername(request);
         Assertions.assertFalse(response2.isRight());
-        Assertions.assertEquals(new UserInfoError.UsernameUpdateCooldown(userInfoConfig.getUsername_change_cooldown_days()), response2.getLeft());
+        Assertions.assertEquals(new UserInfoError.UsernameUpdateCooldown(userInfoConfig.getUsername_change_cooldown_days(), ""), response2.getLeft());
 
         when(userInfoRepository.existsByUsername(newUsername)).thenReturn(true);
         Either<GeneralError, UserInfoResponse> response3 = userInfoService.updateUserInfoUsername(request);

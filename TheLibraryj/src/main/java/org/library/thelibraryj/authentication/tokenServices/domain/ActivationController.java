@@ -42,10 +42,6 @@ class ActivationController implements ErrorHandling {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    public ActivationService activationService() {
-        return activationService;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;

@@ -207,7 +207,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         UserInfo fetched = fetchedE.get();
         long cooldownDiff = ChronoUnit.DAYS.between(fetched.getDataUpdatedAt(), Instant.now());
         if (cooldownDiff < userInfoConfig.getUsername_change_cooldown_days())
-            return Either.left(new UserInfoError.UsernameUpdateCooldown(userInfoConfig.getUsername_change_cooldown_days() - cooldownDiff));
+            return Either.left(new UserInfoError.UsernameUpdateCooldown(userInfoConfig.getUsername_change_cooldown_days() - cooldownDiff , fetched.getEmail()));
         fetched.setUsername(userInfoUsernameUpdateRequest.username());
         fetched.setDataUpdatedAt(Instant.now());
         userInfoRepository.update(fetched);

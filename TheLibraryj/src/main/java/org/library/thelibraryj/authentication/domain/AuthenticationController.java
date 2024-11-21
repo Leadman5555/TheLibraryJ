@@ -3,17 +3,15 @@ package org.library.thelibraryj.authentication.domain;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import org.library.thelibraryj.authentication.AuthenticationService;
 import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
-import org.library.thelibraryj.authentication.dto.BasicUserDataRequest;
 import org.library.thelibraryj.authentication.dto.RegisterRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("${library.mapping}/na/auth")
@@ -42,7 +40,7 @@ record AuthenticationController(AuthenticationService authenticationService) imp
             tags = {"authentication", "activation", "no auth required"}
     )
     @PostMapping("/activation")
-    public ResponseEntity<String> resendActivationEmail(@RequestBody @Valid BasicUserDataRequest basicUserDataRequest) throws MessagingException {
-        return handle(authenticationService.resendActivationEmail(basicUserDataRequest), HttpStatus.NO_CONTENT);
+    public ResponseEntity<String> resendActivationEmail(@RequestParam @NotNull @Email String email) throws MessagingException {
+        return handle(authenticationService.resendActivationEmail(email), HttpStatus.NO_CONTENT);
     }
 }
