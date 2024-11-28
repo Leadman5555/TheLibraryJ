@@ -1,0 +1,22 @@
+.bookPreviewCard {  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+  gap: 0 0;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "coverImgDiv coverImgDiv coverImgDiv stateDiv stateDiv"
+    "coverImgDiv coverImgDiv coverImgDiv chapterDiv chapterDiv"
+    "coverImgDiv coverImgDiv coverImgDiv ratingDiv ratingDiv"
+    "coverImgDiv coverImgDiv coverImgDiv ratingDiv ratingDiv"
+    "titleDiv titleDiv titleDiv titleDiv titleDiv";
+}
+
+.coverImgDiv { grid-area: coverImgDiv; }
+
+.ratingDiv { grid-area: ratingDiv; }
+
+.titleDiv { grid-area: titleDiv; }
+
+.chapterDiv { grid-area: chapterDiv; }
+
+.stateDiv { grid-area: stateDiv; }

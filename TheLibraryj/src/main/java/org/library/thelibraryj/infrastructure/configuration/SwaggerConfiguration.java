@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Bean;
         bearerFormat = "JWT",
         in = SecuritySchemeIn.HEADER
 )
-public class SwaggerConfig {
+public class SwaggerConfiguration {
     @Bean
     public OpenAPI TheLibraryAPI() {
         return new OpenAPI();
