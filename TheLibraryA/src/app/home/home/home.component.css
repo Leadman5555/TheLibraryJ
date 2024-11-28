@@ -1,7 +1,12 @@
-.bookPreviewCard {  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
-  gap: 0 0;
+.bookPreviewCard {
+  background-color: cadetblue;
+  border: 5px solid goldenrod;
+  width: 300px;
+  height: 300px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 0;
   grid-auto-flow: row;
   grid-template-areas:
     "coverImgDiv coverImgDiv coverImgDiv stateDiv stateDiv"
@@ -9,14 +14,57 @@
     "coverImgDiv coverImgDiv coverImgDiv ratingDiv ratingDiv"
     "coverImgDiv coverImgDiv coverImgDiv ratingDiv ratingDiv"
     "titleDiv titleDiv titleDiv titleDiv titleDiv";
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.15rem;
+  font-family: "Bell MT", serif;
+}
+.coverImgDiv {
+  grid-area: coverImgDiv;
 }
 
-.coverImgDiv { grid-area: coverImgDiv; }
+.stateDiv {
+  grid-area: stateDiv;
+  background-color: lightblue;
+  font-size: 0.9rem;
+  border-bottom: 5px solid goldenrod;
+  border-left: 5px solid goldenrod;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-.ratingDiv { grid-area: ratingDiv; }
+.chapterDiv {
+  grid-area: chapterDiv;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  border-left: 5px solid goldenrod;
+  border-bottom: 3px solid goldenrod;
+}
 
-.titleDiv { grid-area: titleDiv; }
+.ratingDiv {
+  grid-area: ratingDiv;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-left: 5px solid goldenrod;
+  border-top: 2px solid goldenrod;
+}
 
-.chapterDiv { grid-area: chapterDiv; }
+.titleDiv {
+  grid-area: titleDiv;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 5px solid goldenrod;
+}
 
-.stateDiv { grid-area: stateDiv; }
+.previewContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-rows: repeat(auto-fit, minmax(300px, 1fr));
+  grid-gap: 1em;
+}
