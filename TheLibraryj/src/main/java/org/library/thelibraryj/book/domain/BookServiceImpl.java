@@ -4,17 +4,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import jakarta.validation.constraints.NotEmpty;
-import org.library.thelibraryj.book.dto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.BookResponse;
-import org.library.thelibraryj.book.dto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
-import org.library.thelibraryj.book.dto.ChapterRequest;
-import org.library.thelibraryj.book.dto.ContentRemovalRequest;
-import org.library.thelibraryj.book.dto.ContentRemovalSuccess;
-import org.library.thelibraryj.book.dto.RatingRequest;
-import org.library.thelibraryj.book.dto.RatingResponse;
+import org.library.thelibraryj.book.dto.*;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
@@ -223,6 +213,19 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
         return Either.right(new RatingResponse(fetchedE.get().username(), ratingRequest.currentRating(), escapedComment, LocalDateTime.now()));
     }
 
+    @Override
+    public Either<GeneralError, ChapterResponse> getChapterByBookIdAndNumber(UUID bookId, int chapterNumber) {
+       Optional<Object> fetchedData = chapterPreviewRepository.findChapterPreviewTitleAndIdByBookIdAndNumber(bookId, chapterNumber);
+       if (fetchedData.isEmpty()) return Either.left(new BookError.ChapterNotFound(bookId, chapterNumber));
+       Object[] values = (Object[]) fetchedData.get();
+       return Try.of(() -> chapterRepository.getChapterContentById((UUID) values[1]))
+                .toEither()
+                .map(Option::ofOptional)
+                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
+                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.ChapterNotFound(bookId, chapterNumber)))
+                .map(value -> mapper.chapterDataToChapterResponse(value, (String) values[0]));
+    }
+
     Either<GeneralError, BookDetail> getDetailAndValidateUUIDs(UUID bookId, String authorEmail) {
         Either<GeneralError, BookDetail> bookDetailE = getBookDetail(bookId);
         if (bookDetailE.isLeft()) return Either.left(bookDetailE.getLeft());
@@ -239,6 +242,8 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
         if (bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
         Either<GeneralError, BookPreview> bookPreview = getBookPreviewLazy(chapterRequest.bookId());
         if (bookPreview.isLeft()) return Either.left(bookPreview.getLeft());
+        if (chapterPreviewRepository.existsByBookIdAndNumber(bookPreview.get().getId(), chapterRequest.number()))
+            return Either.left(new BookError.DuplicateChapter(bookPreview.get().getId(), chapterRequest.number()));
         Chapter chapterToSave = Chapter.builder()
                 .text(chapterRequest.chapterText())
                 .build();
@@ -295,7 +300,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     public Either<GeneralError, ContentRemovalSuccess> deleteChapter(ContentRemovalRequest removalRequest, int chapterNumber) {
         Either<GeneralError, UUID> validated = validateUUIDs(removalRequest.userEmail(), removalRequest.bookId());
         if(validated.isLeft()) return Either.left(validated.getLeft());
-        Either<GeneralError, UUID> fetchedChapterId = Try.of(() -> chapterPreviewRepository.findChapterPreviewByBookIdAndNumber(validated.get(), chapterNumber))
+        Either<GeneralError, UUID> fetchedChapterId = Try.of(() -> chapterPreviewRepository.findChapterPreviewIdByBookIdAndNumber(validated.get(), chapterNumber))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
@@ -347,6 +352,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
 
     BookResponse getEagerBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager) {
         return new BookResponse(
+                bookPreviewEager.getId(),
                 bookPreviewEager.getTitle(),
                 bookDetail.getAuthor(),
                 bookDetail.getDescription(),
@@ -363,6 +369,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
 
     private static BookResponse getLazyBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager) {
         return new BookResponse(
+                bookPreviewEager.getId(),
                 bookPreviewEager.getTitle(),
                 bookDetail.getAuthor(),
                 bookDetail.getDescription(),

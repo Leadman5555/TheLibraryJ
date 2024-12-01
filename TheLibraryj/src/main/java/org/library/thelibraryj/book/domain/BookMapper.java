@@ -1,9 +1,6 @@
 package org.library.thelibraryj.book.domain;
 
-import org.library.thelibraryj.book.dto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
-import org.library.thelibraryj.book.dto.RatingResponse;
+import org.library.thelibraryj.book.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -27,6 +24,9 @@ interface BookMapper {
 
     @Mapping(source = "id", target = "chapterId")
     ChapterPreviewResponse chapterPreviewToChapterPreviewResponse(ChapterPreview chapterPreview);
+
+    @Mapping(source = "text", target = "content")
+    ChapterResponse chapterDataToChapterResponse(String text, String title);
 
     static LocalDateTime map(Instant value){
         return LocalDateTime.ofInstant(value, ZoneOffset.ofHours(1));

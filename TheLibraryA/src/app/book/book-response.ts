@@ -4,6 +4,7 @@ import {BookState} from './BookState';
 import {BookTag} from './BookTag';
 
 export interface BookResponse {
+  id : string,
   title: string;
   author: string;
   description: string;
@@ -14,5 +15,5 @@ export interface BookResponse {
   ratings: RatingResponse[];
   bookTags: BookTag[],
   bookState: BookState;
-  coverImage: HTMLImageElement;
+  coverImage: string;
 }

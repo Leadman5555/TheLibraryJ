@@ -8,6 +8,7 @@ import org.library.thelibraryj.book.dto.BookResponse;
 import org.library.thelibraryj.book.dto.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.ChapterRequest;
+import org.library.thelibraryj.book.dto.ChapterResponse;
 import org.library.thelibraryj.book.dto.ContentRemovalRequest;
 import org.library.thelibraryj.book.dto.ContentRemovalSuccess;
 import org.library.thelibraryj.book.dto.RatingRequest;
@@ -31,12 +32,18 @@ public interface BookService {
     Either<GeneralError, BookResponse> getBook(String title);
 
     Either<GeneralError, RatingResponse> upsertRating(RatingRequest ratingRequest);
+
+    Either<GeneralError, ChapterResponse> getChapterByBookIdAndNumber(UUID bookId, int chapterNumber);
+
     Either<GeneralError, ChapterPreviewResponse> createChapter(ChapterRequest chapterRequest);
+
     Either<GeneralError, List<ChapterPreviewResponse>> createChapters(List<ChapterRequest> chapterRequests);
 
     Either<GeneralError, ContentRemovalSuccess> deleteChapter(ContentRemovalRequest contentRemovalRequest, int chapterNumber);
 
     Either<GeneralError, ContentRemovalSuccess> deleteBook(ContentRemovalRequest contentRemovalRequest);
+
     void updateAllForNewUsername(UUID forUserId, String newUsername);
+
     void resetBookPreviewsCache();
 }

@@ -1,29 +1,52 @@
-<p>home works!</p>
-<div>
+<div class="row">
   <div class="previewContainer">
-    @for (bp of bookPreviews; track bp.title){
-      <div class="bookPreviewCard">
+    @for (bp of bookPreviews | filterByTagAndName : this.selectedTags : this.keywordIncluded : this.minChapterCount : this.orderByRating; track bp.title) {
+      <div class="bookPreviewCard" (click)="routeToBook(bp)">
         <div class="coverImgDiv">
           <img src="data:image/jpg;base64,{{bp.coverImage}}" alt="No cover" width="180px" height="240px">
         </div>
         <div class="ratingDiv">
           <div class="avgRating" style="font-size: 3rem">
-            {{bp.averageRating}} <span style="font-size: 1rem; padding-top: 10%">/10</span>
+            {{ bp.averageRating }} <span style="font-size: 1rem; padding-top: 10%">/10</span>
           </div>
           <div class="ratingCount">
-            from: {{bp.ratingCount}}
+            from: {{ bp.ratingCount }}
           </div>
         </div>
         <div class="titleDiv">
-          {{bp.title}}
+          {{ bp.title }}
         </div>
         <div class="chapterDiv">
-          {{bp.chapterCount}} <span style="font-size: 0.9rem; padding-top: 10%"> ch</span>
+          {{ bp.chapterCount }} <span style="font-size: 0.9rem; padding-top: 10%"> ch</span>
         </div>
         <div class="stateDiv">
-          {{bp.bookState}}
+          {{ bp.bookState }}
         </div>
       </div>
     }
+  </div>
+  <div class="filterBox">
+    <form *ngIf="filterForm" [formGroup]="filterForm" (ngSubmit)="handleFilterSubmit()" class="column">
+      <label>Title contains: <input id="searchInput" type="text" formControlName="titleContains" [placeholder]=""></label>
+      <label>Min. chapter count: <input id="chapterInput" type="number" formControlName="minChapterCount" [placeholder]="0"></label>
+      <div class="row">
+        <label for="dropdownRatingList">Order by rating: </label>
+        <select formControlName="ratingOrder" id="dropdownRatingList">
+          <option value="No order" selected>No order</option>
+          @for (option of ratingOrderOptions; track option) {
+            <option [value]="option">{{ option }}</option>
+          }
+        </select>
+      </div>
+      <div formGroupName="filterByTags" class="tagsDiv">
+        <div class="mt-square3d-custom tagSelector" *ngFor="let tag of this.allTags; let i = index" style="font-size:10px;">
+          <a class="tagName">{{tag}}</a>
+          <input id="checkMt_{{i}}" type="checkbox" formControlName="{{tag}}"/>
+          <label for="checkMt_{{i}}"></label>
+        </div>
+      </div>
+      <button type="submit" [disabled]="!filterForm.valid">Submit</button>
+      <button type="reset" (click)="resetFilters()">Reset filters</button>
+    </form>
   </div>
 </div>

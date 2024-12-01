@@ -4,7 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.book.BookService;
-import org.library.thelibraryj.book.dto.*;
+import org.library.thelibraryj.book.dto.BookCreationRequest;
+import org.library.thelibraryj.book.dto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.ChapterRequest;
+import org.library.thelibraryj.book.dto.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.RatingRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -85,6 +90,15 @@ class BookController implements ErrorHandling {
     @PreFilter("#filterObject.authorEmail == authentication.principal.username")
     public ResponseEntity<String> createChapters(@RequestBody @Valid List<ChapterRequest> chapterRequests) {
         return handle(bookService.createChapters(chapterRequests), HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "Fetch the content (text) of a single chapter by it's number and bookId",
+            tags = {"book", "no auth required"}
+    )
+    @GetMapping("/na/books/book/chapter")
+    public ResponseEntity<String> getBookChapter(@RequestParam("bookId") UUID bookId, @RequestParam("chapterNumber") int chapterNumber) {
+        return handle(bookService.getChapterByBookIdAndNumber(bookId, chapterNumber), HttpStatus.OK);
     }
 
     @Operation(

@@ -23,7 +23,19 @@ interface ChapterPreviewRepository extends BaseJpaRepository<ChapterPreview, UUI
     select id from  chapterPreview
     where bookDetail.id = :bookId and number = :number
 """)
-    Optional<UUID> findChapterPreviewByBookIdAndNumber(@Param("bookId") UUID bookId, @Param("number") int number);
+    Optional<UUID> findChapterPreviewIdByBookIdAndNumber(@Param("bookId") UUID bookId, @Param("number") int number);
+
+    @Query("""
+    select title, id from  chapterPreview
+    where bookDetail.id = :bookId and number = :number
+""")
+    Optional<Object> findChapterPreviewTitleAndIdByBookIdAndNumber(@Param("bookId") UUID bookId, @Param("number") int number);
+
+    @Query("""
+    select (count(c) > 0) from chapterPreview c
+    where c.bookDetail.id = :bookId and c.number = :number
+""")
+    boolean existsByBookIdAndNumber(@Param("bookId") UUID bookId, @Param("number") int number);
 
     @Modifying
     @Query("""

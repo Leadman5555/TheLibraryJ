@@ -47,7 +47,7 @@ CREATE TABLE library.library_chapter_previews
 DROP TABLE IF EXISTS library.library_chapters;
 CREATE TABLE library.library_chapters
 (
-    text               TEXT,
+    text               VARCHAR(18050),
     chapter_preview_id UUID   NOT NULL,
     version            BIGINT NOT NULL DEFAULT 0,
     created_at         TIMESTAMP,
