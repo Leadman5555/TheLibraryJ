@@ -32,8 +32,9 @@ class BookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @GetMapping("/na/books")
-    public Page<BookPreviewResponse> getBookPreviews(@RequestParam(name = "page") int page) {
-        return bookService.getBookPreviewResponsePage(page);
+    public Page<BookPreviewResponse> getBookPreviews(@RequestParam(name = "page") int page, @RequestParam(name = "pageSize") int pageSize) {
+        Page<BookPreviewResponse> bookPreviewResponsePage = bookService.getBookPreviewResponsePage(page, pageSize);
+        return bookPreviewResponsePage;
     }
 
     @Operation(

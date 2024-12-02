@@ -24,7 +24,7 @@ public interface BookService {
 
     Either<GeneralError, BookPreviewResponse> getBookPreviewResponse(UUID previewId);
 
-    Page<BookPreviewResponse> getBookPreviewResponsePage(int page);
+    Page<BookPreviewResponse> getBookPreviewResponsePage(int page, int pageSize);
 
     Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest);
 

@@ -5,31 +5,37 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {BookDetail} from './book-detail';
 import {BookResponse} from './book-response';
 import {ChapterContent} from './chapter-content';
+import {BookPage} from '../home/home/BookPage';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class BookService {
-    constructor(private http: HttpClient) { }
-    private baseUrl: string = 'http://localhost:8082/v0.9/na/books';
-    private baseAuthUrl: string = 'http://localhost:8082/v0.9/books';
+  constructor(private readonly http: HttpClient) {
+  }
 
-    public getBookPreviews() : Observable<BookPreview[]> {
-        return this.http.get<BookPreview[]>(this.baseUrl);
-    }
+  private readonly baseUrl: string = 'http://localhost:8082/v0.9/na/books';
+  private readonly baseAuthUrl: string = 'http://localhost:8082/v0.9/books';
 
-    public getBookDetail(bookId : string) : Observable<BookDetail> {
-      return this.http.get<BookDetail>(`${this.baseUrl}/${bookId}`);
-    }
+  public getBookPreviews(page?: number, pageSize?: number): Observable<BookPage> {
+    let params = new HttpParams();
+    params = params.append('page', page ?? 0);
+    params = params.append('pageSize', pageSize ?? 0);
+    return  this.http.get<BookPage>(this.baseUrl, {params});
+  }
 
-    public getBook(bookTitle : string) : Observable<BookResponse> {
-      return this.http.get<BookResponse>(`${this.baseUrl}/book/${bookTitle}`);
-    }
+  public getBookDetail(bookId: string): Observable<BookDetail> {
+    return this.http.get<BookDetail>(`${this.baseUrl}/${bookId}`);
+  }
 
-  public getChapterContentByNumber(bookId: string, chapterNumber: number) : Observable<ChapterContent> {
+  public getBook(bookTitle: string): Observable<BookResponse> {
+    return this.http.get<BookResponse>(`${this.baseUrl}/book/${bookTitle}`);
+  }
+
+  public getChapterContentByNumber(bookId: string, chapterNumber: number): Observable<ChapterContent> {
     let params = new HttpParams();
     params = params.append('bookId', bookId);
     params = params.append('chapterNumber', chapterNumber);
-    return this.http.get<ChapterContent>(`${this.baseUrl}/book/chapter`, {params: params} );
+    return this.http.get<ChapterContent>(`${this.baseUrl}/book/chapter`, {params: params});
   }
 }

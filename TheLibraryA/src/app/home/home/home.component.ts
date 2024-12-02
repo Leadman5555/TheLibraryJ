@@ -5,31 +5,33 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {BookTag} from '../../book/BookTag';
 import {FilterByTagNamePipe} from '../../book/filter-by-tag-name.pipe'
 import {
-  AbstractControl,
-  FormBuilder,
   FormGroup, NonNullableFormBuilder,
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import {NgForOf, NgIf} from '@angular/common';
+import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
+import {BookPreviewCardComponent} from '../../book/book-preview-card/book-preview-card.component';
+import {provideComponentStore} from '@ngrx/component-store';
+import {HomeComponentStore} from './home.component-store';
 
 @Component({
   selector: 'app-home',
   imports: [
-    FilterByTagNamePipe, ReactiveFormsModule, NgIf, NgForOf
+    FilterByTagNamePipe, ReactiveFormsModule, NgIf, NgForOf, BookPreviewCardComponent, AsyncPipe
+  ],
+  providers: [
+    provideComponentStore(HomeComponentStore)
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
-  private bookService: BookService = inject(BookService);
-  private router: Router = inject(Router);
-  private activatedRoute: ActivatedRoute = inject(ActivatedRoute);
-  bookPreviews!: BookPreview[];
-  allTags: BookTag[] = ['TAG1', 'TAG2', 'TAG3', 'TAG4', 'TAG5', 'TAG6', 'TAG7', 'TAG8', 'UNTAGGED']
+  private readonly activatedRoute: ActivatedRoute = inject(ActivatedRoute);
+  readonly allTags: BookTag[] = ['TAG1', 'TAG2', 'TAG3', 'TAG4', 'TAG5', 'TAG6', 'TAG7', 'TAG8', 'UNTAGGED']
+  private readonly componentStore = inject(HomeComponentStore);
+  readonly vm$ = this.componentStore.vm$;
 
-  constructor(private fb: NonNullableFormBuilder) {
-  }
+  constructor(private fb: NonNullableFormBuilder) {}
 
   selectedTags: BookTag[] = [];
   keywordIncluded: string = '';
@@ -55,14 +57,14 @@ export class HomeComponent implements OnInit {
 
   filterForm!: FormGroup;
 
-  handleFilterSubmit() {
+  handleFilterSubmit(): void {
     this.selectedTags = this.getSelectedTags();
     this.keywordIncluded = this.filterForm.controls['titleContains'].value;
     this.orderByRating = this.filterForm.controls['ratingOrder'].value;
     this.minChapterCount = this.filterForm.controls['minChapterCount'].value;
   }
 
-  resetFilters() {
+  resetFilters(): void {
     //fix no tag reset when param cons
     this.filterForm.reset();
     this.keywordIncluded = this.defaultFormValues.titleContains;
@@ -82,7 +84,7 @@ export class HomeComponent implements OnInit {
     return result;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.createFilterForm();
     this.activatedRoute.queryParams.subscribe(params => {
       const fromParams = params['tags'];
@@ -91,13 +93,6 @@ export class HomeComponent implements OnInit {
         this.createFilterForm(this.selectedTags);
       } else this.createFilterForm();
     });
-    this.bookService.getBookPreviews().subscribe({
-      next: (v) => this.bookPreviews = v,
-      error: (e) => console.error(e)
-    });
-
-    for(let i = 1; i < 100; i++) this.bookPreviews.push(this.bookPreviews[0]);
-
   }
 
   createFilterForm(selectedTags?: BookTag[]) {
@@ -134,7 +129,15 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  routeToBook(bookPreview: BookPreview) {
-    this.router.navigate(['book'], {state: {bp: bookPreview}});
+  onPreviousPage(): void {
+    //ADD handling so that > 0
+    //add page size change?
+    //figure out how would filters work with the page? and do filters stay enabled for next/prev page switch?
   }
+
+  onNextPage(): void {
+    //add handling so that > Max page from pageInfo
+    this.componentStore.loadNextPage();
+  }
+
 }

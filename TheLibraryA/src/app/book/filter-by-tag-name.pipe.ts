@@ -18,7 +18,7 @@ export class FilterByTagNamePipe implements PipeTransform {
     }
     const filtered = bookPreviews.filter(preview => {
       if (preview.title.includes(name) && preview.chapterCount >= minChapterCount) {
-         return FilterByTagNamePipe.containsTags(preview.bookTags, activeTags)
+        return FilterByTagNamePipe.containsTags(preview.bookTags, activeTags)
       } else return false;
     });
     return FilterByTagNamePipe.sortPreviews(filtered, order);
@@ -35,13 +35,13 @@ export class FilterByTagNamePipe implements PipeTransform {
       }
     });
     else if (order === 'D') return bookPreviews.sort((a, b) => {
-        if (a.averageRating < b.averageRating) {
-          return 1;
-        } else if (a.averageRating > b.averageRating) {
-          return -1;
-        } else {
-          return 0;
-        }
+      if (a.averageRating < b.averageRating) {
+        return 1;
+      } else if (a.averageRating > b.averageRating) {
+        return -1;
+      } else {
+        return 0;
+      }
     });
     return bookPreviews;
   }

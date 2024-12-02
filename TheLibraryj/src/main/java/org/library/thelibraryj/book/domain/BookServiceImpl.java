@@ -4,18 +4,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import jakarta.validation.constraints.NotEmpty;
-import org.library.thelibraryj.book.dto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.BookResponse;
-import org.library.thelibraryj.book.dto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
-import org.library.thelibraryj.book.dto.ChapterRequest;
-import org.library.thelibraryj.book.dto.ChapterResponse;
-import org.library.thelibraryj.book.dto.ContentRemovalRequest;
-import org.library.thelibraryj.book.dto.ContentRemovalSuccess;
-import org.library.thelibraryj.book.dto.RatingRequest;
-import org.library.thelibraryj.book.dto.RatingResponse;
+import org.library.thelibraryj.book.dto.*;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
@@ -24,7 +13,6 @@ import org.library.thelibraryj.userInfo.dto.BookCreationUserData;
 import org.library.thelibraryj.userInfo.dto.RatingUpsertData;
 import org.library.thelibraryj.userInfo.dto.UserInfoScoreUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
@@ -52,9 +40,6 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     private final BookMapper mapper;
     private final BookImageHandler bookImageHandler;
     private UserInfoService userInfoService;
-
-    @Value("${library.book.preview_page_size}")
-    int bookPreviewPageSize;
 
     @Autowired
     public void setUserInfoService(@Lazy UserInfoService userInfoService) {
@@ -419,8 +404,8 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
 
     @Override
     @Cacheable(value = "bookPreviews")
-    public Page<BookPreviewResponse> getBookPreviewResponsePage(int page) {
-        PageRequest pageRequest = PageRequest.of(page, bookPreviewPageSize);
+    public Page<BookPreviewResponse> getBookPreviewResponsePage(int page, int pageSize) {
+        PageRequest pageRequest = PageRequest.of(page, pageSize);
         return bookPreviewRepository.getBookPreviewEagerPage(pageRequest).map(this::mapPreviewWithCover);
     }
 

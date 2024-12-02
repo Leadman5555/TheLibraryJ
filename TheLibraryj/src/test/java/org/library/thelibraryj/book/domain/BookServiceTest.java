@@ -112,9 +112,9 @@ public class BookServiceTest {
         int page = 0;
         int defPageSize = 20;
         PageRequest request = PageRequest.of(page, defPageSize);
-        Page<BookPreview> basePage = new PageImpl<>(baseList, request, baseList.size());
+        Page<BookPreview> basePage = new PageImpl<>(baseList, request, defPageSize);
         when(bookPreviewRepository.getBookPreviewEagerPage(request)).thenReturn(basePage);
-        Page<BookPreviewResponse> fetchedPage = bookService.getBookPreviewResponsePage(page);
+        Page<BookPreviewResponse> fetchedPage = bookService.getBookPreviewResponsePage(page, defPageSize);
         Page<BookPreviewResponse> expectedPage = basePage.map((BookPreview bookPreview1) -> bookMapper.bookPreviewToBookPreviewResponse(bookPreview1, null));
         assertEquals(expectedPage, fetchedPage);
     }

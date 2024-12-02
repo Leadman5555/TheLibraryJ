@@ -47,10 +47,11 @@ public class BookControllerTest {
         int page = 1;
         mockMvc.perform(get(ENDPOINT + "/na/books")
                         .param("page", String.valueOf(page))
+                        .param("pageSize", String.valueOf(page))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        verify(bookService).getBookPreviewResponsePage(page);
+        verify(bookService).getBookPreviewResponsePage(page, page);
     }
 
     @Test
