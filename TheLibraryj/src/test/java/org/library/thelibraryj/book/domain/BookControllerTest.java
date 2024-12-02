@@ -44,11 +44,13 @@ public class BookControllerTest {
 
     @Test
     public void testGetBookPreviews() throws Exception {
+        int page = 1;
         mockMvc.perform(get(ENDPOINT + "/na/books")
+                        .param("page", String.valueOf(page))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        verify(bookService).getBookPreviewResponses();
+        verify(bookService).getBookPreviewResponsePage(page);
     }
 
     @Test

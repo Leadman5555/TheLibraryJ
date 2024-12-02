@@ -14,6 +14,7 @@ import org.library.thelibraryj.book.dto.ContentRemovalSuccess;
 import org.library.thelibraryj.book.dto.RatingRequest;
 import org.library.thelibraryj.book.dto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,7 +24,7 @@ public interface BookService {
 
     Either<GeneralError, BookPreviewResponse> getBookPreviewResponse(UUID previewId);
 
-    List<BookPreviewResponse> getBookPreviewResponses();
+    Page<BookPreviewResponse> getBookPreviewResponsePage(int page);
 
     Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest);
 

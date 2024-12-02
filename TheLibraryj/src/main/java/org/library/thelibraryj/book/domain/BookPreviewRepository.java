@@ -1,12 +1,13 @@
 package org.library.thelibraryj.book.domain;
 
 import io.hypersistence.utils.spring.repository.BaseJpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,7 +19,9 @@ interface BookPreviewRepository extends BaseJpaRepository<BookPreview, UUID> {
                 select bp from bookPreview bp
                 join fetch bp.bookTags
             """)
-    List<BookPreview> getAllBookPreviewsEager();
+    Page<BookPreview> getBookPreviewEagerPage(Pageable pageable);
+
+
 
     @Query("""
             select bp from bookPreview bp
