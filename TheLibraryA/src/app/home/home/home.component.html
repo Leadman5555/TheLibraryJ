@@ -26,16 +26,15 @@
     }
   </div>
   <div class="filterBox">
-    <form *ngIf="filterForm" [formGroup]="filterForm" (ngSubmit)="handleFilterSubmit()" class="column">
+    <form *ngIf="filterForm" [formGroup]="filterForm" (ngSubmit)="handleFilterSubmit()" class="column filterForm">
       <label>Title contains: <input id="searchInput" type="text" formControlName="titleContains" [placeholder]=""></label>
       <label>Min. chapter count: <input id="chapterInput" type="number" formControlName="minChapterCount" [placeholder]="0"></label>
       <div class="row">
         <label for="dropdownRatingList">Order by rating: </label>
         <select formControlName="ratingOrder" id="dropdownRatingList">
           <option value="No order" selected>No order</option>
-          @for (option of ratingOrderOptions; track option) {
-            <option [value]="option">{{ option }}</option>
-          }
+          <option value="D">Descending</option>
+          <option value="A">Ascending</option>
         </select>
       </div>
       <div formGroupName="filterByTags" class="tagsDiv">

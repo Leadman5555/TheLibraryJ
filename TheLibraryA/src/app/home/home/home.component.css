@@ -80,6 +80,11 @@
   flex: 0 0 20%;
 }
 
+.filterForm {
+  position: sticky;
+  top: 0;
+}
+
 .tagsDiv {
   display:flex;
   flex-wrap: wrap;

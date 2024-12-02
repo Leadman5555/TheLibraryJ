@@ -26,16 +26,15 @@ export class HomeComponent implements OnInit {
   private router: Router = inject(Router);
   private activatedRoute: ActivatedRoute = inject(ActivatedRoute);
   bookPreviews!: BookPreview[];
-  allTags: BookTag[] = ['TAG1', 'TAG2', 'TAG3', 'TAG4', 'TAG5', 'TAG6', 'TAG7', 'TAG8','UNTAGGED']
+  allTags: BookTag[] = ['TAG1', 'TAG2', 'TAG3', 'TAG4', 'TAG5', 'TAG6', 'TAG7', 'TAG8', 'UNTAGGED']
 
-  constructor(private fb : NonNullableFormBuilder) {}
+  constructor(private fb: NonNullableFormBuilder) {
+  }
 
   selectedTags: BookTag[] = [];
-  keywordIncluded : string = '';
+  keywordIncluded: string = '';
   orderByRating: string = '';
-  minChapterCount : number = 0;
-
-  public ratingOrderOptions : string[] = ['Descending','Ascending'];
+  minChapterCount: number = 0;
 
   defaultFormValues = {
     titleContains: '',
@@ -54,34 +53,29 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  filterForm! : FormGroup;
+  filterForm!: FormGroup;
 
-  //FIX BUG WITH SORT ORDER + TAGS FILTER
-
-  handleFilterSubmit(){
+  handleFilterSubmit() {
     this.selectedTags = this.getSelectedTags();
     this.keywordIncluded = this.filterForm.controls['titleContains'].value;
     this.orderByRating = this.filterForm.controls['ratingOrder'].value;
     this.minChapterCount = this.filterForm.controls['minChapterCount'].value;
   }
 
-  resetFilters(){
-    console.log('resetFilters');
-    console.log(this.filterForm);
-    this.filterForm.reset(this.defaultFormValues);
-    console.log(this.filterForm);
-
+  resetFilters() {
+    //fix no tag reset when param cons
+    this.filterForm.reset();
     this.keywordIncluded = this.defaultFormValues.titleContains;
     this.orderByRating = this.defaultFormValues.ratingOrder;
     this.minChapterCount = this.defaultFormValues.minChapterCount;
     this.selectedTags = [];
   }
 
-  getSelectedTags() : BookTag[] {
+  getSelectedTags(): BookTag[] {
     const tagsGroup = this.filterForm.get('filterByTags');
-    const result : BookTag[] = [];
+    const result: BookTag[] = [];
     this.allTags.forEach(tag => {
-      if(tagsGroup?.get(tag)?.value){
+      if (tagsGroup?.get(tag)?.value) {
         result.push(tag);
       }
     });
@@ -89,30 +83,34 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.createFilterForm();
     this.activatedRoute.queryParams.subscribe(params => {
       const fromParams = params['tags'];
-      if(fromParams){
+      if (fromParams) {
         this.selectedTags = params['tags'];
-      }
+        this.createFilterForm(this.selectedTags);
+      } else this.createFilterForm();
     });
-    this.createFilterForm();
     this.bookService.getBookPreviews().subscribe({
       next: (v) => this.bookPreviews = v,
       error: (e) => console.error(e)
     });
+
+    for(let i = 1; i < 100; i++) this.bookPreviews.push(this.bookPreviews[0]);
+
   }
 
-  createFilterForm(){
-    this.filterForm= this.fb.group({
+  createFilterForm(selectedTags?: BookTag[]) {
+    this.filterForm = this.fb.group({
       titleContains: [this.defaultFormValues.titleContains, [Validators.maxLength(20), Validators.minLength(3)]],
-      minChapterCount : [this.defaultFormValues.minChapterCount, Validators.min(0)],
+      minChapterCount: [this.defaultFormValues.minChapterCount, Validators.min(0)],
       ratingOrder: [this.defaultFormValues.ratingOrder],
-      filterByTags: this.createTagFilter()
+      filterByTags: this.createTagFilter(selectedTags)
     });
   }
 
-  createTagFilter(){
-    return this.fb.group({
+  createTagFilter(selectedTags?: BookTag[]) {
+    if (!selectedTags) return this.fb.group({
       UNTAGGED: [this.defaultFormValues.filterByTags.UNTAGGED],
       TAG1: [this.defaultFormValues.filterByTags.TAG1],
       TAG2: [this.defaultFormValues.filterByTags.TAG2],
@@ -123,9 +121,20 @@ export class HomeComponent implements OnInit {
       TAG7: [this.defaultFormValues.filterByTags.TAG7],
       TAG8: [this.defaultFormValues.filterByTags.TAG8],
     });
+    return this.fb.group({
+      UNTAGGED: [selectedTags.includes('UNTAGGED') ? true : this.defaultFormValues.filterByTags.UNTAGGED],
+      TAG1: [selectedTags.includes('TAG1') ? true : this.defaultFormValues.filterByTags.TAG1],
+      TAG2: [selectedTags.includes('TAG2') ? true : this.defaultFormValues.filterByTags.TAG2],
+      TAG3: [selectedTags.includes('TAG3') ? true : this.defaultFormValues.filterByTags.TAG3],
+      TAG4: [selectedTags.includes('TAG4') ? true : this.defaultFormValues.filterByTags.TAG4],
+      TAG5: [selectedTags.includes('TAG5') ? true : this.defaultFormValues.filterByTags.TAG5],
+      TAG6: [selectedTags.includes('TAG6') ? true : this.defaultFormValues.filterByTags.TAG6],
+      TAG7: [selectedTags.includes('TAG7') ? true : this.defaultFormValues.filterByTags.TAG7],
+      TAG8: [selectedTags.includes('TAG8') ? true : this.defaultFormValues.filterByTags.TAG8],
+    });
   }
 
   routeToBook(bookPreview: BookPreview) {
-    this.router.navigate(['book'], { state: { bp:  bookPreview}});
+    this.router.navigate(['book'], {state: {bp: bookPreview}});
   }
 }
