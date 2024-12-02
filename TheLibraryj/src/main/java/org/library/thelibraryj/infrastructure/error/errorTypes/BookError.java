@@ -8,4 +8,5 @@ public sealed interface BookError extends GeneralError {
     record DuplicateTitle() implements BookError {}
     record UserNotAuthor(String userEmail) implements BookError {}
     record ChapterNotFound(UUID bookId, int chapterNumber) implements BookError {}
+    record DuplicateChapter(UUID bookId, int chapterNumber) implements BookError {}
 }

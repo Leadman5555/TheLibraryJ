@@ -4,8 +4,10 @@ import org.library.thelibraryj.book.domain.BookState;
 import org.library.thelibraryj.book.domain.BookTag;
 
 import java.util.List;
+import java.util.UUID;
 
-public record BookResponse(String title,
+public record BookResponse(UUID id,
+                           String title,
                            String author,
                            String description,
                            int chapterCount,

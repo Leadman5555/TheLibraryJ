@@ -15,15 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -98,6 +90,15 @@ class BookController implements ErrorHandling {
     @PreFilter("#filterObject.authorEmail == authentication.principal.username")
     public ResponseEntity<String> createChapters(@RequestBody @Valid List<ChapterRequest> chapterRequests) {
         return handle(bookService.createChapters(chapterRequests), HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "Fetch the content (text) of a single chapter by it's number and bookId",
+            tags = {"book", "no auth required"}
+    )
+    @GetMapping("/na/books/book/chapter")
+    public ResponseEntity<String> getBookChapter(@RequestParam("bookId") UUID bookId, @RequestParam("chapterNumber") int chapterNumber) {
+        return handle(bookService.getChapterByBookIdAndNumber(bookId, chapterNumber), HttpStatus.OK);
     }
 
     @Operation(

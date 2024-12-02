@@ -1,0 +1,32 @@
+<div class="outerBox">
+  <div class="bookCard">
+    <div class="titleDiv"> {{bookPreview.title}} </div>
+    <div class="authorDiv"> <a class="small">Penned by: </a> {{bookDetail.author}} </div>
+    <div class="chapterCountDiv"> <a class="small">Number of chapters:</a> {{bookPreview.chapterCount}}</div>
+    <div class="ratingDiv">
+      <span class="small"> Average rating:</span>
+      <div class="avgRating" style="font-size: 3rem">
+        {{ bookPreview.averageRating }} <span class="small">/10</span>
+      </div>
+      <span class="small">
+        with rating count of: {{ bookPreview.ratingCount }}
+      </span>
+    </div>
+    <div class="tagsDiv">
+      @for (tag of bookPreview.bookTags; track tag){
+        <span class="tagBox" [routerLink]="['/']" [queryParams]="{ 'tags': [tag] }">{{tag}}</span>
+      }
+    </div>
+    <div class="coverDiv"> <img src="data:image/jpg;base64,{{bookPreview.coverImage}}" alt="No cover" > </div>
+    <div class="descDiv"> <a class="small">Description: </a> {{bookDetail.description}}</div>
+    <div class="chapterPrevOuterBox">
+      <div class="outerBox">
+        <div class="chapterPrevDiv">
+          @for (chPrev of bookDetail.chapterPreviews; track chPrev.number){
+            <div class="chapterBox" (click)="routeToChapter(chPrev.number)">{{chPrev.number}} : {{chPrev.title}} | Updated at: {{chPrev.updatedAt}} </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

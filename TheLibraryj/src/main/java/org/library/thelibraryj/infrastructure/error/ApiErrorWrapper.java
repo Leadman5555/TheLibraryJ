@@ -38,6 +38,8 @@ public class ApiErrorWrapper {
                     getErrorResponseAndLog(error, HttpStatus.CONFLICT, "User is not the book author. Email: " + e.userEmail());
             case BookError.ChapterNotFound e ->
                     getErrorResponseAndLog(error, HttpStatus.NOT_FOUND, "Chapter not found. BookId: " + e.bookId() + "; Chapter number: " + e.chapterNumber());
+            case BookError.DuplicateChapter e ->
+                    getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Duplicate chapter. BookId: " + e.bookId() + "; Chapter number: " + e.chapterNumber());
             case UserInfoError.UserInfoEntityNotFound e -> getErrorResponseAndLog(error, HttpStatus.NOT_FOUND,
                     "User data (details) missing. Email: " + e.missingEntityEmail());
             case UserInfoError.UserInfoEntityNotFoundById e -> getErrorResponseAndLog(error, HttpStatus.NOT_FOUND,
