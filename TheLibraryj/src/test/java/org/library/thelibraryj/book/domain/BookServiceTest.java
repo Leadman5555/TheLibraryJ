@@ -5,15 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.library.thelibraryj.book.dto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.BookResponse;
-import org.library.thelibraryj.book.dto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
-import org.library.thelibraryj.book.dto.ChapterRequest;
-import org.library.thelibraryj.book.dto.RatingRequest;
-import org.library.thelibraryj.book.dto.RatingResponse;
+import org.library.thelibraryj.book.dto.*;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.BookCreationUserData;
@@ -22,6 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.Instant;
 import java.util.List;
@@ -114,10 +109,14 @@ public class BookServiceTest {
     public void testGetBookPreviewResponses() {
         when(bookImageHandler.fetchCoverImage(anyString())).thenReturn(null);
         List<BookPreview> baseList = List.of(BookPreview.builder().title(title + '1').build(), BookPreview.builder().title(title + '2').build());
-        when(bookPreviewRepository.getAllBookPreviewsEager()).thenReturn(baseList);
-        List<BookPreviewResponse> fetchedList = bookService.getBookPreviewResponses();
-        List<BookPreviewResponse> expectedList = baseList.stream().map((BookPreview bookPreview1) -> bookMapper.bookPreviewToBookPreviewResponse(bookPreview1, null)).toList();
-        assertEquals(expectedList, fetchedList);
+        int page = 0;
+        int defPageSize = 20;
+        PageRequest request = PageRequest.of(page, defPageSize);
+        Page<BookPreview> basePage = new PageImpl<>(baseList, request, baseList.size());
+        when(bookPreviewRepository.getBookPreviewEagerPage(request)).thenReturn(basePage);
+        Page<BookPreviewResponse> fetchedPage = bookService.getBookPreviewResponsePage(page);
+        Page<BookPreviewResponse> expectedPage = basePage.map((BookPreview bookPreview1) -> bookMapper.bookPreviewToBookPreviewResponse(bookPreview1, null));
+        assertEquals(expectedPage, fetchedPage);
     }
 
     @Test

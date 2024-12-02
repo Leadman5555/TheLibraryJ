@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -401,9 +403,11 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     }
 
     @Override
-    @Cacheable("bookPreviews")
-    public List<BookPreviewResponse> getBookPreviewResponses() {
-        return bookPreviewRepository.getAllBookPreviewsEager().stream().map(this::mapPreviewWithCover).toList();
+    @Cacheable(value = "bookPreviews")
+    public Page<BookPreviewResponse> getBookPreviewResponsePage(int page) {
+        System.out.println("getBookPreviewResponses for page:" + page);
+        PageRequest pageRequest = PageRequest.of(page, 20);
+        return bookPreviewRepository.getBookPreviewEagerPage(pageRequest).map(this::mapPreviewWithCover);
     }
 
     @Override

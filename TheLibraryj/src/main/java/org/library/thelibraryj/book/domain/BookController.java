@@ -11,6 +11,7 @@ import org.library.thelibraryj.book.dto.ChapterRequest;
 import org.library.thelibraryj.book.dto.ContentRemovalRequest;
 import org.library.thelibraryj.book.dto.RatingRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,12 +28,12 @@ class BookController implements ErrorHandling {
     private final BookService bookService;
 
     @Operation(
-            summary = "Retrieve all book previews with their tags",
+            summary = "Retrieve all book previews with their tags. Returns the asked for page",
             tags = {"book", "no auth required"}
     )
     @GetMapping("/na/books")
-    public List<BookPreviewResponse> getBookPreviews() {
-        return bookService.getBookPreviewResponses();
+    public Page<BookPreviewResponse> getBookPreviews(@RequestParam(name = "page") int page) {
+        return bookService.getBookPreviewResponsePage(page);
     }
 
     @Operation(
