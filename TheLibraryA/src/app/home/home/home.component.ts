@@ -13,11 +13,12 @@ import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {BookPreviewCardComponent} from '../../book/book-preview-card/book-preview-card.component';
 import {provideComponentStore} from '@ngrx/component-store';
 import {HomeComponentStore} from './home.component-store';
+import {TimesMaxPipe} from '../../shared/pipes/times-max.pipe';
 
 @Component({
   selector: 'app-home',
   imports: [
-    FilterByTagNamePipe, ReactiveFormsModule, NgIf, NgForOf, BookPreviewCardComponent, AsyncPipe
+    FilterByTagNamePipe, ReactiveFormsModule, NgIf, NgForOf, BookPreviewCardComponent, AsyncPipe, TimesMaxPipe
   ],
   providers: [
     provideComponentStore(HomeComponentStore)
@@ -30,6 +31,7 @@ export class HomeComponent implements OnInit {
   readonly allTags: BookTag[] = ['TAG1', 'TAG2', 'TAG3', 'TAG4', 'TAG5', 'TAG6', 'TAG7', 'TAG8', 'UNTAGGED']
   private readonly componentStore = inject(HomeComponentStore);
   readonly vm$ = this.componentStore.vm$;
+  readonly info$ = this.componentStore.info$;
 
   constructor(private fb: NonNullableFormBuilder) {}
 
@@ -130,14 +132,24 @@ export class HomeComponent implements OnInit {
   }
 
   onPreviousPage(): void {
-    //ADD handling so that > 0
     //add page size change?
     //figure out how would filters work with the page? and do filters stay enabled for next/prev page switch?
+    this.componentStore.loadPreviousPage();
   }
 
   onNextPage(): void {
-    //add handling so that > Max page from pageInfo
     this.componentStore.loadNextPage();
   }
 
+  onChosenPage(pageNumber: number){
+    this.componentStore.loadSpecifiedPage(pageNumber);
+  }
+
+  identifyBp(index: number, item : BookPreview) {
+    return item.title;
+  }
+
+  identifyTag(index: number, item : BookTag) {
+    return item;
+  }
 }

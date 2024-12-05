@@ -1,8 +1,14 @@
 <div class="row">
   <div class="previewContainer">
     <ng-container *ngIf="vm$ | async as vm">
+      <div *ngIf="info$ | async as info" class="row">
+        <p> Total pages: {{info.totalPages}}</p>
+        <div class="pageNumberBox" *ngFor="let num of info.number | timesMax : info.totalPages" (click)="onChosenPage(num)">
+          n {{num}}
+        </div>
+      </div>
       <app-book-preview-card
-        *ngFor="let bp  of vm | filterByTagAndName : this.selectedTags : this.keywordIncluded : this.minChapterCount : this.orderByRating"
+        *ngFor="let bp  of vm | filterByTagAndName : this.selectedTags : this.keywordIncluded : this.minChapterCount : this.orderByRating; trackBy : identifyBp "
         [bookPreview]="bp"
       />
     </ng-container>
@@ -29,7 +35,7 @@
         </select>
       </div>
       <div formGroupName="filterByTags" class="tagsDiv">
-        <div class="mt-square3d-custom tagSelector" *ngFor="let tag of this.allTags; let i = index"
+        <div class="mt-square3d-custom tagSelector" *ngFor="let tag of this.allTags; let i = index; trackBy: identifyTag"
              style="font-size:10px;">
           <a class="tagName">{{ tag }}</a>
           <input id="checkMt_{{i}}" type="checkbox" formControlName="{{tag}}"/>

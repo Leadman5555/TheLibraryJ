@@ -405,8 +405,19 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     @Override
     @Cacheable(value = "bookPreviews")
     public Page<BookPreviewResponse> getBookPreviewResponsePage(int page, int pageSize) {
+//        PageRequest pageRequest = PageRequest.of(page, pageSize);
         PageRequest pageRequest = PageRequest.of(page, pageSize);
-        return bookPreviewRepository.getBookPreviewEagerPage(pageRequest).map(this::mapPreviewWithCover);
+        Page<BookPreview> p1 = bookPreviewRepository.getBookPreviewEagerPage(pageRequest);//.map(this::mapPreviewWithCover);
+        Page<BookPreview> pager = bookPreviewRepository.getAllLazyPage(pageRequest);
+        CriteriaBuilderFac
+        long totalElements = pager.getTotalElements(); // Total records in DB
+        List<BookPreview> content = pager.getContent();  // Records for current page
+        int numberOfElements = pager.getNumberOfElements(); // Number of elements in this page
+
+        System.out.println("Total Elements: " + totalElements);
+        System.out.println("Number of Elements in Page: " + numberOfElements);
+        System.out.println("Content Size: " + pager.getTotalPages());
+        return null;
     }
 
     @Override

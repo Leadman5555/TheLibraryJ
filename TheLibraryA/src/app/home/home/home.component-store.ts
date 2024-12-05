@@ -7,30 +7,28 @@ import {BookPage} from './BookPage';
 
 export interface HomeState {
   currentPage: BookPage;
-  page: number;
   pageSize: number;
 }
 
 const initialState: HomeState = {
   currentPage: {
-    content : [],
-    pageInfo : {
+    content: [],
+    page: {
       number: 0,
       size: 0,
       totalElements: 0,
       totalPages: 0,
     }
   },
-  page: 0,
-  pageSize: 20,
+  pageSize: 2,
 }
 
 @Injectable()
 export class HomeComponentStore extends ComponentStore<HomeState> implements OnStoreInit {
   private readonly bookService = inject(BookService);
 
-  readonly vm$ = this.select((state : HomeState) => (state.currentPage.content));
-  readonly info$ = this.select((state : HomeState) => (state.currentPage.pageInfo));
+  readonly vm$ = this.select((state: HomeState) => (state.currentPage.content));
+  readonly info$ = this.select((state: HomeState) => (state.currentPage.page));
 
   constructor() {
     super(initialState);
@@ -41,9 +39,15 @@ export class HomeComponentStore extends ComponentStore<HomeState> implements OnS
   }
 
   private readonly updatePage = this.updater(
-    (state: HomeState, page: number) => ({
+    (state: HomeState, number: number) => ({
       ...state,
-      page
+      currentPage: {
+        ...state.currentPage,
+        page: {
+          ...state.currentPage.page,
+          number: number
+        }
+      }
     })
   );
 
@@ -58,10 +62,13 @@ export class HomeComponentStore extends ComponentStore<HomeState> implements OnS
     return trigger$.pipe(
       withLatestFrom(this.select((state) => state)),
       map(([, state]) => state),
-      switchMap(({page, pageSize}) =>
-        this.bookService.getBookPreviews(page, pageSize).pipe(
+      switchMap(({currentPage, pageSize}) =>
+        this.bookService.getBookPreviews(currentPage.page.number, pageSize).pipe(
           tapResponse(
-            (newBookPage : BookPage) => this.updatePreviews(newBookPage),
+            (newBookPage: BookPage) => {
+              console.log(newBookPage);
+              this.updatePreviews(newBookPage);
+            },
             () => console.error("Something went wrong")
           )
         )
@@ -70,10 +77,46 @@ export class HomeComponentStore extends ComponentStore<HomeState> implements OnS
   });
 
   readonly loadNextPage = this.effect((trigger$: Observable<void>) => {
+    console.log(this.select((state) => state.currentPage).subscribe(v => {
+      console.log(v.page);
+      console.log(v.content)
+    }));
+
     return trigger$.pipe(
-      withLatestFrom(this.select((state) => state.page)),
-      map(([, state]) => state),
-      tap((page: number) => this.updatePage(page + 1)),
-      tap(() => this.loadPage()))
+      withLatestFrom(this.select((state) => state.currentPage.page)),
+      map(([, info]) => [info.number, info.totalPages]),
+      tap((paging: number[]) => {
+        if (paging[0] < paging[1]) {
+          this.updatePage(paging[0] + 1);
+          this.loadPage();
+        }
+      }))
   });
+
+  readonly loadPreviousPage = this.effect((trigger$: Observable<void>) => {
+    return trigger$.pipe(
+      withLatestFrom(this.select((state) => state.currentPage.page)),
+      map(([, info]) => info.number),
+      tap((number: number) => {
+        if (number > 0) {
+          this.updatePage(number - 1);
+          this.loadPage();
+        }
+      }))
+  });
+
+  loadSpecifiedPage(pageNumber: number) {
+    if (pageNumber < 0) return;
+    this.effect((trigger$: Observable<void>) => {
+      return trigger$.pipe(
+        withLatestFrom(this.select((state) => state.currentPage.page.totalPages)),
+        map(([, totalPages]) => totalPages),
+        tap((totalPages: number) => {
+          if (pageNumber <= totalPages) {
+            this.updatePage(pageNumber);
+            this.loadPage();
+          }
+        }))
+    });
+  }
 }

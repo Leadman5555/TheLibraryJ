@@ -3,5 +3,5 @@ import {PageInfo} from './page-info';
 
 export interface BookPage {
   content : BookPreview[];
-  pageInfo : PageInfo
+  page : PageInfo
 }

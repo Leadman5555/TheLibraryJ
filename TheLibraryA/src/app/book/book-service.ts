@@ -21,7 +21,7 @@ export class BookService {
     let params = new HttpParams();
     params = params.append('page', page ?? 0);
     params = params.append('pageSize', pageSize ?? 0);
-    return  this.http.get<BookPage>(this.baseUrl, {params});
+    return this.http.get<BookPage>(this.baseUrl, {params});
   }
 
   public getBookDetail(bookId: string): Observable<BookDetail> {
