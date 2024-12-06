@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
-import org.library.thelibraryj.userInfo.dto.BookCreationUserData;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
 import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
@@ -69,21 +68,43 @@ public class UserInfoServiceTest {
 
     @Test
     public void testGetAndValidateAuthorData(){
-        when(userInfoRepository.getBookCreationUserData(userEmail)).thenReturn(Optional.of(new Object[]{
-                userId,
-                username,
-                Instant.now().minusSeconds(10000000)
-        }));
-        Either<GeneralError, BookCreationUserData> response = userInfoService.getAndValidateAuthorData(userEmail);
-        Assertions.assertTrue(response.isRight());
-        Assertions.assertEquals(username, response.get().authorUsername());
+        when(userInfoRepository.getBookCreationUserView(userEmail)).thenReturn(new BookCreationUserView() {
+            @Override
+            public UUID getAuthorId() {
+                return userId;
+            }
 
-        when(userInfoRepository.getBookCreationUserData(userEmail)).thenReturn(Optional.of(new Object[]{
-                userId,
-                username,
-                Instant.now()
-        }));
-        Either<GeneralError, BookCreationUserData> response2 = userInfoService.getAndValidateAuthorData(userEmail);
+            @Override
+            public String getAuthorUsername() {
+                return username;
+            }
+
+            @Override
+            public Instant getCreatedAt() {
+                return Instant.now().minusSeconds(10000000);
+            }
+        });
+        Either<GeneralError, BookCreationUserView> response = userInfoService.getAndValidateAuthorData(userEmail);
+        Assertions.assertTrue(response.isRight());
+        Assertions.assertEquals(username, response.get().getAuthorUsername());
+
+        when(userInfoRepository.getBookCreationUserView(userEmail)).thenReturn(new BookCreationUserView() {
+            @Override
+            public UUID getAuthorId() {
+                return userId;
+            }
+
+            @Override
+            public String getAuthorUsername() {
+                return username;
+            }
+
+            @Override
+            public Instant getCreatedAt() {
+                return Instant.now();
+            }
+        });
+        Either<GeneralError, BookCreationUserView> response2 = userInfoService.getAndValidateAuthorData(userEmail);
         Assertions.assertTrue(response2.isLeft());
     }
 
@@ -121,7 +142,7 @@ public class UserInfoServiceTest {
         userInfo.setDataUpdatedAt(Instant.now());
         Either<GeneralError, UserInfoResponse> response2 = userInfoService.updateUserInfoUsername(request);
         Assertions.assertFalse(response2.isRight());
-        Assertions.assertEquals(new UserInfoError.UsernameUpdateCooldown(userInfoConfig.getUsername_change_cooldown_days(), ""), response2.getLeft());
+        Assertions.assertEquals(new UserInfoError.UsernameUpdateCooldown(userInfoConfig.getUsername_change_cooldown_days(), userEmail), response2.getLeft());
 
         when(userInfoRepository.existsByUsername(newUsername)).thenReturn(true);
         Either<GeneralError, UserInfoResponse> response3 = userInfoService.updateUserInfoUsername(request);

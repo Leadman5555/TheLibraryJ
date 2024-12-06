@@ -51,7 +51,7 @@ public class BookControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        verify(bookService).getBookPreviewResponsePage(page, page);
+        verify(bookService).getKeySetPagedBookPreviewResponses(null, page, page);
     }
 
     @Test

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.library.thelibraryj.authentication.tokenServices.dto.activation.ActivationTokenResponse;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
-import org.library.thelibraryj.authentication.userAuth.dto.BasicUserAuthData;
+import org.library.thelibraryj.authentication.userAuth.domain.BasicUserAuthView;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ActivationError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.mockito.InjectMocks;
@@ -43,10 +43,17 @@ public class ActivationServiceTest {
     @Test
     public void testCreateActivationToken() {
         final String userEmail = "sample@email.com";
-        when(userAuthService.getBasicUserAuthDataByEmail(userEmail)).thenReturn(Either.right(new BasicUserAuthData(
-                userId,
-                false
-        )));
+        when(userAuthService.getBasicUserAuthDataByEmail(userEmail)).thenReturn(Either.right(new BasicUserAuthView() {
+            @Override
+            public UUID getUserAuthId() {
+                return userId;
+            }
+
+            @Override
+            public boolean getIsEnabled() {
+                return false;
+            }
+        }));
         Instant expectedTime = Instant.now().plusSeconds(expirationTimeSeconds);
         Either<GeneralError, ActivationTokenResponse> response = activationService.createActivationToken(userEmail);
         verify(activationTokenRepository).persist(any(Token.class));
@@ -83,22 +90,22 @@ public class ActivationServiceTest {
         when(activationTokenRepository.findByToken(activationTokenUsed.getToken())).thenReturn(Optional.of(activationTokenUsed));
         Either<GeneralError, Boolean> result = activationService.consumeActivationToken(activationTokenUsed.getToken());
         Assertions.assertTrue(result.isLeft());
-        Assertions.assertEquals(new ActivationError.ActivationTokenAlreadyUsed(userId), result.getLeft());
+        Assertions.assertEquals(new ActivationError.ActivationTokenAlreadyUsed(activationTokenUsed.getToken()), result.getLeft());
     }
 
     @Test
     public void testConsumeActivationTokenErrorExpired(){
-        Token activationTokenUsed = Token.builder()
+        Token activationTokenExpired = Token.builder()
                 .token(UUID.randomUUID())
                 .id(UUID.randomUUID())
                 .isUsed(false)
                 .forUserId(userId)
                 .expiresAt(Instant.now().minusSeconds(100000))
                 .build();
-        when(activationTokenRepository.findByToken(activationTokenUsed.getToken())).thenReturn(Optional.of(activationTokenUsed));
-        Either<GeneralError, Boolean> result = activationService.consumeActivationToken(activationTokenUsed.getToken());
+        when(activationTokenRepository.findByToken(activationTokenExpired.getToken())).thenReturn(Optional.of(activationTokenExpired));
+        Either<GeneralError, Boolean> result = activationService.consumeActivationToken(activationTokenExpired.getToken());
         Assertions.assertTrue(result.isLeft());
-        Assertions.assertEquals(new ActivationError.ActivationTokenExpired(userId), result.getLeft());
+        Assertions.assertEquals(new ActivationError.ActivationTokenExpired(activationTokenExpired.getToken()), result.getLeft());
     }
 
     @Test

@@ -1,23 +1,35 @@
 package org.library.thelibraryj.book.domain;
 
+import com.blazebit.persistence.KeysetPage;
+import com.blazebit.persistence.PagedList;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import jakarta.validation.constraints.NotEmpty;
-import org.library.thelibraryj.book.dto.*;
+import org.library.thelibraryj.book.dto.BookCreationRequest;
+import org.library.thelibraryj.book.dto.BookDetailResponse;
+import org.library.thelibraryj.book.dto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.BookResponse;
+import org.library.thelibraryj.book.dto.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
+import org.library.thelibraryj.book.dto.ChapterRequest;
+import org.library.thelibraryj.book.dto.ChapterResponse;
+import org.library.thelibraryj.book.dto.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.ContentRemovalSuccess;
+import org.library.thelibraryj.book.dto.PagedBookPreviewsResponse;
+import org.library.thelibraryj.book.dto.RatingRequest;
+import org.library.thelibraryj.book.dto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.userInfo.UserInfoService;
-import org.library.thelibraryj.userInfo.dto.BookCreationUserData;
-import org.library.thelibraryj.userInfo.dto.RatingUpsertData;
+import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
+import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
 import org.library.thelibraryj.userInfo.dto.UserInfoScoreUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +43,7 @@ import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
-class BookServiceImpl implements org.library.thelibraryj.book.BookService{
+class BookServiceImpl implements org.library.thelibraryj.book.BookService {
     private final BookDetailRepository bookDetailRepository;
     private final BookPreviewRepository bookPreviewRepository;
     private final RatingRepository ratingRepository;
@@ -39,6 +51,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     private final ChapterRepository chapterRepository;
     private final BookMapper mapper;
     private final BookImageHandler bookImageHandler;
+    private final BookBlazeRepository bookBlazeRepository;
     private UserInfoService userInfoService;
 
     @Autowired
@@ -46,7 +59,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
         this.userInfoService = userInfoService;
     }
 
-    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository, BookImageHandler bookImageHandler) {
+    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository, BookImageHandler bookImageHandler, BookBlazeRepository bookBlazeRepository) {
         this.bookDetailRepository = bookDetailRepository;
         this.bookPreviewRepository = bookPreviewRepository;
         this.mapper = mapper;
@@ -54,6 +67,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
         this.chapterPreviewRepository = chapterPreviewRepository;
         this.chapterRepository = chapterRepository;
         this.bookImageHandler = bookImageHandler;
+        this.bookBlazeRepository = bookBlazeRepository;
     }
 
     @Override
@@ -78,7 +92,8 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     @Override
     public Either<GeneralError, BookPreviewResponse> getBookPreviewResponse(UUID detailId) {
         Either<GeneralError, BookPreview> fetched = getBookPreviewEager(detailId);
-        if (fetched.isRight()) return Either.right(mapper.bookPreviewWithCoverToBookPreviewResponse(fetched.get(), bookImageHandler.fetchCoverImage(fetched.get().getTitle())));
+        if (fetched.isRight())
+            return Either.right(mapper.bookPreviewWithCoverToBookPreviewResponse(fetched.get(), bookImageHandler.fetchCoverImage(fetched.get().getTitle())));
         return Either.left(fetched.getLeft());
     }
 
@@ -101,14 +116,14 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     @Transactional
     @Override
     public Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest) {
-        Either<GeneralError, BookCreationUserData> fetchedAuthorData = userInfoService.getAndValidateAuthorData(bookCreationRequest.authorEmail());
+        Either<GeneralError, BookCreationUserView> fetchedAuthorData = userInfoService.getAndValidateAuthorData(bookCreationRequest.authorEmail());
         if (fetchedAuthorData.isLeft()) return Either.left(fetchedAuthorData.getLeft());
         if (bookPreviewRepository.existsByTitle(bookCreationRequest.title()))
             return Either.left(new BookError.DuplicateTitle());
 
         BookDetail detail = BookDetail.builder()
-                .author(fetchedAuthorData.get().authorUsername())
-                .authorId(fetchedAuthorData.get().authorId())
+                .author(fetchedAuthorData.get().getAuthorUsername())
+                .authorId(fetchedAuthorData.get().getAuthorId())
                 .description(escapeHtml(bookCreationRequest.description()))
                 .build();
         BookPreview preview = BookPreview.builder()
@@ -121,7 +136,8 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
         preview.setBookDetail(detail);
         bookDetailRepository.persist(detail);
         bookPreviewRepository.persist(preview);
-        if(bookCreationRequest.coverImage() != null) bookImageHandler.upsertCoverImage(bookCreationRequest.title(), bookCreationRequest.coverImage());
+        if (bookCreationRequest.coverImage() != null)
+            bookImageHandler.upsertCoverImage(bookCreationRequest.title(), bookCreationRequest.coverImage());
         return Either.right(getLazyBookResponse(detail, preview));
     }
 
@@ -151,7 +167,8 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
             bookDetailRepository.update(detailE.get());
         }
         if (previewChanged) bookPreviewRepository.update(preview.get());
-        if(bookUpdateRequest.coverImage() != null) bookImageHandler.upsertCoverImage(bookUpdateRequest.title(), bookUpdateRequest.coverImage());
+        if (bookUpdateRequest.coverImage() != null)
+            bookImageHandler.upsertCoverImage(bookUpdateRequest.title(), bookUpdateRequest.coverImage());
         return Either.right(getEagerBookResponse(detailE.get(), preview.get()));
     }
 
@@ -171,9 +188,8 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     @Transactional
     @Override
     public Either<GeneralError, RatingResponse> upsertRating(RatingRequest ratingRequest) {
-        Either<GeneralError, RatingUpsertData> fetchedE = userInfoService.getUsernameAndIdByEmail(ratingRequest.userEmail());
-        if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
-        UUID userId = fetchedE.get().userId();
+        RatingUpsertView fetched = userInfoService.getUsernameAndIdByEmail(ratingRequest.userEmail());
+        UUID userId = fetched.getUserId();
         Either<GeneralError, BookPreview> ePreview = getBookPreviewLazy(ratingRequest.bookId());
         if (ePreview.isLeft()) return Either.left(ePreview.getLeft());
 
@@ -208,32 +224,31 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
                     .userId(userId)
                     .comment(escapedComment)
                     .bookDetail(detail)
-                    .username(fetchedE.get().username())
+                    .username(fetched.getUsername())
                     .build());
         }
         bookPreviewRepository.update(preview);
-        return Either.right(new RatingResponse(fetchedE.get().username(), ratingRequest.currentRating(), escapedComment, LocalDateTime.now()));
+        return Either.right(new RatingResponse(fetched.getUsername(), ratingRequest.currentRating(), escapedComment, LocalDateTime.now()));
     }
 
     @Override
     public Either<GeneralError, ChapterResponse> getChapterByBookIdAndNumber(UUID bookId, int chapterNumber) {
-       Optional<Object> fetchedData = chapterPreviewRepository.findChapterPreviewTitleAndIdByBookIdAndNumber(bookId, chapterNumber);
-       if (fetchedData.isEmpty()) return Either.left(new BookError.ChapterNotFound(bookId, chapterNumber));
-       Object[] values = (Object[]) fetchedData.get();
-       return Try.of(() -> chapterRepository.getChapterContentById((UUID) values[1]))
+        ChapterPreviewTitleView fetchedData = chapterPreviewRepository.findChapterPreviewTitleAndIdByBookIdAndNumber(bookId, chapterNumber);
+        return Try.of(() -> chapterRepository.getChapterContentById(fetchedData.getId()))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
                 .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.ChapterNotFound(bookId, chapterNumber)))
-                .map(value -> mapper.chapterDataToChapterResponse(value, (String) values[0]));
+                .map(value -> mapper.chapterDataToChapterResponse(value, fetchedData.getTitle()));
     }
 
     Either<GeneralError, BookDetail> getDetailAndValidateUUIDs(UUID bookId, String authorEmail) {
         Either<GeneralError, BookDetail> bookDetailE = getBookDetail(bookId);
         if (bookDetailE.isLeft()) return Either.left(bookDetailE.getLeft());
-        Either<GeneralError,UUID> fetchedAuthIdFromEmail = userInfoService.getUserInfoIdByEmail(authorEmail);
-        if(fetchedAuthIdFromEmail.isLeft()) return Either.left(fetchedAuthIdFromEmail.getLeft());
-        if (!bookDetailE.get().getAuthorId().equals(fetchedAuthIdFromEmail.get())) return Either.left(new BookError.UserNotAuthor(authorEmail));
+        Either<GeneralError, UUID> fetchedAuthIdFromEmail = userInfoService.getUserInfoIdByEmail(authorEmail);
+        if (fetchedAuthIdFromEmail.isLeft()) return Either.left(fetchedAuthIdFromEmail.getLeft());
+        if (!bookDetailE.get().getAuthorId().equals(fetchedAuthIdFromEmail.get()))
+            return Either.left(new BookError.UserNotAuthor(authorEmail));
         return bookDetailE;
     }
 
@@ -301,7 +316,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     @Transactional
     public Either<GeneralError, ContentRemovalSuccess> deleteChapter(ContentRemovalRequest removalRequest, int chapterNumber) {
         Either<GeneralError, UUID> validated = validateUUIDs(removalRequest.userEmail(), removalRequest.bookId());
-        if(validated.isLeft()) return Either.left(validated.getLeft());
+        if (validated.isLeft()) return Either.left(validated.getLeft());
         Either<GeneralError, UUID> fetchedChapterId = Try.of(() -> chapterPreviewRepository.findChapterPreviewIdByBookIdAndNumber(validated.get(), chapterNumber))
                 .toEither()
                 .map(Option::ofOptional)
@@ -317,7 +332,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     @Transactional
     public Either<GeneralError, ContentRemovalSuccess> deleteBook(ContentRemovalRequest removalRequest) {
         Either<GeneralError, UUID> validated = validateUUIDs(removalRequest.userEmail(), removalRequest.bookId());
-        if(validated.isLeft()) return Either.left(validated.getLeft());
+        if (validated.isLeft()) return Either.left(validated.getLeft());
         chapterRepository.deleteBook(removalRequest.bookId());
         chapterPreviewRepository.deleteBook(removalRequest.bookId());
         ratingRepository.deleteBook(removalRequest.bookId());
@@ -329,21 +344,12 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
     @Override
     @Transactional
     public void updateAllForNewUsername(UUID forUserId, String newUsername) {
-        List<BookDetail> toUpdateDetail = bookDetailRepository.getBookDetailByAuthorId(forUserId);
-        for (BookDetail bookDetail : toUpdateDetail) {
-            bookDetail.setAuthor(newUsername);
-            bookDetailRepository.update(bookDetail);
-        }
-        List<Rating> toUpdateRating = ratingRepository.getRatingsByUserId(forUserId);
-        for (Rating rating : toUpdateRating) {
-            rating.setUsername(newUsername);
-            ratingRepository.update(rating);
-        }
+        bookBlazeRepository.updateAllForNewUsername(forUserId, newUsername);
     }
 
-    Either<GeneralError, UUID> validateUUIDs(String forEmail, UUID bookId){
-        Either<GeneralError,UUID> fetchedAuthIdFromEmail = userInfoService.getUserInfoIdByEmail(forEmail);
-        if(fetchedAuthIdFromEmail.isLeft()) return Either.left(fetchedAuthIdFromEmail.getLeft());
+    Either<GeneralError, UUID> validateUUIDs(String forEmail, UUID bookId) {
+        Either<GeneralError, UUID> fetchedAuthIdFromEmail = userInfoService.getUserInfoIdByEmail(forEmail);
+        if (fetchedAuthIdFromEmail.isLeft()) return Either.left(fetchedAuthIdFromEmail.getLeft());
         UUID userId = fetchedAuthIdFromEmail.get();
         Either<GeneralError, UUID> fetchedAuthorId = getAuthorId(bookId);
         if (fetchedAuthorId.isLeft()) return Either.left(fetchedAuthorId.getLeft());
@@ -402,22 +408,14 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService{
         return chapterPreviewRepository.getAllChapterPreviewsForBook(bookId);
     }
 
-    @Override
-    @Cacheable(value = "bookPreviews")
-    public Page<BookPreviewResponse> getBookPreviewResponsePage(int page, int pageSize) {
-//        PageRequest pageRequest = PageRequest.of(page, pageSize);
-        PageRequest pageRequest = PageRequest.of(page, pageSize);
-        Page<BookPreview> p1 = bookPreviewRepository.getBookPreviewEagerPage(pageRequest);//.map(this::mapPreviewWithCover);
-        Page<BookPreview> pager = bookPreviewRepository.getAllLazyPage(pageRequest);
-        CriteriaBuilderFac
-        long totalElements = pager.getTotalElements(); // Total records in DB
-        List<BookPreview> content = pager.getContent();  // Records for current page
-        int numberOfElements = pager.getNumberOfElements(); // Number of elements in this page
 
-        System.out.println("Total Elements: " + totalElements);
-        System.out.println("Number of Elements in Page: " + numberOfElements);
-        System.out.println("Content Size: " + pager.getTotalPages());
-        return null;
+    @Override
+    @Cacheable(value = "bookPreviews", keyGenerator = "bookPreviewKeyGenerator")
+    public PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(KeysetPage lastPage, int pageSize, int page) {
+        PagedList<BookPreview> pagedList;
+        if (lastPage != null) pagedList = bookBlazeRepository.getKeySetPagedNext(lastPage, page);
+        else pagedList = bookBlazeRepository.getOffsetPaged(pageSize, page);
+        return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), page, pagedList.getTotalPages(), pagedList.getKeysetPage());
     }
 
     @Override

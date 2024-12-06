@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-interface RatingRepository extends BaseJpaRepository<Rating, UUID> {
+interface RatingRepository extends BaseJpaRepository<Rating, UUID>{
 
     @Query("""
     select r from rating r

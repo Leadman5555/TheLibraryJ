@@ -1,17 +1,17 @@
 package org.library.thelibraryj.book.domain;
 
+import com.blazebit.persistence.KeysetPage;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.BookPreviewResponse;
 import org.library.thelibraryj.book.dto.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.ChapterRequest;
 import org.library.thelibraryj.book.dto.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.RatingRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -41,10 +42,9 @@ class BookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @GetMapping("/na/books")
-    public Page<BookPreviewResponse> getBookPreviews(@RequestParam(name = "page") int page, @RequestParam(name = "pageSize") int pageSize) {
-        Page<BookPreviewResponse> bookPreviewResponsePage = bookService.getBookPreviewResponsePage(page, pageSize);
-        System.out.println(bookPreviewResponsePage.getTotalElements() + " " + bookPreviewResponsePage.getTotalPages());
-        return bookPreviewResponsePage;
+    public PagedBookPreviewsResponse getBookPreviews(@RequestParam(name = "page") int page, @RequestParam(name = "pageSize") Optional<Integer> pageSize, @RequestParam(name ="keyset") Optional<KeysetPage> ks) {
+        if(ks.isPresent()) return bookService.getKeySetPagedBookPreviewResponses(ks.get(), ks.get().getMaxResults(), page);
+        return bookService.getKeySetPagedBookPreviewResponses(null, pageSize.orElse(20), page);
     }
 
     @Operation(

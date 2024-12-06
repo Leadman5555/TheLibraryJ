@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-interface ChapterPreviewRepository extends BaseJpaRepository<ChapterPreview, UUID> {
+interface ChapterPreviewRepository extends BaseJpaRepository<ChapterPreview, UUID>, ChapterPreviewViewRepository {
     @Query("""
     select c from  chapterPreview c
     where c.bookDetail.id = :id
@@ -24,12 +24,6 @@ interface ChapterPreviewRepository extends BaseJpaRepository<ChapterPreview, UUI
     where bookDetail.id = :bookId and number = :number
 """)
     Optional<UUID> findChapterPreviewIdByBookIdAndNumber(@Param("bookId") UUID bookId, @Param("number") int number);
-
-    @Query("""
-    select title, id from  chapterPreview
-    where bookDetail.id = :bookId and number = :number
-""")
-    Optional<Object> findChapterPreviewTitleAndIdByBookIdAndNumber(@Param("bookId") UUID bookId, @Param("number") int number);
 
     @Query("""
     select (count(c) > 0) from chapterPreview c

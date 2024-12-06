@@ -2,7 +2,15 @@ package org.library.thelibraryj.userInfo;
 
 import io.vavr.control.Either;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
-import org.library.thelibraryj.userInfo.dto.*;
+import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
+import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
+import org.library.thelibraryj.userInfo.dto.UserInfoImageUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
+import org.library.thelibraryj.userInfo.dto.UserInfoScoreUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,8 +25,8 @@ public interface UserInfoService {
     Either<GeneralError, UserInfoWithImageResponse> getUserInfoResponseById(UUID userId);
     Either<GeneralError, UserInfoWithImageResponse> getUserInfoResponseByUsername(String username);
     Either<GeneralError, UUID> getUserInfoIdByEmail(String email);
-    Either<GeneralError, RatingUpsertData> getUsernameAndIdByEmail(String email);
-    Either<GeneralError, BookCreationUserData> getAndValidateAuthorData(String authorEmail);
+    RatingUpsertView getUsernameAndIdByEmail(String email);
+    Either<GeneralError, BookCreationUserView> getAndValidateAuthorData(String authorEmail);
     UserInfoWithImageResponse createUserInfoWithImage(UserInfoRequest userInfoRequest, MultipartFile imageFile);
     UserInfoResponse createUserInfo(UserInfoRequest userInfoRequest);
     Either<GeneralError, UserInfoResponse> forceUpdateRank(UserInfoRankUpdateRequest userInfoRankUpdateRequest);

@@ -1,5 +1,6 @@
 package org.library.thelibraryj.book;
 
+import com.blazebit.persistence.KeysetPage;
 import io.vavr.control.Either;
 import org.library.thelibraryj.book.dto.BookCreationRequest;
 import org.library.thelibraryj.book.dto.BookDetailResponse;
@@ -11,10 +12,11 @@ import org.library.thelibraryj.book.dto.ChapterRequest;
 import org.library.thelibraryj.book.dto.ChapterResponse;
 import org.library.thelibraryj.book.dto.ContentRemovalRequest;
 import org.library.thelibraryj.book.dto.ContentRemovalSuccess;
+import org.library.thelibraryj.book.dto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.RatingRequest;
 import org.library.thelibraryj.book.dto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
-import org.springframework.data.domain.Page;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +26,7 @@ public interface BookService {
 
     Either<GeneralError, BookPreviewResponse> getBookPreviewResponse(UUID previewId);
 
-    Page<BookPreviewResponse> getBookPreviewResponsePage(int page, int pageSize);
+    PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(@Nullable KeysetPage lastPage, int pageSize, int page);
 
     Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest);
 

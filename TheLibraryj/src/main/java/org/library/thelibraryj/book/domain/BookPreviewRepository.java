@@ -17,12 +17,6 @@ interface BookPreviewRepository extends BaseJpaRepository<BookPreview, UUID> {
 
     @Query("""
                 select bp from bookPreview bp
-                join fetch bp.bookTags
-            """)
-    Page<BookPreview> getBookPreviewEagerPage(Pageable pageable);
-
-    @Query("""
-                select bp from bookPreview bp
             """)
     Page<BookPreview> getAllLazyPage(Pageable pageable);
 

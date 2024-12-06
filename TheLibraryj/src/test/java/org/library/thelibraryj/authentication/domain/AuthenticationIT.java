@@ -10,7 +10,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
-import org.library.thelibraryj.authentication.dto.BasicUserDataRequest;
 import org.library.thelibraryj.authentication.dto.RegisterRequest;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -147,10 +146,8 @@ public class  AuthenticationIT {
         ResultSet resultSetInfo = checkIfDisabled.getResultSet();
         resultSetInfo.next();
         assertFalse(resultSetInfo.getBoolean("is_enabled"));
-
-        BasicUserDataRequest requestEntity = new BasicUserDataRequest(username, email);
         ResponseEntity<String> registerResponse = restTemplate.postForEntity(
-                BASE_URL + "/activation", requestEntity, String.class
+                BASE_URL + "/activation", String.class
         );
         assertEquals(HttpStatus.NO_CONTENT.value(), registerResponse.getStatusCode().value());
 

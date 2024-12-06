@@ -11,7 +11,7 @@ import org.library.thelibraryj.authentication.jwtAuth.JwtService;
 import org.library.thelibraryj.authentication.tokenServices.ActivationService;
 import org.library.thelibraryj.authentication.tokenServices.dto.activation.ActivationTokenResponse;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
-import org.library.thelibraryj.authentication.userAuth.dto.LoginDataResponse;
+import org.library.thelibraryj.authentication.userAuth.domain.LoginDataView;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationData;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
@@ -35,15 +35,15 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
                                  JwtService jwtService) implements PasswordControl, AuthenticationService {
     @Override
     public Either<GeneralError, AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
-        Either<GeneralError, LoginDataResponse> fetchedE = userAuthService.getLoginDataByEmail(authenticationRequest.email());
+        Either<GeneralError, LoginDataView> fetchedE = userAuthService.getLoginDataByEmail(authenticationRequest.email());
         if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
-        LoginDataResponse fetched = fetchedE.get();
-        if(fetched.isGoogleUser()) return Either.left(new UserAuthError.UserIsGoogleRegistered(authenticationRequest.email()));
-        if (!fetched.isEnabled()) return Either.left(new UserAuthError.UserNotEnabled(authenticationRequest.email()));
+        LoginDataView fetched = fetchedE.get();
+        if(fetched.getIsGoogleUser()) return Either.left(new UserAuthError.UserIsGoogleRegistered(authenticationRequest.email()));
+        if (!fetched.getIsEnabled()) return Either.left(new UserAuthError.UserNotEnabled(authenticationRequest.email()));
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authenticationRequest.email(),
                         new String(authenticationRequest.password()),
-                        fetched.grantedAuthorities())
+                        fetched.getGrantedAuthorities())
         );
         zeroPassword(authenticationRequest.password());
         return Either.right(new AuthenticationResponse(

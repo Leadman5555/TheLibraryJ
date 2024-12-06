@@ -4,8 +4,9 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
-import org.library.thelibraryj.authentication.userAuth.dto.*;
+import org.library.thelibraryj.authentication.userAuth.dto.GoogleUserCreationRequest;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationData;
+import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
@@ -17,7 +18,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.UUID;
 
 @Service
@@ -77,15 +77,8 @@ class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
-    public Either<GeneralError, BasicUserAuthData> getBasicUserAuthDataByEmail(String email) {
-        Either<GeneralError, Object> fetched = Try.of(() -> userAuthRepository.getBasicUserAuthData(email))
-                .toEither()
-                .map(Option::ofOptional)
-                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new UserAuthError.UserAuthNotFoundEmail(email)));
-        if (fetched.isLeft()) return Either.left(fetched.getLeft());
-        Object[] values = (Object[]) fetched.get();
-        return Either.right(new BasicUserAuthData((UUID) values[0], (boolean) values[1]));
+    public Either<GeneralError, BasicUserAuthView> getBasicUserAuthDataByEmail(String email) {
+       return Either.right(userAuthRepository.getBasicUserAuthData(email));
     }
 
     @Transactional
@@ -122,27 +115,13 @@ class UserAuthServiceImpl implements UserAuthService {
     }
 
     @Override
-    public Either<GeneralError, PasswordResetDataResponse> getPasswordResetDataByEmail(String email) {
-        Either<GeneralError, Object> fetched = Try.of(() -> userAuthRepository.getPasswordResetData(email))
-                .toEither()
-                .map(Option::ofOptional)
-                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new UserAuthError.UserAuthNotFoundEmail(email)));
-        if (fetched.isLeft()) return Either.left(fetched.getLeft());
-        Object[] values = (Object[]) fetched.get();
-        return Either.right(new PasswordResetDataResponse((UUID) values[0], (boolean) values[1]));
+    public Either<GeneralError, PasswordResetView> getPasswordResetDataByEmail(String email) {
+        return Either.right(userAuthRepository.getPasswordResetData(email));
     }
 
     @Override
-    public Either<GeneralError, LoginDataResponse> getLoginDataByEmail(String email) {
-        Either<GeneralError, Object> fetched = Try.of(() -> userAuthRepository.getLoginData(email))
-                .toEither()
-                .map(Option::ofOptional)
-                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new UserAuthError.UserAuthNotFoundEmail(email)));
-        if (fetched.isLeft()) return Either.left(fetched.getLeft());
-        Object[] values = (Object[]) fetched.get();
-        return Either.right(new LoginDataResponse(Collections.singleton((UserRole) values[0]), (boolean) values[1], (boolean) values[2]));
+    public Either<GeneralError, LoginDataView> getLoginDataByEmail(String email) {
+        return Either.right(userAuthRepository.getLoginData(email));
     }
 
     @Override

@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-
 @RestController
 @RequestMapping("${library.mapping}/na/auth/google")
 record GoogleAuthController(GoogleAuthService googleAuthService) implements ErrorHandling {
@@ -30,7 +28,7 @@ record GoogleAuthController(GoogleAuthService googleAuthService) implements Erro
             tags = {"authentication", "google"}
     )
     @GetMapping("callback")
-    public ResponseEntity<String> getGoogleAuthCallbackUrl(@RequestParam @NotNull String code) throws IOException {
+    public ResponseEntity<String> getGoogleAuthCallbackUrl(@RequestParam @NotNull String code) {
         return handle(googleAuthService.getGoogleAuthToken(code), HttpStatus.OK);
     }
 }
