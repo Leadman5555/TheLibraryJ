@@ -1,5 +1,6 @@
 package org.library.thelibraryj.book.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -59,6 +60,7 @@ class BookPreview extends AbstractEntity {
         this.bookTags = bookTags;
     }
     @Transient
+    @JsonIgnore
     public void increaseChapterCount(int increment) {
         this.chapterCount+=increment;
     }

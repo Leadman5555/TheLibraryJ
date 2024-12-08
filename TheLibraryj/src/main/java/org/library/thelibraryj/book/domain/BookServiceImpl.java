@@ -419,6 +419,12 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService {
     }
 
     @Override
+    public List<BookPreviewResponse> getByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags) {
+        List<BookPreview> fetched = bookBlazeRepository.getByParams(titleLike, minChapters, minRating, state, hasTags);
+        return fetched.stream().map(this::mapPreviewWithCover).toList();
+    }
+
+    @Override
     @CacheEvict("bookPreviews")
     @Scheduled(fixedDelayString = "${library.caching.bookPreviewTTL}")
     public void resetBookPreviewsCache() {

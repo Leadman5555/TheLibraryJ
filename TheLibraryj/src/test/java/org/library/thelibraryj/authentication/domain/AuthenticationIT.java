@@ -17,11 +17,11 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
 @ContextConfiguration(classes = TheLibraryJApplication.class)
-public class  AuthenticationIT {
+public class AuthenticationIT {
     @Autowired
     private TestRestTemplate restTemplate;
 
@@ -146,8 +146,14 @@ public class  AuthenticationIT {
         ResultSet resultSetInfo = checkIfDisabled.getResultSet();
         resultSetInfo.next();
         assertFalse(resultSetInfo.getBoolean("is_enabled"));
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("email", email);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         ResponseEntity<String> registerResponse = restTemplate.postForEntity(
-                BASE_URL + "/activation", String.class
+                BASE_URL + "/activation", request, String.class
         );
         assertEquals(HttpStatus.NO_CONTENT.value(), registerResponse.getStatusCode().value());
 
