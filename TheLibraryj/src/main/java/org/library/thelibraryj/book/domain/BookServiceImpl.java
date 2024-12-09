@@ -6,7 +6,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import jakarta.validation.constraints.NotEmpty;
-import org.library.thelibraryj.book.dto.BookCreationRequest;
+import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
 import org.library.thelibraryj.book.dto.BookDetailResponse;
 import org.library.thelibraryj.book.dto.BookPreviewResponse;
 import org.library.thelibraryj.book.dto.BookResponse;
@@ -410,13 +410,19 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService {
 
 
     @Override
-    @Cacheable(value = "bookPreviews", keyGenerator = "bookPreviewKeyGenerator")
-    public PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(KeysetPage lastPage, int pageSize, int page) {
-        PagedList<BookPreview> pagedList;
-        if (lastPage != null) pagedList = bookBlazeRepository.getKeySetPagedNext(lastPage, page);
-        else pagedList = bookBlazeRepository.getOffsetPaged(pageSize, page);
+    @Cacheable(value = "bookPreviews")
+    public PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(KeysetPage lastPage, int page) {
+        PagedList<BookPreview> pagedList = bookBlazeRepository.getKeySetPagedNext(lastPage, page);
         return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), page, pagedList.getTotalPages(), pagedList.getKeysetPage());
     }
+
+    @Override
+    @Cacheable(value = "bookPreviewsOffset", keyGenerator = "bookPreviewKeyGenerator")
+    public PagedBookPreviewsResponse getOffsetPagedBookPreviewResponses(int pageSize, int page) {
+        PagedList<BookPreview> pagedList = bookBlazeRepository.getOffsetPaged(pageSize, page);
+        return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), page, pagedList.getTotalPages(), pagedList.getKeysetPage());
+    }
+
 
     @Override
     public List<BookPreviewResponse> getByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags) {
@@ -425,7 +431,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService {
     }
 
     @Override
-    @CacheEvict("bookPreviews")
+    @CacheEvict(value = {"bookPreviewsOffset", "bookPreviewsKeySet"})
     @Scheduled(fixedDelayString = "${library.caching.bookPreviewTTL}")
     public void resetBookPreviewsCache() {
         bookPreviewRepository.flush();

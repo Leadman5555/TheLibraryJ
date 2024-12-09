@@ -1,20 +1,20 @@
 package org.library.thelibraryj.book.domain;
 
-import com.blazebit.persistence.KeysetPage;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.*;
+import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -24,13 +24,21 @@ class BookController implements ErrorHandling {
     private final BookService bookService;
 
     @Operation(
-            summary = "Retrieve all book previews with their tags. Returns the asked for page",
+            summary = "Retrieve a page of book previews with their tags by keySet navigation. Returns the asked for page and current keySet",
             tags = {"book", "no auth required"}
     )
     @GetMapping("/na/books")
-    public PagedBookPreviewsResponse getBookPreviewsPage(@RequestParam(name = "page") int page, @RequestParam(name = "pageSize") Optional<Integer> pageSize, @RequestParam(name ="keyset") Optional<KeysetPage> ks) {
-        return ks.map(keysetPage ->bookService.getKeySetPagedBookPreviewResponses(keysetPage, keysetPage.getMaxResults(), page))
-                .orElse(bookService.getKeySetPagedBookPreviewResponses(null, pageSize.orElse(20), page));
+    public PagedBookPreviewsResponse getBookPreviewsPageByOffset(@RequestParam(name = "page") int page, @RequestParam(name = "pageSize") int pageSize) {
+        return bookService.getOffsetPagedBookPreviewResponses(pageSize, page);
+    }
+
+    @Operation(
+            summary = "Retrieve a page of book previews with their tags by offset navigation. Returns the asked for page and current keySet",
+            tags = {"book", "no auth required"}
+    )
+    @PostMapping("/na/books")
+    public PagedBookPreviewsResponse getBookPreviewsPageByKeySet(@RequestParam(name = "page") int page, @NonNull @RequestBody PreviewKeySetPage keySetPage) {
+        return bookService.getKeySetPagedBookPreviewResponses(keySetPage, page);
     }
 
     @Operation(

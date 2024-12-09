@@ -1,4 +1,4 @@
-package org.library.thelibraryj.book.dto;
+package org.library.thelibraryj.book.dto.bookDto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;

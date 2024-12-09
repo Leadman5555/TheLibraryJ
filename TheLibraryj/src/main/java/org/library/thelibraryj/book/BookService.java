@@ -4,7 +4,7 @@ import com.blazebit.persistence.KeysetPage;
 import io.vavr.control.Either;
 import org.library.thelibraryj.book.domain.BookState;
 import org.library.thelibraryj.book.domain.BookTag;
-import org.library.thelibraryj.book.dto.BookCreationRequest;
+import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
 import org.library.thelibraryj.book.dto.BookDetailResponse;
 import org.library.thelibraryj.book.dto.BookPreviewResponse;
 import org.library.thelibraryj.book.dto.BookResponse;
@@ -28,7 +28,9 @@ public interface BookService {
 
     Either<GeneralError, BookPreviewResponse> getBookPreviewResponse(UUID previewId);
 
-    PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(@Nullable KeysetPage lastPage, int pageSize, int page);
+    PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(@Nullable KeysetPage lastPage, int page);
+
+    PagedBookPreviewsResponse getOffsetPagedBookPreviewResponses(int pageSize, int page);
 
     List<BookPreviewResponse> getByParams(@Nullable String titleLike, @Nullable Integer minChapters, @Nullable Float minRating, @Nullable BookState state, @Nullable BookTag[] hasTags);
 
