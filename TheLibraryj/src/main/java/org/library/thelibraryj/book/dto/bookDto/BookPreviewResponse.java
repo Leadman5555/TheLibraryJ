@@ -1,4 +1,4 @@
-package org.library.thelibraryj.book.dto;
+package org.library.thelibraryj.book.dto.bookDto;
 
 import org.library.thelibraryj.book.domain.BookState;
 import org.library.thelibraryj.book.domain.BookTag;

@@ -1,4 +1,4 @@
-package org.library.thelibraryj.book.dto;
+package org.library.thelibraryj.book.dto.ratingDto;
 
 import java.time.LocalDateTime;
 

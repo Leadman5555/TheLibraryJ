@@ -1,10 +1,10 @@
 package org.library.thelibraryj.book.domain;
 
-import org.library.thelibraryj.book.dto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
-import org.library.thelibraryj.book.dto.ChapterResponse;
-import org.library.thelibraryj.book.dto.RatingResponse;
+import org.library.thelibraryj.book.dto.bookDto.BookDetailResponse;
+import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterResponse;
+import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

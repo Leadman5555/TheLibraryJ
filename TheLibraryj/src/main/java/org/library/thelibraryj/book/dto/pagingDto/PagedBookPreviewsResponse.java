@@ -1,6 +1,7 @@
-package org.library.thelibraryj.book.dto;
+package org.library.thelibraryj.book.dto.pagingDto;
 
 import com.blazebit.persistence.KeysetPage;
+import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
 
 import java.util.List;
 

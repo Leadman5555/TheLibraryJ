@@ -1,4 +1,4 @@
-package org.library.thelibraryj.book.dto;
+package org.library.thelibraryj.book.dto.pagingDto;
 
 import com.blazebit.persistence.Keyset;
 import com.blazebit.persistence.KeysetPage;

@@ -1,4 +1,4 @@
-package org.library.thelibraryj.book.dto;
+package org.library.thelibraryj.book.dto.chapterDto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;

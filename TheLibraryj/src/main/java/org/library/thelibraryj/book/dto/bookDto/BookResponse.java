@@ -1,7 +1,9 @@
-package org.library.thelibraryj.book.dto;
+package org.library.thelibraryj.book.dto.bookDto;
 
 import org.library.thelibraryj.book.domain.BookState;
 import org.library.thelibraryj.book.domain.BookTag;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
+import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 
 import java.util.List;
 import java.util.UUID;

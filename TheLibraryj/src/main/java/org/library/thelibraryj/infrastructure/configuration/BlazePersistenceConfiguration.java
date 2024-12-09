@@ -11,6 +11,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
 import org.library.thelibraryj.authentication.userAuth.domain.BasicUserAuthView;
 import org.library.thelibraryj.authentication.userAuth.domain.LoginDataView;
+import org.library.thelibraryj.authentication.userAuth.domain.PasswordResetView;
 import org.library.thelibraryj.book.domain.ChapterPreviewTitleView;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
@@ -22,8 +23,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import javax.swing.text.PasswordView;
 
 import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 
@@ -56,7 +55,7 @@ public class BlazePersistenceConfiguration {
         evc.addEntityView(RatingUpsertView.class);
         evc.addEntityView(BasicUserAuthView.class);
         evc.addEntityView(LoginDataView.class);
-        evc.addEntityView(PasswordView.class);
+        evc.addEntityView(PasswordResetView.class);
         evc.addEntityView(ChapterPreviewTitleView.class);
         return evc;
     }

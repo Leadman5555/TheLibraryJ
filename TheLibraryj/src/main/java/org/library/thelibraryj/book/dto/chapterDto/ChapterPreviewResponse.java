@@ -1,4 +1,4 @@
-package org.library.thelibraryj.book.dto;
+package org.library.thelibraryj.book.dto.chapterDto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

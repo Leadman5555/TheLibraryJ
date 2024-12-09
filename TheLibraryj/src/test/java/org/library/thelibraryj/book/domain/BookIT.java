@@ -5,10 +5,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
-import org.library.thelibraryj.book.dto.ContentRemovalRequest;
-import org.library.thelibraryj.book.dto.PreviewKeySet;
-import org.library.thelibraryj.book.dto.PreviewKeySetPage;
-import org.library.thelibraryj.book.dto.RatingRequest;
+import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.pagingDto.PreviewKeySet;
+import org.library.thelibraryj.book.dto.pagingDto.PreviewKeySetPage;
+import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -20,6 +20,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -235,41 +236,46 @@ public class BookIT {
 
         JSONArray tupleLowest = nextKSJSON.getJSONObject("lowest").getJSONArray("tuple");
         JSONArray tupleHighest = nextKSJSON.getJSONObject("highest").getJSONArray("tuple");
-        PreviewKeySet lowest = new PreviewKeySet(tupleLowest.getInt(0), tupleLowest.getString(1));
-        PreviewKeySet highest = new PreviewKeySet(tupleHighest.getInt(0), tupleHighest.getString(1));
+        PreviewKeySet lowest = new PreviewKeySet(tupleLowest.getInt(0), UUID.fromString(tupleLowest.getString(1)));
+        PreviewKeySet highest = new PreviewKeySet(tupleHighest.getInt(0), UUID.fromString(tupleHighest.getString(1)));
         PreviewKeySetPage nextKS = new PreviewKeySetPage(nextKSJSON.getInt("firstResult"), nextKSJSON.getInt("maxResults"), lowest, highest, List.of());
 
-        MultiValueMap<String, Object> params2 = new LinkedMultiValueMap<>();
-        params2.add("page", 1);
-        HttpEntity<MultiValueMap<String, Object>> request2 = new HttpEntity<>(params2, headers);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(BASE_URL)
+                .queryParam("page", 1);
+        HttpEntity<PreviewKeySetPage> request2 = new HttpEntity<>(nextKS, headers);
         ResponseEntity<String> response2 = restTemplate.exchange(
-                BASE_URL,
+                builder.toUriString(),
                 HttpMethod.POST,
                 request2,
                 String.class
         );
         Assertions.assertEquals(HttpStatus.OK.value(), response2.getStatusCode().value());
-        Assertions.assertNotNull(response.getBody());
-        JSONObject body2 = new JSONObject(response.getBody());
+        Assertions.assertNotNull(response2.getBody());
+        JSONObject body2 = new JSONObject(response2.getBody());
         JSONArray previews2 = body2.getJSONArray("content");
         Assertions.assertEquals(1, previews2.length());
         Assertions.assertEquals(validBookTitle1, previews2.getJSONObject(0).getString("title"));
-        Assertions.assertEquals(2, body2.getInt("page"));
-        Object nextKS2 = body2.get("keysetPage");
+        Assertions.assertEquals(1, body2.getInt("page"));
+        JSONObject nextKSJSON2 = body.getJSONObject("keysetPage");
 
-        MultiValueMap<String, Object> params3 = new LinkedMultiValueMap<>();
-        params2.add("page", 2);
-        params2.add("keyset", nextKS2);
-        HttpEntity<MultiValueMap<String, Object>> request3 = new HttpEntity<>(params3, headers);
+        tupleLowest = nextKSJSON2.getJSONObject("lowest").getJSONArray("tuple");
+        tupleHighest = nextKSJSON2.getJSONObject("highest").getJSONArray("tuple");
+        lowest = new PreviewKeySet(tupleLowest.getInt(0), UUID.fromString(tupleLowest.getString(1)));
+        highest = new PreviewKeySet(tupleHighest.getInt(0), UUID.fromString(tupleHighest.getString(1)));
+        nextKS = new PreviewKeySetPage(nextKSJSON2.getInt("firstResult"), nextKSJSON2.getInt("maxResults"), lowest, highest, List.of());
+
+        builder = UriComponentsBuilder.fromPath(BASE_URL)
+                .queryParam("page", 2);
+        HttpEntity<PreviewKeySetPage> request3 = new HttpEntity<>(nextKS, headers);
         ResponseEntity<String> response3 = restTemplate.exchange(
-                BASE_URL,
-                HttpMethod.GET,
+                builder.toUriString(),
+                HttpMethod.POST,
                 request3,
                 String.class
         );
         Assertions.assertEquals(HttpStatus.OK.value(), response3.getStatusCode().value());
         Assertions.assertNotNull(response3.getBody());
-        JSONArray body3 = new JSONArray(response3.getBody());
-        Assertions.assertEquals(0, body3.length());
+        JSONArray content3 = new JSONObject(response3.getBody()).getJSONArray("content");
+        Assertions.assertEquals(0, content3.length());
     }
 }

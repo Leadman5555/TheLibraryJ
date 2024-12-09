@@ -75,6 +75,7 @@ public class PasswordResetIT {
         ResponseEntity<String> resetStartResponse = restTemplate.exchange(
                 BASE_URL + '/' + user1email, HttpMethod.POST, null, String.class
         );
+        assertEquals(HttpStatus.NO_CONTENT.value(), resetStartResponse.getStatusCode().value());
 
         await().atMost(10, TimeUnit.SECONDS).until(
                 () -> greenMail.getReceivedMessagesForDomain(user1email).length == 1
@@ -83,7 +84,6 @@ public class PasswordResetIT {
         assertEquals(1, receivedMessages.length);
         assertEquals(new PasswordResetTemplate("", Instant.now()).getSubject(), receivedMessages[0].getSubject());
 
-        assertEquals(HttpStatus.NO_CONTENT.value(), resetStartResponse.getStatusCode().value());
 
 
         Statement checkCreatedToken = connection.createStatement();
