@@ -4,13 +4,12 @@ import {inject, Injectable} from '@angular/core';
 import {BookService} from '../../book/book-service';
 import {map, Observable, switchMap, tap, withLatestFrom} from 'rxjs';
 import {BookPage} from './paging/book-page';
-import {KeysetPage} from './paging/keyset-page';
 import {PageInfo} from './paging/page-info';
 
 export interface HomeState {
   currentPage: BookPage;
 }
-//index 0
+
 const initialState: HomeState = {
   currentPage: {
     content: [],
@@ -20,13 +19,13 @@ const initialState: HomeState = {
       keysetPage: {
         firstResult: 0,
         maxResults: 3,
-        lowest : {
-          chapterCount : 0,
-          bookId : ''
+        lowest: {
+          chapterCount: 0,
+          bookId: ''
         },
         highest: {
           chapterCount: 0,
-          bookId : ''
+          bookId: ''
         },
         keysets: []
       }
@@ -102,18 +101,13 @@ export class HomeComponentStore extends ComponentStore<HomeState> implements OnS
   });
 
   readonly loadNextPage = this.effect((trigger$: Observable<void>) => {
-    // console.log(this.select((state) => state.currentPage).subscribe(v => {
-    //   console.log(v.page);
-    //   console.log(v.content)
-    // }));
-
     return trigger$.pipe(
       withLatestFrom(this.select((state) => state.currentPage.pageInfo)),
       map(([, info]) => info),
       tap((pageInfo: PageInfo) => {
         if (pageInfo.page < pageInfo.totalPages - 1) {
           this.updatePage(pageInfo.page + 1);
-          if(pageInfo.keysetPage) this.loadPageByKeyset();
+          if (pageInfo.keysetPage) this.loadPageByKeyset();
           else this.loadPageByOffset();
         }
       }))
@@ -131,18 +125,16 @@ export class HomeComponentStore extends ComponentStore<HomeState> implements OnS
       }))
   });
 
-  loadSpecifiedPage(pageNumber: number) {
-    if (pageNumber < 1) return;
-    this.effect((trigger$: Observable<void>) => {
-      return trigger$.pipe(
-        withLatestFrom(this.select((state) => state.currentPage.pageInfo.totalPages)),
-        map(([, totalPages]) => totalPages),
-        tap((totalPages: number) => {
-          if (pageNumber <= totalPages - 1) {
-            this.updatePage(pageNumber);
-            this.loadPageByOffset();
-          }
-        }))
-    });
-  }
+  readonly loadSpecifiedPage = this.effect((pageNumber$: Observable<number>) => {
+    return pageNumber$.pipe(
+      withLatestFrom(this.select((state) => state.currentPage.pageInfo)),
+      map(([pageNumber, pageInfo]) => [pageNumber, pageInfo.page, pageInfo.totalPages]),
+      tap((pageData: number[]) => {
+        if (pageData[0] !== pageData[1] && pageData[0] <= pageData[2] - 1) {
+          this.updatePage(pageData[0]);
+          if(pageData[0] === pageData[1]+1) this.loadPageByKeyset();
+          else this.loadPageByOffset();
+        }
+      }))
+  });
 }

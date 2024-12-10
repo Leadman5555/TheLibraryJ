@@ -1,5 +1,5 @@
 <div class="outerBox">
-  <div class="bookCard">
+  <div class="bookCard" *ngIf="bookPreview && bookDetail">
     <div class="titleDiv"> {{bookPreview.title}} </div>
     <div class="authorDiv"> <a class="small">Penned by: </a> {{bookDetail.author}} </div>
     <div class="chapterCountDiv"> <a class="small">Number of chapters:</a> {{bookPreview.chapterCount}}</div>
@@ -14,7 +14,7 @@
     </div>
     <div class="tagsDiv">
       @for (tag of bookPreview.bookTags; track tag){
-        <span class="tagBox" [routerLink]="['/']" [queryParams]="{ 'tags': [tag] }">{{tag}}</span>
+        <span class="tagBox" [routerLink]="['param']" [queryParams]="{ 'tags': [tag] }">{{tag}}</span>
       }
     </div>
     <div class="coverDiv"> <img src="data:image/jpg;base64,{{bookPreview.coverImage}}" alt="No cover" > </div>
@@ -23,7 +23,7 @@
       <div class="outerBox">
         <div class="chapterPrevDiv">
           @for (chPrev of bookDetail.chapterPreviews; track chPrev.number){
-            <div class="chapterBox" (click)="routeToChapter(chPrev.number)">{{chPrev.number}} : {{chPrev.title}} | Updated at: {{chPrev.updatedAt}} </div>
+            <div class="chapterBox" [routerLink]="['chapter', this.bookPreview.id, chPrev.number]">{{chPrev.number}} : {{chPrev.title}} | Updated at: {{chPrev.updatedAt}} </div>
           }
         </div>
       </div>

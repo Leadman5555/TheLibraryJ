@@ -1,0 +1,42 @@
+<div class="filterBox">
+  <form *ngIf="filterForm" [formGroup]="filterForm" (ngSubmit)="handleFilterSubmit()" class="column filterForm">
+    <div class="left column">
+      <label class="row">Title contains: <input id="searchInput" type="text" formControlName="titleContains"
+                                                [placeholder]=""></label>
+      <label class="row">Min. chapter count: <input id="chapterInput" type="number" formControlName="minChapterCount"
+                                                    [placeholder]="0"></label>
+      <div class="row"><label for="dropdownRatingList">Order by rating: </label>
+        <select formControlName="ratingOrder" id="dropdownRatingList">
+          <option value="No order" selected>No order</option>
+          <option value="D">Descending</option>
+          <option value="A">Ascending</option>
+        </select></div>
+    </div>
+    <div formGroupName="filterByTags" class="tagsDiv">
+      <div class="mt-square3d-custom tagSelector" *ngFor="let tag of this.allTags; let i = index; trackBy: identifyTag"
+           style="font-size:10px;">
+        <a class="tagName">{{ tag }}</a>
+        <input id="checkMt_{{i}}" type="checkbox" formControlName="{{tag}}"/>
+        <label for="checkMt_{{i}}"></label>
+      </div>
+    </div>
+    <div class="row filterButtons">
+      <button class="formButton" type="submit" [disabled]="!filterForm.valid">Submit</button>
+      <button class="formButton" type="reset" (click)="resetFilters()">Reset filters</button>
+    </div>
+  </form>
+</div>
+<!--<ng-container *ngIf="vm$ | async as vm">-->
+<!--  <div *ngIf="info$ | async as info" class="row">-->
+<!--    <p> Total pages: {{info.totalPages}}</p>-->
+<!--    <div class="pageNumberBox" *ngFor="let num of info.page | timesMax : info.totalPages; let i = index"-->
+<!--         (click)="onChosenPage(i)"-->
+<!--         [class.selected]="i === info.page">-->
+<!--      {{ i + 1 }}-->
+<!--    </div>-->
+<!--  </div>-->
+<!--  <app-book-preview-card-->
+<!--    *ngFor="let bp  of vm | filterByTagAndName : this.selectedTags : this.keywordIncluded : this.minChapterCount : this.orderByRating; trackBy : identifyBp "-->
+<!--    [bookPreview]="bp"-->
+<!--  />-->
+<!--</ng-container>-->

@@ -7,10 +7,11 @@ import {BookResponse} from '../book-response';
 import {BookTag} from '../BookTag';
 import {ChapterPreview} from '../chapter-preview';
 import {map} from 'rxjs';
+import {NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-book',
-  imports: [RouterLink],
+  imports: [RouterLink, NgIf],
   templateUrl: './book.component.html',
   styleUrl: './book.component.css'
 })
@@ -67,9 +68,5 @@ export class BookComponent implements OnInit {
         })
       } else this.router.navigate([this.defaultRoute]);
     }
-  }
-
-  routeToChapter(chapterNumber: number) {
-    this.router.navigate([`book/chapter` , this.bookPreview.id, chapterNumber]);
   }
 }

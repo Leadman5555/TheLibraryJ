@@ -1,50 +1,24 @@
 <div class="row">
-  <div class="previewContainer">
-    <ng-container *ngIf="vm$ | async as vm">
-      <div *ngIf="info$ | async as info" class="row">
-        <p> Total pages: {{info.totalPages}}</p>
-        <div class="pageNumberBox" *ngFor="let num of info.page | timesMax : info.totalPages" (click)="onChosenPage(num)">
-          n {{num}}
-        </div>
-        <div style="font-size: 5rem">{{info.page}}</div>
-      </div>
-      <app-book-preview-card
-        *ngFor="let bp  of vm | filterByTagAndName : this.selectedTags : this.keywordIncluded : this.minChapterCount : this.orderByRating; trackBy : identifyBp "
-        [bookPreview]="bp"
-      />
-    </ng-container>
-  </div>
-  <button type="button" aria-label="Previous Page" (click)="onPreviousPage()">
-    ←
-  </button>
 
-  <button type="button" aria-label="Next Page" (click)="onNextPage()">
-    →
-  </button>
-  <div class="filterBox">
-    <form *ngIf="filterForm" [formGroup]="filterForm" (ngSubmit)="handleFilterSubmit()" class="column filterForm">
-      <label>Title contains: <input id="searchInput" type="text" formControlName="titleContains"
-                                    [placeholder]=""></label>
-      <label>Min. chapter count: <input id="chapterInput" type="number" formControlName="minChapterCount"
-                                        [placeholder]="0"></label>
-      <div class="row">
-        <label for="dropdownRatingList">Order by rating: </label>
-        <select formControlName="ratingOrder" id="dropdownRatingList">
-          <option value="No order" selected>No order</option>
-          <option value="D">Descending</option>
-          <option value="A">Ascending</option>
-        </select>
-      </div>
-      <div formGroupName="filterByTags" class="tagsDiv">
-        <div class="mt-square3d-custom tagSelector" *ngFor="let tag of this.allTags; let i = index; trackBy: identifyTag"
-             style="font-size:10px;">
-          <a class="tagName">{{ tag }}</a>
-          <input id="checkMt_{{i}}" type="checkbox" formControlName="{{tag}}"/>
-          <label for="checkMt_{{i}}"></label>
+    <ng-container *ngIf="vm$ | async as vm">
+      <div class="column">
+        <div *ngIf="info$ | async as info" class="row">
+          <div class="pageNumberBox" aria-label="First page" (click)="onChosenPage(0)" [class.selected]="0 == info.page">1</div>
+          <button type="button" class="pageNumberBox" aria-label="Previous Page" (click)="onPreviousPage()">←</button>
+          <div class="pageNumberBox" *ngFor="let pageNumber of info.totalPages - 1 | timesMax : info.page : 6; trackBy identifyPage"
+               (click)="onChosenPage(pageNumber)"
+               [class.selected]="pageNumber === info.page">{{ pageNumber + 1 }}
+          </div>
+          <button type="button" class="pageNumberBox" aria-label="Next Page" (click)="onNextPage()">→</button>
+          <div class="pageNumberBox" aria-label="Last page" (click)="onChosenPage(info.totalPages - 1)" [class.selected]="info.totalPages -1 === info.page">{{info.totalPages}}</div>
+        </div>
+        <div class="previewContainer">
+          <app-book-preview-card
+            *ngFor="let bp  of vm; trackBy : identifyBp "
+            [bookPreview]="bp"
+          />
         </div>
       </div>
-      <button type="submit" [disabled]="!filterForm.valid">Submit</button>
-      <button type="reset" (click)="resetFilters()">Reset filters</button>
-    </form>
-  </div>
+    </ng-container>
+  <div class="filterContainer"><app-book-filter class="stick"/></div>
 </div>

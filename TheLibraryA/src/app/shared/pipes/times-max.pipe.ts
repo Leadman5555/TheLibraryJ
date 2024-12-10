@@ -1,18 +1,29 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
   name: 'timesMax'
 })
 export class TimesMaxPipe implements PipeTransform {
 
-  transform(value: number, maxTimes: number): any {
-    const iter = <Iterable<any>> {};
-    const bound = Math.max(value, maxTimes);
-    iter[Symbol.iterator] = function* () {
-      let n = 0;
-      while(n < bound) yield ++n;
+  transform(maxValue: number, value: number, maxTimes: number): Iterable<number> {
+    const halfMaxTimes = maxTimes/2;
+    let boundStart = value - halfMaxTimes;
+    let boundEnd = value + halfMaxTimes;
+    if (boundStart < 0) {
+      boundStart = 0;
+      boundEnd = maxTimes - 1;
     }
-    return iter;
+    if (boundEnd >= maxValue) {
+      boundEnd = maxValue - 1;
+      boundStart = Math.max(maxValue - maxTimes, 0);
+    }
+    return {
+      [Symbol.iterator]: function* () {
+      let n = boundStart;
+      while (n < boundEnd) {
+        yield ++n;
+      }
+    }};
   }
 
 }

@@ -1,0 +1,167 @@
+.filterBox {
+  /*width: min(320px, 20vw);*/
+  /*height: min(360px, 50vh);*/
+  border: 3px solid goldenrod;
+  padding: 10px 10px 15px;
+  background-color: cadetblue;
+  font-family: "Bell MT", serif;
+}
+
+.tagsDiv {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.tagSelector {
+  display: flex;
+  align-items: center;
+}
+
+.tagName {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.left {
+  align-items: start;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.mt-square3d-custom {
+  display: inline-block;
+  box-sizing: border-box
+}
+
+.mt-square3d-custom label {
+  display: inline-block;
+  position: relative;
+  box-sizing: border-box;
+  cursor: pointer;
+  width: 7em;
+  height: 2em;
+  background: #fff;
+  box-shadow: inset 0 .1em .03em rgba(0, 0, 0, .2), inset 0 .1em .3em rgba(0, 0, 0, .3), 0 0 2em hsla(0, 0%, 100%, .6);
+  transition: all .3s ease
+}
+
+.mt-square3d-custom label:before {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 3.6em;
+  height: 3.2em;
+  top: -.7em;
+  left: -.1em;
+  transition: .5s cubic-bezier(.52, -.41, .55, 1.46)
+}
+
+.mt-square3d-custom input {
+  position: absolute;
+  box-sizing: border-box;
+  height: 0;
+  width: 0;
+  font-size: inherit;
+  margin: 0;
+  border: none;
+  z-index: 1;
+  cursor: pointer;
+  -moz-appearance: none;
+  -webkit-appearance: none
+}
+
+.mt-square3d-custom input:focus {
+  outline: none
+}
+
+.mt-square3d-custom input:checked + label:before {
+  transform: translateX(3.5em)
+}
+
+.mt-square3d-custom input:disabled + label {
+  background: #ccc !important;
+  cursor: not-allowed !important
+}
+
+.mt-square3d-custom input:disabled + label:before {
+  background: #ccc !important;
+  border-bottom: .07em solid #ccc !important;
+  box-shadow: 0 .16em .01em #aaa, 0 .12em .3em hsla(0, 0%, 39.2%, .6), 0 .12em 2em rgba(0, 0, 0, .3), .12em .15em .2em rgba(0, 0, 0, .2) !important
+}
+
+.mt-square3d-custom label:before {
+  background: #5b5656;
+  border-bottom: .07em solid #756f6f;
+  box-shadow: 0 .16em .01em #343131, 0 .12em .3em rgba(52, 49, 49, .6), 0 .12em 2em rgba(0, 0, 0, .3), .12em .15em .2em rgba(0, 0, 0, .2)
+}
+
+.mt-square3d-custom input:checked + label:before {
+  background: #daa520;
+  border-bottom: .07em solid #b8860b;
+  box-shadow: 0 .16em .01em #efb429, 0 .12em .3em rgb(151, 108, 3), 0 .12em 2em rgba(0, 0, 0, .3), -.12em .15em .2em rgba(0, 0, 0, .2)
+}
+
+button {
+  margin-top: 5px;
+  font-family: inherit;
+  font-size: 0.9em;
+  width: 10em;
+  position: relative;
+  height: 3.5em;
+  border: 3px ridge darkgoldenrod;
+  outline: none;
+  background-color: transparent;
+  color: black;
+  transition: 1s;
+  border-radius: 0.3em;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 3%;
+  width: 95%;
+  height: 40%;
+  background-color: cadetblue;
+  transition: 0.5s;
+  transform-origin: center;
+}
+
+button::before {
+  content: "";
+  transform-origin: center;
+  position: absolute;
+  top: 80%;
+  left: 3%;
+  width: 95%;
+  height: 40%;
+  background-color: cadetblue;
+  transition: 0.5s;
+}
+
+button:hover::before, button:hover::after {
+  transform: scale(0)
+}
+
+button:hover {
+  box-shadow: inset 0 0 25px goldenrod;
+}
