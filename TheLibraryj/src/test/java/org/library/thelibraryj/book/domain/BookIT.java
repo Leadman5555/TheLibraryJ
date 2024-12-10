@@ -5,17 +5,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
-import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
-import org.library.thelibraryj.book.dto.pagingDto.PreviewKeySet;
-import org.library.thelibraryj.book.dto.pagingDto.PreviewKeySetPage;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
+import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
@@ -23,6 +26,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.sql.DataSource;
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -142,7 +146,7 @@ public class BookIT {
     }
 
     @Test
-    public void testGetByParams() throws Exception{
+    public void testGetByParams() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
 
@@ -210,8 +214,15 @@ public class BookIT {
         Assertions.assertEquals(1, body5.length());
     }
 
+    private record JsonPagedKeysetPage(int firstResult, int maxResults, TupleKeyset highest, TupleKeyset lowest,
+                                       List<TupleKeyset> keysets) {
+    }
+
+    private record TupleKeyset(Serializable[] tuple) {
+    }
+
     @Test
-    public void testPagingByKeySet() throws Exception{
+    public void testPagingByKeySet() throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
 
@@ -231,18 +242,18 @@ public class BookIT {
         JSONArray previews = body.getJSONArray("content");
         Assertions.assertEquals(1, previews.length());
         Assertions.assertEquals(validBookTitle7, previews.getJSONObject(0).getString("title"));
-        Assertions.assertEquals(2, body.getInt("totalPages"));
-        JSONObject nextKSJSON = body.getJSONObject("keysetPage");
+        Assertions.assertEquals(2, body.getJSONObject("pageInfo").getInt("totalPages"));
+        JSONObject nextKSJSON = body.getJSONObject("pageInfo").getJSONObject("keysetPage");
 
         JSONArray tupleLowest = nextKSJSON.getJSONObject("lowest").getJSONArray("tuple");
         JSONArray tupleHighest = nextKSJSON.getJSONObject("highest").getJSONArray("tuple");
-        PreviewKeySet lowest = new PreviewKeySet(tupleLowest.getInt(0), UUID.fromString(tupleLowest.getString(1)));
-        PreviewKeySet highest = new PreviewKeySet(tupleHighest.getInt(0), UUID.fromString(tupleHighest.getString(1)));
-        PreviewKeySetPage nextKS = new PreviewKeySetPage(nextKSJSON.getInt("firstResult"), nextKSJSON.getInt("maxResults"), lowest, highest, List.of());
+        TupleKeyset lowest = new TupleKeyset(new Serializable[]{tupleLowest.getInt(0), UUID.fromString(tupleLowest.getString(1))});
+        TupleKeyset highest = new TupleKeyset(new Serializable[]{tupleHighest.getInt(0), UUID.fromString(tupleHighest.getString(1))});
+        JsonPagedKeysetPage nextKS = new JsonPagedKeysetPage(nextKSJSON.getInt("firstResult"), nextKSJSON.getInt("maxResults"), lowest, highest, List.of());
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromPath(BASE_URL)
                 .queryParam("page", 1);
-        HttpEntity<PreviewKeySetPage> request2 = new HttpEntity<>(nextKS, headers);
+        HttpEntity<JsonPagedKeysetPage> request2 = new HttpEntity<>(nextKS, headers);
         ResponseEntity<String> response2 = restTemplate.exchange(
                 builder.toUriString(),
                 HttpMethod.POST,
@@ -255,18 +266,18 @@ public class BookIT {
         JSONArray previews2 = body2.getJSONArray("content");
         Assertions.assertEquals(1, previews2.length());
         Assertions.assertEquals(validBookTitle1, previews2.getJSONObject(0).getString("title"));
-        Assertions.assertEquals(1, body2.getInt("page"));
-        JSONObject nextKSJSON2 = body.getJSONObject("keysetPage");
+        Assertions.assertEquals(1, body2.getJSONObject("pageInfo").getInt("page"));
+        JSONObject nextKSJSON2 = body.getJSONObject("pageInfo").getJSONObject("keysetPage");
 
         tupleLowest = nextKSJSON2.getJSONObject("lowest").getJSONArray("tuple");
         tupleHighest = nextKSJSON2.getJSONObject("highest").getJSONArray("tuple");
-        lowest = new PreviewKeySet(tupleLowest.getInt(0), UUID.fromString(tupleLowest.getString(1)));
-        highest = new PreviewKeySet(tupleHighest.getInt(0), UUID.fromString(tupleHighest.getString(1)));
-        nextKS = new PreviewKeySetPage(nextKSJSON2.getInt("firstResult"), nextKSJSON2.getInt("maxResults"), lowest, highest, List.of());
+        lowest = new TupleKeyset(new Serializable[]{tupleLowest.getInt(0), UUID.fromString(tupleLowest.getString(1))});
+        highest = new TupleKeyset(new Serializable[]{tupleHighest.getInt(0), UUID.fromString(tupleHighest.getString(1))});
+        nextKS = new JsonPagedKeysetPage(nextKSJSON.getInt("firstResult"), nextKSJSON.getInt("maxResults"), lowest, highest, List.of());
 
         builder = UriComponentsBuilder.fromPath(BASE_URL)
                 .queryParam("page", 2);
-        HttpEntity<PreviewKeySetPage> request3 = new HttpEntity<>(nextKS, headers);
+        HttpEntity<JsonPagedKeysetPage> request3 = new HttpEntity<>(nextKS, headers);
         ResponseEntity<String> response3 = restTemplate.exchange(
                 builder.toUriString(),
                 HttpMethod.POST,

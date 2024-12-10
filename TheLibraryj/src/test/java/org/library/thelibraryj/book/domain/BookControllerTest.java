@@ -1,6 +1,5 @@
 package org.library.thelibraryj.book.domain;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
@@ -18,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
@@ -56,11 +56,24 @@ public class BookControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         verify(bookService).getOffsetPagedBookPreviewResponses(page, page);
-        final UUID lastId = UUID.randomUUID();
-        PreviewKeySetPage keySetPage = new PreviewKeySetPage(0, 1, new PreviewKeySet(1, lastId), new PreviewKeySet(1, lastId), null);
+        final UUID id1 = UUID.randomUUID();
+        final UUID id2 = UUID.randomUUID();
+        PreviewKeySetPage keySetPage = new PreviewKeySetPage(0, 3, new PreviewKeySet(1, id1), new PreviewKeySet(0, id2), List.of());
+        String jsonKeyset = "{\n" +
+                "  \"firstResult\": 0,\n" +
+                "  \"maxResults\": 3,\n" +
+                "  \"lowest\": {\n" +
+                "    \"tuple\": [0, \"" + id2 + "\"]\n" +
+                "  },\n" +
+                "  \"highest\": {\n" +
+                "    \"tuple\": [1, \"" + id1 + "\"]\n" +
+                "  },\n" +
+                "  \"keysets\": []\n" +
+                "}";
+
         mockMvc.perform(post(ENDPOINT + "/na/books")
                         .param("page", String.valueOf(page))
-                        .content(new ObjectMapper().writeValueAsString(keySetPage))
+                        .content(jsonKeyset)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());

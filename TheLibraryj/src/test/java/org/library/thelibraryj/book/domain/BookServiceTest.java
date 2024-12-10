@@ -16,6 +16,7 @@ import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
 import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
+import org.library.thelibraryj.infrastructure.model.PageInfo;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
@@ -123,10 +124,10 @@ public class BookServiceTest {
         PagedBookPreviewsResponse fetchedPage = bookService.getOffsetPagedBookPreviewResponses(defPageSize, page);
         PagedBookPreviewsResponse expectedPage = new PagedBookPreviewsResponse(
                 baseList.stream().map((BookPreview bookPreview1) -> bookMapper.bookPreviewToBookPreviewResponse(bookPreview1, null)).toList(),
-                0,
-                1,
-                null
-                );
+                new PageInfo(0,
+                        1,
+                        null)
+        );
         assertEquals(expectedPage, fetchedPage);
     }
 
@@ -215,14 +216,14 @@ public class BookServiceTest {
         });
         RatingRequest request = new RatingRequest(authorEmail, rating.getCurrentRating(), bookId, rating.getComment());
         bookService.upsertRating(request);
-        when(ratingRepository.getRatingForBookAndUser(bookId,authorId)).thenReturn(Optional.ofNullable(rating));
+        when(ratingRepository.getRatingForBookAndUser(bookId, authorId)).thenReturn(Optional.ofNullable(rating));
         bookService.upsertRating(request);
         verify(ratingRepository, times(1)).update(rating);
         verify(bookPreviewRepository, times(2)).update(bookPreview);
     }
 
     @Test
-    public void testCreateChapter(){
+    public void testCreateChapter() {
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
         when(bookPreviewRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookPreview));
         when(userInfoService.getUserInfoIdByEmail(authorEmail)).thenReturn(Either.right(authorId));

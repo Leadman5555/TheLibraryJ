@@ -32,7 +32,7 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
         return cbf.create(em, BookPreview.class)
                 .orderByDesc("chapterCount")
                 .orderByDesc("id")
-                .page(page, page.getMaxResults()*pageNumber, page.getMaxResults())
+                .page(page, page.getMaxResults() * pageNumber, page.getMaxResults())
                 .withKeysetExtraction(true)
                 .getResultList();
     }
@@ -42,7 +42,7 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
         return cbf.create(em, BookPreview.class)
                 .orderByDesc("chapterCount")
                 .orderByDesc("id")
-                .page(pageNumber*pageSize, pageSize)
+                .page(pageNumber * pageSize, pageSize)
                 .withKeysetExtraction(true)
                 .getResultList();
     }
@@ -50,11 +50,11 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
     @Override
     public List<BookPreview> getByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags) {
         CriteriaBuilder<BookPreview> cb = cbf.create(em, BookPreview.class).from(BookPreview.class);
-        if(titleLike != null) cb.whereExpression("title LIKE :titleLike").setParameter("titleLike", titleLike+'%');
-        if(minChapters != null) cb.where("chapterCount").ge(minChapters);
-        if(minRating != null) cb.where("averageRating").ge(minRating);
-        if(state != null) cb.where("bookState").eq(state);
-        if(tags != null) {
+        if (titleLike != null) cb.whereExpression("title LIKE :titleLike").setParameter("titleLike", titleLike + '%');
+        if (minChapters != null) cb.where("chapterCount").ge(minChapters);
+        if (minRating != null) cb.where("averageRating").ge(minRating);
+        if (state != null) cb.where("bookState").eq(state);
+        if (tags != null) {
             for (BookTag tag : tags) cb.where(":tag").isMemberOf("bookTags").setParameter("tag", tag);
 
         }

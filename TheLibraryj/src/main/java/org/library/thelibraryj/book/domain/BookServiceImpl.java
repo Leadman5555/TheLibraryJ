@@ -22,6 +22,7 @@ import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
+import org.library.thelibraryj.infrastructure.model.PageInfo;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
@@ -413,14 +414,14 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService {
     @Cacheable(value = "bookPreviewsKeySet")
     public PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(KeysetPage lastPage, int page) {
         PagedList<BookPreview> pagedList = bookBlazeRepository.getKeySetPagedNext(lastPage, page);
-        return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), page, pagedList.getTotalPages(), pagedList.getKeysetPage());
+        return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()));
     }
 
     @Override
     @Cacheable(value = "bookPreviewsOffset", keyGenerator = "bookPreviewKeyGenerator")
     public PagedBookPreviewsResponse getOffsetPagedBookPreviewResponses(int pageSize, int page) {
         PagedList<BookPreview> pagedList = bookBlazeRepository.getOffsetPaged(pageSize, page);
-        return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), page, pagedList.getTotalPages(), pagedList.getKeysetPage());
+        return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()));
     }
 
 

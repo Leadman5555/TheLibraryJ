@@ -20,12 +20,12 @@ public record PreviewKeySetPage(int firstResult, int maxResults, PreviewKeySet h
 
     @Override
     public Keyset getLowest() {
-        return highest;
+        return lowest;
     }
 
     @Override
     public Keyset getHighest() {
-        return lowest;
+        return highest;
     }
 
     @Override

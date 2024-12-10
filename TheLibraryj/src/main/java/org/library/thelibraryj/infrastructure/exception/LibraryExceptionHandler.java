@@ -103,7 +103,7 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({GoogleTokenVerificationException.class})
     public ResponseEntity<ApiErrorWrapper> handleGoogleTokenVerificationException(GoogleTokenVerificationException ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.FORBIDDEN;
-        final ApiErrorResponse errorResponse =  ApiErrorResponse.builder()
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
                 .message("Google token invalid. Authorization failed: " + ex.getMessage())
                 .status(errorStatus.getReasonPhrase())
