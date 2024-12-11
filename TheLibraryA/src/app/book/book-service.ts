@@ -30,14 +30,8 @@ export class BookService {
     return this.http.post<BookPage>(this.baseUrl, keysetPage , {params});
   }
 
-  public getBookPreviewsByParams(titleLike : string, minChapters : number, minRating: number, state: BookState, hasTags : BookTag[]): Observable<BookPage> {
-    let params = new HttpParams();
-    if(titleLike) params = params.set('titleLike', titleLike);
-    if(minChapters) params = params.set('minChapters', minChapters);
-    if(minRating) params = params.set('minRating', minRating);
-    if(state) params = params.set('state', state);
-    if(hasTags) hasTags.forEach((tag) => params = params.append('hasTags', tag));
-    return this.http.get<BookPage>(this.baseUrl, {params});
+  public getBookPreviewsByParams(params : HttpParams): Observable<BookPreview[]> {
+    return this.http.get<BookPreview[]>(`${this.baseUrl}/filtered`, {params});
   }
 
   public getBookDetail(bookId: string): Observable<BookDetail> {

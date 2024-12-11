@@ -1,0 +1,11 @@
+<div class="row">
+  <ng-container *ngIf="bookPreviews">
+      <div class="previewContainer">
+        <app-book-preview-card
+          *ngFor="let bp  of bookPreviews; trackBy : identifyBp"
+          [bookPreview]="bp"
+        />
+      </div>
+  </ng-container>
+  <div class="filterContainer"><app-book-filter class="stick"/></div>
+</div>

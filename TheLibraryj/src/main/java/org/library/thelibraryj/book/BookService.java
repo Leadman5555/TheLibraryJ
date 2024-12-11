@@ -32,7 +32,9 @@ public interface BookService {
 
     PagedBookPreviewsResponse getOffsetPagedBookPreviewResponses(int pageSize, int page);
 
-    List<BookPreviewResponse> getByParams(@Nullable String titleLike, @Nullable Integer minChapters, @Nullable Float minRating, @Nullable BookState state, @Nullable BookTag[] hasTags);
+    List<BookPreviewResponse> getByParams(@Nullable String titleLike, @Nullable Integer minChapters,
+                                          @Nullable Float minRating, @Nullable BookState state,
+                                          @Nullable BookTag[] hasTags, @Nullable Boolean ratingOrder);
 
     Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest);
 

@@ -8,7 +8,7 @@ import {BookPreviewCardComponent} from '../../book/book-preview-card/book-previe
 import {provideComponentStore} from '@ngrx/component-store';
 import {HomeComponentStore} from './home.component-store';
 import {TimesMaxPipe} from '../../shared/pipes/times-max.pipe';
-import {BookFilterComponent} from '../../book/book-filter/book-filter.component';
+import {BookFilterComponent} from '../../book/book-filter/filterBox/book-filter.component';
 
 @Component({
   selector: 'app-home',

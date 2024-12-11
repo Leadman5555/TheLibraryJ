@@ -1,7 +1,7 @@
 <div class="filterBox">
   <form *ngIf="filterForm" [formGroup]="filterForm" (ngSubmit)="handleFilterSubmit()" class="column filterForm">
     <div class="left column">
-      <label class="row">Title contains: <input id="searchInput" type="text" formControlName="titleContains"
+      <label class="row">Title like: <input id="searchInput" type="text" formControlName="titleLike"
                                                 [placeholder]=""></label>
       <label class="row">Min. chapter count: <input id="chapterInput" type="number" formControlName="minChapterCount"
                                                     [placeholder]="0"></label>
@@ -13,7 +13,7 @@
         </select></div>
     </div>
     <div formGroupName="filterByTags" class="tagsDiv">
-      <div class="mt-square3d-custom tagSelector" *ngFor="let tag of this.allTags; let i = index; trackBy: identifyTag"
+      <div class="mt-square3d-custom tagSelector" *ngFor="let tag of allTags; let i = index; trackBy: identifyTag"
            style="font-size:10px;">
         <a class="tagName">{{ tag }}</a>
         <input id="checkMt_{{i}}" type="checkbox" formControlName="{{tag}}"/>
@@ -26,17 +26,3 @@
     </div>
   </form>
 </div>
-<!--<ng-container *ngIf="vm$ | async as vm">-->
-<!--  <div *ngIf="info$ | async as info" class="row">-->
-<!--    <p> Total pages: {{info.totalPages}}</p>-->
-<!--    <div class="pageNumberBox" *ngFor="let num of info.page | timesMax : info.totalPages; let i = index"-->
-<!--         (click)="onChosenPage(i)"-->
-<!--         [class.selected]="i === info.page">-->
-<!--      {{ i + 1 }}-->
-<!--    </div>-->
-<!--  </div>-->
-<!--  <app-book-preview-card-->
-<!--    *ngFor="let bp  of vm | filterByTagAndName : this.selectedTags : this.keywordIncluded : this.minChapterCount : this.orderByRating; trackBy : identifyBp "-->
-<!--    [bookPreview]="bp"-->
-<!--  />-->
-<!--</ng-container>-->

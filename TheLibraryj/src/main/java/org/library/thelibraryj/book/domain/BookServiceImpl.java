@@ -426,8 +426,8 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService {
 
 
     @Override
-    public List<BookPreviewResponse> getByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags) {
-        List<BookPreview> fetched = bookBlazeRepository.getByParams(titleLike, minChapters, minRating, state, hasTags);
+    public List<BookPreviewResponse> getByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags, Boolean ratingOrder) {
+        List<BookPreview> fetched = bookBlazeRepository.getByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder);
         return fetched.stream().map(this::mapPreviewWithCover).toList();
     }
 

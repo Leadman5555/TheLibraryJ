@@ -34,7 +34,7 @@ export class BookComponent implements OnInit {
     if (this.bookPreview) {
       this.bookService.getBookDetail(this.bookPreview.id).subscribe({
         next: (v) => this.bookDetail = v,
-        error: (e) => this.router.navigate([`book`, this.bookPreview.title]),
+        error: (_) => this.router.navigate([`book`, this.bookPreview.title]),
       })
     } else {
       const title: string = this.activatedRoute.snapshot.params['title'];

@@ -48,7 +48,7 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
     }
 
     @Override
-    public List<BookPreview> getByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags) {
+    public List<BookPreview> getByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags, Boolean ratingOrder) {
         CriteriaBuilder<BookPreview> cb = cbf.create(em, BookPreview.class).from(BookPreview.class);
         if (titleLike != null) cb.whereExpression("title LIKE :titleLike").setParameter("titleLike", titleLike + '%');
         if (minChapters != null) cb.where("chapterCount").ge(minChapters);
@@ -58,6 +58,7 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
             for (BookTag tag : tags) cb.where(":tag").isMemberOf("bookTags").setParameter("tag", tag);
 
         }
+        if(ratingOrder != null) cb.orderBy("averageRating", ratingOrder);
         return cb.getResultList();
     }
 }

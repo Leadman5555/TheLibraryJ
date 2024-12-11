@@ -56,13 +56,19 @@ class BookController implements ErrorHandling {
         return bookService.getKeySetPagedBookPreviewResponses(keySetPage, page);
     }
 
+    //remove state?
     @Operation(
             summary = "Retrieve all book previews with their tags that meet the given criteria",
             tags = {"book", "no auth required"}
     )
     @GetMapping("/na/books/filtered")
-    public List<BookPreviewResponse> getBookPreviewsByParams(@RequestParam(name = "titleLike", required = false) String titleLike, @RequestParam(name = "minChapters", required = false) Integer minChapters, @RequestParam(name ="minRating", required = false) Float minRating, @RequestParam(value = "state", required = false) BookState state, @RequestParam(value = "hasTags", required = false) BookTag[] hasTags) {
-        return bookService.getByParams(titleLike, minChapters, minRating, state, hasTags);
+    public List<BookPreviewResponse> getBookPreviewsByParams(@RequestParam(name = "titleLike", required = false) String titleLike,
+                                                             @RequestParam(name = "minChapters", required = false) Integer minChapters,
+                                                             @RequestParam(name ="minRating", required = false) Float minRating,
+                                                             @RequestParam(value = "state", required = false) BookState state,
+                                                             @RequestParam(value = "hasTags", required = false) BookTag[] hasTags,
+                                                             @RequestParam(value = "ratingOrder", required = false) Boolean ratingOrder) {
+        return bookService.getByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder);
     }
 
     @Operation(

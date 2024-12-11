@@ -18,23 +18,6 @@
   top: 0;
 }
 
-.tagsDiv {
-  display:flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-.tagSelector {
-  display: flex;
-  align-items: center;
-}
-
-.tagName {
-  font-weight: bold;
-  font-size: 1.2rem;
-  margin-right: 10px;
-}
-
 .column{
   display: flex;
   flex-direction: column;
