@@ -1,13 +1,25 @@
 .filterBox {
   /*width: min(320px, 20vw);*/
   /*height: min(360px, 50vh);*/
-  border: 3px solid goldenrod;
+  border: 3px solid darkgoldenrod;
   padding: 10px 10px 15px;
   background-color: cadetblue;
   font-family: "Bell MT", serif;
 }
 
+/*input {*/
+/*  width: 100px;*/
+/*  border: 1px solid goldenrod;*/
+/*}*/
+
+select {
+  width: 60%;
+}
+
+
+
 .tagsDiv {
+  padding-top: 15px;
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
@@ -164,4 +176,73 @@ button:hover::before, button:hover::after {
 
 button:hover {
   box-shadow: inset 0 0 25px goldenrod;
+}
+
+.filterButtons{
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+#dropdownRatingList{
+  width: 40%;
+  margin-right: 0;
+}
+
+.numberInput-container {
+  position: relative;
+  margin: 10px 20px 20px -5px;
+  width: 100px;
+}
+
+.input-container {
+  position: relative;
+  margin: 30px 20px 20px;
+  width: 250px;
+}
+
+.input-field {
+  display: block;
+  width: 100%;
+  padding: 6px;
+  font-size: 15px;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  outline: none;
+  background-color: transparent;
+}
+
+.outerLabel {
+  width: 200px;
+  text-align: left;
+}
+
+.input-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: rgba(204, 204, 204, 0);
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.input-highlight {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background-color: goldenrod;
+  transition: all 0.3s ease;
+}
+
+.input-field:focus + .input-label {
+  top: -20px;
+  font-size: 12px;
+  color: goldenrod;
+}
+
+.input-field:focus + .input-label + .input-highlight {
+  width: 100%;
 }

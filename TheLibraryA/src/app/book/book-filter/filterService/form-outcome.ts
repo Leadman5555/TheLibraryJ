@@ -18,6 +18,8 @@ export class FormOutcome {
     this._params = new HttpParams();
   }
 
+
+
   get sortAsc(): boolean | undefined {
     return this._sortAsc;
   }

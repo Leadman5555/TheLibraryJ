@@ -4,7 +4,7 @@ import {BookFilterComponent} from "../book-filter/filterBox/book-filter.componen
 import {BookPreviewCardComponent} from "../book-preview-card/book-preview-card.component";
 import {TimesMaxPipe} from "../../shared/pipes/times-max.pipe";
 import {BookPreview} from '../book-preview';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {BookService} from '../book-service';
 import {HttpParams} from '@angular/common/http';
 import {BookTag} from '../BookTag';
@@ -28,11 +28,13 @@ export class BookViewComponent implements OnInit, OnDestroy {
   private bookService: BookService = inject(BookService);
   private filterSubscription!: Subscription;
 
-  constructor(private router: Router, private filterService: BookFilterService) {}
+  constructor(private activatedRoute: ActivatedRoute, private filterService: BookFilterService) {}
 
+  tagsFromRedirect : string[] = [];
 
   ngOnInit(): void {
-    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    this.tagsFromRedirect = this.activatedRoute.snapshot.paramMap.getAll('hasTags');
+    this.filterService.onTagsRedirect(this.tagsFromRedirect);
     //add first fetch sort based on tags from rout params
     this.filterSubscription =  this.filterService.currentForm$.subscribe(outcome => {
       if(outcome.isValid) {

@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, Output, Predicate} from '@angular/core';
+import {Component, inject, Input, OnInit, Output, Predicate} from '@angular/core';
 import {FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators} from "@angular/forms";
 import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
 import {BookPreviewCardComponent} from '../../book-preview-card/book-preview-card.component';
@@ -28,10 +28,12 @@ import {min} from 'rxjs';
 export class BookFilterComponent implements OnInit {
   private readonly activatedRoute: ActivatedRoute = inject(ActivatedRoute);
 
-  constructor(private fb: NonNullableFormBuilder, private router: Router, private filterService : BookFilterService) {
+  constructor(private fb: NonNullableFormBuilder, private router: Router, private filterService: BookFilterService) {
   }
 
   readonly allTags: BookTag[] = ['TAG1', 'TAG2', 'TAG3', 'TAG4', 'TAG5', 'TAG6', 'TAG7', 'TAG8', 'UNTAGGED'];
+
+  @Input() tagsFromRedirect : string[] = [];
 
   defaultFormValues = {
     titleLike: '',
@@ -54,16 +56,16 @@ export class BookFilterComponent implements OnInit {
   filterForm!: FormGroup;
 
   handleFilterSubmit(): void {
+    console.log(this.filterForm.pristine);
     this.filterService.onFormSubmit(this.getFormOutcome());
     if (this.activatedRoute.snapshot.url.pop()?.path !== 'filter') this.router.navigate(['filter']);
   }
 
   resetFilters(): void {
-    //fix no tag reset when param cons ?
-    //fix tag filter checks for some
-    //fix order rating does not update
-    this.filterForm.reset();
-    this.filterService.onFormSubmit(new FormOutcome(true));
+    if(!this.filterForm.pristine || this.tagsFromRedirect.length > 0) this.filterService.onFormSubmit(new FormOutcome(true));
+    this.tagsFromRedirect = [];
+    this.filterForm.reset(this.defaultFormValues);
+    this.lastSubmittedData = this.filterForm.value;
   }
 
   private lastSubmittedData: any;
@@ -75,51 +77,44 @@ export class BookFilterComponent implements OnInit {
     const lastTitle: string = this.lastSubmittedData['titleLike'];
     if (titleLike.startsWith(lastTitle)) result.and(bp => bp.title.startsWith(titleLike));
     else result.setInvalid();
-    console.log("title " + result.isValid)
 
     const minChapterCount: number = currentValues.minChapterCount;
     if (result.isValid) {
       const lastCount: number = this.lastSubmittedData['minChapterCount'];
       if (minChapterCount > lastCount) result.and(bp => bp.chapterCount >= minChapterCount);
-      else if(minChapterCount !== lastCount) result.setInvalid();
+      else if (minChapterCount !== lastCount) result.setInvalid();
     }
-    console.log("ch count  " + result.isValid)
+
     const minRating: number = currentValues.minRating;
     if (result.isValid) {
       const lastRating: number = this.lastSubmittedData['minRating'];
       if (minRating > lastRating) result.and(bp => bp.averageRating >= minRating);
-      else if(minRating !== lastRating) result.setInvalid();
+      else if (minRating !== lastRating) result.setInvalid();
     }
-    console.log("rating " + result.isValid)
+
     const selectedTags: BookTag[] = this.getSelectedTags(currentValues.filterByTags);
     if (result.isValid) {
       const lastTags: BookTag[] = this.getSelectedTags(this.lastSubmittedData.filterByTags);
-      for (let tag of lastTags) {
+      for (let tag of this.allTags) {
         const b1: boolean = lastTags.includes(tag);
         const b2: boolean = selectedTags.includes(tag);
-        if (!b1 || !b2) {
+        if (b1 !== b2) {
           if (b2) result.and(bp => bp.bookTags.includes(tag));
-          else{
+          else {
             result.setInvalid();
             break;
           }
         }
       }
     }
-    console.log("tag " + result.isValid)
 
     const ratingOrder: string = currentValues.ratingOrder;
-    if (ratingOrder !== 'No order') {
-      console.log(result.sortAsc);
-      result.sortAsc = (ratingOrder === 'A');
-      console.log(result.sortAsc);
-    }
+    if (ratingOrder !== 'No order') result.sortAsc = (ratingOrder === 'A');
 
-    console.log("Valid" + result.isValid);
     if (!result.isValid) {
-      if(titleLike !== this.defaultFormValues.titleLike) result.setParam('titleLike', titleLike);
-      if(minRating !== this.defaultFormValues.minRating)result.setParam('minRating', minRating);
-      if(minChapterCount !== this.defaultFormValues.minChapterCount) result.setParam('minChapters', minChapterCount);
+      if (titleLike !== this.defaultFormValues.titleLike) result.setParam('titleLike', titleLike);
+      if (minRating !== this.defaultFormValues.minRating) result.setParam('minRating', minRating);
+      if (minChapterCount !== this.defaultFormValues.minChapterCount) result.setParam('minChapters', minChapterCount);
       if (result.sortAsc !== undefined) result.setParam('ratingOrder', result.sortAsc);
       selectedTags.forEach(tag => result.appendParam('hasTags', tag));
     }
@@ -140,6 +135,15 @@ export class BookFilterComponent implements OnInit {
 
   ngOnInit(): void {
     this.createFilterForm();
+    if(this.tagsFromRedirect.length > 0){
+      this.tagsFromRedirect.forEach(tag => {
+        this.filterForm.patchValue({
+            filterByTags: {
+              [tag]: true
+            }
+        });
+      });
+    }
     this.lastSubmittedData = this.filterForm.value;
   }
 
@@ -155,16 +159,16 @@ export class BookFilterComponent implements OnInit {
 
   createTagFilter() {
     return this.fb.group({
-      UNTAGGED: [this.defaultFormValues.filterByTags.UNTAGGED],
-      TAG1: [this.defaultFormValues.filterByTags.TAG1],
-      TAG2: [this.defaultFormValues.filterByTags.TAG2],
-      TAG3: [this.defaultFormValues.filterByTags.TAG3],
-      TAG4: [this.defaultFormValues.filterByTags.TAG4],
-      TAG5: [this.defaultFormValues.filterByTags.TAG5],
-      TAG6: [this.defaultFormValues.filterByTags.TAG6],
-      TAG7: [this.defaultFormValues.filterByTags.TAG7],
-      TAG8: [this.defaultFormValues.filterByTags.TAG8],
-    });
+        UNTAGGED: [this.defaultFormValues.filterByTags.UNTAGGED],
+        TAG1: [this.defaultFormValues.filterByTags.TAG1],
+        TAG2: [this.defaultFormValues.filterByTags.TAG2],
+        TAG3: [this.defaultFormValues.filterByTags.TAG3],
+        TAG4: [this.defaultFormValues.filterByTags.TAG4],
+        TAG5: [this.defaultFormValues.filterByTags.TAG5],
+        TAG6: [this.defaultFormValues.filterByTags.TAG6],
+        TAG7: [this.defaultFormValues.filterByTags.TAG7],
+        TAG8: [this.defaultFormValues.filterByTags.TAG8],
+      });
   }
 
   identifyTag(index: number, item: BookTag) {

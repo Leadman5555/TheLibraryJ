@@ -1,17 +1,41 @@
 <div class="filterBox">
   <form *ngIf="filterForm" [formGroup]="filterForm" (ngSubmit)="handleFilterSubmit()" class="column filterForm">
-    <div class="left column">
-      <label class="row">Title like: <input id="searchInput" type="text" formControlName="titleLike"
-                                                [placeholder]=""></label>
-      <label class="row">Min. chapter count: <input id="chapterInput" type="number" formControlName="minChapterCount"
-                                                    [placeholder]="0"></label>
-      <div class="row"><label for="dropdownRatingList">Order by rating: </label>
+    <div class="column">
+
+      <div class="input-container">
+        <input placeholder="Enter title here" class="input-field" id="titleLikeInput" type="text" formControlName="titleLike">
+        <label for="titleLikeInput" class="input-label">Title begins with: </label>
+        <span class="input-highlight"></span>
+      </div>
+
+      <div class="row">
+        <label for="chapterInput" class="outerLabel">Minimum chapter count: </label>
+        <div class="numberInput-container ">
+          <input placeholder="0" class="input-field" id="chapterInput" type="number" formControlName="minChapterCount">
+          <label for="chapterInput" class="input-label">At least: </label>
+          <span class="input-highlight"></span>
+        </div>
+      </div>
+
+      <div class="row">
+        <label for="ratingInput" class="outerLabel">Minimum average rating:</label>
+        <div class="numberInput-container ">
+          <input placeholder="0" class="input-field" id="ratingInput" type="number" formControlName="minRating">
+          <label for="ratingInput" class="input-label">Rated higher than: </label>
+          <span class="input-highlight"></span>
+        </div>
+      </div>
+
+      <div class="row">
+        <label for="dropdownRatingList" class="outerLabel">Order by rating: </label>
         <select formControlName="ratingOrder" id="dropdownRatingList">
           <option value="No order" selected>No order</option>
           <option value="D">Descending</option>
           <option value="A">Ascending</option>
-        </select></div>
-    </div>
+        </select>
+      </div>
+
+
     <div formGroupName="filterByTags" class="tagsDiv">
       <div class="mt-square3d-custom tagSelector" *ngFor="let tag of allTags; let i = index; trackBy: identifyTag"
            style="font-size:10px;">
@@ -20,9 +44,11 @@
         <label for="checkMt_{{i}}"></label>
       </div>
     </div>
+
     <div class="row filterButtons">
       <button class="formButton" type="submit" [disabled]="!filterForm.valid">Submit</button>
       <button class="formButton" type="reset" (click)="resetFilters()">Reset filters</button>
+    </div>
     </div>
   </form>
 </div>
