@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {FormOutcome} from './form-outcome';
-import {BookTag} from '../../BookTag';
+import {BookTag} from '../../shared/models/BookTag';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,14 @@ export class BookFilterService {
 
   onTagsRedirect(selectedTags: string[]) {
     const form = new FormOutcome(true);
-    selectedTags.forEach(tag => form.appendParam('hasTags', tag));
+    form.setRedirectTags(selectedTags);
+    form.isRedirected = true;
     this.formOutcomeSource.next(form);
+  }
+
+  getRedirectData() : FormOutcome | undefined {
+    let newForm : FormOutcome | undefined;
+    this.currentForm$.subscribe(form => form.isRedirected ? newForm = form : newForm = undefined);
+    return newForm;
   }
 }

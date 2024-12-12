@@ -246,3 +246,7 @@ button:hover {
 .input-field:focus + .input-label + .input-highlight {
   width: 100%;
 }
+
+.input-field:invalid {
+  background-color: red;
+}

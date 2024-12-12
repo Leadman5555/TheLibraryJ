@@ -1,14 +1,14 @@
 import {Injectable} from '@angular/core';
-import {BookPreview} from './book-preview';
+import {BookPreview} from './models/book-preview';
 import {Observable} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
-import {BookDetail} from './book-detail';
-import {BookResponse} from './book-response';
-import {ChapterContent} from './chapter-content';
-import {BookPage} from '../home/home/paging/book-page';
-import {KeysetPage} from '../home/home/paging/keyset-page';
-import {BookState} from './BookState';
-import {BookTag} from './BookTag';
+import {BookDetail} from './models/book-detail';
+import {BookResponse} from './models/book-response';
+import {ChapterContent} from './models/chapter-content';
+import {BookPage} from '../../home/home/paging/book-page';
+import {KeysetPage} from '../../home/home/paging/keyset-page';
+import {BookState} from './models/BookState';
+import {BookTag} from './models/BookTag';
 
 @Injectable({
   providedIn: 'root'

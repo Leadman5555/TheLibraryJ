@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {BookPreview} from '../book-preview';
+import {BookPreview} from '../shared/models/book-preview';
 import {Router} from '@angular/router';
 import {NgIf} from '@angular/common';
 

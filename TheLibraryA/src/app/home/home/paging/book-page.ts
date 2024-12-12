@@ -1,4 +1,4 @@
-import {BookPreview} from '../../../book/book-preview';
+import {BookPreview} from '../../../book/shared/models/book-preview';
 import {PageInfo} from './page-info';
 
 export interface BookPage {

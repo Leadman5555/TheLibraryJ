@@ -1,10 +1,10 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {ChapterPreview} from '../chapter-preview';
+import {ChapterPreview} from '../shared/models/chapter-preview';
 import {ActivatedRoute, Router} from '@angular/router';
-import {BookService} from '../book-service';
-import {ChapterContent} from '../chapter-content';
+import {BookService} from '../shared/book-service';
+import {ChapterContent} from '../shared/models/chapter-content';
 import {channel} from 'node:diagnostics_channel';
-import {BookPreview} from '../book-preview';
+import {BookPreview} from '../shared/models/book-preview';
 
 @Component({
   selector: 'app-chapter',

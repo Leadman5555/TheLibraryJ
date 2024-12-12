@@ -3,11 +3,11 @@ import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
 import {BookFilterComponent} from "../book-filter/filterBox/book-filter.component";
 import {BookPreviewCardComponent} from "../book-preview-card/book-preview-card.component";
 import {TimesMaxPipe} from "../../shared/pipes/times-max.pipe";
-import {BookPreview} from '../book-preview';
+import {BookPreview} from '../shared/models/book-preview';
 import {ActivatedRoute, Router} from '@angular/router';
-import {BookService} from '../book-service';
+import {BookService} from '../shared/book-service';
 import {HttpParams} from '@angular/common/http';
-import {BookTag} from '../BookTag';
+import {BookTag} from '../shared/models/BookTag';
 import {BookPage} from '../../home/home/paging/book-page';
 import {BookFilterService} from '../book-filter/filterService/book-filter.service';
 import {Subscription} from 'rxjs';
@@ -30,14 +30,11 @@ export class BookViewComponent implements OnInit, OnDestroy {
 
   constructor(private activatedRoute: ActivatedRoute, private filterService: BookFilterService) {}
 
-  tagsFromRedirect : string[] = [];
-
   ngOnInit(): void {
-    this.tagsFromRedirect = this.activatedRoute.snapshot.paramMap.getAll('hasTags');
-    this.filterService.onTagsRedirect(this.tagsFromRedirect);
-    //add first fetch sort based on tags from rout params
+    const tagsFromRedirect = this.activatedRoute.snapshot.paramMap.getAll('hasTags');
+    if(tagsFromRedirect.length > 0) this.filterService.onTagsRedirect(tagsFromRedirect);
     this.filterSubscription =  this.filterService.currentForm$.subscribe(outcome => {
-      if(outcome.isValid) {
+      if(outcome.isValid && !outcome.isRedirected) {
         if(outcome.sortAsc !== undefined){
           let compareF;
           if(outcome.sortAsc) compareF = (a : BookPreview, b : BookPreview) => a.averageRating - b.averageRating;
@@ -48,7 +45,7 @@ export class BookViewComponent implements OnInit, OnDestroy {
         }
       }else this.bookService.getBookPreviewsByParams(outcome.params).subscribe({
         next: (v) => this.bookPreviews = v,
-        error: (_) => console.log("Error fetched data"),
+        error: (_) => console.error("Error fetched data"),
       });
     });
   }

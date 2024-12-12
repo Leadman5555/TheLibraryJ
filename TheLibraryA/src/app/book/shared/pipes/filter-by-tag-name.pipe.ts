@@ -1,6 +1,6 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {BookPreview} from './book-preview';
-import {BookTag} from './BookTag';
+import {BookPreview} from '../models/book-preview';
+import {BookTag} from '../models/BookTag';
 
 @Pipe({
   name: 'filterByTagAndName'

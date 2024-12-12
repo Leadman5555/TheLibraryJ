@@ -1,11 +1,11 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {BookService} from '../book-service';
-import {BookPreview} from '../book-preview';
+import {BookService} from '../shared/book-service';
+import {BookPreview} from '../shared/models/book-preview';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router, RouterLink} from '@angular/router';
-import {BookDetail} from '../book-detail';
-import {BookResponse} from '../book-response';
-import {BookTag} from '../BookTag';
-import {ChapterPreview} from '../chapter-preview';
+import {BookDetail} from '../shared/models/book-detail';
+import {BookResponse} from '../shared/models/book-response';
+import {BookTag} from '../shared/models/BookTag';
+import {ChapterPreview} from '../shared/models/chapter-preview';
 import {map} from 'rxjs';
 import {NgIf} from '@angular/common';
 

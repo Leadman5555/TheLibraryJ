@@ -1,5 +1,5 @@
 import {Component, inject} from '@angular/core';
-import {BookPreview} from '../../book/book-preview';
+import {BookPreview} from '../../book/shared/models/book-preview';
 import {
   ReactiveFormsModule
 } from '@angular/forms';
