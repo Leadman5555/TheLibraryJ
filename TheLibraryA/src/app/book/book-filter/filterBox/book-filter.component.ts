@@ -1,5 +1,12 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators} from "@angular/forms";
+import {
+  AbstractControl,
+  FormGroup,
+  FormsModule,
+  NonNullableFormBuilder,
+  ReactiveFormsModule, ValidationErrors,
+  Validators
+} from "@angular/forms";
 import {NgForOf, NgIf} from "@angular/common";
 import {BookTag} from '../../shared/models/BookTag';
 import {FormOutcome} from '../filterService/form-outcome';
@@ -47,6 +54,7 @@ export class BookFilterComponent implements OnInit {
   filterForm!: FormGroup;
 
   handleFilterSubmit(): void {
+    if(this.filterForm.pristine) return;
     const url = this.router.url;
     if (url.substring(url.lastIndexOf('/')+1) !== 'filter') {
       this.filterService.onFormSubmit(this.getFormOutcomeRedirected());
@@ -66,19 +74,19 @@ export class BookFilterComponent implements OnInit {
   private getFormOutcome(): FormOutcome {
     const currentValues = this.filterForm.value;
     let result: FormOutcome = new FormOutcome(false);
-    const titleLike: string = currentValues.titleLike;
+    const titleLike: string = currentValues.titleLike.trim();
     const lastTitle: string = this.lastSubmittedData['titleLike'];
     if (titleLike.startsWith(lastTitle)) result.and(bp => bp.title.startsWith(titleLike));
     else result.setInvalid();
 
-    const minChapters: number = currentValues.minChapters;
+    const minChapters: number = currentValues.minChapters ?? 0;
     if (result.isValid) {
       const lastCount: number = this.lastSubmittedData['minChapters'];
       if (minChapters > lastCount) result.and(bp => bp.chapterCount >= minChapters);
       else if (minChapters !== lastCount) result.setInvalid();
     }
 
-    const minRating: number = currentValues.minRating;
+    const minRating: number = currentValues.minRating ?? 0;
     if (result.isValid) {
       const lastRating: number = this.lastSubmittedData['minRating'];
       if (minRating > lastRating) result.and(bp => bp.averageRating >= minRating);
@@ -119,9 +127,9 @@ export class BookFilterComponent implements OnInit {
   private getFormOutcomeRedirected(): FormOutcome {
     const currentValues = this.filterForm.value;
     let result: FormOutcome = new FormOutcome(true);
-    const titleLike: string = currentValues.titleLike;
-    const minChapters: number = currentValues.minChapters;
-    const minRating: number = currentValues.minRating;
+    const titleLike: string = currentValues.titleLike.trim();
+    const minChapters: number = currentValues.minChapters ?? 0;
+    const minRating: number = currentValues.minRating ?? 0;
     const selectedTags: BookTag[] = this.getSelectedTags(currentValues.filterByTags);
     const ratingOrder: string = currentValues.ratingOrder;
 
@@ -179,11 +187,11 @@ export class BookFilterComponent implements OnInit {
 
   private createFilterForm() {
     this.filterForm = this.fb.group({
-      titleLike: [this.defaultFormValues.titleLike, [Validators.maxLength(20), Validators.minLength(3)]],
-      minChapters: [this.defaultFormValues.minChapters, Validators.min(0)],
+      titleLike: [this.defaultFormValues.titleLike, [Validators.maxLength(20), Validators.minLength(3), Validators.pattern('^[a-zA-Z\\s]+$')]],
+      minChapters: [this.defaultFormValues.minChapters, [Validators.min(0), Validators.max(5000), this.integerValidator()]],
       ratingOrder: this.defaultFormValues.ratingOrder,
       filterByTags: this.createTagFilter(),
-      minRating: [this.defaultFormValues.minRating, [Validators.min(0), Validators.max(10)]],
+      minRating: [this.defaultFormValues.minRating, [Validators.min(0), Validators.max(10), this.stepValidator(3)]],
     });
   }
 
@@ -199,6 +207,29 @@ export class BookFilterComponent implements OnInit {
       TAG7: [this.defaultFormValues.filterByTags.TAG7],
       TAG8: [this.defaultFormValues.filterByTags.TAG8],
     });
+  }
+
+  integerValidator(){
+    return (control: AbstractControl) : ValidationErrors | null => {
+      if(control.value){
+        const value : string = control.value.toString();
+        const index = value.indexOf('.');
+        return index < 0 ? null : {int: true}
+      }
+      return null;
+    }
+  }
+
+  stepValidator(maxStep: number){
+    return (control: AbstractControl) : ValidationErrors | null => {
+      if(control.value){
+        const value : string = control.value.toString();
+        const index = value.indexOf('.');
+        if(index < 0) return null;
+        return value.length - index > maxStep ? {maxStep : true} : null;
+      }
+      return null;
+    }
   }
 
   identifyTag(index: number, item: BookTag) {

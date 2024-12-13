@@ -2,14 +2,24 @@
   <form *ngIf="filterForm" [formGroup]="filterForm" (ngSubmit)="handleFilterSubmit()" class="column filterForm">
     <div class="column">
 
-      <div class="input-container">
-        <input placeholder="Enter title here" class="input-field" id="titleLikeInput" type="text" formControlName="titleLike">
-        <label for="titleLikeInput" class="input-label">Title begins with: </label>
-        <span class="input-highlight"></span>
+      <div class="column" id="titleColumn">
+        <div class="input-container">
+          <input placeholder="Enter title here" class="input-field" id="titleLikeInput" type="text" maxlength="20" formControlName="titleLike">
+          <label for="titleLikeInput" class="input-label">Title begins with: </label>
+          <span class="input-highlight"></span>
+        </div>
+        <div class="errorBox"  *ngIf="filterForm.get('titleLike')?.invalid && (filterForm.get('titleLike')?.dirty)">
+          Enter from 3 to 20 letters
+        </div>
       </div>
 
       <div class="row">
-        <label for="chapterInput" class="outerLabel">Minimum chapter count: </label>
+        <div class="column">
+          <label for="chapterInput" class="outerLabel">Minimum chapter count: </label>
+          <div  class="errorBox" *ngIf="filterForm.get('minChapters')?.invalid && (filterForm.get('minChapters')?.dirty)">
+            Integer value between 0 and 5000
+          </div>
+        </div>
         <div class="numberInput-container ">
           <input placeholder="0" class="input-field" id="chapterInput" type="number" formControlName="minChapters">
           <label for="chapterInput" class="input-label">At least: </label>
@@ -18,7 +28,12 @@
       </div>
 
       <div class="row">
-        <label for="ratingInput" class="outerLabel">Minimum average rating:</label>
+        <div class="column">
+          <label for="ratingInput" class="outerLabel">Minimum average rating:</label>
+          <div  class="errorBox" *ngIf="filterForm.get('minRating')?.invalid && (filterForm.get('minRating')?.dirty)">
+            Value between 0.00 and 10.00
+          </div>
+        </div>
         <div class="numberInput-container ">
           <input placeholder="0" class="input-field" id="ratingInput" type="number" formControlName="minRating">
           <label for="ratingInput" class="input-label">Rated higher than: </label>
@@ -46,7 +61,7 @@
     </div>
 
     <div class="row filterButtons">
-      <button class="formButton" type="submit" [disabled]="!filterForm.valid">Submit</button>
+      <button class="formButton" type="submit" [disabled]="filterForm.invalid">Submit</button>
       <button class="formButton" type="reset" (click)="resetFilters()">Reset filters</button>
     </div>
     </div>
