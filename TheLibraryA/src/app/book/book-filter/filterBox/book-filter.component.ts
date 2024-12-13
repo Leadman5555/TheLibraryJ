@@ -7,7 +7,7 @@ import {
   ReactiveFormsModule, ValidationErrors,
   Validators
 } from "@angular/forms";
-import {NgForOf, NgIf} from "@angular/common";
+import {NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
 import {BookTag} from '../../shared/models/BookTag';
 import {FormOutcome} from '../filterService/form-outcome';
 import {BookFilterService} from '../filterService/book-filter.service';
@@ -19,7 +19,8 @@ import {ActivatedRoute, Router} from '@angular/router';
     FormsModule,
     NgForOf,
     NgIf,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgOptimizedImage
   ],
   templateUrl: './book-filter.component.html',
   styleUrl: './book-filter.component.css'
@@ -179,7 +180,7 @@ export class BookFilterComponent implements OnInit {
       if(redirectMinRating) this.filterForm.patchValue({minRating : [redirectMinRating]});
 
       const redirectRatingOrder = redirectData.getRedirectRatingOrder();
-      if(redirectRatingOrder) this.filterForm.patchValue({ratingOrder : [redirectRatingOrder]});
+      if(redirectRatingOrder !== undefined) this.filterForm.patchValue({ratingOrder : [redirectRatingOrder ? 'A' : 'D']});
     }
 
     this.lastSubmittedData = this.filterForm.value;
@@ -187,7 +188,7 @@ export class BookFilterComponent implements OnInit {
 
   private createFilterForm() {
     this.filterForm = this.fb.group({
-      titleLike: [this.defaultFormValues.titleLike, [Validators.maxLength(20), Validators.minLength(3), Validators.pattern('^[a-zA-Z\\s]+$')]],
+      titleLike: [this.defaultFormValues.titleLike, [Validators.maxLength(20), Validators.minLength(3), Validators.pattern('^[a-zA-Z\\s]*$')]],
       minChapters: [this.defaultFormValues.minChapters, [Validators.min(0), Validators.max(5000), this.integerValidator()]],
       ratingOrder: this.defaultFormValues.ratingOrder,
       filterByTags: this.createTagFilter(),

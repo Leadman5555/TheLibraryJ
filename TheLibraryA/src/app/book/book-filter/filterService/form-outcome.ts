@@ -47,7 +47,7 @@ export class FormOutcome {
   }
 
   public getRedirectChapterCount(): number | undefined {
-    return this._redirectMap['chapterCount'];
+    return this._redirectMap['minChapters'];
   }
 
   public setRedirectMinRating(minRating: number) {

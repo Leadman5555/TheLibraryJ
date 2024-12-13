@@ -1,11 +1,11 @@
+<div id="backgroundScroll"></div>
 <div class="row">
-  <ng-container *ngIf="bookPreviews">
-      <div class="previewContainer">
+      <div class="previewContainer" *ngIf="bookPreviews.length">
         <app-book-preview-card
           *ngFor="let bp  of bookPreviews; trackBy : identifyBp"
           [bookPreview]="bp"
         />
       </div>
-  </ng-container>
+      <div id="noPreviews" *ngIf="!bookPreviews.length">No scriptures here, fellow daoist. Just us.</div>
   <div class="filterContainer"><app-book-filter class="stick"/></div>
 </div>
