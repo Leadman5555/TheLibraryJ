@@ -7,7 +7,7 @@ import jakarta.mail.MessagingException;
 import org.library.thelibraryj.authentication.PasswordControl;
 import org.library.thelibraryj.authentication.tokenServices.dto.password.PasswordResetRequest;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
-import org.library.thelibraryj.authentication.userAuth.dto.PasswordResetDataResponse;
+import org.library.thelibraryj.authentication.userAuth.domain.PasswordResetView;
 import org.library.thelibraryj.email.EmailService;
 import org.library.thelibraryj.email.dto.EmailRequest;
 import org.library.thelibraryj.email.template.PasswordResetTemplate;
@@ -41,13 +41,13 @@ class PasswordResetServiceImpl implements PasswordControl {
     }
 
     public Either<GeneralError, Boolean> startPasswordResetProcedure(String forEmail) throws MessagingException {
-        Either<GeneralError, PasswordResetDataResponse> fetchedData = userAuthService.getPasswordResetDataByEmail(forEmail);
+        Either<GeneralError, PasswordResetView> fetchedData = userAuthService.getPasswordResetDataByEmail(forEmail);
         if(fetchedData.isLeft()) return Either.left(fetchedData.getLeft());
-        if(fetchedData.get().isGoogle()) return Either.left(new UserAuthError.UserIsGoogleRegistered(forEmail));
+        if(fetchedData.get().getIsGoogleUser()) return Either.left(new UserAuthError.UserIsGoogleRegistered(forEmail));
         Token newToken = Token.builder()
                 .token(UUID.randomUUID())
                 .expiresAt(Instant.now().plusSeconds(properties.getExpiration_time_seconds()))
-                .forUserId(fetchedData.get().userAuthId())
+                .forUserId(fetchedData.get().getUserAuthId())
                 .isUsed(false)
                 .build();
         tokenRepository.persist(newToken);

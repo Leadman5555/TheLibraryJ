@@ -1,23 +1,25 @@
 package org.library.thelibraryj.book.domain;
 
+import com.blazebit.persistence.PagedArrayList;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.library.thelibraryj.book.dto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.BookResponse;
-import org.library.thelibraryj.book.dto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
-import org.library.thelibraryj.book.dto.ChapterRequest;
-import org.library.thelibraryj.book.dto.RatingRequest;
-import org.library.thelibraryj.book.dto.RatingResponse;
+import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
+import org.library.thelibraryj.book.dto.bookDto.BookDetailResponse;
+import org.library.thelibraryj.book.dto.bookDto.BookResponse;
+import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
+import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
+import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
+import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
+import org.library.thelibraryj.infrastructure.model.PageInfo;
 import org.library.thelibraryj.userInfo.UserInfoService;
-import org.library.thelibraryj.userInfo.dto.BookCreationUserData;
-import org.library.thelibraryj.userInfo.dto.RatingUpsertData;
+import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
+import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -43,6 +45,8 @@ public class BookServiceTest {
     private ChapterRepository chapterRepository;
     @Mock
     private RatingRepository ratingRepository;
+    @Mock
+    private BookBlazeRepository blazeRepository;
     @Mock
     private UserInfoService userInfoService;
     @Mock
@@ -114,10 +118,17 @@ public class BookServiceTest {
     public void testGetBookPreviewResponses() {
         when(bookImageHandler.fetchCoverImage(anyString())).thenReturn(null);
         List<BookPreview> baseList = List.of(BookPreview.builder().title(title + '1').build(), BookPreview.builder().title(title + '2').build());
-        when(bookPreviewRepository.getAllBookPreviewsEager()).thenReturn(baseList);
-        List<BookPreviewResponse> fetchedList = bookService.getBookPreviewResponses();
-        List<BookPreviewResponse> expectedList = baseList.stream().map((BookPreview bookPreview1) -> bookMapper.bookPreviewToBookPreviewResponse(bookPreview1, null)).toList();
-        assertEquals(expectedList, fetchedList);
+        int page = 0;
+        int defPageSize = 20;
+        when((blazeRepository.getOffsetPaged(defPageSize, page))).thenReturn(new PagedArrayList<>(baseList, null, baseList.size(), 0, defPageSize));
+        PagedBookPreviewsResponse fetchedPage = bookService.getOffsetPagedBookPreviewResponses(defPageSize, page);
+        PagedBookPreviewsResponse expectedPage = new PagedBookPreviewsResponse(
+                baseList.stream().map((BookPreview bookPreview1) -> bookMapper.bookPreviewToBookPreviewResponse(bookPreview1, null)).toList(),
+                new PageInfo(0,
+                        1,
+                        null)
+        );
+        assertEquals(expectedPage, fetchedPage);
     }
 
     @Test
@@ -132,10 +143,22 @@ public class BookServiceTest {
         );
         bookPreview.setBookDetail(bookDetail);
         when(bookPreviewRepository.existsByTitle(title)).thenReturn(false);
-        when(userInfoService.getAndValidateAuthorData(authorEmail)).thenReturn(Either.right(new BookCreationUserData(
-                authorId,
-                author
-        )));
+        when(userInfoService.getAndValidateAuthorData(authorEmail)).thenReturn(Either.right(new BookCreationUserView() {
+            @Override
+            public UUID getAuthorId() {
+                return authorId;
+            }
+
+            @Override
+            public String getAuthorUsername() {
+                return author;
+            }
+
+            @Override
+            public Instant getCreatedAt() {
+                return Instant.now();
+            }
+        }));
         BookResponse response = bookService.createBook(bookCreationRequest).get();
         verify(bookDetailRepository).persist(bookDetail);
         verify(bookPreviewRepository).persist(bookPreview);
@@ -179,20 +202,28 @@ public class BookServiceTest {
         when(bookPreviewRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookPreview));
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
         when(ratingRepository.getRatingForBookAndUser(bookId, authorId)).thenReturn(Optional.empty());
-        when(userInfoService.getUsernameAndIdByEmail(authorEmail)).thenReturn(Either.right(new RatingUpsertData(
-                authorId,
-                authorEmail
-        )));
+        when(userInfoService.getUsernameAndIdByEmail(authorEmail)).thenReturn(new RatingUpsertView() {
+
+            @Override
+            public UUID getUserId() {
+                return authorId;
+            }
+
+            @Override
+            public String getUsername() {
+                return author;
+            }
+        });
         RatingRequest request = new RatingRequest(authorEmail, rating.getCurrentRating(), bookId, rating.getComment());
         bookService.upsertRating(request);
-        when(ratingRepository.getRatingForBookAndUser(bookId,authorId)).thenReturn(Optional.ofNullable(rating));
+        when(ratingRepository.getRatingForBookAndUser(bookId, authorId)).thenReturn(Optional.ofNullable(rating));
         bookService.upsertRating(request);
         verify(ratingRepository, times(1)).update(rating);
         verify(bookPreviewRepository, times(2)).update(bookPreview);
     }
 
     @Test
-    public void testCreateChapter(){
+    public void testCreateChapter() {
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
         when(bookPreviewRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookPreview));
         when(userInfoService.getUserInfoIdByEmail(authorEmail)).thenReturn(Either.right(authorId));

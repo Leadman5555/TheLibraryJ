@@ -1,0 +1,78 @@
+@keyframes gradientAnimation {
+  0% {
+    background-color:  rgba(202,243,243,0.65);
+  }
+  25% {
+    background: rgba(128, 128, 0, 0.7);
+    opacity: 50%;
+  }
+  50% {
+    background: rgba(209, 94, 1, 0.7);
+    opacity: 50%;
+  }
+  75% {
+    background: rgb(0, 15, 73);
+    opacity: 50%;
+  }
+  100% {
+    background: rgb(0, 8, 30);
+  }
+}
+
+/*noinspection CssInvalidFunction,CssInvalidPropertyValue*/
+#backgroundScroll {
+  position: fixed;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  z-index: -1;
+  animation: gradientAnimation auto ease-in-out;
+  animation-timeline: scroll();
+}
+
+#noPreviews{
+  left: 0;
+  width: 100%;
+  height: auto;
+  background: rgb(0, 8, 30);
+  color: bisque;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: -1;
+}
+
+.previewContainer {
+  flex: 0 0 75%;
+  display: grid;
+  grid-template-columns: repeat(4, 310px);
+  grid-template-rows: repeat(auto-fill, 1fr);
+  grid-auto-rows: 1fr;
+  grid-auto-columns: 80vw;
+  gap: 20px;
+}
+
+.filterContainer{
+  margin-left: 1em;
+  flex: 0 0 20%;
+}
+
+.stick {
+  position: sticky;
+  right: 0;
+  top: 0;
+}
+
+.column{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.row{
+  display: flex;
+  gap: 10px;
+}

@@ -5,21 +5,29 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
-import org.library.thelibraryj.book.dto.ContentRemovalRequest;
-import org.library.thelibraryj.book.dto.RatingRequest;
+import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
+import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.sql.DataSource;
+import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
@@ -39,6 +47,8 @@ public class BookIT {
     private final UUID chapterId = UUID.fromString("123e4567-e89b-12d3-a456-999994174001");
     private static final String authorEmail1 = "sample.email1@gmail.com";
     private static final String authorEmail2 = "sample.email2@gmail.com";
+    private static final String validBookTitle7 = "Book7D";
+    private static final String validBookTitle1 = "Book1";
 
     @BeforeEach
     public void setUp() {
@@ -133,5 +143,150 @@ public class BookIT {
         );
         Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), responseChapter.getStatusCode().value());
 
+    }
+
+    @Test
+    public void testGetByParams() throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+
+        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
+        params.add("titleLike", "Book");
+        params.add("minChapters", 100);
+        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(params, headers);
+        ResponseEntity<String> response = restTemplate.exchange(
+                BASE_URL + "/filtered",
+                HttpMethod.GET,
+                request,
+                String.class
+        );
+        Assertions.assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        Assertions.assertNotNull(response.getBody());
+        JSONArray body = new JSONArray(response.getBody());
+        Assertions.assertEquals(1, body.length());
+
+        MultiValueMap<String, Object> params2 = new LinkedMultiValueMap<>();
+        params2.add("minRating", 4.67);
+        HttpEntity<MultiValueMap<String, Object>> request2 = new HttpEntity<>(params2, headers);
+        ResponseEntity<String> response2 = restTemplate.exchange(
+                BASE_URL + "/filtered",
+                HttpMethod.GET,
+                request2,
+                String.class
+        );
+        Assertions.assertEquals(HttpStatus.OK.value(), response2.getStatusCode().value());
+        Assertions.assertNotNull(response2.getBody());
+        JSONArray body2 = new JSONArray(response2.getBody());
+        Assertions.assertEquals(1, body2.length());
+
+        HttpEntity<MultiValueMap<String, Object>> request3 = new HttpEntity<>(null, headers);
+        ResponseEntity<String> response3 = restTemplate.exchange(
+                BASE_URL + "/filtered",
+                HttpMethod.GET,
+                request3,
+                String.class
+        );
+        Assertions.assertEquals(HttpStatus.OK.value(), response3.getStatusCode().value());
+        Assertions.assertNotNull(response3.getBody());
+        JSONArray body3 = new JSONArray(response3.getBody());
+        Assertions.assertEquals(2, body3.length());
+        HttpEntity<MultiValueMap<String, String>> request4 = new HttpEntity<>(null, headers);
+        ResponseEntity<String> response4 = restTemplate.exchange(
+                BASE_URL + "/filtered?state=HIATUS",
+                HttpMethod.GET,
+                request4,
+                String.class
+        );
+        Assertions.assertEquals(HttpStatus.OK.value(), response4.getStatusCode().value());
+        Assertions.assertNotNull(response4.getBody());
+        JSONArray body4 = new JSONArray(response4.getBody());
+        Assertions.assertEquals(1, body4.length());
+        HttpEntity<MultiValueMap<String, Object>> request5 = new HttpEntity<>(null, headers);
+        ResponseEntity<String> response5 = restTemplate.exchange(
+                BASE_URL + "/filtered?hasTags=TAG1&hasTags=TAG2",
+                HttpMethod.GET,
+                request5,
+                String.class
+        );
+        Assertions.assertEquals(HttpStatus.OK.value(), response5.getStatusCode().value());
+        Assertions.assertNotNull(response5.getBody());
+        JSONArray body5 = new JSONArray(response5.getBody());
+        Assertions.assertEquals(1, body5.length());
+    }
+
+    private record JsonPagedKeysetPage(int firstResult, int maxResults, TupleKeyset highest, TupleKeyset lowest,
+                                       List<TupleKeyset> keysets) {
+    }
+
+    private record TupleKeyset(Serializable[] tuple) {
+    }
+
+    @Test
+    public void testPagingByKeySet() throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+
+        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
+        params.add("page", 0);
+        params.add("pageSize", 1);
+        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(params, headers);
+        ResponseEntity<String> response = restTemplate.exchange(
+                BASE_URL,
+                HttpMethod.GET,
+                request,
+                String.class
+        );
+        Assertions.assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
+        Assertions.assertNotNull(response.getBody());
+        JSONObject body = new JSONObject(response.getBody());
+        JSONArray previews = body.getJSONArray("content");
+        Assertions.assertEquals(1, previews.length());
+        Assertions.assertEquals(validBookTitle7, previews.getJSONObject(0).getString("title"));
+        Assertions.assertEquals(2, body.getJSONObject("pageInfo").getInt("totalPages"));
+        JSONObject nextKSJSON = body.getJSONObject("pageInfo").getJSONObject("keysetPage");
+
+        JSONArray tupleLowest = nextKSJSON.getJSONObject("lowest").getJSONArray("tuple");
+        JSONArray tupleHighest = nextKSJSON.getJSONObject("highest").getJSONArray("tuple");
+        TupleKeyset lowest = new TupleKeyset(new Serializable[]{tupleLowest.getInt(0), UUID.fromString(tupleLowest.getString(1))});
+        TupleKeyset highest = new TupleKeyset(new Serializable[]{tupleHighest.getInt(0), UUID.fromString(tupleHighest.getString(1))});
+        JsonPagedKeysetPage nextKS = new JsonPagedKeysetPage(nextKSJSON.getInt("firstResult"), nextKSJSON.getInt("maxResults"), lowest, highest, List.of());
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath(BASE_URL)
+                .queryParam("page", 1);
+        HttpEntity<JsonPagedKeysetPage> request2 = new HttpEntity<>(nextKS, headers);
+        ResponseEntity<String> response2 = restTemplate.exchange(
+                builder.toUriString(),
+                HttpMethod.POST,
+                request2,
+                String.class
+        );
+        Assertions.assertEquals(HttpStatus.OK.value(), response2.getStatusCode().value());
+        Assertions.assertNotNull(response2.getBody());
+        JSONObject body2 = new JSONObject(response2.getBody());
+        JSONArray previews2 = body2.getJSONArray("content");
+        Assertions.assertEquals(1, previews2.length());
+        Assertions.assertEquals(validBookTitle1, previews2.getJSONObject(0).getString("title"));
+        Assertions.assertEquals(1, body2.getJSONObject("pageInfo").getInt("page"));
+        JSONObject nextKSJSON2 = body.getJSONObject("pageInfo").getJSONObject("keysetPage");
+
+        tupleLowest = nextKSJSON2.getJSONObject("lowest").getJSONArray("tuple");
+        tupleHighest = nextKSJSON2.getJSONObject("highest").getJSONArray("tuple");
+        lowest = new TupleKeyset(new Serializable[]{tupleLowest.getInt(0), UUID.fromString(tupleLowest.getString(1))});
+        highest = new TupleKeyset(new Serializable[]{tupleHighest.getInt(0), UUID.fromString(tupleHighest.getString(1))});
+        nextKS = new JsonPagedKeysetPage(nextKSJSON.getInt("firstResult"), nextKSJSON.getInt("maxResults"), lowest, highest, List.of());
+
+        builder = UriComponentsBuilder.fromPath(BASE_URL)
+                .queryParam("page", 2);
+        HttpEntity<JsonPagedKeysetPage> request3 = new HttpEntity<>(nextKS, headers);
+        ResponseEntity<String> response3 = restTemplate.exchange(
+                builder.toUriString(),
+                HttpMethod.POST,
+                request3,
+                String.class
+        );
+        Assertions.assertEquals(HttpStatus.OK.value(), response3.getStatusCode().value());
+        Assertions.assertNotNull(response3.getBody());
+        JSONArray content3 = new JSONObject(response3.getBody()).getJSONArray("content");
+        Assertions.assertEquals(0, content3.length());
     }
 }

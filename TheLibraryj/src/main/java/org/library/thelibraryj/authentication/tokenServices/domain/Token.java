@@ -1,5 +1,6 @@
 package org.library.thelibraryj.authentication.tokenServices.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -41,11 +42,14 @@ class Token extends AbstractEntity {
         this.isUsed = isUsed;
     }
 
+    @JsonIgnore
     @Transient
     public boolean hasExpired() {
         return Instant.now().isAfter(expiresAt);
     }
 
+    @Transient
+    @JsonIgnore
     public boolean isUsed() {
         return isUsed;
     }

@@ -1,19 +1,24 @@
 package org.library.thelibraryj.book;
 
+import com.blazebit.persistence.KeysetPage;
 import io.vavr.control.Either;
-import org.library.thelibraryj.book.dto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.BookResponse;
-import org.library.thelibraryj.book.dto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.ChapterPreviewResponse;
-import org.library.thelibraryj.book.dto.ChapterRequest;
-import org.library.thelibraryj.book.dto.ChapterResponse;
-import org.library.thelibraryj.book.dto.ContentRemovalRequest;
-import org.library.thelibraryj.book.dto.ContentRemovalSuccess;
-import org.library.thelibraryj.book.dto.RatingRequest;
-import org.library.thelibraryj.book.dto.RatingResponse;
+import org.library.thelibraryj.book.domain.BookState;
+import org.library.thelibraryj.book.domain.BookTag;
+import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
+import org.library.thelibraryj.book.dto.bookDto.BookDetailResponse;
+import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.bookDto.BookResponse;
+import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterResponse;
+import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalSuccess;
+import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
+import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
+import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,7 +28,13 @@ public interface BookService {
 
     Either<GeneralError, BookPreviewResponse> getBookPreviewResponse(UUID previewId);
 
-    List<BookPreviewResponse> getBookPreviewResponses();
+    PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(@Nullable KeysetPage lastPage, int page);
+
+    PagedBookPreviewsResponse getOffsetPagedBookPreviewResponses(int pageSize, int page);
+
+    List<BookPreviewResponse> getByParams(@Nullable String titleLike, @Nullable Integer minChapters,
+                                          @Nullable Float minRating, @Nullable BookState state,
+                                          @Nullable BookTag[] hasTags, @Nullable Boolean ratingOrder);
 
     Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest);
 

@@ -1,7 +1,5 @@
 package org.library.thelibraryj.infrastructure.error.errorTypes;
 
-import java.util.UUID;
-
 public sealed interface UserAuthError extends GeneralError {
     record UserAuthNotFoundEmail(String email) implements UserAuthError {}
     record UserAuthNotFoundId() implements UserAuthError {}

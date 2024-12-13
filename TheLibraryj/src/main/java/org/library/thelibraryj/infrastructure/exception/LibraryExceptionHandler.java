@@ -5,6 +5,7 @@ import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.infrastructure.error.ApiErrorResponse;
 import org.library.thelibraryj.infrastructure.error.ApiErrorWrapper;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -102,7 +103,7 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({GoogleTokenVerificationException.class})
     public ResponseEntity<ApiErrorWrapper> handleGoogleTokenVerificationException(GoogleTokenVerificationException ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.FORBIDDEN;
-        final ApiErrorResponse errorResponse =  ApiErrorResponse.builder()
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
                 .message("Google token invalid. Authorization failed: " + ex.getMessage())
                 .status(errorStatus.getReasonPhrase())
@@ -118,6 +119,19 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
                 .message("Authorization failed: Jwt token invalid or permission lacking. Reason: " + ex.getMessage())
+                .status(errorStatus.getReasonPhrase())
+                .path("Path: " + extractRequest(request))
+                .build();
+        logError(errorResponse);
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
+    }
+
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public ResponseEntity<ApiErrorWrapper> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex, WebRequest request) {
+        HttpStatus errorStatus = HttpStatus.NOT_FOUND;
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message("View not found: " + ex.getMessage())
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + extractRequest(request))
                 .build();

@@ -1,5 +1,6 @@
 package org.library.thelibraryj.userInfo.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -58,6 +59,7 @@ class UserInfo extends AbstractEntity {
     }
 
     @Transient
+    @JsonIgnore
     public void incrementScore(int byScore) {
         currentScore += byScore;
     }

@@ -1,16 +1,17 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {BookService} from '../book-service';
-import {BookPreview} from '../book-preview';
+import {BookService} from '../shared/book-service';
+import {BookPreview} from '../shared/models/book-preview';
 import {ActivatedRoute, ActivatedRouteSnapshot, Router, RouterLink} from '@angular/router';
-import {BookDetail} from '../book-detail';
-import {BookResponse} from '../book-response';
-import {BookTag} from '../BookTag';
-import {ChapterPreview} from '../chapter-preview';
+import {BookDetail} from '../shared/models/book-detail';
+import {BookResponse} from '../shared/models/book-response';
+import {BookTag} from '../shared/models/BookTag';
+import {ChapterPreview} from '../shared/models/chapter-preview';
 import {map} from 'rxjs';
+import {NgIf} from '@angular/common';
 
 @Component({
   selector: 'app-book',
-  imports: [RouterLink],
+  imports: [RouterLink, NgIf],
   templateUrl: './book.component.html',
   styleUrl: './book.component.css'
 })
@@ -33,7 +34,7 @@ export class BookComponent implements OnInit {
     if (this.bookPreview) {
       this.bookService.getBookDetail(this.bookPreview.id).subscribe({
         next: (v) => this.bookDetail = v,
-        error: (e) => this.router.navigate([`book`, this.bookPreview.title]),
+        error: (_) => this.router.navigate([`book`, this.bookPreview.title]),
       })
     } else {
       const title: string = this.activatedRoute.snapshot.params['title'];
@@ -67,9 +68,5 @@ export class BookComponent implements OnInit {
         })
       } else this.router.navigate([this.defaultRoute]);
     }
-  }
-
-  routeToChapter(chapterNumber: number) {
-    this.router.navigate([`book/chapter` , this.bookPreview.id, chapterNumber]);
   }
 }

@@ -9,30 +9,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-interface UserAuthRepository extends BaseJpaRepository<UserAuth, UUID> {
+interface UserAuthRepository extends BaseJpaRepository<UserAuth, UUID>, UserAuthViewRepository {
     Optional<UserAuth> findByEmail(String username);
+
     boolean existsByEmail(String email);
 
     @Query("""
-    SELECT id, isEnabled FROM userAuth
-    WHERE email = :email
-""")
-    Optional<Object> getBasicUserAuthData(@Param("email") String email);
-
-    @Query("""
-    SELECT role, isEnabled, isGoogle FROM userAuth
-    WHERE email = :email
-""")
-    Optional<Object> getLoginData(@Param("email") String email);
-
-    @Query("""
-    SELECT id, isGoogle FROM userAuth
-    WHERE email = :email
-""")
-    Optional<Object> getPasswordResetData(@Param("email") String email);
-
-    @Query("""
-    SELECT id FROM userAuth WHERE email = :email
-""")
+                SELECT id FROM userAuth WHERE email = :email
+            """)
     Optional<UUID> getIdByEmail(@Param("email") String email);
 }

@@ -7,8 +7,6 @@ import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
-import org.library.thelibraryj.userInfo.dto.BookCreationUserData;
-import org.library.thelibraryj.userInfo.dto.RatingUpsertData;
 import org.library.thelibraryj.userInfo.dto.UserInfoImageUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
@@ -107,30 +105,17 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     }
 
     @Override
-    public Either<GeneralError, RatingUpsertData> getUsernameAndIdByEmail(String email) {
-        Either<GeneralError, Object> fetched = Try.of(() -> userInfoRepository.getRatingUpsertData(email))
-                .toEither()
-                .map(Option::ofOptional)
-                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new UserInfoError.UserInfoEntityNotFound(email)));
-        if (fetched.isLeft()) return Either.left(fetched.getLeft());
-        Object[] values = (Object[]) fetched.get();
-        return Either.right(new RatingUpsertData((UUID) values[0], (String) values[1]));
+    public RatingUpsertView getUsernameAndIdByEmail(String email) {
+        return userInfoRepository.getRatingUpsertView(email);
     }
 
     @Override
-    public Either<GeneralError, BookCreationUserData> getAndValidateAuthorData(String authorEmail) {
-        Either<GeneralError, Object> fetched = Try.of(() -> userInfoRepository.getBookCreationUserData(authorEmail))
-                .toEither()
-                .map(Option::ofOptional)
-                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new UserInfoError.UserInfoEntityNotFound(authorEmail)));
-        if (fetched.isLeft()) return Either.left(fetched.getLeft());
-        Object[] values = (Object[]) fetched.get();
-        long ageDiff = ChronoUnit.HOURS.between((Instant) values[2], Instant.now());
+    public Either<GeneralError, BookCreationUserView> getAndValidateAuthorData(String authorEmail) {
+        BookCreationUserView fetched = userInfoRepository.getBookCreationUserView(authorEmail);
+        long ageDiff = ChronoUnit.HOURS.between(fetched.getCreatedAt(), Instant.now());
         if (ageDiff < userInfoConfig.getMinimal_age_hours())
             return Either.left(new UserInfoError.UserAccountTooYoung(authorEmail, ageDiff));
-        return Either.right(new BookCreationUserData((UUID) values[0], (String) values[1]));
+        return Either.right(fetched);
     }
 
     @Transactional
