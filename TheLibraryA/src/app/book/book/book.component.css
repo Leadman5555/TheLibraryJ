@@ -1,82 +1,143 @@
-.outerBox {
+@import '../../shared/styles/button.css';
+@import '../../shared/styles/pageNumberBox.css';
+
+.description {
+  line-height: 1.5;
+}
+
+.column {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  gap: 10px;
   align-items: center;
-  max-height: 80%;
+  justify-content: center;
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.bookReviews {
+  flex: 0 0 30%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 3px solid goldenrod;
+  margin: 5px;
+}
+
+.reviewElement {
+  width: 30vw;
+  padding: 10px;
+  margin: 10px;
+  border: 3px dashed goldenrod;
+  background-color: cadetblue;
+  display: flex;
+}
+
+.reviewData {
+  border-right: 3px dashed goldenrod;
+  padding-right: 5px;
+}
+
+#comment{
+  margin-left: 10px;
+}
+
+.userLink {
+  color: bisque;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.userLink:hover {
+  cursor: pointer;
+  color: goldenrod;
+}
+
+#comment {
+  max-width: 20vw;
+  overflow-wrap: break-word;
+}
+
+.outerBox {
+  display: flex;
+  font-family: "Bell MT", serif;
+  width: 90vw;
+}
+
+.bookInfo {
+  flex: 0 0 70%;
 }
 
 .bookCard {
-  width: 90%;
+  background-color: cadetblue;
+  border: 3px solid goldenrod;
+  padding: 10px;
+  margin: 5px;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-  gap: 0;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 0.5fr 1.5fr 0.5fr 1fr 1fr;
+  gap: 0 0;
   grid-auto-flow: row;
   grid-template-areas:
-    "titleDiv titleDiv tagsDiv tagsDiv tagsDiv tagsDiv"
-    "authorDiv authorDiv descDiv descDiv descDiv descDiv"
-    "coverDiv coverDiv descDiv descDiv descDiv descDiv"
-    "coverDiv coverDiv descDiv descDiv descDiv descDiv"
-    "coverDiv coverDiv chapterPrevOuterBox chapterPrevOuterBox chapterPrevOuterBox chapterPrevOuterBox"
-    "coverDiv coverDiv chapterPrevOuterBox chapterPrevOuterBox chapterPrevOuterBox chapterPrevOuterBox"
-    "chapterCountDiv chapterCountDiv chapterPrevOuterBox chapterPrevOuterBox chapterPrevOuterBox chapterPrevOuterBox"
-    "ratingDiv ratingDiv chapterPrevOuterBox chapterPrevOuterBox chapterPrevOuterBox chapterPrevOuterBox";
-  background-color: cadetblue;
-  border: 5px solid goldenrod;
+    "coverDiv titleDiv titleDiv titleDiv"
+    "coverDiv ratingDataDiv ratingDataDiv ratingDataDiv"
+    "coverDiv descDiv descDiv descDiv"
+    "infoDiv descDiv descDiv descDiv"
+    "infoDiv descDiv descDiv descDiv"
+    "infoDiv descDiv descDiv descDiv";
   text-align: center;
   font-weight: 700;
   font-size: 1.15rem;
-  font-family: "Bell MT", serif;
-  overflow: hidden;
+}
+
+.centerVH{
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .titleDiv {
   grid-area: titleDiv;
   font-size: 2rem;
-  border: 5px solid goldenrod;
 }
 
-.small {
+.ratingDataDiv {
+  grid-area: ratingDataDiv;
+}
+
+.infoDiv {
+  grid-area: infoDiv;
+}
+
+.coverDiv {
   padding-top: 5px;
-  font-size: 1rem;
-}
-
-.authorDiv {
-  font-size: 1.5rem;
-  grid-area: authorDiv;
-}
-
-.chapterCountDiv {
-  font-size: 1.5rem;
-  grid-area: chapterCountDiv;
-}
-
-.ratingDiv {
-  grid-area: ratingDiv;
-  flex-direction: column;
+  grid-area: coverDiv;
   overflow: hidden;
 }
 
-.chapterPrevOuterBox {
-  grid-area: chapterPrevOuterBox;
-  width: 100%;
+.descDiv {
+  grid-area: descDiv;
+  overflow-wrap: break-word;
+  padding: 20px;
 }
 
-.chapterPrevDiv {
+.chapterPrevBox{
+  grid-area: chapterPrevBox;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(15, 50px);
   gap: 10px;
-  height: 750px;
+  height: 100%;
   width: 100%;
-  overflow: auto
+  overflow: auto;
 }
 
 .chapterBox {
   background-color: gray;
   height: 50px;
-  width: 1fr;
   border-radius: 5px;
   border: 1px solid gray;
 }
@@ -84,36 +145,25 @@
 .chapterBox:hover {
   background: goldenrod;
   box-shadow: 3px 3px 2px gray;
+  cursor: pointer;
 }
 
 .tagsDiv {
-  max-width: 4fr;
   grid-area: tagsDiv;
-  overflow: hidden;
-  gap: 10px;
+  display: flex;
+  gap: 3px;
 }
 
-.tagBox{
+.tagBox {
   border: 2px solid goldenrod;
   border-radius: 5px;
   background-color: goldenrod;
 }
 
-.coverDiv {
-  grid-area: coverDiv;
-  overflow: hidden;
+.tagBox:hover {
+  cursor: pointer;
+  background-color: darkgoldenrod;
+  border-color: darkgoldenrod;
+  box-shadow: 3px 3px 2px gray;
 }
 
-.descDiv {
-  grid-area: descDiv;
-  overflow: hidden;
-}
-
-.titleDiv, .authorDiv, .chapterCountDiv, .ratingDiv, .tagsDiv, .coverDiv, .descDiv .chapterPrevOuterBox .descDiv {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
-}

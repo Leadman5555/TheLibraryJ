@@ -3,8 +3,8 @@ CREATE SCHEMA library;
 DROP TABLE IF EXISTS library.library_book_details;
 CREATE TABLE library.library_book_details
 (
-    description VARCHAR(2000),
-    author      VARCHAR(252) NOT NULL,
+    description VARCHAR(800),
+    author      VARCHAR(25) NOT NULL,
     author_id   UUID         NOT NULL,
     id          UUID         NOT NULL,
     version     BIGINT       NOT NULL DEFAULT 0,

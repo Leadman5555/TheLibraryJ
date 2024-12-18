@@ -10,7 +10,6 @@ import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
 import org.library.thelibraryj.book.dto.bookDto.BookDetailResponse;
 import org.library.thelibraryj.book.dto.bookDto.BookResponse;
 import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
@@ -100,18 +99,20 @@ public class BookServiceTest {
 
     @Test
     public void testGetBookDetailResponse() {
-        List<ChapterPreview> chapterPreviews = List.of(chapterPreview);
-        List<ChapterPreviewResponse> mappedChapters = bookMapper.chapterPreviewsToChapterPreviewResponseList(chapterPreviews);
-        List<RatingResponse> mappedRatings = bookMapper.ratingsToRatingResponseList(List.of(rating));
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
-        when(chapterPreviewRepository.getAllChapterPreviewsForBook(bookId)).thenReturn(chapterPreviews);
-        when(ratingRepository.getAllRatingsForBook(bookId)).thenReturn(List.of(rating));
-        BookDetailResponse mapped = bookMapper.bookDetailToBookDetailResponse(bookDetail, mappedChapters, mappedRatings);
+        BookDetailResponse mapped = bookMapper.bookDetailToBookDetailResponse(bookDetail);
         BookDetailResponse fetched = bookService.getBookDetailResponse(bookId).get();
         assertEquals(mapped, fetched);
-        assertEquals(mappedChapters, fetched.chapterPreviews());
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.empty());
         assertEquals(new BookError.BookDetailEntityNotFound(bookId), bookService.getBookDetailResponse(bookId).getLeft());
+    }
+
+    @Test
+    public void testGetBookRatings(){
+        List<RatingResponse> mappedRatings = bookMapper.ratingsToRatingResponseList(List.of(rating));
+        when(ratingRepository.getAllRatingsForBook(bookId)).thenReturn(List.of(rating));
+        List<RatingResponse> fetched = bookService.getRatingResponsesForBook(bookId);
+        assertEquals(mappedRatings, fetched);
     }
 
     @Test
@@ -120,7 +121,7 @@ public class BookServiceTest {
         List<BookPreview> baseList = List.of(BookPreview.builder().title(title + '1').build(), BookPreview.builder().title(title + '2').build());
         int page = 0;
         int defPageSize = 20;
-        when((blazeRepository.getOffsetPaged(defPageSize, page))).thenReturn(new PagedArrayList<>(baseList, null, baseList.size(), 0, defPageSize));
+        when((blazeRepository.getOffsetBookPreviewPaged(defPageSize, page))).thenReturn(new PagedArrayList<>(baseList, null, baseList.size(), 0, defPageSize));
         PagedBookPreviewsResponse fetchedPage = bookService.getOffsetPagedBookPreviewResponses(defPageSize, page);
         PagedBookPreviewsResponse expectedPage = new PagedBookPreviewsResponse(
                 baseList.stream().map((BookPreview bookPreview1) -> bookMapper.bookPreviewToBookPreviewResponse(bookPreview1, null)).toList(),
@@ -182,18 +183,12 @@ public class BookServiceTest {
         when(bookImageHandler.fetchCoverImage(anyString())).thenReturn(null);
         bookDetail.setId(bookId);
         bookPreview.setId(bookId);
-        when(ratingRepository.getAllRatingsForBook(bookId))
-                .thenReturn(List.of(rating));
-        when(chapterPreviewRepository.getAllChapterPreviewsForBook(bookId))
-                .thenReturn(List.of(chapterPreview));
         when(bookPreviewRepository.findByTitle(title)).thenReturn(Optional.ofNullable(bookPreview));
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
         BookResponse response = bookService.getBook(title).get();
         Assertions.assertAll(
                 () -> assertEquals(author, response.author()),
-                () -> assertEquals(title, response.title()),
-                () -> assertEquals(1, response.chapterPreviews().size()),
-                () -> assertEquals(1, response.ratings().size())
+                () -> assertEquals(title, response.title())
         );
     }
 

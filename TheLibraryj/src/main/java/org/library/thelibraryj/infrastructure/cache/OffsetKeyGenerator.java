@@ -6,8 +6,8 @@ import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 
-@Component("bookPreviewKeyGenerator")
-public class BookPreviewKeyGenerator implements KeyGenerator {
+@Component("offsetKeyGenerator")
+public class OffsetKeyGenerator implements KeyGenerator {
     @Override
     public Object generate(Object target, Method method, Object... params) {
         return StringUtils.arrayToDelimitedString(params, "_");

@@ -15,8 +15,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 interface BookMapper {
-    BookDetailResponse bookDetailToBookDetailResponse(BookDetail bookDetail, List<ChapterPreviewResponse> chapterPreviews,
-                                                      List<RatingResponse> ratings);
+    BookDetailResponse bookDetailToBookDetailResponse(BookDetail bookDetail);
 
     BookPreviewResponse bookPreviewToBookPreviewResponse(BookPreview bookPreview, byte[] coverImage);
     BookPreviewResponse bookPreviewWithCoverToBookPreviewResponse(BookPreview bookPreview, byte[] coverImage);

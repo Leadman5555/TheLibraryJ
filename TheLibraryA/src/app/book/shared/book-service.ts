@@ -1,14 +1,14 @@
 import {Injectable} from '@angular/core';
 import {BookPreview} from './models/book-preview';
-import {Observable} from 'rxjs';
+import {asyncScheduler, Observable, scheduled} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {BookDetail} from './models/book-detail';
 import {BookResponse} from './models/book-response';
 import {ChapterContent} from './models/chapter-content';
 import {BookPage} from '../../home/home/paging/book-page';
-import {KeysetPage} from '../../home/home/paging/keyset-page';
-import {BookState} from './models/BookState';
-import {BookTag} from './models/BookTag';
+import {KeysetPage} from '../../shared/paging/models/keyset-page';
+import {RatingResponse} from './models/rating-response';
+import {ChapterPreviewPage} from '../book/paging/chapterPreview-page';
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +30,16 @@ export class BookService {
     return this.http.post<BookPage>(this.baseUrl, keysetPage , {params});
   }
 
+  public getChapterPreviewsPageByOffset(bookId: string, page?: number, pageSize?: number): Observable<ChapterPreviewPage> {
+    const params = new HttpParams().set('page', page ?? 0).set('pageSize', pageSize ?? 20);
+    return this.http.get<ChapterPreviewPage>(`${this.baseUrl}/${bookId}/chapter`, {params});
+  }
+
+  public getChapterPreviewsPageByKeySet(bookId: string, page: number, keysetPage: KeysetPage): Observable<ChapterPreviewPage> {
+    const params = new HttpParams().set('page', page);
+    return this.http.post<ChapterPreviewPage>(`${this.baseUrl}/${bookId}/chapter`, keysetPage , {params});
+  }
+
   public getBookPreviewsByParams(params : HttpParams): Observable<BookPreview[]> {
     return this.http.get<BookPreview[]>(`${this.baseUrl}/filtered`, {params});
   }
@@ -43,9 +53,11 @@ export class BookService {
   }
 
   public getChapterContentByNumber(bookId: string, chapterNumber: number): Observable<ChapterContent> {
-    let params = new HttpParams();
-    params = params.append('bookId', bookId);
-    params = params.append('chapterNumber', chapterNumber);
+    const params = new HttpParams().set('bookId', bookId).set('chapterNumber', chapterNumber);
     return this.http.get<ChapterContent>(`${this.baseUrl}/book/chapter`, {params: params});
+  }
+
+  public getRatingsForBook(bookId: string): Observable<RatingResponse[]> {
+    return this.http.get<RatingResponse[]>(`${this.baseUrl}/${bookId}/rating`);
   }
 }

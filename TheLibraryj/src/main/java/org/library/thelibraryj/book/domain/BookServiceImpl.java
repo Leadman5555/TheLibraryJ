@@ -14,11 +14,12 @@ import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterResponse;
-import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
-import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalSuccess;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
+import org.library.thelibraryj.book.dto.pagingDto.PagedChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
 import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
+import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalSuccess;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
@@ -74,11 +75,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService {
     @Override
     public Either<GeneralError, BookDetailResponse> getBookDetailResponse(UUID detailId) {
         Either<GeneralError, BookDetail> fetched = getBookDetail(detailId);
-        if (fetched.isRight())
-            return Either.right(mapper.bookDetailToBookDetailResponse(
-                    fetched.get(),
-                    getChapterPreviewResponsesForBook(detailId),
-                    getRatingResponsesForBook(detailId)));
+        if (fetched.isRight()) return Either.right(mapper.bookDetailToBookDetailResponse(fetched.get()));
         return Either.left(fetched.getLeft());
     }
 
@@ -368,8 +365,6 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService {
                 bookPreviewEager.getChapterCount(),
                 bookPreviewEager.getAverageRating(),
                 bookPreviewEager.getRatingCount(),
-                getChapterPreviewResponsesForBook(bookDetail.getId()),
-                getRatingResponsesForBook(bookDetail.getId()),
                 bookPreviewEager.getBookTags(),
                 bookPreviewEager.getBookState(),
                 bookImageHandler.fetchCoverImage(bookPreviewEager.getTitle())
@@ -385,15 +380,14 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService {
                 bookPreviewEager.getChapterCount(),
                 bookPreviewEager.getAverageRating(),
                 bookPreviewEager.getRatingCount(),
-                List.of(),
-                List.of(),
                 bookPreviewEager.getBookTags(),
                 bookPreviewEager.getBookState(),
                 null
         );
     }
 
-    List<RatingResponse> getRatingResponsesForBook(UUID bookId) {
+    @Override
+    public List<RatingResponse> getRatingResponsesForBook(UUID bookId) {
         return mapper.ratingsToRatingResponseList(getRatingsForBook(bookId));
     }
 
@@ -413,23 +407,37 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService {
     @Override
     @Cacheable(value = "bookPreviewsKeySet")
     public PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(KeysetPage lastPage, int page) {
-        PagedList<BookPreview> pagedList = bookBlazeRepository.getKeySetPagedNext(lastPage, page);
+        PagedList<BookPreview> pagedList = bookBlazeRepository.getKeySetPagedBookPreviewNext(lastPage, page);
         return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()));
     }
 
     @Override
-    @Cacheable(value = "bookPreviewsOffset", keyGenerator = "bookPreviewKeyGenerator")
+    @Cacheable(value = "bookPreviewsOffset", keyGenerator = "offsetKeyGenerator")
     public PagedBookPreviewsResponse getOffsetPagedBookPreviewResponses(int pageSize, int page) {
-        PagedList<BookPreview> pagedList = bookBlazeRepository.getOffsetPaged(pageSize, page);
+        PagedList<BookPreview> pagedList = bookBlazeRepository.getOffsetBookPreviewPaged(pageSize, page);
         return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()));
     }
 
 
     @Override
     public List<BookPreviewResponse> getByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags, Boolean ratingOrder) {
-        List<BookPreview> fetched = bookBlazeRepository.getByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder);
+        List<BookPreview> fetched = bookBlazeRepository.getBookPreviewByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder);
         return fetched.stream().map(this::mapPreviewWithCover).toList();
     }
+
+    @Override
+    @Cacheable(value = "chapterPreviewOffset", keyGenerator = "offsetKeyGenerator")
+    public PagedChapterPreviewResponse getOffsetPagedChapterPreviewResponses(int pageSize, int page, UUID bookId) {
+        PagedList<ChapterPreview> pagedList = bookBlazeRepository.getOffsetChapterPreviewPaged(pageSize, page, bookId);
+        return new PagedChapterPreviewResponse(mapper.chapterPreviewsToChapterPreviewResponseList(pagedList), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()), bookId);
+    }
+
+    @Override
+    public PagedChapterPreviewResponse getKeySetPagedChapterPreviewResponses(KeysetPage lastPage, int page, UUID bookId) {
+        PagedList<ChapterPreview> pagedList = bookBlazeRepository.getKeySetPagedChapterPreviewNext(lastPage, page, bookId);
+        return new PagedChapterPreviewResponse(mapper.chapterPreviewsToChapterPreviewResponseList(pagedList), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()), bookId);
+    }
+
 
     @Override
     @CacheEvict(value = {"bookPreviewsOffset", "bookPreviewsKeySet"})

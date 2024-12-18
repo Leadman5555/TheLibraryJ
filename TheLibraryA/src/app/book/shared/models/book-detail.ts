@@ -5,5 +5,4 @@ export interface BookDetail {
   author: string;
   description: string;
   chapterPreviews: ChapterPreview[];
-  ratings: RatingResponse[];
 }
