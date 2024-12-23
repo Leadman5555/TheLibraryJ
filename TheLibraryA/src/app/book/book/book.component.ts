@@ -85,17 +85,10 @@ export class BookComponent extends PagingHelper implements OnInit {
     this.bookService.getRatingsForBook(this.bookPreview.id).subscribe({
       next: (v) => {
         this.ratings = v;
-        for (let i = 0; i < 30; i++) {
-          this.ratings.push(this.ratings[i]);
-        }
       },
       error: (_) => console.error("Error fetched ratings"),
     })
   }
-
-  // parseArrayDate(date: string[]): string {
-  //   return `${date[0]}-${date[1]}-${date[2]} | ${date[3]}:${date[4]}`;
-  // }
 
   parseDate(date: string): string {
     const splitIndex = date.indexOf('T');

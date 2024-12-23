@@ -15,7 +15,7 @@ CREATE TABLE library.library_book_details
 DROP TABLE IF EXISTS library.library_book_previews;
 CREATE TABLE library.library_book_previews
 (
-    title          VARCHAR(252) UNIQUE NOT NULL,
+    title          VARCHAR(40) UNIQUE NOT NULL,
     book_detail_id UUID                NOT NULL,
     version        BIGINT              NOT NULL DEFAULT 0,
     created_at     TIMESTAMP,
@@ -35,7 +35,7 @@ CREATE TABLE library.book_tag
 DROP TABLE IF EXISTS library.library_chapter_previews;
 CREATE TABLE library.library_chapter_previews
 (
-    title          VARCHAR(252),
+    title          VARCHAR(40),
     id             UUID   NOT NULL,
     book_detail_id UUID   NOT NULL,
     version        BIGINT NOT NULL DEFAULT 0,

@@ -50,7 +50,7 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
     @Override
     public PagedList<ChapterPreview> getKeySetPagedChapterPreviewNext(KeysetPage page, int pageNumber, UUID bookId) {
         return cbf.create(em, ChapterPreview.class)
-                .orderByDesc("number")
+                .orderByAsc("number")
                 .orderByDesc("id")
                 .where("bookDetail.id").eq(bookId)
                 .page(page, page.getMaxResults() * pageNumber, page.getMaxResults())
@@ -61,7 +61,7 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
     @Override
     public PagedList<ChapterPreview> getOffsetChapterPreviewPaged(int pageSize, int pageNumber, UUID bookId) {
         return cbf.create(em, ChapterPreview.class)
-                .orderByDesc("number")
+                .orderByAsc("number")
                 .orderByDesc("id")
                 .where("bookDetail.id").eq(bookId)
                 .page(pageNumber * pageSize, pageSize)
@@ -76,10 +76,8 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
         if (minChapters != null) cb.where("chapterCount").ge(minChapters);
         if (minRating != null) cb.where("averageRating").ge(minRating);
         if (state != null) cb.where("bookState").eq(state);
-        if (tags != null) {
+        if (tags != null)
             for (BookTag tag : tags) cb.where(":tag").isMemberOf("bookTags").setParameter("tag", tag);
-
-        }
         if(ratingOrder != null) cb.orderBy("averageRating", ratingOrder);
         return cb.getResultList();
     }

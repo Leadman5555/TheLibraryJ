@@ -1,4 +1,4 @@
-button {
+.sButton {
   margin-top: 5px;
   font-family: inherit;
   font-size: 0.9em;
@@ -15,7 +15,7 @@ button {
   cursor: pointer;
 }
 
-button::after {
+.sButton::after {
   content: "";
   position: absolute;
   top: -10px;
@@ -27,7 +27,7 @@ button::after {
   transform-origin: center;
 }
 
-button::before {
+.sButton::before {
   content: "";
   transform-origin: center;
   position: absolute;
@@ -39,14 +39,14 @@ button::before {
   transition: 0.5s;
 }
 
-button:hover::before, button:hover::after {
+.sButton:hover::before, .sButton:hover::after {
   transform: scale(0)
 }
 
-button:hover {
+.sButton:hover {
   box-shadow: inset 0 0 25px goldenrod;
 }
 
-button:disabled {
+.sButton:disabled {
   display: none;
 }

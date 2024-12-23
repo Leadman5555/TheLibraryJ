@@ -2,7 +2,7 @@ import {OnStoreInit} from '@ngrx/component-store';
 import {tapResponse} from '@ngrx/operators'
 import {inject, Injectable} from '@angular/core';
 import {BookService} from '../../../book/shared/book-service';
-import {map, Observable, switchMap, tap, withLatestFrom} from 'rxjs';
+import {map, Observable, switchMap, withLatestFrom} from 'rxjs';
 import {BookPage} from './book-page';
 import {GenericComponentStore} from '../../../shared/paging/generic.component-store';
 import {BookPreview} from '../../../book/shared/models/book-preview';
@@ -14,7 +14,7 @@ const initialState : BookPage = {
       totalPages: 0,
       keysetPage: {
         firstResult: 0,
-        maxResults: 5,
+        maxResults: 3,
         lowest: {
           number: 0,
           id: ''

@@ -1,6 +1,6 @@
 import {OnStoreInit} from '@ngrx/component-store';
 import {tapResponse} from '@ngrx/operators'
-import {inject, Injectable, InjectionToken} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {BookService} from '../../shared/book-service';
 import {asyncScheduler, map, Observable, scheduled, switchMap, withLatestFrom} from 'rxjs';
 import {ChapterPreviewPage} from './chapterPreview-page';
@@ -14,7 +14,7 @@ const initialState: ChapterPreviewPage = {
     totalPages: 0,
     keysetPage: {
       firstResult: 0,
-      maxResults: 20,
+      maxResults: 30,
       lowest: {
         number: 0,
         id: ''

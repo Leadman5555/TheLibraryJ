@@ -1,4 +1,4 @@
-@import '../../shared/styles/button.css';
+@import '../../shared/styles/sButton.css';
 @import '../../shared/styles/pageNumberBox.css';
 
 .description {
@@ -20,17 +20,18 @@
 }
 
 .bookReviews {
-  flex: 0 0 30%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  flex: 0 0 35%;
   border: 3px solid goldenrod;
-  margin: 5px;
+  margin-top: 5px;
+  padding: 10px;
+  background: cadetblue;
+  overflow: auto;
+  max-height: 1480px;
 }
 
 .reviewElement {
-  width: 30vw;
+  max-width: 100%;
   padding: 10px;
-  margin: 10px;
   border: 3px dashed goldenrod;
   background-color: cadetblue;
   display: flex;
@@ -69,6 +70,7 @@
 
 .bookInfo {
   flex: 0 0 70%;
+  min-width: 60vw;
 }
 
 .bookCard {
@@ -124,28 +126,60 @@
   padding: 20px;
 }
 
+.outChapBox{
+  min-width: 60vw;
+  background: cadetblue;
+  padding: 10px;
+  margin: 5px;
+  border: 3px solid goldenrod;
+
+}
+
+.pagingButtons{
+  padding: 10px;
+}
+
 .chapterPrevBox{
   grid-area: chapterPrevBox;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(15, 50px);
+  grid-template-rows: repeat(10, 60px);
   gap: 10px;
+  row-gap: 20px;
   height: 100%;
   width: 100%;
   overflow: auto;
 }
 
 .chapterBox {
-  background-color: gray;
-  height: 50px;
+  background-color: #969db6;
+  height: 60px;
   border-radius: 5px;
-  border: 1px solid gray;
+  padding: 5px;
+  border: 2px solid gray;
 }
 
 .chapterBox:hover {
   background: goldenrod;
   box-shadow: 3px 3px 2px gray;
   cursor: pointer;
+}
+
+.bold{
+  font-weight: bold;
+  font-size: 1.05rem;
+}
+
+#chNumber{
+  font-size: 1.5rem;
+  border-right: 2px solid gray;
+  flex: 0 0 18%;
+}
+
+#chInfo{
+  flex: 0 0 80%;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .tagsDiv {
