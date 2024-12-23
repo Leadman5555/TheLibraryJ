@@ -12,7 +12,7 @@ export const routes: Routes = [
     component: BookComponent
   },
   {path : 'book/:title', component : BookComponent},
-  {path:  'book/chapter/:bookId/:chapterNumber', component : ChapterComponent },
+  {path:  'book/:title/chapter/:chapterNumber/:bookId', component : ChapterComponent },
   {path: 'filter', component:  BookViewComponent},
   {path: '*', component: HomeComponent}
 ];

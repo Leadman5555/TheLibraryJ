@@ -1,4 +1,24 @@
-<p>chapter works!</p>
-<p>{{chapterContent.content}}</p>
-<button (click)="fetchChapter(chapterNumber+1)"> next</button>
-<button (click)="fetchChapter(chapterNumber-1)"> prev</button>
+<div *ngIf="chapterContent" class="outerBox column">
+  <div class="column blueBox" id="infoHeader">
+    <a id="bookTitle">{{bookTitle}}</a>
+    <div class="row">
+      <button class="sButton" (click)="fetchChapter(chapterNumber-1)">Previous</button>
+      <div class="centerVH chTitle">
+        {{chapterNumber}} :
+        {{ chapterContent.title }}
+      </div>
+      <button class="sButton" (click)="fetchChapter(chapterNumber+1)">Next</button>
+    </div>
+  </div>
+  <p id="chContent">
+    {{chapterContent.content}}
+  </p>
+  <div class="row blueBox">
+    <button class="sButton" (click)="fetchChapter(chapterNumber-1)">Previous</button>
+    <div class="centerVH chTitle">
+      {{chapterNumber}} :
+      {{ chapterContent.title }}
+    </div>
+    <button class="sButton" (click)="fetchChapter(chapterNumber+1)">Next</button>
+  </div>
+</div>

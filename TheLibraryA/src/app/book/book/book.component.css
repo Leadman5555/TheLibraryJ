@@ -19,6 +19,13 @@
   gap: 10px;
 }
 
+.fetchRatings{
+  position: relative;
+  left: 40%;
+  right: 40%;
+  margin-top: 10px;
+}
+
 .bookReviews {
   flex: 0 0 35%;
   border: 3px solid goldenrod;

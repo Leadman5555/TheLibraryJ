@@ -11,8 +11,6 @@ export interface BookResponse {
   chapterCount: number;
   averageRating: number;
   ratingCount: number;
-  chapterPreviews: ChapterPreview[];
-  ratings: RatingResponse[];
   bookTags: BookTag[],
   bookState: BookState;
   coverImage: string;

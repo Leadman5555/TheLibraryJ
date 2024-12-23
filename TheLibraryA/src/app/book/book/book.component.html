@@ -38,7 +38,7 @@
           </div>
           <div class="chapterPrevBox">
             @for (chPrev of vm; track chPrev.number) {
-              <div class="chapterBox row" [routerLink]="['chapter', this.bookPreview.id, chPrev.number]">
+              <div class="chapterBox row" [routerLink]="['chapter', chPrev.number, this.bookPreview.id]">
                 <a class="bold centerVH" id="chNumber">{{ chPrev.number.toString().padStart(4, '0')}}</a>
                 <div class="column" id="chInfo">
                   <a class="bold">{{ chPrev.title }}</a>

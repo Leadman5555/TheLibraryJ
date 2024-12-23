@@ -48,7 +48,8 @@ export class BookComponent extends PagingHelper implements OnInit {
       this.bookService.getBookDetail(this.bookPreview.id).subscribe({
         next: (v) => this.bookDetail = v,
         error: (_) => this.router.navigate([`book`, this.bookPreview.title]),
-      })
+      });
+      this.fetchChapterPreviews();
     } else {
       const title: string = this.activatedRoute.snapshot.params['title'];
       if (title) {
@@ -63,20 +64,23 @@ export class BookComponent extends PagingHelper implements OnInit {
               coverImage: v.coverImage,
               ratingCount: v.ratingCount,
               bookState: v.bookState,
-            }
+            };
             this.bookDetail = {
               author: v.author,
               description: v.description,
-              chapterPreviews: v.chapterPreviews
-            }
+            };
+            this.fetchChapterPreviews();
           },
           error: (e) => {
             console.error(e);
             this.router.navigate([this.defaultRoute]);
           }
-        })
+        });
       } else this.router.navigate([this.defaultRoute]);
     }
+  }
+
+  private fetchChapterPreviews(){
     this.componentStore.updateBookId(this.bookPreview.id);
     this.componentStore.loadPageByOffset();
   }
