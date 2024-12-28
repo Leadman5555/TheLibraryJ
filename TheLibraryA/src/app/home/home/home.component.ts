@@ -7,14 +7,14 @@ import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {BookPreviewCardComponent} from '../../book/book-preview-card/book-preview-card.component';
 import {provideComponentStore} from '@ngrx/component-store';
 import {HomeComponentStore} from './paging/home.component-store';
-import {TimesMaxPipe} from '../../shared/pipes/times-max.pipe';
+import {TimesMaxPagingPipe} from '../../shared/pipes/times-max-paging.pipe';
 import {BookFilterComponent} from '../../book/book-filter/filterBox/book-filter.component';
 import {PagingHelper} from '../../shared/paging/paging-helper';
 
 @Component({
   selector: 'app-home',
   imports: [
-    ReactiveFormsModule, NgIf, NgForOf, BookPreviewCardComponent, AsyncPipe, TimesMaxPipe, BookFilterComponent
+    ReactiveFormsModule, NgIf, NgForOf, BookPreviewCardComponent, AsyncPipe, TimesMaxPagingPipe, BookFilterComponent
   ],
   providers: [
     provideComponentStore(HomeComponentStore)
@@ -39,7 +39,7 @@ export class HomeComponent extends PagingHelper {
     this.componentStore.loadSpecifiedPage(pageNumber);
   }
 
-  identifyBp(index: number, item : BookPreview) {
+  identifyBp(_: number, item : BookPreview) {
     return item.title;
   }
 }

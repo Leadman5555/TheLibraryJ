@@ -8,8 +8,8 @@ import {BookViewComponent} from './book/book-view/book-view.component';
 export const routes: Routes = [
   { path: '', component: HomeComponent},
   {
-    path: 'book',
-    component: BookComponent
+    path: 'book/:title',
+    component: BookComponent,
   },
   {path : 'book/:title', component : BookComponent},
   {path:  'book/:title/chapter/:chapterNumber/:bookId', component : ChapterComponent },

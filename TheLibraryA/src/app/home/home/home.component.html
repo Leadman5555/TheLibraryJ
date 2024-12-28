@@ -4,7 +4,7 @@
         <div *ngIf="info$ | async as info" class="row">
           <div class="pageNumberBox" aria-label="First page" (click)="onChosenPage(0)" [class.selected]="0 == info.page">1</div>
           <button type="button" class="pageNumberBox" aria-label="Previous Page" (click)="onPreviousPage()">←</button>
-          <div class="pageNumberBox" *ngFor="let pageNumber of info.totalPages - 1 | timesMax : info.page : 6; trackBy identifyPage"
+          <div class="pageNumberBox" *ngFor="let pageNumber of info.totalPages - 1 | timesMaxPaging : info.page : 6; trackBy identifyPage"
                (click)="onChosenPage(pageNumber)"
                [class.selected]="pageNumber === info.page">{{ pageNumber + 1 }}
           </div>

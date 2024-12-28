@@ -5,7 +5,7 @@ import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {BookDetail} from '../shared/models/book-detail';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {RatingResponse} from '../shared/models/rating-response';
-import {TimesMaxPipe} from '../../shared/pipes/times-max.pipe';
+import {TimesMaxPagingPipe} from '../../shared/pipes/times-max-paging.pipe';
 import {ChapterPreviewComponentStore} from './paging/chapterPreview.component-store';
 import {PagingHelper} from '../../shared/paging/paging-helper';
 import {ChapterPreview} from '../shared/models/chapter-preview';
@@ -15,7 +15,7 @@ import {provideComponentStore} from '@ngrx/component-store';
 
 @Component({
   selector: 'app-book',
-  imports: [RouterLink, NgIf, AsyncPipe, NgForOf, TimesMaxPipe],
+  imports: [RouterLink, NgIf, AsyncPipe, NgForOf, TimesMaxPagingPipe],
   providers: [
     provideComponentStore(ChapterPreviewComponentStore)
   ],

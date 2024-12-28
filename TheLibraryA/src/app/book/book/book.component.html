@@ -7,7 +7,7 @@
       </div>
       <div class="descDiv">
         <a id="header">Description:</a>
-        <p class="description"> {{ bookDetail.description }}</p>
+        <pre class="description"> {{ bookDetail.description }}</pre>
       </div>
       <div class="infoDiv column">
         <div class="authorDiv"> Penned by: <span class="userLink" [routerLink]="['/user', bookDetail.author]"> {{ bookDetail.author }}</span></div>
@@ -29,7 +29,7 @@
           <div *ngIf="info$ | async as info" class="pagingButtons row">
             <div class="pageNumberBox" aria-label="First page" (click)="onChosenPage(0)" [class.selected]="0 == info.page">1</div>
             <button type="button" class="pageNumberBox" aria-label="Previous Page" (click)="onPreviousPage()">←</button>
-            <div class="pageNumberBox" *ngFor="let pageNumber of info.totalPages - 1 | timesMax : info.page : 6; trackBy identifyPage"
+            <div class="pageNumberBox" *ngFor="let pageNumber of info.totalPages - 1 | timesMaxPaging : info.page : 6; trackBy identifyPage"
                  (click)="onChosenPage(pageNumber)"
                  [class.selected]="pageNumber === info.page">{{ pageNumber + 1 }}
             </div>

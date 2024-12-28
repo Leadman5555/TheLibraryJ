@@ -6,7 +6,7 @@
   font-family: "Bell MT", serif;
 }
 
-.blueBox{
+.blueBox {
   background-color: cadetblue;
   padding: 15px;
   border: 3px solid goldenrod;
@@ -22,13 +22,37 @@
   font-weight: bold;
 }
 
-#chContent{
-  text-align: center;
+#bookTitle:hover {
+  cursor: pointer;
+  text-decoration: underline;
+  color: goldenrod;
+}
+
+@keyframes expand {
+  from{
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#formBox{
+  display: block;
+  animation: expand 1s ease-in;
+}
+
+.settingsElem{
+  padding: 10px;
+}
+
+.chContent {
   padding: 20px;
   width: 90%;
   height: auto;
-  overflow-wrap: break-word;
+  white-space: pre-wrap;
   border: 1px solid #969db6;
+  transition-duration: 0.3s;
 }
 
 .chTitle {
