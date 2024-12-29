@@ -8,9 +8,12 @@ import java.util.UUID;
 
 interface BookBlazeRepository {
     void updateAllForNewUsername(UUID forUserId, String newUsername);
-    PagedList<BookPreview> getKeySetPagedNext(KeysetPage page, int pageNumber);
-    PagedList<BookPreview> getOffsetPaged(int pageSize, int pageNumber);
+    PagedList<BookPreview> getKeySetPagedBookPreviewNext(KeysetPage page, int pageNumber);
+    PagedList<BookPreview> getOffsetBookPreviewPaged(int pageSize, int pageNumber);
 
-    List<BookPreview> getByParams(String titleLike, Integer minChapters, Float minRating, BookState state,
-                                  BookTag[] tags, Boolean ratingOrder);
+    PagedList<ChapterPreview> getKeySetPagedChapterPreviewNext(KeysetPage page, int pageNumber, UUID bookId);
+    PagedList<ChapterPreview> getOffsetChapterPreviewPaged(int pageSize, int pageNumber, UUID bookId);
+
+    List<BookPreview> getBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state,
+                                             BookTag[] tags, Boolean ratingOrder);
 }

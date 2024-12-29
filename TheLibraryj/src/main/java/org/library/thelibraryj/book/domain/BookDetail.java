@@ -24,7 +24,7 @@ class BookDetail extends AbstractEntity {
     @Column(nullable = false)
     private UUID authorId;
     @Column
-    @Size(max = 2000)
+    @Size(max = 800)
     private String description;
 
     @Builder

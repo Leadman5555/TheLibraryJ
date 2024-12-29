@@ -82,7 +82,7 @@ public class BookControllerTest {
 
     @Test
     public void testGetBookDetail() throws Exception {
-        BookDetailResponse detailResponse = new BookDetailResponse("author", "des", null, null);
+        BookDetailResponse detailResponse = new BookDetailResponse("author", "des");
         when(bookService.getBookDetailResponse(bookId)).thenReturn(Either.right(detailResponse));
 
         mockMvc.perform(get(ENDPOINT + "/na/books/" + bookId)

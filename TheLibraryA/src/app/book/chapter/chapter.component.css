@@ -1,0 +1,81 @@
+@import '../../shared/styles/sButton.css';
+
+.outerBox {
+  display: flex;
+  justify-content: center;
+  font-family: "Bell MT", serif;
+}
+
+.blueBox {
+  background-color: cadetblue;
+  padding: 15px;
+  border: 3px solid goldenrod;
+  gap: 20px;
+}
+
+#infoHeader {
+  margin-top: 20px;
+}
+
+#bookTitle {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+#bookTitle:hover {
+  cursor: pointer;
+  text-decoration: underline;
+  color: goldenrod;
+}
+
+@keyframes expand {
+  from{
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#formBox{
+  display: block;
+  animation: expand 1s ease-in;
+}
+
+.settingsElem{
+  padding: 10px;
+}
+
+.chContent {
+  padding: 20px;
+  width: 90%;
+  height: auto;
+  white-space: pre-wrap;
+  border: 1px solid #969db6;
+  transition-duration: 0.3s;
+}
+
+.chTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.centerVH {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}

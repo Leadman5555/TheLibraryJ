@@ -2,7 +2,7 @@ import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
 import {BookFilterComponent} from "../book-filter/filterBox/book-filter.component";
 import {BookPreviewCardComponent} from "../book-preview-card/book-preview-card.component";
-import {TimesMaxPipe} from "../../shared/pipes/times-max.pipe";
+import {TimesMaxPagingPipe} from "../../shared/pipes/times-max-paging.pipe";
 import {BookPreview} from '../shared/models/book-preview';
 import {ActivatedRoute, Router} from '@angular/router';
 import {BookService} from '../shared/book-service';
@@ -17,8 +17,7 @@ import {Subscription} from 'rxjs';
   imports: [
     BookFilterComponent,
     BookPreviewCardComponent,
-    NgForOf,
-    NgIf
+    NgForOf
   ],
   templateUrl: './book-view.component.html',
   styleUrl: './book-view.component.css'

@@ -62,12 +62,12 @@
         </div>
 
         <div class="row filterButtons">
-          <button class="formButton" type="submit" [disabled]="filterForm.invalid || filterForm.pristine">Submit</button>
-          <button class="formButton" type="reset" (click)="resetFilters()">Reset filters</button>
+          <button class="sButton" type="submit" [disabled]="filterForm.invalid || filterForm.pristine">Submit</button>
+          <button class="sButton" type="reset" (click)="resetFilters()">Reset filters</button>
         </div>
       </div>
     </form>
   </div>
-  <img ngSrc="/teapot.jpg" width="369" height="246" alt="Chinese teapot">
+  <img ngSrc="/teapot.jpg" width="369" height="246" alt="Chinese teapot" priority>
 
 </div>

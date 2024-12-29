@@ -1,4 +1,4 @@
-<div *ngIf="bookPreview" class="bookPreviewCard" (click)="navigateToBook()">
+<div *ngIf="bookPreview" class="bookPreviewCard" [routerLink]="['/book/' + bookPreview.title]">
   <div class="coverImgDiv">
     <img src="data:image/jpg;base64,{{bookPreview.coverImage}}" alt="No cover" width="180px" height="240px">
   </div>

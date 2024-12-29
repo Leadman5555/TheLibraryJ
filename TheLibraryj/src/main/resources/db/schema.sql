@@ -3,8 +3,8 @@ CREATE SCHEMA library;
 DROP TABLE IF EXISTS library.library_book_details;
 CREATE TABLE library.library_book_details
 (
-    description VARCHAR(2000),
-    author      VARCHAR(252) NOT NULL,
+    description VARCHAR(800),
+    author      VARCHAR(25) NOT NULL,
     author_id   UUID         NOT NULL,
     id          UUID         NOT NULL,
     version     BIGINT       NOT NULL DEFAULT 0,
@@ -15,7 +15,7 @@ CREATE TABLE library.library_book_details
 DROP TABLE IF EXISTS library.library_book_previews;
 CREATE TABLE library.library_book_previews
 (
-    title          VARCHAR(252) UNIQUE NOT NULL,
+    title          VARCHAR(40) UNIQUE NOT NULL,
     book_detail_id UUID                NOT NULL,
     version        BIGINT              NOT NULL DEFAULT 0,
     created_at     TIMESTAMP,
@@ -35,7 +35,7 @@ CREATE TABLE library.book_tag
 DROP TABLE IF EXISTS library.library_chapter_previews;
 CREATE TABLE library.library_chapter_previews
 (
-    title          VARCHAR(252),
+    title          VARCHAR(40),
     id             UUID   NOT NULL,
     book_detail_id UUID   NOT NULL,
     version        BIGINT NOT NULL DEFAULT 0,

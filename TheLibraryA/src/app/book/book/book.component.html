@@ -1,32 +1,83 @@
 <div class="outerBox">
-  <div class="bookCard" *ngIf="bookPreview && bookDetail">
-    <div class="titleDiv"> {{bookPreview.title}} </div>
-    <div class="authorDiv"> <a class="small">Penned by: </a> {{bookDetail.author}} </div>
-    <div class="chapterCountDiv"> <a class="small">Number of chapters:</a> {{bookPreview.chapterCount}}</div>
-    <div class="ratingDiv">
-      <span class="small"> Average rating:</span>
-      <div class="avgRating" style="font-size: 3rem">
-        {{ bookPreview.averageRating }} <span class="small">/10</span>
+  <div class="bookInfo column">
+    <div class="bookCard" *ngIf="bookPreview && bookDetail">
+      <div class="titleDiv centerVH">{{ bookPreview.title }}</div>
+      <div class="ratingDataDiv row centerVH">
+        Average rating of {{ bookPreview.averageRating }} /10 from {{ bookPreview.ratingCount }} ratings
       </div>
-      <span class="small">
-        with rating count of: {{ bookPreview.ratingCount }}
-      </span>
-    </div>
-    <div class="tagsDiv">
-      @for (tag of bookPreview.bookTags; track tag){
-        <span class="tagBox" [routerLink]="['/filter', {'hasTags': [tag]}]">{{tag}}</span>
-      }
-    </div>
-    <div class="coverDiv"> <img src="data:image/jpg;base64,{{bookPreview.coverImage}}" alt="No cover" > </div>
-    <div class="descDiv"> <a class="small">Description: </a> {{bookDetail.description}}</div>
-    <div class="chapterPrevOuterBox">
-      <div class="outerBox">
-        <div class="chapterPrevDiv">
-          @for (chPrev of bookDetail.chapterPreviews; track chPrev.number){
-            <div class="chapterBox" [routerLink]="['chapter', this.bookPreview.id, chPrev.number]">{{chPrev.number}} : {{chPrev.title}} | Updated at: {{chPrev.updatedAt}} </div>
+      <div class="descDiv">
+        <a id="header">Description:</a>
+        <pre class="description"> {{ bookDetail.description }}</pre>
+      </div>
+      <div class="infoDiv column">
+        <div class="authorDiv"> Penned by: <span class="userLink" [routerLink]="['/user', bookDetail.author]"> {{ bookDetail.author }}</span></div>
+        <div class="stateDiv">Book state: {{ bookPreview.bookState }}</div>
+        <div class="chapterCount">Chapter count: {{ bookPreview.chapterCount }}</div>
+        <div class="tagsDiv">
+          @for (tag of bookPreview.bookTags; track tag) {
+            <span class="tagBox" [routerLink]="['/filter', {'hasTags': [tag]}]">{{ tag }}</span>
           }
         </div>
       </div>
+      <div class="coverDiv">
+        <img src="data:image/jpg;base64,{{bookPreview.coverImage}}" alt="Cover image">
+      </div>
     </div>
+
+    <ng-container *ngIf="vm$ | async as vm">
+        <div class="outChapBox column">
+          @if(vm.length){
+            <div *ngIf="info$ | async as info" class="pagingButtons row">
+              <div class="pageNumberBox" aria-label="First page" (click)="onChosenPage(0)" [class.selected]="0 == info.page">1</div>
+              <button type="button" class="pageNumberBox" aria-label="Previous Page" (click)="onPreviousPage()">←</button>
+              <div class="pageNumberBox" *ngFor="let pageNumber of info.totalPages - 1 | timesMaxPaging : info.page : 6; trackBy identifyPage"
+                   (click)="onChosenPage(pageNumber)"
+                   [class.selected]="pageNumber === info.page">{{ pageNumber + 1 }}
+              </div>
+              <button type="button" class="pageNumberBox" aria-label="Next Page" (click)="onNextPage()">→</button>
+              <div class="pageNumberBox" aria-label="Last page" (click)="onChosenPage(info.totalPages - 1)" [class.selected]="info.totalPages -1 === info.page">{{info.totalPages}}</div>
+            </div>
+            <div class="chapterPrevBox">
+              @for (chPrev of vm; track chPrev.number) {
+                <div class="chapterBox row" [routerLink]="['chapter', chPrev.number, this.bookPreview.id]">
+                  <a class="bold centerVH" id="chNumber">{{ chPrev.number.toString().padStart(4, '0')}}</a>
+                  <div class="column" id="chInfo">
+                    <a class="bold">{{ chPrev.title }}</a>
+                    <a>Updated at: {{ parseDate(chPrev.updatedAt) }}</a>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="infoMsg centerVH">No chapters available.</p>
+          }
+        </div>
+    </ng-container>
+
+  </div>
+  <div class="bookReviews">
+    <button class="fetchRatings sButton" (click)="upsertRating()">Add/Update rating</button>
+    @if(!ratings){
+      <div style="margin-bottom: 30px">
+        <button class="fetchRatings sButton" *ngIf="!ratings" (click)="fetchRatings()">Load book reviews</button>
+      </div>
+    } @else {
+      @if(ratings.length){
+        <div class="column">
+          @for (review of ratings; track review.username) {
+            <div class="reviewElement">
+              <div class="column reviewData">
+                <a>By: <span class="userLink" [routerLink]="['/user', review.username]">{{ review.username }}</span></a>
+                <a>Rating: <span style="font-weight:bold">{{ review.currentRating }}/10</span></a>
+                <a>At: {{ parseDate(review.updatedAt) }}</a>
+              </div>
+              <a id="comment"> {{ review.comment }}</a>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="infoMsg centerVH">No ratings available.</p>
+      }
+    }
   </div>
 </div>

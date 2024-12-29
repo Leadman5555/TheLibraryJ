@@ -9,8 +9,10 @@ import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
 import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
+import org.library.thelibraryj.book.dto.pagingDto.PagedChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PreviewKeySetPage;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
+import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.springframework.http.HttpStatus;
@@ -56,7 +58,6 @@ class BookController implements ErrorHandling {
         return bookService.getKeySetPagedBookPreviewResponses(keySetPage, page);
     }
 
-    //remove state?
     @Operation(
             summary = "Retrieve all book previews with their tags that meet the given criteria",
             tags = {"book", "no auth required"}
@@ -72,13 +73,23 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Retrieve a book detail with ratings and chapter previews by book Id",
+            summary = "Retrieve a book detail by book Id",
             tags = {"book", "no auth required"}
     )
     @GetMapping("/na/books/{id}")
     public ResponseEntity<String> getBookDetail(@PathVariable UUID id) {
         return handle(bookService.getBookDetailResponse(id), HttpStatus.OK);
     }
+
+    @Operation(
+            summary = "Retrieve all ratings for book of given id",
+            tags = {"book", "no auth required"}
+    )
+    @GetMapping("/na/books/{id}/rating")
+    public ResponseEntity<List<RatingResponse>> getBookRatings(@PathVariable UUID id) {
+        return ResponseEntity.ok(bookService.getRatingResponsesForBook(id));
+    }
+
 
     @Operation(
             summary = "Retrieve a book preview with its tags by book Id",
@@ -90,7 +101,7 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Retrieve a whole book by title",
+            summary = "Retrieve a whole book by title, chapter previews and ratings are not fetched",
             tags = {"book", "no auth required"}
     )
     @GetMapping("na/books/book/{title}")
@@ -135,6 +146,24 @@ class BookController implements ErrorHandling {
     @GetMapping("/na/books/book/chapter")
     public ResponseEntity<String> getBookChapter(@RequestParam("bookId") UUID bookId, @RequestParam("chapterNumber") int chapterNumber) {
         return handle(bookService.getChapterByBookIdAndNumber(bookId, chapterNumber), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Retrieve a page of chapter previews by offset navigation. Returns the asked for page and current keySet",
+            tags = {"book", "no auth required"}
+    )
+    @GetMapping("/na/books/{id}/chapter")
+    public PagedChapterPreviewResponse getChapterPreviewPageByOffset(@RequestParam(name = "page") int page, @RequestParam(name = "pageSize") int pageSize, @PathVariable("id") UUID bookId) {
+        return bookService.getOffsetPagedChapterPreviewResponses(pageSize, page, bookId);
+    }
+
+    @Operation(
+            summary = "Retrieve a page of chapter previews by keySet navigation. Returns the asked for page and current keySet",
+            tags = {"book", "no auth required"}
+    )
+    @PostMapping("/na/books/{id}/chapter")
+    public PagedChapterPreviewResponse getChapterPreviewPageByKeySet(@RequestParam(name = "page") int page, @NonNull @RequestBody PreviewKeySetPage keySetPage, @PathVariable("id") UUID bookId) {
+        return bookService.getKeySetPagedChapterPreviewResponses(keySetPage, page, bookId);
     }
 
     @Operation(

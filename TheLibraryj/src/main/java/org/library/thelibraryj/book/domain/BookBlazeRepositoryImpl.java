@@ -28,7 +28,7 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
     }
 
     @Override
-    public PagedList<BookPreview> getKeySetPagedNext(KeysetPage page, int pageNumber) {
+    public PagedList<BookPreview> getKeySetPagedBookPreviewNext(KeysetPage page, int pageNumber) {
         return cbf.create(em, BookPreview.class)
                 .orderByDesc("chapterCount")
                 .orderByDesc("id")
@@ -38,7 +38,7 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
     }
 
     @Override
-    public PagedList<BookPreview> getOffsetPaged(int pageSize, int pageNumber) {
+    public PagedList<BookPreview> getOffsetBookPreviewPaged(int pageSize, int pageNumber) {
         return cbf.create(em, BookPreview.class)
                 .orderByDesc("chapterCount")
                 .orderByDesc("id")
@@ -48,16 +48,36 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
     }
 
     @Override
-    public List<BookPreview> getByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags, Boolean ratingOrder) {
+    public PagedList<ChapterPreview> getKeySetPagedChapterPreviewNext(KeysetPage page, int pageNumber, UUID bookId) {
+        return cbf.create(em, ChapterPreview.class)
+                .orderByAsc("number")
+                .orderByDesc("id")
+                .where("bookDetail.id").eq(bookId)
+                .page(page, page.getMaxResults() * pageNumber, page.getMaxResults())
+                .withKeysetExtraction(true)
+                .getResultList();
+    }
+
+    @Override
+    public PagedList<ChapterPreview> getOffsetChapterPreviewPaged(int pageSize, int pageNumber, UUID bookId) {
+        return cbf.create(em, ChapterPreview.class)
+                .orderByAsc("number")
+                .orderByDesc("id")
+                .where("bookDetail.id").eq(bookId)
+                .page(pageNumber * pageSize, pageSize)
+                .withKeysetExtraction(true)
+                .getResultList();
+    }
+
+    @Override
+    public List<BookPreview> getBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags, Boolean ratingOrder) {
         CriteriaBuilder<BookPreview> cb = cbf.create(em, BookPreview.class).from(BookPreview.class);
         if (titleLike != null) cb.whereExpression("title LIKE :titleLike").setParameter("titleLike", titleLike + '%');
         if (minChapters != null) cb.where("chapterCount").ge(minChapters);
         if (minRating != null) cb.where("averageRating").ge(minRating);
         if (state != null) cb.where("bookState").eq(state);
-        if (tags != null) {
+        if (tags != null)
             for (BookTag tag : tags) cb.where(":tag").isMemberOf("bookTags").setParameter("tag", tag);
-
-        }
         if(ratingOrder != null) cb.orderBy("averageRating", ratingOrder);
         return cb.getResultList();
     }

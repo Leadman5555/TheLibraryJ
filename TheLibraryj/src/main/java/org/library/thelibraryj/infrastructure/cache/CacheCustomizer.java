@@ -10,6 +10,6 @@ import java.util.List;
 class CacheCustomizer implements CacheManagerCustomizer<ConcurrentMapCacheManager> {
     @Override
     public void customize(ConcurrentMapCacheManager cacheManager) {
-        cacheManager.setCacheNames(List.of( "bookPreviewsOffset", "bookPreviewsKeySet"));
+        cacheManager.setCacheNames(List.of( "bookPreviewsOffset", "bookPreviewsKeySet", "chapterPreviewOffset"));
     }
 }

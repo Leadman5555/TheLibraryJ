@@ -1,6 +1,22 @@
 INSERT INTO library.library_book_details (id, version, created_at, updated_at, author, author_id, description)
 VALUES ('123e4567-e89b-12d3-a456-426614174000', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'USER1',
-        '123e4567-e89b-12d3-a456-426614174000', 'desc'),
+        '123e4567-e89b-12d3-a456-426614174000', 'Humans are clever in tens of thousands of ways, Gu are the true refined essences of Heaven and Earth.
+
+The Three Temples are unrighteous, the demon is reborn.
+
+Former days are but an old dream, an identical name is made anew.
+
+A story of a time traveler who keeps on being reborn.
+
+A unique world that grows, cultivates, and uses Gu.
+
+The Spring and Autumn Cicada, the Venomous Moonlight Gu, the Wine Insect, All-Encompassing Golden Light Insect, Slender Black Hair Gu, Gu of Hope...
+
+And a great demon of the world that does exactly as his heart pleases!
+
+—
+
+*Gu (蛊) referred to poison in various cultures in South China while in folklore Gu spirits could transform into all kinds of species.'),
        ('123e4567-e89b-12d3-a456-426614174001', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'USER1',
         '123e4567-e89b-12d3-a456-426614174000', 'desc1'),
        ('123e4567-e89b-12d3-a456-426614174002', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'USER1',
@@ -15,7 +31,7 @@ VALUES ('123e4567-e89b-12d3-a456-426614174000', 0, CURRENT_TIMESTAMP, CURRENT_TI
         '123e4567-e89b-12d3-a456-426614174002', 'desc6');
 INSERT INTO library.library_book_previews (book_detail_id, version, created_at, updated_at, title, chapter_count,
                                            average_rating, rating_count, book_state)
-VALUES ('123e4567-e89b-12d3-a456-426614174000', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Book1', 10, 5, 1, 1),
+VALUES ('123e4567-e89b-12d3-a456-426614174000', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Reverend Insanity', 10, 5, 1, 1),
         ('123e4567-e89b-12d3-a456-426614174001', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Book2D', 645, 4, 10, 2),
         ('123e4567-e89b-12d3-a456-426614174002', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Book3D', 450, 10, 100, 1),
         ('123e4567-e89b-12d3-a456-426614174003', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Book4D', 100, 0, 0, 4),
@@ -54,10 +70,32 @@ VALUES ('123e4567-e89b-12d3-a456-426614174000', 1),
        ('123e4567-e89b-12d3-a456-426614174006', 2),
        ('123e4567-e89b-12d3-a456-426614174006', 4);
 INSERT INTO library.library_chapter_previews(ID, VERSION, CREATED_AT, UPDATED_AT, TITLE, NUMBER, BOOK_DETAIL_ID)
-VALUES ('123e4567-e89b-12d3-a456-999994174001', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'chapter title', 1,
+VALUES ('123e4567-e89b-12d3-a456-999994174000', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'chapter title1', 1,
+        '123e4567-e89b-12d3-a456-426614174000'),
+       ('123e4567-e89b-12d3-a456-999994174001', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'chapter title2', 2,
+        '123e4567-e89b-12d3-a456-426614174000'),
+       ('123e4567-e89b-12d3-a456-999994174002', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'chapter title3', 3,
+        '123e4567-e89b-12d3-a456-426614174000'),
+       ('123e4567-e89b-12d3-a456-999994174003', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'chapter title4', 4,
+        '123e4567-e89b-12d3-a456-426614174000'),
+       ('123e4567-e89b-12d3-a456-999994174004', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'chapter title5', 5,
+        '123e4567-e89b-12d3-a456-426614174000'),
+       ('123e4567-e89b-12d3-a456-999994174005', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'chapter title6', 6,
+        '123e4567-e89b-12d3-a456-426614174000'),
+       ('123e4567-e89b-12d3-a456-999994174006', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'chapter title7', 7,
+        '123e4567-e89b-12d3-a456-426614174000'),
+       ('123e4567-e89b-12d3-a456-999994174007', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'chapter title8', 8,
+        '123e4567-e89b-12d3-a456-426614174000'),
+       ('123e4567-e89b-12d3-a456-999994174008', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'chapter title9', 9,
+        '123e4567-e89b-12d3-a456-426614174000'),
+       ('123e4567-e89b-12d3-a456-999994174009', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'chapter title10', 10,
+        '123e4567-e89b-12d3-a456-426614174000'),
+       ('123e4567-e89b-12d3-a456-999994174010', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'chapter title11', 11,
+        '123e4567-e89b-12d3-a456-426614174000'),
+       ('123e4567-e89b-12d3-a456-999994174011', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Three Venerables Attack Heavenly Court', 2333,
         '123e4567-e89b-12d3-a456-426614174000');
 INSERT INTO library.library_chapters(CHAPTER_PREVIEW_ID, VERSION, CREATED_AT, UPDATED_AT, TEXT)
-VALUES ('123e4567-e89b-12d3-a456-999994174001', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'this is a long chapter text');
+VALUES ('123e4567-e89b-12d3-a456-999994174000', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'this is a long chapter text');
 INSERT INTO library.library_ratings(ID, VERSION, CREATED_AT, UPDATED_AT, CURRENT_RATING, USER_ID, USERNAME, COMMENT,
                                     BOOK_DETAIL_ID)
 VALUES ('123e4567-e89b-12d3-a456-888884174001', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 5,

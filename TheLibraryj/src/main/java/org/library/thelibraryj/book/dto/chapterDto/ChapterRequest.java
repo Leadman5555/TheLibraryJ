@@ -6,4 +6,4 @@ import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
-public record ChapterRequest(@NotNull @Max(10000) Integer number, String title, @Size(max = 18000) String chapterText, @NotNull UUID bookId, @NotNull String authorEmail) { }
+public record ChapterRequest(@NotNull @Max(10000) Integer number, @Size(max = 40) String title, @Size(max = 18000) String chapterText, @NotNull UUID bookId, @NotNull String authorEmail) { }

@@ -13,6 +13,6 @@ class CacheConfig {
 
     @Bean
     public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager("bookPreviewsOffset", "bookPreviewsKeySet");
+        return new ConcurrentMapCacheManager("bookPreviewsOffset", "bookPreviewsKeySet", "chapterPreviewOffset");
     }
 }
