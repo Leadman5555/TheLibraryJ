@@ -24,10 +24,7 @@
 }
 
 .fetchRatings{
-  position: relative;
-  left: 40%;
-  right: 40%;
-  margin-top: 10px;
+  margin: 10px;
 }
 
 .bookReviews {
@@ -212,3 +209,6 @@
   box-shadow: 3px 3px 2px gray;
 }
 
+.infoMsg{
+  font-size: 1.2rem;
+}

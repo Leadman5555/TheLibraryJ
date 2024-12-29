@@ -94,6 +94,10 @@ export class BookComponent extends PagingHelper implements OnInit {
     })
   }
 
+  upsertRating(){
+
+  }
+
   parseDate(date: string): string {
     const splitIndex = date.indexOf('T');
     const calendarParts = date.substring(0, splitIndex).split('-');
@@ -110,5 +114,9 @@ export class BookComponent extends PagingHelper implements OnInit {
 
   onChosenPage(pageNumber: number){
     this.componentStore.loadSpecifiedPage(pageNumber);
+  }
+
+  max(val1: number, val2: number) : number {
+    return Math.max(val1, val2);
   }
 }
