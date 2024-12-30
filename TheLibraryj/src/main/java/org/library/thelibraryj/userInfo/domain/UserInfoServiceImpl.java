@@ -88,6 +88,23 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     }
 
     @Override
+    public Either<GeneralError, UserInfoWithImageResponse> getUserInfoResponseByEmail(String email) {
+        Either<GeneralError, UserInfo> fetched = Try.of(() -> userInfoRepository.getByEmail(email))
+                .toEither()
+                .map(Option::ofOptional)
+                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
+                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFound(email)));
+        if(fetched.isLeft()) return Either.left(fetched.getLeft());
+        return Either.right(userInfoMapper.userInfoToUserInfoWithImageResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(fetched.get().getId())));
+
+    }
+
+    @Override
+    public UserInfoDetailsView getUserInfoDetailsByUsername(String username) {
+        return userInfoRepository.getUserInfoDetailsView(username);
+    }
+
+    @Override
     public Either<GeneralError, UUID> getUserInfoIdByEmail(String email) {
         return Try.of(() -> userInfoRepository.getIdByEmail(email))
                 .toEither()

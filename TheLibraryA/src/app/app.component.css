@@ -1,1 +1,70 @@
+@import 'shared/styles/sButton.css';
+@import 'shared/styles/sInput.css';
+@import 'shared/styles/rowCol.css';
 
+#body{
+  z-index: 9;
+  margin-bottom: 10px;
+}
+
+#header{
+  font-family: "Bell MT", sans-serif;
+  font-size: 16px;
+  background-color: cadetblue;
+  position: relative;
+  margin: 0 0 10px;
+  height: fit-content;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+}
+
+#home{
+  font-weight: bold;
+  font-style: italic;
+  color: goldenrod;
+  font-size: 3rem;
+  position: relative;
+  background: rgba(40, 0, 73, 0.7);
+  padding: 10px;
+  border: 3px solid cornflowerblue;
+}
+
+#home:hover{
+  cursor: pointer;
+  border: 3px solid goldenrod;
+}
+
+#right{
+    margin-left: auto;
+}
+
+@keyframes expand {
+  from{
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#settingsBox{
+  animation: expand 0.3s ease-in;
+  position: relative;
+  margin-left: auto;
+  border: 3px solid darkgoldenrod;
+  padding: 5px;
+  width: fit-content;
+  height: fit-content;
+  background: cadetblue;
+  z-index: 9;
+}
+
+#passwordColumn{
+  width: 80%;
+}
+
+#logInForm{
+  padding: 20px;
+
+}

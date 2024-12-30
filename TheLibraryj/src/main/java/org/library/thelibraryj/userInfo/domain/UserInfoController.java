@@ -32,7 +32,7 @@ class UserInfoController implements ErrorHandling {
             summary = "Fetch a single UserInfo record by Id",
             tags = {"user", "no auth required"}
     )
-    @GetMapping("na/user/{id}")
+    @GetMapping("/na/user/id/{id}")
     public ResponseEntity<String> getUserInfoResponseById(@PathVariable("id") UUID id) {
         return handle(userInfoService.getUserInfoResponseById(id), HttpStatus.OK);
     }
@@ -41,9 +41,27 @@ class UserInfoController implements ErrorHandling {
             summary = "Fetch a single UserInfo record by username",
             tags = {"user", "no auth required"}
     )
-    @GetMapping("na/user/username/{username}")
+    @GetMapping("/na/user/{username}")
     public ResponseEntity<String> getUserInfoResponseByUsername(@PathVariable("username") String username) {
         return handle(userInfoService.getUserInfoResponseByUsername(username), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Fetch a single UserInfo record by email",
+            tags = {"user", "no auth required"}
+    )
+    @GetMapping("/na/user/email/{email}")
+    public ResponseEntity<String> getUserInfoResponseByEmail(@PathVariable("email") String email) {
+        return handle(userInfoService.getUserInfoResponseByEmail(email), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Fetch extra details of UserInfo record by username",
+            tags = {"user", "no auth required"}
+    )
+    @GetMapping("/na/user/details/{username}")
+    public ResponseEntity<UserInfoDetailsView> getUserInfoDetailsByUsername(@PathVariable("username") String username){
+        return  ResponseEntity.ok(userInfoService.getUserInfoDetailsByUsername(username));
     }
 
 

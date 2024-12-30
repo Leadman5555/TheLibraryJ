@@ -29,4 +29,12 @@ class UserInfoViewRepositoryImpl extends ViewRepositoryBase implements UserInfoV
                                 .where("u.email").eq(email))
                 .getSingleResult();
     }
+
+    @Override
+    public UserInfoDetailsView getUserInfoDetailsView(String username) {
+        return evm.applySetting(EntityViewSetting.create(UserInfoDetailsView.class),
+                cbf.create(em, UserInfo.class, "u")
+                        .where("u.username").eq(username))
+                .getSingleResult();
+    }
 }

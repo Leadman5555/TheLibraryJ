@@ -1,5 +1,7 @@
 @import '../../../shared/styles/sButton.css';
 @import '../../../shared/styles/m3Toggle.css';
+@import '../../../shared/styles/sInput.css';
+@import '../../../shared/styles/rowCol.css';
 
 .filterBox {
   border: 3px solid darkgoldenrod;
@@ -31,23 +33,8 @@ select {
   margin-right: 10px;
 }
 
-.column {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-}
-
 .left {
   align-items: start;
-}
-
-.row {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
 }
 
 .filterButtons{
@@ -60,72 +47,8 @@ select {
   margin-right: 0;
 }
 
-.numberInput-container {
-  position: relative;
-  margin: 10px 20px 20px -5px;
-  width: 100px;
-}
-
-.input-container {
-  position: relative;
-  margin-top: 20px;
-  width: 250px;
-}
-
 #titleColumn{
   margin-bottom: 10px;
 }
 
-.input-field {
-  display: block;
-  width: 100%;
-  padding: 6px;
-  font-size: 15px;
-  border: none;
-  border-bottom: 2px solid #ccc;
-  outline: none;
-  background-color: transparent;
-}
 
-.outerLabel {
-  width: 200px;
-  text-align: left;
-}
-
-.input-label {
-  position: absolute;
-  top: 0;
-  left: 0;
-  font-size: 18px;
-  font-weight: bold;
-  color: rgba(204, 204, 204, 0);
-  pointer-events: none;
-  transition: all 0.3s ease;
-}
-
-.input-highlight {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 2px;
-  width: 0;
-  background-color: goldenrod;
-  transition: all 0.3s ease;
-}
-
-.input-field:focus + .input-label {
-  top: -20px;
-  font-size: 12px;
-  color: goldenrod;
-}
-
-.input-field:focus + .input-label + .input-highlight {
-  width: 100%;
-}
-
-.errorBox{
-  width: 200px;
-  font-style: italic;
-  text-align: left;
-  color: bisque;
-}

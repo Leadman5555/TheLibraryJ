@@ -1,3 +1,60 @@
+<div id="body">
+<div id="header">
+ <div id="home" routerLink="">
+   The Library
+ </div>
+ <div id="right" class="row">
+   @if(this.showLoggedIn) {
+     <div id="userInfo">
+       <span id="username">{{this.userAuthService.userData?.username}}</span>
+       <img src="data:image/jpg;base64,{{this.userAuthService.userData?.profileImage}}" alt="Profile image">
+     </div>
+   }
+   <button class="sButton" (click)="toggleSettings()">Settings</button>
+ </div>
+</div>
+@if (this.showSettings) {
+  <div id="settingsBox">
+    @if(this.showLoggedIn) {
+      <div class="column">
+        <button class="sButton" (click)="logOut()">Log out</button>
+        <button class="sButton" routerLink="/profile">Profile</button>
+      </div>
+    }@else {
+      <form id="logInForm"  *ngIf="logInForm" [formGroup]="logInForm" (ngSubmit)="handleLogInSubmit()">
+        <div id="emailColumn">
+          <div class="input-container">
+            <input placeholder="Enter email here" class="input-field" id="emailInput" type="text" maxlength="30" formControlName="email">
+            <label for="emailInput" class="input-label">Email: </label>
+            <span class="input-highlight"></span>
+          </div>
+          <div class="errorBox"  *ngIf="logInForm.get('email')?.invalid && (logInForm.get('email')?.dirty)">
+            Enter a valid email address
+          </div>
+        </div>
+        <div class="row">
+          <div id="passwordColumn">
+            <div class="input-container">
+              <input placeholder="Password" class="input-field" id="passwordInput" [type]="showPassword ? 'text' : 'password'" maxlength="30" formControlName="password">
+              <label for="passwordInput" class="input-label">Password: </label>
+              <span class="input-highlight"></span>
+            </div>
+            <div class="errorBox"  *ngIf="logInForm.get('password')?.invalid && (logInForm.get('password')?.dirty)">
+              Password is required
+            </div>
+          </div>
+          <button class="sButton" type="button" style="font-size: 10px" (click)="toggleShowPassword()">
+            {{ showPassword ? 'Hide' : 'Show' }} Password
+          </button>
+        </div>
+        <div class="row" style="margin-top: 10px;">
+          <button class="sButton" type="submit" [disabled]="logInForm.invalid || logInForm.pristine">Log in</button>
+          <button class="sButton" routerLink="/register">Register</button>
+        </div>
+      </form>
 
-
+    }
+  </div>
+}
+</div>
 <router-outlet />

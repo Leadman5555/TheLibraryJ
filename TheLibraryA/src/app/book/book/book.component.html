@@ -6,7 +6,7 @@
         Average rating of {{ bookPreview.averageRating }} /10 from {{ bookPreview.ratingCount }} ratings
       </div>
       <div class="descDiv">
-        <a id="header">Description:</a>
+        <span id="header">Description:</span>
         <pre class="description"> {{ bookDetail.description }}</pre>
       </div>
       <div class="infoDiv column">
@@ -40,10 +40,10 @@
             <div class="chapterPrevBox">
               @for (chPrev of vm; track chPrev.number) {
                 <div class="chapterBox row" [routerLink]="['chapter', chPrev.number, this.bookPreview.id]">
-                  <a class="bold centerVH" id="chNumber">{{ chPrev.number.toString().padStart(4, '0')}}</a>
+                  <span class="bold centerVH" id="chNumber">{{ chPrev.number.toString().padStart(4, '0')}}</span>
                   <div class="column" id="chInfo">
-                    <a class="bold">{{ chPrev.title }}</a>
-                    <a>Updated at: {{ parseDate(chPrev.updatedAt) }}</a>
+                    <span class="bold">{{ chPrev.title }}</span>
+                    <span>Updated at: {{ parseDate(chPrev.updatedAt) }}</span>
                   </div>
                 </div>
               }
@@ -67,11 +67,11 @@
           @for (review of ratings; track review.username) {
             <div class="reviewElement">
               <div class="column reviewData">
-                <a>By: <span class="userLink" [routerLink]="['/user', review.username]">{{ review.username }}</span></a>
-                <a>Rating: <span style="font-weight:bold">{{ review.currentRating }}/10</span></a>
-                <a>At: {{ parseDate(review.updatedAt) }}</a>
+                <span>By: <span class="userLink" [routerLink]="['/user', review.username]">{{ review.username }}</span></span>
+                <span>Rating: <span style="font-weight:bold">{{ review.currentRating }}/10</span></span>
+                <span>At: {{ parseDate(review.updatedAt) }}</span>
               </div>
-              <a id="comment"> {{ review.comment }}</a>
+              <span id="comment"> {{ review.comment }}</span>
             </div>
           }
         </div>
