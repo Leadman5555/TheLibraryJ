@@ -30,4 +30,12 @@ public interface ErrorHandling {
         return serviceReturn.mapLeft(ApiErrorWrapper::new)
                 .fold(ErrorHandling::createErrorResponse, e -> createSuccessResponse(e, successReturn));
     }
+
+    default ResponseEntity<String> handleError(Either<GeneralError, ?> errorServiceReturn){
+        return createErrorResponse(new ApiErrorWrapper(errorServiceReturn.getLeft()));
+    }
+
+    default ResponseEntity<String> handleSuccess(Object serviceReturnBody, HttpStatus successReturn){
+        return createSuccessResponse(serviceReturnBody, successReturn);
+    }
 }

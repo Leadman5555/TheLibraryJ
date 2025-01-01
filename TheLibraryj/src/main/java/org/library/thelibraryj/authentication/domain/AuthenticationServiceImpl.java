@@ -47,7 +47,8 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
         );
         zeroPassword(authenticationRequest.password());
         return Either.right(new AuthenticationResponse(
-                jwtService().generateToken(authenticationRequest.email())
+                jwtService.generateToken(authenticationRequest.email()),
+                jwtService.generateRefreshToken(authenticationRequest.email())
         ));
     }
 

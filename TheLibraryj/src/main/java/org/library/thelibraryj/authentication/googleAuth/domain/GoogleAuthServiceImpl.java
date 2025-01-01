@@ -5,6 +5,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import org.library.thelibraryj.authentication.googleAuth.GoogleAuthService;
 import org.library.thelibraryj.authentication.googleAuth.dto.GoogleCallbackResponse;
+import org.library.thelibraryj.authentication.googleAuth.dto.GoogleCallbackResponseWrapper;
 import org.library.thelibraryj.authentication.googleAuth.dto.GoogleLinkResponse;
 import org.library.thelibraryj.authentication.jwtAuth.JwtService;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
@@ -46,7 +47,7 @@ class GoogleAuthServiceImpl implements GoogleAuthService {
     }
 
     @Override
-    public GoogleCallbackResponse getGoogleAuthToken(String code) {
+    public GoogleCallbackResponseWrapper getGoogleAuthToken(String code) {
         GoogleTokenResponse tokenResponse;
         try {
             tokenResponse = new GoogleAuthorizationCodeTokenRequest(
@@ -69,7 +70,10 @@ class GoogleAuthServiceImpl implements GoogleAuthService {
         if (idToken == null) throw new GoogleTokenVerificationException("Failed to verify idToken");
         GoogleIdToken.Payload payload = idToken.getPayload();
         createUserIfNotRegistered(payload.get("given_name") + ((String) payload.get("family_name")), payload.getEmail());
-        return new GoogleCallbackResponse(payload.getEmail(), jwtService.generateToken(payload.getEmail()));
+        return new GoogleCallbackResponseWrapper(
+                new GoogleCallbackResponse(payload.getEmail(), jwtService.generateToken(payload.getEmail())),
+                jwtService.generateRefreshToken(payload.getEmail())
+        );
     }
 
     private void createUserIfNotRegistered(String defaultUsername, String email) {

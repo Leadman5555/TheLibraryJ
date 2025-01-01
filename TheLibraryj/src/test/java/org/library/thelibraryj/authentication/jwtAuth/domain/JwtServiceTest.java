@@ -59,7 +59,7 @@ class JwtServiceTest {
         jwtProperties.setExpiration_time_ms(10000000);
         jwtProperties.setClient_id("d14ac166d8e4a37e663ea46dad662eb9f12ec4d2d3625ecf7be447917665eff8");
         jwtProperties.setAud("http://localhost:8082");
-        token = jwtService.generateToken(subject);
+        token = jwtService.generateToken(subject).token();
     }
 
     @Test
@@ -131,10 +131,6 @@ class JwtServiceTest {
                 .sign(jwtSigningAlgorithm);
         Assertions.assertThrows(Exception.class, () -> jwtService.validateToken(nonExistingSubjectToken));
 
-    }
-
-    @Test
-    public void testValidateTokenFail() {
     }
 
     private static UserDetails getMockDetails(String forSubject) {
