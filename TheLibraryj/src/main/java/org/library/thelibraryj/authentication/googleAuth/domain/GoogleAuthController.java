@@ -3,6 +3,8 @@ package org.library.thelibraryj.authentication.googleAuth.domain;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.constraints.NotNull;
 import org.library.thelibraryj.authentication.googleAuth.GoogleAuthService;
+import org.library.thelibraryj.authentication.googleAuth.dto.GoogleCallbackResponse;
+import org.library.thelibraryj.authentication.googleAuth.dto.GoogleLinkResponse;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +21,7 @@ record GoogleAuthController(GoogleAuthService googleAuthService) implements Erro
             tags = {"authentication", "google"}
     )
     @GetMapping
-    public ResponseEntity<String> getGoogleAuthUrl(){
+    public ResponseEntity<GoogleLinkResponse> getGoogleAuthUrl(){
         return new ResponseEntity<>(googleAuthService.getGoogleAuthUrl(), HttpStatus.OK);
     }
 
@@ -28,7 +30,7 @@ record GoogleAuthController(GoogleAuthService googleAuthService) implements Erro
             tags = {"authentication", "google"}
     )
     @GetMapping("callback")
-    public ResponseEntity<String> getGoogleAuthCallbackUrl(@RequestParam @NotNull String code) {
-        return handle(googleAuthService.getGoogleAuthToken(code), HttpStatus.OK);
+    public ResponseEntity<GoogleCallbackResponse> getGoogleAuthCallbackUrl(@RequestParam @NotNull String code) {
+        return ResponseEntity.ok(googleAuthService.getGoogleAuthToken(code));
     }
 }

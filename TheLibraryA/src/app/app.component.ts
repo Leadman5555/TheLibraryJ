@@ -2,57 +2,67 @@ import {Component, inject, OnInit} from '@angular/core';
 import {RouterLink, RouterOutlet} from '@angular/router';
 import {UserAuthService} from './user/user-auth.service';
 import {FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {NgIf} from '@angular/common';
+import {NgIf, NgOptimizedImage} from '@angular/common';
 import {AuthenticationRequest} from './user/shared/models/authentication-request';
+import {UserMini} from './user/shared/models/user-mini';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, FormsModule, NgIf, ReactiveFormsModule],
+  imports: [RouterOutlet, RouterLink, FormsModule, NgIf, ReactiveFormsModule, NgOptimizedImage],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
 
   constructor(private fb: NonNullableFormBuilder) {
   }
 
   ngOnInit(): void {
-     this.logInForm = this.fb.group({
-       email : ['', [Validators.email, Validators.required]],
-       password : ['', Validators.required]
-     });
+    this.userAuthService.loggedIn$.subscribe(v => this.showLoggedIn = v);
+    this.userAuthService.userData$.subscribe(v => this.userMini = {
+      username: v?.username,
+      profileImage: v?.profileImage
+    });
+    this.logInForm = this.fb.group({
+      email: ['', [Validators.email, Validators.required]],
+      password: ['', Validators.required]
+    });
   }
 
-  title = 'TheLibraryA';
   showSettings: boolean = false;
   readonly userAuthService: UserAuthService = inject(UserAuthService);
-  showLoggedIn: boolean = false;
   logInForm!: FormGroup;
+  showLoggedIn: boolean = false;
+  userMini!: UserMini;
   showPassword: boolean = false;
 
   handleLogInSubmit(): void {
-    if(this.logInForm.pristine) return;
+    if (this.logInForm.pristine) return;
     const request: AuthenticationRequest = {
       email: this.logInForm.value.email,
       password: this.logInForm.value.password,
     };
-    this.userAuthService.logIn(request).subscribe({
-      next: (_ : any) => this.showLoggedIn = true,
-      error: (_ : any) => console.error("Error logging in")
-    });
+    this.userAuthService.logIn(request);
     this.logInForm.reset();
   }
 
-  toggleSettings(){
+  toggleSettings() {
     this.showSettings = !this.showSettings;
   }
 
-  toggleShowPassword(){
+  toggleShowPassword() {
     this.showPassword = !this.showPassword;
   }
 
-  logOut(){
+  logOut() {
     this.userAuthService.logOut();
-    this.showLoggedIn = false;
   }
+
+  logInWithGoogle() {
+    this.userAuthService.getGoogleLogInLink().subscribe({
+      next: (linkResponse) => window.location.href = linkResponse.authLink,
+      error: (err) => console.error("Google login unavailable", err)
+    });
+  }
+
 }

@@ -1,5 +1,6 @@
 @import '../../shared/styles/sButton.css';
 @import '../../shared/styles/pageNumberBox.css';
+@import '../../shared/styles/rowCol.css';
 
 .description {
   line-height: 1.1;
@@ -9,19 +10,6 @@
   font-size: inherit;
 }
 
-.column {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.row {
-  display: flex;
-  gap: 10px;
-}
 
 .fetchRatings{
   margin: 10px;
@@ -101,12 +89,6 @@
   text-align: center;
   font-weight: 700;
   font-size: 1.15rem;
-}
-
-.centerVH{
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .titleDiv {

@@ -6,8 +6,8 @@
  <div id="right" class="row">
    @if(this.showLoggedIn) {
      <div id="userInfo">
-       <span id="username">{{this.userAuthService.userData?.username}}</span>
-       <img src="data:image/jpg;base64,{{this.userAuthService.userData?.profileImage}}" alt="Profile image">
+       <span id="username">{{this.userMini.username}}</span>
+       <img src="data:image/jpg;base64,{{this.userMini.profileImage}}" alt="Profile image" height="50" width="50">
      </div>
    }
    <button class="sButton" (click)="toggleSettings()">Settings</button>
@@ -50,6 +50,7 @@
         <div class="row" style="margin-top: 10px;">
           <button class="sButton" type="submit" [disabled]="logInForm.invalid || logInForm.pristine">Log in</button>
           <button class="sButton" routerLink="/register">Register</button>
+          <img id="googleLogIn" ngSrc="/google_logIn.png" width="189" height="40" alt="Google sign in" priority (click)="logInWithGoogle()">
         </div>
       </form>
 

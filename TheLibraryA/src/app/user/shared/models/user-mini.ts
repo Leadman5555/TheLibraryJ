@@ -1,4 +1,4 @@
 export interface UserMini {
-  username: string;
-  profileImage: string;
+  username?: string;
+  profileImage?: string;
 }

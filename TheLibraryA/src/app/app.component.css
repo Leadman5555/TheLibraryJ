@@ -38,6 +38,12 @@
 #right{
     margin-left: auto;
 }
+#username{
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
 
 @keyframes expand {
   from{
@@ -66,5 +72,4 @@
 
 #logInForm{
   padding: 20px;
-
 }

@@ -1,9 +1,9 @@
 package org.library.thelibraryj.authentication.googleAuth;
 
-import io.vavr.control.Either;
-import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
+import org.library.thelibraryj.authentication.googleAuth.dto.GoogleCallbackResponse;
+import org.library.thelibraryj.authentication.googleAuth.dto.GoogleLinkResponse;
 
 public interface GoogleAuthService {
-    String getGoogleAuthUrl();
-    Either<GeneralError, String> getGoogleAuthToken(String code);
+    GoogleLinkResponse getGoogleAuthUrl();
+    GoogleCallbackResponse getGoogleAuthToken(String code);
 }

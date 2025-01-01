@@ -5,6 +5,7 @@ import {ChapterComponent} from './book/chapter/chapter.component';
 import {BookFilterComponent} from './book/book-filter/filterBox/book-filter.component';
 import {BookViewComponent} from './book/book-view/book-view.component';
 import {AppComponent} from './app.component';
+import {AuthCallbackComponent} from './googleOAuth2/auth-callback/auth-callback.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent},
@@ -17,5 +18,6 @@ export const routes: Routes = [
   {path: 'filter', component:  BookViewComponent},
   {path: 'profile', component: AppComponent},
   {path: 'register', component: AppComponent},
+  {path: 'oauth2Callback', component: AuthCallbackComponent},
   {path: '*', component: HomeComponent}
 ];
