@@ -32,7 +32,7 @@ const initialState: ChapterPreviewPage = {
 @Injectable({
   providedIn: 'root'
 })
-export class ChapterPreviewComponentStore extends GenericComponentStore<ChapterPreview, ChapterPreviewPage> implements OnStoreInit {
+export class ChapterPreviewComponentStore extends GenericComponentStore<ChapterPreview, ChapterPreviewPage> {
   private readonly bookService = inject(BookService);
 
   constructor() {

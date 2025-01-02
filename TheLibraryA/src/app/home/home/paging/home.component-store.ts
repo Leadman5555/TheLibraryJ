@@ -31,7 +31,7 @@ const initialState : BookPage = {
 @Injectable({
   providedIn: 'root'
 })
-export class HomeComponentStore extends GenericComponentStore<BookPreview, BookPage> implements OnStoreInit {
+export class HomeComponentStore extends GenericComponentStore<BookPreview, BookPage> {
   private readonly bookService = inject(BookService);
 
   constructor() {
@@ -58,7 +58,7 @@ export class HomeComponentStore extends GenericComponentStore<BookPreview, BookP
             (newBookPage: BookPage) => {
               this.updateContent(newBookPage);
             },
-            () => console.error("Something went wrong")
+            (error) => console.error("ESomething went wrong", error)
           )
         )
       )

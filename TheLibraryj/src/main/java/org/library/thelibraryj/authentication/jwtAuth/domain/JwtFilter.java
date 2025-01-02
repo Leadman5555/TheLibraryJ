@@ -36,15 +36,13 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 validatedDetails = jwtService.validateToken(authHeader.substring(7));
             }catch (TokenExpiredException expiredException){
-                final String refreshToken = request.getHeader("X-XSRF-TOKEN");
-                Cookie XSRFCookie = Arrays.stream(request.getCookies())
-                        .filter(cookie -> cookie.getName().equals("XSRF-TOKEN"))
-                        .findFirst().orElseThrow(() -> new AccessDeniedException("Refresh token not found."));
-                if(refreshToken == null) throw new AccessDeniedException("Refresh token not found.");
-                if(!XSRFCookie.getValue().equals(refreshToken)) throw new AccessDeniedException("Invalid refresh token.");
-                validatedDetails = jwtService.validateToken(refreshToken);
+                Cookie refreshToken = Arrays.stream(request.getCookies())
+                        .filter(cookie -> cookie.getName().equals("refresh-token"))
+                        .findFirst().orElseThrow(() -> new AccessDeniedException("Session expired."));
+
+                validatedDetails = jwtService.validateToken(refreshToken.getValue());
                 if(validatedDetails == null) throw new AccessDeniedException("Invalid refresh token.");
-                response.addHeader("Refreshed-token", jwtService.generateToken(validatedDetails.getUsername()).token());
+                response.addHeader("Refreshed-jwt-token", jwtService.generateToken(validatedDetails.getUsername()).token());
             }
             if (validatedDetails != null) {
                 if(SecurityContextHolder.getContext().getAuthentication() == null){

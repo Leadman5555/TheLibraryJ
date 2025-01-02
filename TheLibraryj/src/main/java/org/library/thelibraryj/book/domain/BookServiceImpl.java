@@ -6,11 +6,8 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import jakarta.validation.constraints.NotEmpty;
-import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.bookDto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
+import org.library.thelibraryj.book.BookService;
+import org.library.thelibraryj.book.dto.bookDto.*;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterResponse;
@@ -29,6 +26,7 @@ import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
 import org.library.thelibraryj.userInfo.dto.UserInfoScoreUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
@@ -45,7 +43,7 @@ import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true)
-class BookServiceImpl implements org.library.thelibraryj.book.BookService {
+class BookServiceImpl implements BookService {
     private final BookDetailRepository bookDetailRepository;
     private final BookPreviewRepository bookPreviewRepository;
     private final RatingRepository ratingRepository;
@@ -61,7 +59,7 @@ class BookServiceImpl implements org.library.thelibraryj.book.BookService {
         this.userInfoService = userInfoService;
     }
 
-    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository, BookImageHandler bookImageHandler, BookBlazeRepository bookBlazeRepository) {
+    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, @Qualifier("bookMapperImpl") BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository, BookImageHandler bookImageHandler, BookBlazeRepository bookBlazeRepository) {
         this.bookDetailRepository = bookDetailRepository;
         this.bookPreviewRepository = bookPreviewRepository;
         this.mapper = mapper;

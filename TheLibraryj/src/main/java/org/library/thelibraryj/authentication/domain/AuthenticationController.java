@@ -15,7 +15,13 @@ import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("${library.mapping}/na/auth")
@@ -34,13 +40,23 @@ record AuthenticationController(AuthenticationService authenticationService) imp
             summary = "Returns a valid JWT token on successful login attempt.",
             tags = {"authentication", "no auth required"}
     )
-    @PostMapping
+    @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody @Valid AuthenticationRequest authenticationRequest, HttpServletResponse response) {
         Either<GeneralError, AuthenticationResponse> result = authenticationService.authenticate(authenticationRequest);
         if(result.isLeft()) return handleError(result);
         AuthenticationResponse success = result.get();
         response.addCookie(success.refreshToken());
         return handleSuccess(success.token(), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Clears the refresh token cookie.",
+            tags = {"authentication", "no auth required"}
+    )
+    @GetMapping("/logout")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(HttpServletResponse response) {
+        response.addCookie(authenticationService.clearRefreshToken());
     }
 
     @Operation(
@@ -51,4 +67,14 @@ record AuthenticationController(AuthenticationService authenticationService) imp
     public ResponseEntity<String> resendActivationEmail(@RequestParam @NotNull @Email String email) throws MessagingException {
         return handle(authenticationService.resendActivationEmail(email), HttpStatus.NO_CONTENT);
     }
+
+//    @Operation(
+//            summary = "Obtains the XSRF token cookie.",
+//            tags = {"authentication", "no auth required"}
+//    )
+//    @PostMapping("/p")
+//    public Map<String, String> postCsrfToken() {
+//        //http://localhost:8082/v0.9/na/auth/csrf
+//        return Map.of("s", "v");
+//    }
 }

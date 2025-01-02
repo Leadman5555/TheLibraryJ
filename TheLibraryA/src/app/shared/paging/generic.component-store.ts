@@ -1,9 +1,9 @@
 import {ComponentStore, OnStoreInit} from '@ngrx/component-store';
-import {map, Observable, Subscription, tap, withLatestFrom} from 'rxjs';
+import {map, Observable, Subscription, tap, timer, withLatestFrom} from 'rxjs';
 import {PageInfo} from './models/page-info';
 import {GenericPage} from './models/generic-page';
 
-export abstract class GenericComponentStore<TS, T extends GenericPage<TS>> extends ComponentStore<T> implements OnStoreInit {
+export abstract class GenericComponentStore<TS, T extends GenericPage<TS>> extends ComponentStore<T> implements OnStoreInit{
 
   readonly vm$ = this.select((state: T) => (state.content));
   readonly info$ = this.select((state: T) => (state.pageInfo));

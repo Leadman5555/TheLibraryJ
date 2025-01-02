@@ -2,6 +2,7 @@ package org.library.thelibraryj.authentication.domain;
 
 import io.vavr.control.Either;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
 import org.library.thelibraryj.authentication.AuthenticationService;
 import org.library.thelibraryj.authentication.PasswordControl;
 import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
@@ -36,10 +37,12 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
     @Override
     public Either<GeneralError, AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
         Either<GeneralError, LoginDataView> fetchedE = userAuthService.getLoginDataByEmail(authenticationRequest.email());
-        if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
+        if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         LoginDataView fetched = fetchedE.get();
-        if(fetched.getIsGoogleUser()) return Either.left(new UserAuthError.UserIsGoogleRegistered(authenticationRequest.email()));
-        if (!fetched.getIsEnabled()) return Either.left(new UserAuthError.UserNotEnabled(authenticationRequest.email()));
+        if (fetched.getIsGoogleUser())
+            return Either.left(new UserAuthError.UserIsGoogleRegistered(authenticationRequest.email()));
+        if (!fetched.getIsEnabled())
+            return Either.left(new UserAuthError.UserNotEnabled(authenticationRequest.email()));
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authenticationRequest.email(),
                         new String(authenticationRequest.password()),
@@ -73,10 +76,16 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
     @Override
     public Either<GeneralError, Boolean> resendActivationEmail(String email) throws MessagingException {
         Either<GeneralError, ActivationTokenResponse> createdTokenE = activationService.createActivationToken(email);
-        if(createdTokenE.isLeft()) return Either.left(createdTokenE.getLeft());
-        sendActivationMail(email,email, createdTokenE.get());
+        if (createdTokenE.isLeft()) return Either.left(createdTokenE.getLeft());
+        sendActivationMail(email, email, createdTokenE.get());
         return Either.right(true);
     }
+
+    @Override
+    public Cookie clearRefreshToken() {
+        return jwtService.clearRefreshToken();
+    }
+
 
     private void sendActivationMail(String forUsername, String forEmail, ActivationTokenResponse createdToken) throws MessagingException {
         emailService.sendEmail(new EmailRequest(

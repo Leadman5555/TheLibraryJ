@@ -19,20 +19,24 @@ export class UserAuthService {
   loggedIn$ =this.userAuthDataSubject.asObservable().pipe(map(data => data.token !== undefined));
 
   private readonly baseUrl: string = 'http://localhost:8082/v0.9/na';
-  private readonly baseAuthUrl: string = 'http://localhost:8082/v0.9';
+  //private readonly baseAuthUrl: string = 'http://localhost:8082/v0.9';
 
   constructor(private httpClient: HttpClient) {}
 
   logOut() {
+    this.httpClient.get(`${this.baseUrl}/auth/logout`, {withCredentials: true}); //test it
+    sessionStorage.removeItem('jwt-token');
+    document.cookie = "XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     this.userAuthDataSubject.next(this.loggedOutData);
   }
 
   logIn(request: AuthenticationRequest){
-      this.httpClient.post<AuthenticationResponse>(`${this.baseUrl}/auth`, request).subscribe(
+      this.httpClient.post<AuthenticationResponse>(`${this.baseUrl}/auth/login`, request).subscribe(
         {
           next: (response) => {
             this.fetchUserData(request.email).subscribe({
               next: (userProfile) => {
+                sessionStorage.setItem('jwt-token', response.token);
                 this.userAuthDataSubject.next({token: response.token, userProfile: userProfile});
               },
               error: (error) => {
@@ -46,6 +50,30 @@ export class UserAuthService {
         }
       );
   }
+
+  // getXSRFToken() {
+  //   return this.httpClient.get(`${this.baseUrl}/auth/csrf`, {withCredentials: true}).subscribe(
+  //     (response) => {
+  //       console.log(response);
+  //       console.log(document.cookie);
+  //     },
+  //     (error) => {
+  //       console.error(error);
+  //     }
+  //   );
+  // }
+  //
+  // postXSRFToken() {
+  //   return this.httpClient.post(`${this.baseUrl}/auth/p`, null, {withCredentials: true}).subscribe(
+  //     (response) => {
+  //       console.log(response);
+  //       console.log(document.cookie);
+  //     },
+  //     (error) => {
+  //       console.error(error);
+  //     }
+  //   );
+  // }
 
   private fetchUserData(email: string): Observable<UserProfile> {
     return this.httpClient.get<UserProfile>(`${this.baseUrl}/user/email/` + email);
@@ -62,6 +90,7 @@ export class UserAuthService {
   googleOnSuccessRedirect(response: GoogleCallbackResponse) {
       this.fetchUserData(response.email).subscribe({
         next: (userProfile) => {
+          sessionStorage.setItem('jwt-token', response.token);
           this.userAuthDataSubject.next({token: response.token, userProfile: userProfile});
         },
         error: (error) => {

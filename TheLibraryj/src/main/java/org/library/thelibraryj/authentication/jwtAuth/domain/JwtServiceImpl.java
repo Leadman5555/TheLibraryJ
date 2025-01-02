@@ -34,12 +34,24 @@ record JwtServiceImpl(JwtProperties properties, Algorithm jwtSigningAlgorithm,
 
     @Override
     public Cookie generateRefreshToken(String subject) {
-        final Cookie refreshToken = new Cookie("XSRF-TOKEN", generateTokenString(subject, properties.getExpiration_time_ms_refresh()));
+        final Cookie refreshToken = new Cookie("refresh-token", generateTokenString(subject, properties.getExpiration_time_ms_refresh()));
         refreshToken.setHttpOnly(true);
+        refreshToken.setPath("/");
         refreshToken.setDomain(properties.getRefresh_domain());
         refreshToken.setMaxAge(properties.getExpiration_time_ms_refresh());
         refreshToken.setSecure(properties.isSend_secure());
         return refreshToken;
+    }
+
+    @Override
+    public Cookie clearRefreshToken() {
+        final Cookie clearRefreshToken = new Cookie("refresh-token", "loggedOut");
+        clearRefreshToken.setHttpOnly(true);
+        clearRefreshToken.setPath("/");
+        clearRefreshToken.setDomain(properties.getRefresh_domain());
+        clearRefreshToken.setMaxAge(0);
+        clearRefreshToken.setSecure(properties.isSend_secure());
+        return clearRefreshToken;
     }
 
     @Override

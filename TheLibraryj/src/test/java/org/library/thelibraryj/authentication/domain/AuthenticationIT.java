@@ -108,7 +108,7 @@ public class AuthenticationIT {
         final char[] validPassword = "password".toCharArray();
         AuthenticationRequest requestEntity = new AuthenticationRequest(existingEmail, validPassword);
         ResponseEntity<String> authResponse = restTemplate.postForEntity(
-                BASE_URL, requestEntity, String.class
+                BASE_URL+"/login", requestEntity, String.class
         );
         assertEquals(HttpStatus.OK.value(), authResponse.getStatusCode().value());
         assertNotNull(authResponse.getBody());
@@ -117,19 +117,19 @@ public class AuthenticationIT {
 
         AuthenticationRequest invalidRequest = new AuthenticationRequest(existingEmail, ("invalidPassword").toCharArray());
         ResponseEntity<String> authResponse2 = restTemplate.postForEntity(
-                BASE_URL, invalidRequest, String.class
+                BASE_URL+"/login", invalidRequest, String.class
         );
         assertEquals(HttpStatus.FORBIDDEN.value(), authResponse2.getStatusCode().value());
 
         AuthenticationRequest invalidRequest2 = new AuthenticationRequest("nonexistant@email.com", validPassword);
         ResponseEntity<String> authResponse3 = restTemplate.postForEntity(
-                BASE_URL, invalidRequest2, String.class
+                BASE_URL+"/login", invalidRequest2, String.class
         );
         assertEquals(HttpStatus.NOT_FOUND.value(), authResponse3.getStatusCode().value());
 
         AuthenticationRequest notEnabledRequest = new AuthenticationRequest(existingNonEnabledEmail, validPassword);
         ResponseEntity<String> authResponse4 = restTemplate.postForEntity(
-                BASE_URL, notEnabledRequest, String.class
+                BASE_URL+"/login", notEnabledRequest, String.class
         );
         assertEquals(HttpStatus.BAD_REQUEST.value(), authResponse4.getStatusCode().value());
     }

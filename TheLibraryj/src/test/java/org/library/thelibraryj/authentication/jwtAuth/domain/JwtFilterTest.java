@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
 public class JwtFilterTest {
     @Mock
     private JwtService jwtService;
-
     @Mock
     private Servlet servlet;
     @InjectMocks
@@ -89,12 +88,11 @@ public class JwtFilterTest {
     }
 
     @Test
-    public void testRefreshToken() throws Exception {
+    public void testRefreshTokenPass() throws Exception {
         Assertions.assertNull(SecurityContextHolder.getContext().getAuthentication());
 
         when(jwtService.generateToken(anyString())).thenReturn(new AuthToken("valid_token"));
-        when(request.getHeader("X-XSRF-TOKEN")).thenReturn(refreshToken);
-        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("XSRF-TOKEN", refreshToken)});
+        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("refresh-token", refreshToken)});
 
         when(jwtService.validateToken(token)).thenThrow(new TokenExpiredException(null,null));
 
@@ -110,16 +108,13 @@ public class JwtFilterTest {
     }
 
     @Test
-    public void testRefreshTokenFail() throws Exception {
+    public void testRefreshTokenFail() {
         Assertions.assertNull(SecurityContextHolder.getContext().getAuthentication());
 
+        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("Refresh-token", "invalid_refresh_token")});
         when(jwtService.validateToken(token)).thenThrow(new TokenExpiredException(null,null));
-        
-        when(request.getHeader("X-XSRF-TOKEN")).thenReturn("otherToken");
-        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("XSRF-TOKEN", refreshToken)});
 
         Assertions.assertThrows(AccessDeniedException.class, () -> jwtFilter.doFilterInternal(request, response, filterChain));
-
         Assertions.assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 }
