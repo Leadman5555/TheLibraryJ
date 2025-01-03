@@ -51,11 +51,13 @@
         </div>
         <div class="row" style="margin-top: 10px;">
           <button class="sButton" type="submit" [disabled]="logInForm.invalid || logInForm.pristine">Log in</button>
-          <button class="sButton" routerLink="/register">Register</button>
           <img id="googleLogIn" ngSrc="/google_logIn.png" width="189" height="40" alt="Google sign in" priority (click)="logInWithGoogle()">
         </div>
+       <div class="row" style="margin-top: 5px;">
+         <button class="sButton" (click)="this.showSettings=false" routerLink="/register">Register</button>
+         <button class="sButton" (click)="this.showSettings=false" routerLink="/password-recovery">Forgot password?</button>
+       </div>
       </form>
-
     }
   </div>
 }

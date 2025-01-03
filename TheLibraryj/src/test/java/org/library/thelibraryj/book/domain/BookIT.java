@@ -58,6 +58,7 @@ public class BookIT {
         scriptExecutor.setSeparator("@@");
         scriptExecutor.execute(this.dataSource);
         TestProperties.fillHeadersForUser1();
+        TestProperties.addCSRFToken();
     }
 
     @Test
@@ -103,6 +104,7 @@ public class BookIT {
                 "sample"
         );
         TestProperties.fillHeadersForUser2();
+        TestProperties.addCSRFToken();
         HttpEntity<RatingRequest> requestEntity3 = new HttpEntity<>(createRatingRequest2, TestProperties.headers);
         ResponseEntity<String> ratingResponse3 = restTemplate.exchange(
                 BASE_AUTH_URL + "/rating", HttpMethod.PUT, requestEntity3, String.class

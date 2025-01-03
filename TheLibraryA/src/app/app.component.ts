@@ -36,21 +36,16 @@ export class AppComponent implements OnInit {
   userMini!: UserMini;
   showPassword: boolean = false;
 
-  // getToken(){
-  //   this.userAuthService.getXSRFToken();
-  // }
-  //
-  // postToken(){
-  //   this.userAuthService.postXSRFToken();
-  // }
-
   handleLogInSubmit(): void {
     if (this.logInForm.pristine) return;
     const request: AuthenticationRequest = {
       email: this.logInForm.value.email,
       password: this.logInForm.value.password,
     };
-    this.userAuthService.logIn(request);
+    this.userAuthService.logIn(request).subscribe({
+      next: (v) => this.userMini = v,
+      error: (err) => console.error("Error logging in", err)
+    });
     this.logInForm.reset();
   }
 

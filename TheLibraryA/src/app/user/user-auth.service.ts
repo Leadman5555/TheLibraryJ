@@ -16,12 +16,14 @@ export class UserAuthService {
   private readonly loggedOutData: AuthUserData = {userProfile: undefined, token: undefined};
   private userAuthDataSubject: BehaviorSubject<AuthUserData> = new BehaviorSubject<AuthUserData>(this.loggedOutData);
   userData$ = this.userAuthDataSubject.asObservable().pipe(map(data => data.userProfile));
-  loggedIn$ =this.userAuthDataSubject.asObservable().pipe(map(data => data.token !== undefined));
+  loggedIn$ = this.userAuthDataSubject.asObservable().pipe(map(data => data.token !== undefined));
 
   private readonly baseUrl: string = 'http://localhost:8082/v0.9/na';
-  //private readonly baseAuthUrl: string = 'http://localhost:8082/v0.9';
 
-  constructor(private httpClient: HttpClient) {}
+  private readonly baseAuthUrl: string = 'http://localhost:8082/v0.9';
+
+  constructor(private httpClient: HttpClient) {
+  }
 
   logOut() {
     this.httpClient.get(`${this.baseUrl}/auth/logout`, {withCredentials: true}); //test it
@@ -30,50 +32,33 @@ export class UserAuthService {
     this.userAuthDataSubject.next(this.loggedOutData);
   }
 
-  logIn(request: AuthenticationRequest){
-      this.httpClient.post<AuthenticationResponse>(`${this.baseUrl}/auth/login`, request).subscribe(
-        {
-          next: (response) => {
-            this.fetchUserData(request.email).subscribe({
-              next: (userProfile) => {
-                sessionStorage.setItem('jwt-token', response.token);
-                this.userAuthDataSubject.next({token: response.token, userProfile: userProfile});
-              },
-              error: (error) => {
-                console.error(error);
-              }
-            });
-          },
-          error: (error) => {
-            console.error(error);
-          }
+  logIn(request: AuthenticationRequest): Observable<UserMini> {
+    return new Observable<UserMini>((observer) => {
+      this.httpClient.post<AuthenticationResponse>(`${this.baseUrl}/auth/login`, request, {withCredentials: true}).subscribe({
+        next: (response) => {
+          this.fetchUserData(request.email).subscribe({
+            next: (userProfile) => {
+              sessionStorage.setItem('jwt-token', response.token);
+              this.userAuthDataSubject.next({token: response.token, userProfile: userProfile});
+              this.obtainXSRFToken();
+              observer.next({username: userProfile.username, profileImage: userProfile.profileImage});
+              observer.complete();
+            },
+            error: (error) => {
+              observer.error(error);
+            }
+          });
+        },
+        error: (error) => {
+          observer.error(error);
         }
-      );
+      });
+    });
   }
 
-  // getXSRFToken() {
-  //   return this.httpClient.get(`${this.baseUrl}/auth/csrf`, {withCredentials: true}).subscribe(
-  //     (response) => {
-  //       console.log(response);
-  //       console.log(document.cookie);
-  //     },
-  //     (error) => {
-  //       console.error(error);
-  //     }
-  //   );
-  // }
-  //
-  // postXSRFToken() {
-  //   return this.httpClient.post(`${this.baseUrl}/auth/p`, null, {withCredentials: true}).subscribe(
-  //     (response) => {
-  //       console.log(response);
-  //       console.log(document.cookie);
-  //     },
-  //     (error) => {
-  //       console.error(error);
-  //     }
-  //   );
-  // }
+  obtainXSRFToken() {
+    this.httpClient.post(`${this.baseAuthUrl}/auth/csrf`, null, {withCredentials: true});
+  }
 
   private fetchUserData(email: string): Observable<UserProfile> {
     return this.httpClient.get<UserProfile>(`${this.baseUrl}/user/email/` + email);
@@ -88,14 +73,15 @@ export class UserAuthService {
   }
 
   googleOnSuccessRedirect(response: GoogleCallbackResponse) {
-      this.fetchUserData(response.email).subscribe({
-        next: (userProfile) => {
-          sessionStorage.setItem('jwt-token', response.token);
-          this.userAuthDataSubject.next({token: response.token, userProfile: userProfile});
-        },
-        error: (error) => {
-          console.log("Google login unavailable", error)
-        }
-      });
+    this.fetchUserData(response.email).subscribe({
+      next: (userProfile) => {
+        this.userAuthDataSubject.next({token: response.token, userProfile: userProfile});
+        this.obtainXSRFToken();
+        sessionStorage.setItem('jwt-token', response.token);
+      },
+      error: (error) => {
+        console.log("Google login unavailable", error)
+      }
+    });
   }
 }

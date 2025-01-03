@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Setter
 class AuthenticationProperties {
     private String activation_link;
-    private int session_time_ms;
+    private int session_time_s;
     private boolean send_secure;
     private String allowed_domain;
 }
