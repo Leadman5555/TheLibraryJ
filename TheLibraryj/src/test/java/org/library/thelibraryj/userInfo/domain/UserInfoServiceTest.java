@@ -26,7 +26,7 @@ import java.util.UUID;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@ContextConfiguration(classes = UserInfoConfig.class)
+@ContextConfiguration(classes = UserInfoProperties.class)
 public class UserInfoServiceTest {
 
     @Mock
@@ -34,7 +34,7 @@ public class UserInfoServiceTest {
     @Mock
     private BookService bookService;
     @Spy
-    private UserInfoConfig userInfoConfig = new UserInfoConfig();
+    private UserInfoProperties userInfoProperties = new UserInfoProperties();
     @Spy
     private UserInfoMapper userInfoMapper = new UserInfoMapperImpl();
     @InjectMocks
@@ -48,8 +48,8 @@ public class UserInfoServiceTest {
     @BeforeEach
     public void setUp() {
         userInfoService.setBookService(bookService);
-        userInfoConfig.setMinimal_age_hours(24);
-        userInfoConfig.setUsername_change_cooldown_days(90);
+        userInfoProperties.setMinimal_age_hours(24);
+        userInfoProperties.setUsername_change_cooldown_days(90);
         userId = UUID.randomUUID();
         username = "sample username";
         userEmail = "sample@example.com";
@@ -142,7 +142,7 @@ public class UserInfoServiceTest {
         userInfo.setDataUpdatedAt(Instant.now());
         Either<GeneralError, UserInfoResponse> response2 = userInfoService.updateUserInfoUsername(request);
         Assertions.assertFalse(response2.isRight());
-        Assertions.assertEquals(new UserInfoError.UsernameUpdateCooldown(userInfoConfig.getUsername_change_cooldown_days(), userEmail), response2.getLeft());
+        Assertions.assertEquals(new UserInfoError.UsernameUpdateCooldown(userInfoProperties.getUsername_change_cooldown_days(), userEmail), response2.getLeft());
 
         when(userInfoRepository.existsByUsername(newUsername)).thenReturn(true);
         Either<GeneralError, UserInfoResponse> response3 = userInfoService.updateUserInfoUsername(request);

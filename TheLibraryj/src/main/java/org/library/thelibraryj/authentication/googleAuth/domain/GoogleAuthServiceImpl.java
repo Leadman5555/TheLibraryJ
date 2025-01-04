@@ -75,7 +75,7 @@ class GoogleAuthServiceImpl implements GoogleAuthService {
         GoogleIdToken.Payload payload = idToken.getPayload();
         createUserIfNotRegistered(payload.get("given_name") + ((String) payload.get("family_name")), payload.getEmail());
         return new GoogleCallbackResponseWrapper(
-                new GoogleCallbackResponse(payload.getEmail(), jwtService.generateToken(payload.getEmail())),
+                new GoogleCallbackResponse(payload.getEmail(), jwtService.generateToken(payload.getEmail()).token()),
                 jwtService.generateRefreshToken(payload.getEmail())
         );
     }

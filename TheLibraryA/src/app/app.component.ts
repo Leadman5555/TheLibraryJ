@@ -42,10 +42,7 @@ export class AppComponent implements OnInit {
       email: this.logInForm.value.email,
       password: this.logInForm.value.password,
     };
-    this.userAuthService.logIn(request).subscribe({
-      next: (v) => this.userMini = v,
-      error: (err) => console.error("Error logging in", err)
-    });
+    this.userAuthService.logIn(request);
     this.logInForm.reset();
   }
 

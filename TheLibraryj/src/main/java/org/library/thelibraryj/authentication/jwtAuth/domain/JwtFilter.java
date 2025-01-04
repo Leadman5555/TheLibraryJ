@@ -26,6 +26,18 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
 
+    /**
+     * Filters incoming requests to authenticate and validate JWT tokens,
+     * and handles token expiration and refresh logic.
+     * If authentication is successful, the security context is updated.
+     * Requests without JWT token in header are not authenticated.
+     * Requests with the token in header are validated.
+     * Valid token -> pass
+     * Invalid token -> fail
+     * Expired token -> refresh token from Http-only cookie is checked
+     *      Refresh token invalid/not present -> fail
+     *      Refresh token valid -> new JWT token attached as cookie to response, pass
+     */
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");

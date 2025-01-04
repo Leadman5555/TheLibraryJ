@@ -35,7 +35,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
 
     private final UserInfoRepository userInfoRepository;
     private final UserInfoMapper userInfoMapper;
-    private final UserInfoConfig userInfoConfig;
+    private final UserInfoProperties userInfoProperties;
     private final UserInfoImageHandler userInfoImageHandler;
     private BookService bookService;
 
@@ -49,10 +49,10 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         this.bookService = bookService;
     }
 
-    public UserInfoServiceImpl(UserInfoRepository userInfoRepository, UserInfoMapper userInfoMapper, UserInfoConfig config, UserInfoImageHandler userInfoImageHandler) {
+    public UserInfoServiceImpl(UserInfoRepository userInfoRepository, UserInfoMapper userInfoMapper, UserInfoProperties properties, UserInfoImageHandler userInfoImageHandler) {
         this.userInfoRepository = userInfoRepository;
         this.userInfoMapper = userInfoMapper;
-        userInfoConfig = config;
+        userInfoProperties = properties;
         this.userInfoImageHandler = userInfoImageHandler;
     }
 
@@ -130,7 +130,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     public Either<GeneralError, BookCreationUserView> getAndValidateAuthorData(String authorEmail) {
         BookCreationUserView fetched = userInfoRepository.getBookCreationUserView(authorEmail);
         long ageDiff = ChronoUnit.HOURS.between(fetched.getCreatedAt(), Instant.now());
-        if (ageDiff < userInfoConfig.getMinimal_age_hours())
+        if (ageDiff < userInfoProperties.getMinimal_age_hours())
             return Either.left(new UserInfoError.UserAccountTooYoung(authorEmail, ageDiff));
         return Either.right(fetched);
     }
@@ -208,8 +208,8 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         UserInfo fetched = fetchedE.get();
         long cooldownDiff = ChronoUnit.DAYS.between(fetched.getDataUpdatedAt(), Instant.now());
-        if (cooldownDiff < userInfoConfig.getUsername_change_cooldown_days())
-            return Either.left(new UserInfoError.UsernameUpdateCooldown(userInfoConfig.getUsername_change_cooldown_days() - cooldownDiff , fetched.getEmail()));
+        if (cooldownDiff < userInfoProperties.getUsername_change_cooldown_days())
+            return Either.left(new UserInfoError.UsernameUpdateCooldown(userInfoProperties.getUsername_change_cooldown_days() - cooldownDiff , fetched.getEmail()));
         fetched.setUsername(userInfoUsernameUpdateRequest.username());
         fetched.setDataUpdatedAt(Instant.now());
         userInfoRepository.update(fetched);

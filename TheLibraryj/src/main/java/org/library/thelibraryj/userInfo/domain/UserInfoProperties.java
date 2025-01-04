@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "library.user")
-class UserInfoConfig {
+class UserInfoProperties {
     private int username_change_cooldown_days;
     private int minimal_age_hours;
 }

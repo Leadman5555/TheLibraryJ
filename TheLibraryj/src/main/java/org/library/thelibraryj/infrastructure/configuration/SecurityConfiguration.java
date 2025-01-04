@@ -34,6 +34,7 @@ import java.util.List;
 @EnableMethodSecurity
 @EnableWebSecurity
 class SecurityConfiguration {
+    /** URLs allowed passing without any authentication **/
     private static final String[] AUTH_WHITELIST = {
             "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.9/na/**"
     };
@@ -44,6 +45,14 @@ class SecurityConfiguration {
     @Value("${library.client.base_url}")
     private String clientBaseUrl;
 
+    /**
+     * Creates a CookieCsrfTokenRepository bean for managing CSRF tokens through browser cookies.
+     * Configured to automatically attach a XSRF-TOKEN cookie to any authenticated request.
+     * Checks each incoming authenticated request for:
+     * 1. XSRF-TOKEN as a cookie
+     * 2. X-XSRF-TOKEN header with value equal to that of the cookie
+     * 3. Valid value of the cookie
+     */
     @Profile(value={"development"})
     @Bean(name="csrfTokenRepository")
     CookieCsrfTokenRepository cookieCsrfTokenRepository() {
@@ -53,6 +62,12 @@ class SecurityConfiguration {
     }
 
 
+    /**
+     * URLs matching the AUTH_WHITELIST pass the filter chain without any checks.
+     * Any other URL needs to be validated for required credentials
+     * Filter chain: ... -> CSRF filter -> JWT filter -> Security context filter -> ...
+     * -> 'Pre' Annotation guards -> Guards in code -> 'Post' Annotation guards
+     * */
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http, CsrfTokenRepository csrfTokenRepository) throws Exception {
         http
@@ -76,6 +91,7 @@ class SecurityConfiguration {
     }
 
 
+    /** Allow everything from the client to reach the server, cookies included.*/
     @Bean
     UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

@@ -33,7 +33,7 @@ export class AuthCallbackComponent implements OnInit{
 
   serverRedirect(code: string): void {
     const params = new HttpParams().set('code', code);
-    this.http.get<GoogleCallbackResponse>(`${this.baseUrl}/auth/google/callback`, {params, withCredentials: true}).subscribe({
+    this.http.get<GoogleCallbackResponse>(`${this.baseUrl}/auth/google/callback`, {params: params, withCredentials: true}).subscribe({
       next: (response : GoogleCallbackResponse) => {
         this.userAuthService.googleOnSuccessRedirect(response);
       },
