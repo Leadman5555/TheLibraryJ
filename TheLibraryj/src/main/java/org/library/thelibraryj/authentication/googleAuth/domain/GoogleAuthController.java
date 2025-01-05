@@ -36,7 +36,7 @@ record GoogleAuthController(GoogleAuthService googleAuthService) implements Erro
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Account created, tokens sent."),
-            @ApiResponse(responseCode = "403", description = "Verification error."),
+            @ApiResponse(responseCode = "401", description = "Verification error."),
             @ApiResponse(responseCode = "503", description = "Google authentication service not available.")
     })
     @GetMapping("callback")

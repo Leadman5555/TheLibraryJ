@@ -5,7 +5,6 @@ import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -13,6 +12,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,9 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -45,37 +42,33 @@ class SecurityConfiguration {
     @Value("${library.client.base_url}")
     private String clientBaseUrl;
 
-    /**
-     * Creates a CookieCsrfTokenRepository bean for managing CSRF tokens through browser cookies.
-     * Configured to automatically attach a XSRF-TOKEN cookie to any authenticated request.
-     * Checks each incoming authenticated request for:
-     * 1. XSRF-TOKEN as a cookie
-     * 2. X-XSRF-TOKEN header with value equal to that of the cookie
-     * 3. Valid value of the cookie
-     */
-    @Profile(value={"development"})
-    @Bean(name="csrfTokenRepository")
-    CookieCsrfTokenRepository cookieCsrfTokenRepository() {
-        final CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-        repository.setCookiePath("/");
-        return repository;
-    }
+//    /**
+//     * Creates a CookieCsrfTokenRepository bean for managing CSRF tokens through browser cookies.
+//     * Configured to automatically attach a XSRF-TOKEN cookie to any authenticated request.
+//     * Checks each incoming authenticated request for:
+//     * 1. XSRF-TOKEN as a cookie
+//     * 2. X-XSRF-TOKEN header with value equal to that of the cookie
+//     * 3. Valid value of the cookie
+//     */
+//    @Profile(value={"development"})
+//    @Bean(name="csrfTokenRepository")
+//    CookieCsrfTokenRepository cookieCsrfTokenRepository() {
+//        final CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+//        repository.setCookiePath("/");
+//        return repository;
+//    }
 
 
     /**
      * URLs matching the AUTH_WHITELIST pass the filter chain without any checks.
      * Any other URL needs to be validated for required credentials
-     * Filter chain: ... -> CSRF filter -> JWT filter -> Security context filter -> ...
-     * -> 'Pre' Annotation guards -> Guards in code -> 'Post' Annotation guards
+     * Filter chain: ... -> JWT filter -> Security context filter -> ...
+     * -> 'Pre' Annotation guards
      * */
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http, CsrfTokenRepository csrfTokenRepository) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> {
-                    csrf.csrfTokenRepository(csrfTokenRepository)
-                            .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler());
-                    csrf.ignoringRequestMatchers(AUTH_WHITELIST);
-                })
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize.requestMatchers(AUTH_WHITELIST)
                         .permitAll().anyRequest().authenticated()
@@ -86,7 +79,6 @@ class SecurityConfiguration {
                 .addFilterBefore(filterChainExceptionHandler, JwtFilter.class)
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
-
         return http.build();
     }
 

@@ -146,8 +146,9 @@ class BookController implements ErrorHandling {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Book created successfully"),
-            @ApiResponse(responseCode = "403", description = "Authentication failure"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @PostMapping("books/book")
     @PreAuthorize("#bookCreationRequest.authorEmail == authentication.principal.username")
@@ -161,8 +162,9 @@ class BookController implements ErrorHandling {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Chapter created successfully"),
-            @ApiResponse(responseCode = "403", description = "Authentication failure"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @PostMapping("books/book/chapter")
     @PreAuthorize("#chapterRequest.authorEmail == authentication.principal.username")
@@ -176,8 +178,9 @@ class BookController implements ErrorHandling {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Chapters created successfully"),
-            @ApiResponse(responseCode = "403", description = "Authentication failure"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @PostMapping("books/book/chapter/batch")
     @PreFilter("#filterObject.authorEmail == authentication.principal.username")
@@ -232,8 +235,9 @@ class BookController implements ErrorHandling {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book updated successfully"),
-            @ApiResponse(responseCode = "403", description = "Authentication failure"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @PatchMapping("books/book")
     @PreAuthorize("hasRole('ADMIN') or #bookUpdateRequest.authorEmail == authentication.principal.username")
@@ -247,8 +251,9 @@ class BookController implements ErrorHandling {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Rating entry upserted successfully"),
-            @ApiResponse(responseCode = "403", description = "Authentication failure"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @PutMapping("books/rating")
     @PreAuthorize("hasRole('ADMIN') or #ratingRequest.userEmail == authentication.principal.username")
@@ -262,7 +267,8 @@ class BookController implements ErrorHandling {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Cache reset successfully"),
-            @ApiResponse(responseCode = "403", description = "Authentication failure")
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @PutMapping("books/flush")
     @PreAuthorize("hasRole('ADMIN')")
@@ -277,8 +283,9 @@ class BookController implements ErrorHandling {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Chapter deleted successfully"),
-            @ApiResponse(responseCode = "403", description = "Authentication failure"),
-            @ApiResponse(responseCode = "404", description = "Chapter to delete not found")
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "404", description = "Chapter to delete not found"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @DeleteMapping("books/book/chapter/{number}")
     @PreAuthorize("hasRole('ADMIN') or #contentRemovalRequest.userEmail == authentication.principal.username")
@@ -292,8 +299,9 @@ class BookController implements ErrorHandling {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book deleted successfully"),
-            @ApiResponse(responseCode = "403", description = "Authentication failure"),
-            @ApiResponse(responseCode = "404", description = "Book to delete not found")
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "404", description = "Book to delete not found"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @DeleteMapping("books/book")
     @PreAuthorize("hasRole('ADMIN') or #contentRemovalRequest.userEmail == authentication.principal.username")

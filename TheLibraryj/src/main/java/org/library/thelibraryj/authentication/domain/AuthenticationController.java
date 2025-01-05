@@ -5,10 +5,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.vavr.control.Either;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import org.library.thelibraryj.authentication.AuthenticationService;
 import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
 import org.library.thelibraryj.authentication.dto.AuthenticationResponse;
@@ -17,7 +19,9 @@ import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,8 +30,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("${library.mapping}")
-record AuthenticationController(AuthenticationService authenticationService) implements ErrorHandling {
+class AuthenticationController implements ErrorHandling {
+    private final AuthenticationService authenticationService;
 
     @Operation(
             summary = "Allows for creation of a new user account. Sends activation email on success.",
@@ -50,13 +56,13 @@ record AuthenticationController(AuthenticationService authenticationService) imp
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Log in successful, tokens sent."),
             @ApiResponse(responseCode = "400", description = "Google account must login with Google authentication."),
-            @ApiResponse(responseCode = "403", description = "Authentication failed."),
+            @ApiResponse(responseCode = "401", description = "Authentication failed."),
             @ApiResponse(responseCode = "404", description = "Account not found."),
     })
     @PostMapping("/na/auth/login")
     public ResponseEntity<String> login(@RequestBody @Valid AuthenticationRequest authenticationRequest, HttpServletResponse response) {
         Either<GeneralError, AuthenticationResponse> result = authenticationService.authenticate(authenticationRequest);
-        if(result.isLeft()) return handleError(result);
+        if (result.isLeft()) return handleError(result);
         AuthenticationResponse success = result.get();
         response.addCookie(success.refreshToken());
         return handleSuccess(success.token(), HttpStatus.OK);
@@ -87,14 +93,46 @@ record AuthenticationController(AuthenticationService authenticationService) imp
         return handle(authenticationService.resendActivationEmail(email), HttpStatus.NO_CONTENT);
     }
 
+//    @Operation(
+//            summary = "Obtains a new XSRF token as a cookie attached to response.",
+//            tags = {"authentication", "no auth required"}
+//    )
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "204", description = "XSRF token cookie refreshed and attached as cookie to response."),
+//            @ApiResponse(responseCode = "401", description = "New XSRF token generated and attached as cookie to response."),
+//    })
+//    @PostMapping("/auth/csrf")
+//    public ResponseEntity<String> obtainCsrfToken() {
+//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//    }
+
     @Operation(
-            summary = "Obtains a new XSRF token as a cookie attached to response.",
-            tags = {"authentication", "no auth required"}
+            summary = "Sends back a new JWT token for user is refresh token is valid",
+            tags = {"authentication", "activation", "no auth required"}
     )
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "XSRF token cookie refreshed and attached as cookie to response."),
-            @ApiResponse(responseCode = "403", description = "New XSRF token generated and attached as cookie to response."),
+            @ApiResponse(responseCode = "401", description = "Refresh token invalid."),
+            @ApiResponse(responseCode = "404", description = "Refresh token missing")
     })
-    @PostMapping("/auth/csrf")
-    public ResponseEntity<String> obtainCsrfToken() {return new ResponseEntity<>(HttpStatus.NO_CONTENT);}
+    @GetMapping("/na/auth/refresh")
+    public ResponseEntity<String> refreshJwtToken(HttpServletRequest request, HttpServletResponse response) {
+        String newToken = authenticationService.regenerateAccessToken(request.getCookies());
+        response.addHeader("access_token", newToken);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Verify matching userData and JWT token.",
+            tags = {"authentication"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Valid tokens."),
+            @ApiResponse(responseCode = "401", description = "Authorization failure."),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
+    })
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/auth/verify/{email}")
+    @PreAuthorize("#email == authentication.principal.username")
+    public void verify(@PathVariable @NotNull @Email String email) {}
 }

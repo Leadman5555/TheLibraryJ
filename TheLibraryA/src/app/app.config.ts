@@ -9,16 +9,14 @@ import {
   withInterceptors,
   withInterceptorsFromDi
 } from '@angular/common/http';
-import {csrfInterceptor} from './interceptors/csrf.interceptor';
-import {jwtInterceptor} from './interceptors/jwt.interceptor';
+import {jwtInterceptorProvider} from './interceptors/jwt.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideZoneChangeDetection({eventCoalescing: true}), provideRouter(routes), provideClientHydration(withEventReplay())
     , provideHttpClient(
       withFetch(),
-      withInterceptors([csrfInterceptor, jwtInterceptor]),
-    //  withInterceptorsFromDi()
+      withInterceptorsFromDi()
     ),
-   // {provide: HTTP_INTERCEPTORS, useClass: CsrfInterceptor, multi: true},
+   jwtInterceptorProvider
   ]
 };

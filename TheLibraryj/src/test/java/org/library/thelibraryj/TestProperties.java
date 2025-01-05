@@ -8,7 +8,6 @@ import org.springframework.util.MultiValueMap;
 public class TestProperties {
     public static final String BASE_URL = "/v0.9";
     public static final MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-    //public static Cookie[] cookies = new Cookie[1];
 
     public static void fillHeadersForUser1() {
         headers.clear();
@@ -25,7 +24,6 @@ public class TestProperties {
     public static void addCSRFToken() {
         final String token = "csrf-token";
         headers.add("X-XSRF-TOKEN", token);
-        //cookies[0] = new Cookie("XSRF-TOKEN", token);
         headers.add(HttpHeaders.SET_COOKIE, "XSRF-TOKEN=" + token + "; Path=/");
     }
 }

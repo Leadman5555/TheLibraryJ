@@ -1,10 +1,13 @@
-import {Component, inject, OnInit} from '@angular/core';
+import {afterNextRender, afterRender, ChangeDetectorRef, Component, inject, OnInit} from '@angular/core';
 import {RouterLink, RouterOutlet} from '@angular/router';
 import {UserAuthService} from './user/user-auth.service';
 import {FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgIf, NgOptimizedImage} from '@angular/common';
 import {AuthenticationRequest} from './user/shared/models/authentication-request';
 import {UserMini} from './user/shared/models/user-mini';
+import {EventBusService} from './shared/eventBus/event-bus.service';
+import {Subscription} from 'rxjs';
+import {StorageService} from './shared/storage/storage.service';
 
 @Component({
   selector: 'app-root',
@@ -14,27 +17,34 @@ import {UserMini} from './user/shared/models/user-mini';
 })
 export class AppComponent implements OnInit {
 
-  constructor(private fb: NonNullableFormBuilder) {
+  constructor(private fb: NonNullableFormBuilder,
+              private eventBus: EventBusService,
+              private storageService: StorageService,
+              private userAuthService: UserAuthService,
+              private changeDetectorRef: ChangeDetectorRef) {
+    afterNextRender(() => {
+        this.showLoggedIn = this.storageService.isLoggedIn();
+        if (this.showLoggedIn) {
+          this.userMini = this.storageService.getUserMini();
+          this.subscribeToLogOut();
+          changeDetectorRef.detectChanges();
+        } else this.subscribeToLogIn();
+    });
   }
 
   ngOnInit(): void {
-    this.userAuthService.loggedIn$.subscribe(v => this.showLoggedIn = v);
-    this.userAuthService.userData$.subscribe(v => this.userMini = {
-      username: v?.username,
-      profileImage: v?.profileImage
-    });
     this.logInForm = this.fb.group({
       email: ['', [Validators.email, Validators.required]],
       password: ['', Validators.required]
     });
   }
 
+  private eventBusSubscription?: Subscription;
   showSettings: boolean = false;
-  readonly userAuthService: UserAuthService = inject(UserAuthService);
-  logInForm!: FormGroup;
   showLoggedIn: boolean = false;
-  userMini!: UserMini;
   showPassword: boolean = false;
+  logInForm!: FormGroup;
+  userMini?: UserMini;
 
   handleLogInSubmit(): void {
     if (this.logInForm.pristine) return;
@@ -55,7 +65,32 @@ export class AppComponent implements OnInit {
   }
 
   logOut() {
-    this.userAuthService.logOut();
+    this.userAuthService.logOut().subscribe({
+        next: () => {
+          console.log('Logged out.');
+          this.subscribeToLogIn();
+          this.showLoggedIn = false;
+          window.location.reload();
+        },
+        error: err => console.log(err),
+      }
+    );
+  }
+
+  logIn() {
+    this.subscribeToLogOut();
+    this.showLoggedIn = true;
+    this.userMini = this.storageService.getUserMini();
+  }
+
+  private subscribeToLogIn(): void {
+    this.eventBusSubscription?.unsubscribe();
+    this.eventBusSubscription = this.eventBus.on('login', () => this.logIn());
+  }
+
+  private subscribeToLogOut(): void {
+    this.eventBusSubscription?.unsubscribe();
+    this.eventBusSubscription = this.eventBus.on('logout', () => this.logOut());
   }
 
   logInWithGoogle() {

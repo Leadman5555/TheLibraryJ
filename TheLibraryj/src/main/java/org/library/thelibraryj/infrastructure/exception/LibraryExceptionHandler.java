@@ -1,6 +1,7 @@
 package org.library.thelibraryj.infrastructure.exception;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.infrastructure.error.ApiErrorResponse;
@@ -76,7 +77,7 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({BadCredentialsException.class})
     public ResponseEntity<ApiErrorWrapper> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
         final String uri = extractRequest(request);
-        HttpStatus errorStatus = HttpStatus.FORBIDDEN;
+        HttpStatus errorStatus = HttpStatus.UNAUTHORIZED;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
                 .message(uri.equals("/login") ? "Wrong password or email" : ex.getMessage())
@@ -100,9 +101,9 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
-    @ExceptionHandler({GoogleTokenVerificationException.class})
+    @ExceptionHandler(GoogleTokenVerificationException.class)
     public ResponseEntity<ApiErrorWrapper> handleGoogleTokenVerificationException(GoogleTokenVerificationException ex, WebRequest request) {
-        HttpStatus errorStatus = HttpStatus.FORBIDDEN;
+        HttpStatus errorStatus = HttpStatus.UNAUTHORIZED;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
                 .message("Google token invalid. Authorization failed: " + ex.getMessage())
@@ -113,12 +114,38 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
-    @ExceptionHandler({AccessDeniedException.class, JWTVerificationException.class})
-    public ResponseEntity<ApiErrorWrapper> handleAccessDeniedException(RuntimeException ex, WebRequest request) {
+    @ExceptionHandler(JWTVerificationException.class)
+    public ResponseEntity<ApiErrorWrapper> handleJwtVerificationException(JWTVerificationException ex, WebRequest request) {
+        HttpStatus errorStatus = (ex instanceof TokenExpiredException) ?  HttpStatus.FORBIDDEN : HttpStatus.UNAUTHORIZED;
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message("Authorization failed: Jwt verification failed. Reason: " + ex.getMessage())
+                .status(errorStatus.getReasonPhrase())
+                .path("Path: " + extractRequest(request))
+                .build();
+        logError(errorResponse);
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
+    }
+
+    @ExceptionHandler(RefreshTokenMissingException.class)
+    public ResponseEntity<ApiErrorWrapper> handleRefreshTokenMissingException(RefreshTokenMissingException ex, WebRequest request) {
+        HttpStatus errorStatus = HttpStatus.BAD_REQUEST;
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message("Refresh token missing, cannot grant new access token: " + ex.getMessage())
+                .status(errorStatus.getReasonPhrase())
+                .path("Path: " + extractRequest(request))
+                .build();
+        logError(errorResponse);
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorWrapper> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.FORBIDDEN;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message("Authorization failed: Jwt token invalid or permission lacking. Reason: " + ex.getMessage())
+                .message("Authorization failed: Permission lacking. Reason: " + ex.getMessage())
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + extractRequest(request))
                 .build();

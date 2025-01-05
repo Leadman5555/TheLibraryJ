@@ -14,4 +14,5 @@ public interface AuthenticationService {
     Either<GeneralError, UserCreationResponse> register(RegisterRequest registerRequest) throws MessagingException;
     Either<GeneralError, Boolean> resendActivationEmail(String email) throws MessagingException;
     Cookie clearRefreshToken();
+    String regenerateAccessToken(Cookie[] cookies);
 }

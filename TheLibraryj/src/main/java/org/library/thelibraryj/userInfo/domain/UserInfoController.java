@@ -8,12 +8,18 @@ import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.UserInfoImageUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoMiniResponse;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -78,13 +84,27 @@ class UserInfoController implements ErrorHandling {
     }
 
     @Operation(
+            summary = "Fetch basic information of UserInfo record by email",
+            tags = {"user", "no auth required"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    @GetMapping("/na/user/mini/{email}")
+    public ResponseEntity<UserInfoMiniResponse> getUserInfoMiniByEmail(@PathVariable("email") String email) {
+        return ResponseEntity.ok(userInfoService.getUserInfoMiniResponseByEmail(email));
+    }
+
+    @Operation(
             summary = "Forcibly updates user's rank (negative change means decreasing the rank)",
             tags = "user"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Rank updated successfully"),
             @ApiResponse(responseCode = "404", description = "User not found"),
-            @ApiResponse(responseCode = "403", description = "Authentication failure")
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @PatchMapping("/user/profile/rank/force")
     @PreAuthorize("hasRole('ADMIN')")
@@ -100,7 +120,7 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "200", description = "Rank updated successfully"),
             @ApiResponse(responseCode = "400", description = "User not eligible for rank increase"),
             @ApiResponse(responseCode = "404", description = "User not found"),
-            @ApiResponse(responseCode = "403", description = "Authentication failure")
+            @ApiResponse(responseCode = "401", description = "Authentication failure")
     })
     @PatchMapping("/user/profile/rank/{id}")
     public ResponseEntity<String> updateUserInfoRank(@PathVariable("id") UUID id) {
@@ -114,8 +134,9 @@ class UserInfoController implements ErrorHandling {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Username updated successfully"),
             @ApiResponse(responseCode = "404", description = "User not found"),
-            @ApiResponse(responseCode = "403", description = "Authentication failure"),
-            @ApiResponse(responseCode = "409", description = "Username not unique")
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "409", description = "Username not unique"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @PatchMapping("/user/profile/username")
     @PreAuthorize("hasRole('ADMIN') or #userInfoUsernameUpdateRequest.email == authentication.principal.username")
@@ -130,8 +151,9 @@ class UserInfoController implements ErrorHandling {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Profile image updated successfully"),
             @ApiResponse(responseCode = "404", description = "User not found"),
-            @ApiResponse(responseCode = "403", description = "Authentication failure"),
-            @ApiResponse(responseCode = "500", description = "Failed to save the update image on server")
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "500", description = "Failed to save the update image on server"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @PatchMapping("/user/profile/image")
     @PreAuthorize("hasRole('ADMIN') or #userInfoImageUpdateRequest.email == authentication.principal.username")

@@ -1,5 +1,6 @@
 package org.library.thelibraryj.authentication.domain;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.vavr.control.Either;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
@@ -21,10 +22,14 @@ import org.library.thelibraryj.email.dto.EmailRequest;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
+import org.library.thelibraryj.infrastructure.exception.RefreshTokenMissingException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
 
 @Service
 record AuthenticationServiceImpl(UserAuthService userAuthService,
@@ -84,6 +89,17 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
     @Override
     public Cookie clearRefreshToken() {
         return jwtService.clearRefreshToken();
+    }
+
+    @Override
+    public String regenerateAccessToken(Cookie[] cookies) {
+        Cookie refreshToken = Arrays.stream(cookies)
+                .filter(cookie -> cookie.getName().equals("refresh-token"))
+                .findFirst().orElseThrow(() -> new RefreshTokenMissingException("Refresh token not found"));
+
+        UserDetails validatedDetails = jwtService.validateToken(refreshToken.getValue());
+        if(validatedDetails == null) throw new JWTVerificationException("Invalid refresh token.");
+        return jwtService.generateToken(validatedDetails.getUsername()).token();
     }
 
 

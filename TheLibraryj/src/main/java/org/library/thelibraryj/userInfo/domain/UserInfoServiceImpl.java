@@ -8,6 +8,7 @@ import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.library.thelibraryj.userInfo.dto.UserInfoImageUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoMiniResponse;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
@@ -30,7 +31,7 @@ import static java.lang.Integer.max;
 import static java.lang.Integer.min;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoService {
 
     private final UserInfoRepository userInfoRepository;
@@ -97,6 +98,12 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         if(fetched.isLeft()) return Either.left(fetched.getLeft());
         return Either.right(userInfoMapper.userInfoToUserInfoWithImageResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(fetched.get().getId())));
 
+    }
+
+    @Override
+    public UserInfoMiniResponse getUserInfoMiniResponseByEmail(String email) {
+        UserInfoMiniView fetched = userInfoRepository.getUserInfoMiniView(email);
+        return new UserInfoMiniResponse(fetched.getUsername(), userInfoImageHandler.fetchProfileImage(fetched.getId()));
     }
 
     @Override

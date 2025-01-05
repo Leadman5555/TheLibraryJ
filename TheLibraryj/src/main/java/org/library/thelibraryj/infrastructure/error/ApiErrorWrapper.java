@@ -17,7 +17,7 @@ import org.springframework.http.HttpStatus;
  *
  * Supports predefined categories of errors defined in sealed interfaces, providing a match
  * for every possible error.
- * Maps given error to corresponding HTTP status code and message, as well as logging the error message in the progress.
+ * Maps given error to corresponding HTTP status code and message, as well as logging the error message in progress.
  */
 @Data
 @Slf4j
