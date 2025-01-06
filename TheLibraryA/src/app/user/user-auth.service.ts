@@ -1,7 +1,12 @@
-import {afterNextRender, Inject, Injectable, OnInit, PLATFORM_ID} from '@angular/core';
-import {UserProfile} from './shared/models/user-profile';
-import {BehaviorSubject, map, Observable, Subscription} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {
+  catchError,
+  map,
+  Observable,
+  switchMap,
+  throwError
+} from 'rxjs';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
 import {AuthenticationResponse} from './shared/models/authentication-response';
 import {AuthenticationRequest} from './shared/models/authentication-request';
 import {GoogleCallbackResponse} from '../googleOAuth2/auth-callback/google-callback-response';
@@ -11,6 +16,7 @@ import {FetchedUserMini} from './shared/models/fetched-user-mini';
 import {StorageService} from '../shared/storage/storage.service';
 import {EventBusService} from '../shared/eventBus/event-bus.service';
 import {EventData} from '../shared/eventBus/event.class';
+import {handleError, logError} from '../shared/errorHandling/handleError';
 
 @Injectable({
   providedIn: 'root'
@@ -37,29 +43,30 @@ export class UserAuthService {
     return this.httpClient.get(`${this.baseUrl}/auth/logout`, {withCredentials: true});
   }
 
-  logIn(request: AuthenticationRequest) {
-    this.httpClient.post<AuthenticationResponse>(`${this.baseUrl}/auth/login`, request, {withCredentials: true}).subscribe({
-      next: (response) => {
-        this.fetchUserMiniData(request.email).subscribe({
-          next: (userProfile) => {
+  logIn(request: AuthenticationRequest): Observable<void> {
+    return this.httpClient.post<AuthenticationResponse>(`${this.baseUrl}/auth/login`, request, {withCredentials: true}).pipe(
+      switchMap((response: AuthenticationResponse) =>
+        this.fetchUserMiniData(request.email).pipe(
+          map((userProfile: FetchedUserMini) => {
             this.setUserData({
               username: userProfile.username,
               profileImage: userProfile.profileImage,
               email: request.email
             }, response.token);
             this.eventBus.emit(new EventData('login', null));
-          },
-          error: (error) => {
-            console.log(error);
+          }),
+          catchError((error) => {
             this.logOut();
-          }
-        });
-      },
-      error: (error) => {
-        console.log(error);
-      }
-    });
+            return handleError(error);
+          })
+        )
+      ),
+      catchError((error) => {
+        return handleError(error);
+      })
+    );
   }
+
 
   private fetchUserMiniData(email: string): Observable<FetchedUserMini> {
     return this.httpClient.get<FetchedUserMini>(`${this.baseUrl}/user/mini/` + email);
@@ -84,7 +91,7 @@ export class UserAuthService {
         this.eventBus.emit(new EventData('login', null));
       },
       error: (error) => {
-        console.log("Google login unavailable", error)
+        logError(error);
       }
     });
   }

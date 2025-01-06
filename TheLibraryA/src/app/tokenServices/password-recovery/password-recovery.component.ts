@@ -8,6 +8,7 @@ import {
 import {NgIf} from '@angular/common';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {passwordMatchValidator} from './passwordMatchValidator';
+import {logError} from '../../shared/errorHandling/handleError';
 
 @Component({
   selector: 'app-password-recovery',
@@ -53,14 +54,11 @@ export class PasswordRecoveryComponent implements OnInit {
   }
 
   get passwordMismatchError(): boolean {
-    // @ts-ignore
-    return this.passwordResetForm.errors?.['passwordMismatch'] ?? false;
+    return this.passwordResetForm?.errors?.['passwordMismatch'] ?? false;
   }
 
   sendPasswordResetEmail() {
-    // @ts-ignore
-    if (this.emailInputForm.pristine) return;
-    // @ts-ignore
+    if (!this.emailInputForm || this.emailInputForm.pristine) return;
     this.http.post(this.BASE_URL + '/' + this.emailInputForm.value.email, null).subscribe({
       next: () => {
         this.emailInputForm = undefined;
@@ -68,17 +66,14 @@ export class PasswordRecoveryComponent implements OnInit {
       },
       error: (error) => {
         this.successSend = false;
-        console.error("Error sending password reset email", error);
+        logError(error);
       }
     });
-    // @ts-ignore
     this.emailInputForm.reset();
   }
 
   attemptPasswordReset() {
-    // @ts-ignore
-    if (this.passwordResetForm.pristine || this.passwordResetForm.value.newPassword !== this.passwordResetForm.value.repeatPassword) return;
-    // @ts-ignore
+    if (!this.passwordResetForm || this.passwordResetForm.pristine || this.passwordResetForm.value.newPassword !== this.passwordResetForm.value.repeatPassword) return;
     const body = {tokenId: this.tokenValue!, newPassword: this.passwordResetForm.value.newPassword};
     this.http.patch(this.BASE_URL, body).subscribe({
       next: () => {
@@ -88,10 +83,9 @@ export class PasswordRecoveryComponent implements OnInit {
       },
       error: (error) => {
         this.successReset = false;
-        console.error("Error resetting password", error);
+        logError(error);
       }
     });
-    // @ts-ignore
     this.passwordResetForm.reset();
   }
 

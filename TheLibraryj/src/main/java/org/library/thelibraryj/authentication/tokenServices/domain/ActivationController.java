@@ -3,6 +3,7 @@ package org.library.thelibraryj.authentication.tokenServices.domain;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.authentication.tokenServices.ActivationService;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
@@ -28,8 +29,8 @@ class ActivationController implements ErrorHandling {
             @ApiResponse(responseCode = "400", description = "Bad Request - Invalid token or other issues."),
             @ApiResponse(responseCode = "404", description = "Not Found - Token does not exist.")
     })
-    @PatchMapping("/{tokenId}")
-    public ResponseEntity<String> consumeActivationToken(@PathVariable("tokenId") UUID tokenId) {
+    @PatchMapping
+    public ResponseEntity<String> consumeActivationToken(@RequestParam("tokenId") @NotNull UUID tokenId) {
         return handle(activationService.consumeActivationToken(tokenId), HttpStatus.NO_CONTENT);
     }
 

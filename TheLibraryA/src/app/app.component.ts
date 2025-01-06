@@ -1,4 +1,4 @@
-import {afterNextRender, afterRender, ChangeDetectorRef, Component, inject, OnInit} from '@angular/core';
+import {afterNextRender, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {RouterLink, RouterOutlet} from '@angular/router';
 import {UserAuthService} from './user/user-auth.service';
 import {FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
@@ -46,13 +46,29 @@ export class AppComponent implements OnInit {
   logInForm!: FormGroup;
   userMini?: UserMini;
 
+  errorMessage?: string;
+
   handleLogInSubmit(): void {
     if (this.logInForm.pristine) return;
     const request: AuthenticationRequest = {
       email: this.logInForm.value.email,
       password: this.logInForm.value.password,
     };
-    this.userAuthService.logIn(request);
+    this.userAuthService.logIn(request).subscribe({
+      error: (error) => {
+        console.log(error)
+        this.errorMessage = error || 'An unknown error occurred!';
+      },
+      complete: () => {
+        this.showSettings = false;
+        this.resetForm();
+      }
+    });
+  }
+
+  resetForm(){
+    this.errorMessage = undefined;
+    this.showPassword = false;
     this.logInForm.reset();
   }
 
@@ -70,6 +86,7 @@ export class AppComponent implements OnInit {
           console.log('Logged out.');
           this.subscribeToLogIn();
           this.showLoggedIn = false;
+          this.errorMessage = undefined;
           window.location.reload();
         },
         error: err => console.log(err),
@@ -80,6 +97,7 @@ export class AppComponent implements OnInit {
   logIn() {
     this.subscribeToLogOut();
     this.showLoggedIn = true;
+    this.errorMessage = undefined;
     this.userMini = this.storageService.getUserMini();
   }
 

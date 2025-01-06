@@ -80,7 +80,7 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus errorStatus = HttpStatus.UNAUTHORIZED;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message(uri.equals("/login") ? "Wrong password or email" : ex.getMessage())
+                .message(uri.contains("/login") ? "Incorrect password" : ex.getMessage())
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + uri)
                 .build();
@@ -116,10 +116,15 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(JWTVerificationException.class)
     public ResponseEntity<ApiErrorWrapper> handleJwtVerificationException(JWTVerificationException ex, WebRequest request) {
-        HttpStatus errorStatus = (ex instanceof TokenExpiredException) ?  HttpStatus.FORBIDDEN : HttpStatus.UNAUTHORIZED;
+        HttpStatus errorStatus = HttpStatus.UNAUTHORIZED;
+        String message = "Jwt token invalid";
+        if(ex instanceof TokenExpiredException){
+            errorStatus = HttpStatus.FORBIDDEN;
+            message = "Jwt token expired";
+        }
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message("Authorization failed: Jwt verification failed. Reason: " + ex.getMessage())
+                .message(message)
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + extractRequest(request))
                 .build();
@@ -156,11 +161,12 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(EmptyResultDataAccessException.class)
     public ResponseEntity<ApiErrorWrapper> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.NOT_FOUND;
+        final String uri = extractRequest(request);
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message("View not found: " + ex.getMessage())
+                .message(uri.contains("/login") ? "Account doesn't exist" : "Entity not found: " + ex.getMessage())
                 .status(errorStatus.getReasonPhrase())
-                .path("Path: " + extractRequest(request))
+                .path("Path: " + uri)
                 .build();
         logError(errorResponse);
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));

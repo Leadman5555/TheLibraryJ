@@ -1,14 +1,13 @@
+<div id="mainBody">
 <div id="body">
 <div id="header">
  <div id="home" routerLink="">
    The Library
  </div>
-<!--  <button  (click)="getToken()">AAAAAAA</button>-->
-<!--  <button  (click)="postToken()">BBBBB</button>-->
  <div id="right" class="row">
    @if(this.showLoggedIn) {
      <div id="userInfo">
-       <span id="username">{{this.userMini?.username}}</span>
+       <span id="username">{{ this.userMini?.username }}</span>
        <img src="data:image/jpg;base64,{{this.userMini?.profileImage}}" alt="Profile image" height="50" width="50">
      </div>
    }
@@ -19,23 +18,29 @@
   <div id="settingsBox">
     @if(this.showLoggedIn) {
       <div class="column">
-        <button class="sButton" (click)="logOut()">Log out</button>
         <button class="sButton" routerLink="/profile">Profile</button>
+        <button class="sButton" (click)="logOut()">Log out</button>
       </div>
     }@else {
       <form id="logInForm"  *ngIf="logInForm" [formGroup]="logInForm" (ngSubmit)="handleLogInSubmit()">
-        <div id="emailColumn">
-          <div class="input-container">
-            <input placeholder="Enter email here" class="input-field" id="emailInput" type="text" maxlength="30" formControlName="email">
-            <label for="emailInput" class="input-label">Email: </label>
-            <span class="input-highlight"></span>
+        <p class="errorBox" style="width: 100%; word-break: break-word" *ngIf="errorMessage">{{errorMessage}}</p>
+        <div class="row">
+          <div class="inputColumn">
+            <div class="input-container">
+              <input placeholder="Enter email here" class="input-field" id="emailInput" type="text" maxlength="30" formControlName="email">
+              <label for="emailInput" class="input-label">Email: </label>
+              <span class="input-highlight"></span>
+            </div>
+            <div class="errorBox"  *ngIf="logInForm.get('email')?.invalid && (logInForm.get('email')?.dirty)">
+              Enter a valid email address
+            </div>
           </div>
-          <div class="errorBox"  *ngIf="logInForm.get('email')?.invalid && (logInForm.get('email')?.dirty)">
-            Enter a valid email address
-          </div>
+          <button class="sButton" type="button" style="font-size: 10px" (click)="resetForm()">
+            Reset form
+          </button>
         </div>
         <div class="row">
-          <div id="passwordColumn">
+          <div class="inputColumn">
             <div class="input-container">
               <input placeholder="Password" class="input-field" id="passwordInput" [type]="showPassword ? 'text' : 'password'" maxlength="30" formControlName="password">
               <label for="passwordInput" class="input-label">Password: </label>
@@ -55,11 +60,22 @@
         </div>
        <div class="row" style="margin-top: 5px;">
          <button class="sButton" (click)="this.showSettings=false" routerLink="/register">Register</button>
-         <button class="sButton" (click)="this.showSettings=false" routerLink="/password-recovery">Forgot password?</button>
+         <div class="menu-container">
+           <button class="menu-button sButton">Trouble logging in?</button>
+           <div class="dropdown">
+             <button class="sButton" (click)="this.showSettings=false" routerLink="/password-recovery">Reset password
+             </button>
+             <button class="sButton" (click)="this.showSettings=false" routerLink="/activate-account">Activate account
+             </button>
+           </div>
+         </div>
        </div>
       </form>
     }
   </div>
 }
 </div>
-<router-outlet />
+<div>
+  <router-outlet />
+</div>
+</div>

@@ -8,7 +8,8 @@ import {AppComponent} from './app.component';
 import {AuthCallbackComponent} from './googleOAuth2/auth-callback/auth-callback.component';
 import {
   PasswordRecoveryComponent
-} from './tokenServices/passwordRecovery/password-recovery/password-recovery.component';
+} from './tokenServices/password-recovery/password-recovery.component';
+import {AccountActivationComponent} from './tokenServices/account-activation/account-activation.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent},
@@ -23,5 +24,6 @@ export const routes: Routes = [
   {path: 'register', component: AppComponent},
   {path: 'oauth2Callback', component: AuthCallbackComponent},
   {path: 'password-recovery', component: PasswordRecoveryComponent},
+  {path: 'activate-account', component: AccountActivationComponent},
   {path: '*', component: HomeComponent}
 ];

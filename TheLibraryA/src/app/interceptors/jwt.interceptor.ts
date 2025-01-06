@@ -26,12 +26,12 @@ export class JwtInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     if (req.url.includes('/na/')) return next.handle(req);
-    if(!this.storageService.isLoggedIn()) throwError(() => "Protected route, no logged in user.");
-
-    req.clone({headers: req.headers.set('Authorization', 'Bearer ' + this.storageService.getAccessToken())});
+    if(!this.storageService.isLoggedIn()) return throwError(() => "Protected route, no logged in user.");
+    console.log("Adding token to request");
+    req = req.clone({headers: req.headers.set('Authorization', 'Bearer ' + this.storageService.getAccessToken())});
     return next.handle(req).pipe(
       catchError((error) => {
-        if (error instanceof HttpErrorResponse && error.status === 403) {
+        if (error instanceof HttpErrorResponse && error.status === 403 && error.error.error.message === 'Jwt token expired') {
           return this.handleTokenExpired(req, next);
         }
         return throwError(() => error);

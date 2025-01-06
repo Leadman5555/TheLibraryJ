@@ -38,11 +38,21 @@
 #right{
     margin-left: auto;
 }
+
+#userInfo{
+  display: flex;
+  align-items: center;
+}
+
 #username{
   font-weight: bold;
   font-size: 1.2rem;
   margin-right: 10px;
-  margin-bottom: 10px;
+}
+
+.inputColumn{
+  width: 70%;
+  padding-right: 10px;
 }
 
 @keyframes expand {
@@ -72,4 +82,29 @@
 
 #logInForm{
   padding: 20px;
+}
+
+.menu-container {
+  position: relative;
+  display: inline-block; /* Ensures the dropdown fits with its parent */
+}
+
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%; transform: translateX(-50%);
+  background-color: cadetblue;
+  z-index: 9;
+  border: 3px solid darkgoldenrod;
+  border-top: none;
+}
+
+.dropdown button {
+  display: block;
+  margin: 15px 5px;
+}
+
+.menu-container:hover .dropdown {
+  display: block;
 }
