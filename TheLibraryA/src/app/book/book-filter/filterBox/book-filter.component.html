@@ -55,7 +55,7 @@
         <div formGroupName="filterByTags" class="tagsDiv">
           <div class="mt-square3d-custom tagSelector" *ngFor="let tag of allTags; let i = index; trackBy: identifyTag"
                style="font-size:10px;">
-            <a class="tagName">{{ tag }}</a>
+            <span class="tagName">{{ tag }}</span>
             <input id="checkMt_{{i}}" type="checkbox" formControlName="{{tag}}"/>
             <label for="checkMt_{{i}}"></label>
           </div>

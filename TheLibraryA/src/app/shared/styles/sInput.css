@@ -27,6 +27,7 @@
 }
 
 .input-label {
+  margin-top: 5px;
   position: absolute;
   top: 0;
   left: 0;
@@ -58,6 +59,7 @@
 }
 
 .errorBox{
+  margin-top: 10px;
   width: 200px;
   font-style: italic;
   text-align: left;

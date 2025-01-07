@@ -10,6 +10,7 @@ import {
   PasswordRecoveryComponent
 } from './tokenServices/password-recovery/password-recovery.component';
 import {AccountActivationComponent} from './tokenServices/account-activation/account-activation.component';
+import {RegisterComponent} from './register/register.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent},
@@ -21,7 +22,7 @@ export const routes: Routes = [
   {path:  'book/:title/chapter/:chapterNumber/:bookId', component : ChapterComponent },
   {path: 'filter', component:  BookViewComponent},
   {path: 'profile', component: AppComponent},
-  {path: 'register', component: AppComponent},
+  {path: 'register', component: RegisterComponent},
   {path: 'oauth2Callback', component: AuthCallbackComponent},
   {path: 'password-recovery', component: PasswordRecoveryComponent},
   {path: 'activate-account', component: AccountActivationComponent},
