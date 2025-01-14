@@ -1,11 +1,10 @@
 package org.library.thelibraryj.email.domain;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.mail.MessagingException;
 import org.library.thelibraryj.email.EmailService;
 import org.library.thelibraryj.email.dto.EmailRequest;
-import org.library.thelibraryj.email.template.EmailTemplate;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
+import org.library.thelibraryj.email.template.EmailTemplate;
 import org.library.thelibraryj.email.template.PasswordResetTemplate;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +22,7 @@ record EmailControllerDELETEME(EmailService emailService) {
             tags = "DELETE_ME"
     )
     @PostMapping("/{templateName}")
-    void sendTest(@PathVariable("templateName") String templateName) throws MessagingException {
+    void sendTest(@PathVariable("templateName") String templateName) {
         EmailTemplate template;
         Instant expiresAt = Instant.now().plusSeconds(24*60*6);
         switch (templateName) {

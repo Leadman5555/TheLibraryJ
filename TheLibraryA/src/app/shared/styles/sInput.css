@@ -62,6 +62,10 @@
   margin-top: 10px;
   width: 200px;
   font-style: italic;
-  text-align: left;
+  text-align: center;
   color: bisque;
+}
+
+.alignLeft{
+  text-align: left;
 }

@@ -14,7 +14,7 @@ import org.springframework.http.HttpStatus;
 
 /**
  * A wrapper class for handling API error responses in a standardized format.
- *
+ * <p>
  * Supports predefined categories of errors defined in sealed interfaces, providing a match
  * for every possible error.
  * Maps given error to corresponding HTTP status code and message, as well as logging the error message in progress.

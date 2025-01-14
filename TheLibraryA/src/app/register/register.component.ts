@@ -5,16 +5,20 @@ import {HttpClient} from '@angular/common/http';
 import {catchError} from 'rxjs';
 import {handleError} from '../shared/errorHandling/handleError';
 import {UserCreationResponse} from './user-creation-response';
-import {NgIf} from '@angular/common';
+import {NgIf, NgOptimizedImage} from '@angular/common';
 import {UserAuthService} from '../user/user-auth.service';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-register',
   imports: [
     NgIf,
     ReactiveFormsModule,
+    RouterLink,
+    NgOptimizedImage,
   ],
   templateUrl: './register.component.html',
+  standalone: true,
   styleUrl: './register.component.css'
 })
 export class RegisterComponent implements OnInit {
@@ -94,13 +98,13 @@ export class RegisterComponent implements OnInit {
     formData.set('username', this.registerForm.value.username);
     formData.set('profileImage', this.registerForm.value.profileImage);
 
-    this.http.post<UserCreationResponse>(this.registerUrl, formData).pipe(catchError(handleError)).subscribe({
+    this.http.post<UserCreationResponse>(this.registerUrl,  formData).pipe(catchError(handleError)).subscribe({
       next: (response) => {
         this.registerSuccess = true;
         this.createdUser = response;
         this.resetForm();
       },
-      error: (err) => {
+      error: (err : string) => {
         this.errorMessage = err;
       }
     });

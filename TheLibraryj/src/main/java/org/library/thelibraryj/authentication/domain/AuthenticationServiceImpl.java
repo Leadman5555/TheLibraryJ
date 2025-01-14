@@ -103,7 +103,7 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
     }
 
 
-    private void sendActivationMail(String forUsername, String forEmail, ActivationTokenResponse createdToken) throws MessagingException {
+    private void sendActivationMail(String forUsername, String forEmail, ActivationTokenResponse createdToken) {
         emailService.sendEmail(new EmailRequest(
                 forEmail,
                 new AccountActivationTemplate(

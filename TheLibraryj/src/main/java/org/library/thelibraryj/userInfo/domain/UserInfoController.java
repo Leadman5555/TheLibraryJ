@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.userInfo.UserInfoService;
@@ -12,6 +14,7 @@ import org.library.thelibraryj.userInfo.dto.UserInfoMiniResponse;
 import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +22,9 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -155,9 +160,10 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "500", description = "Failed to save the update image on server"),
             @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
-    @PatchMapping("/user/profile/image")
-    @PreAuthorize("hasRole('ADMIN') or #userInfoImageUpdateRequest.email == authentication.principal.username")
-    public ResponseEntity<String> updateUserProfileImage(@RequestBody @Valid UserInfoImageUpdateRequest userInfoImageUpdateRequest) throws IOException {
-        return handle(userInfoService.updateProfileImage(userInfoImageUpdateRequest), HttpStatus.OK);
+    @PatchMapping(value = "/user/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
+    public ResponseEntity<String> updateUserProfileImage(@RequestPart("email") @NotBlank String email,
+                                                         @RequestPart("newImage") @NotNull MultipartFile newImage) throws IOException {
+        return handle(userInfoService.updateProfileImage(new UserInfoImageUpdateRequest(email, newImage)), HttpStatus.OK);
     }
 }

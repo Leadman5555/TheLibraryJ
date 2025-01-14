@@ -13,6 +13,7 @@ import {NgIf} from '@angular/common';
     RouterLink
   ],
   templateUrl: './account-activation.component.html',
+  standalone: true,
   styleUrl: './account-activation.component.css'
 })
 export class AccountActivationComponent implements OnInit {

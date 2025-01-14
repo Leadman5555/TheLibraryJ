@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {UserMini} from '../../user/shared/models/user-mini';
 
 @Injectable({

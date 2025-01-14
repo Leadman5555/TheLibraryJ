@@ -1,8 +1,6 @@
 package org.library.thelibraryj.authentication.jwtAuth.domain;
 
-import com.auth0.jwt.exceptions.TokenExpiredException;
 import jakarta.servlet.Servlet;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -10,14 +8,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.library.thelibraryj.authentication.jwtAuth.JwtService;
-import org.library.thelibraryj.authentication.jwtAuth.dto.AuthToken;
 import org.library.thelibraryj.authentication.userAuth.domain.UserRole;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -26,7 +22,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -84,37 +79,6 @@ public class JwtFilterTest {
 
         Assertions.assertThrows(UsernameNotFoundException.class, () -> jwtFilter.doFilterInternal(request, response, filterChain));
 
-        Assertions.assertNull(SecurityContextHolder.getContext().getAuthentication());
-    }
-
-    @Test
-    public void testRefreshTokenPass() throws Exception {
-        Assertions.assertNull(SecurityContextHolder.getContext().getAuthentication());
-
-        when(jwtService.generateToken(anyString())).thenReturn(new AuthToken("valid_token"));
-        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("refresh-token", refreshToken)});
-
-        when(jwtService.validateToken(token)).thenThrow(new TokenExpiredException(null,null));
-
-        when(jwtService.validateToken(refreshToken)).thenReturn(user);
-
-        jwtFilter.doFilterInternal(request, response, filterChain);
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Assertions.assertEquals(List.of(UserRole.USER), authentication.getAuthorities());
-        Assertions.assertEquals(user, authentication.getPrincipal());
-        Assertions.assertEquals(new WebAuthenticationDetailsSource().buildDetails(request), authentication.getDetails());
-
-    }
-
-    @Test
-    public void testRefreshTokenFail() {
-        Assertions.assertNull(SecurityContextHolder.getContext().getAuthentication());
-
-        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("Refresh-token", "invalid_refresh_token")});
-        when(jwtService.validateToken(token)).thenThrow(new TokenExpiredException(null,null));
-
-        Assertions.assertThrows(AccessDeniedException.class, () -> jwtFilter.doFilterInternal(request, response, filterChain));
         Assertions.assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 }

@@ -1,6 +1,7 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
+  standalone: true,
   name: 'timesMax'
 })
 export class TimesMaxPipe implements PipeTransform {

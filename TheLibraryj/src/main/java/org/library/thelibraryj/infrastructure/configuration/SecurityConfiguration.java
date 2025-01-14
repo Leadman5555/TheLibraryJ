@@ -61,7 +61,7 @@ class SecurityConfiguration {
 
     /**
      * URLs matching the AUTH_WHITELIST pass the filter chain without any checks.
-     * Any other URL needs to be validated for required credentials
+     * Any other URL needs to be validated for the required credentials
      * Filter chain: ... -> JWT filter -> Security context filter -> ...
      * -> 'Pre' Annotation guards
      * */

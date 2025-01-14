@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {BookPreview} from '../shared/models/book-preview';
-import {Router, RouterLink} from '@angular/router';
+import {RouterLink} from '@angular/router';
 import {NgIf} from '@angular/common';
 
 @Component({
@@ -10,6 +10,7 @@ import {NgIf} from '@angular/common';
     RouterLink
   ],
   templateUrl: './book-preview-card.component.html',
+  standalone: true,
   styleUrl: './book-preview-card.component.css'
 })
 export class BookPreviewCardComponent {

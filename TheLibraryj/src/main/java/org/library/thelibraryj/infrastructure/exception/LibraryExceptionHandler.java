@@ -9,6 +9,7 @@ import org.library.thelibraryj.infrastructure.error.ApiErrorWrapper;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +23,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Slf4j
 public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({Exception.class})
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorWrapper> handleDefault(Exception ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
@@ -35,7 +36,7 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
-    @ExceptionHandler({JsonDeserializationException.class})
+    @ExceptionHandler(JsonDeserializationException.class)
     public ResponseEntity<ApiErrorWrapper> handleJsonDeserializationException(JsonDeserializationException ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
@@ -48,8 +49,8 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
-    @ExceptionHandler({MessagingException.class})
-    public ResponseEntity<ApiErrorWrapper> handleMessageConstraintException(MessagingException ex, WebRequest request) {
+    @ExceptionHandler(value = {MessagingException.class, MailException.class})
+    public ResponseEntity<ApiErrorWrapper> handleMessagingException(MessagingException ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())

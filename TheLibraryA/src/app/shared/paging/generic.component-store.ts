@@ -1,5 +1,5 @@
 import {ComponentStore, OnStoreInit} from '@ngrx/component-store';
-import {map, Observable, Subscription, tap, timer, withLatestFrom} from 'rxjs';
+import {map, Observable, Subscription, tap, withLatestFrom} from 'rxjs';
 import {PageInfo} from './models/page-info';
 import {GenericPage} from './models/generic-page';
 

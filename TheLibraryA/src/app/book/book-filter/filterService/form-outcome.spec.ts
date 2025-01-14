@@ -1,4 +1,4 @@
-import { FormOutcome } from './form-outcome';
+import {FormOutcome} from './form-outcome';
 
 describe('FormOutcome', () => {
   it('should create an instance', () => {

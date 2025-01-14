@@ -13,6 +13,7 @@ import {StorageService} from './shared/storage/storage.service';
   selector: 'app-root',
   imports: [RouterOutlet, RouterLink, FormsModule, NgIf, ReactiveFormsModule, NgOptimizedImage],
   templateUrl: './app.component.html',
+  standalone: true,
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
@@ -35,7 +36,7 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.logInForm = this.fb.group({
       email: ['', [Validators.email, Validators.required]],
-      password: ['', Validators.required]
+      password: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
 

@@ -1,10 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule, Validators
-} from '@angular/forms';
+import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgIf} from '@angular/common';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {passwordMatchValidator} from './passwordMatchValidator';
@@ -18,6 +14,7 @@ import {logError} from '../../shared/errorHandling/handleError';
     RouterLink
   ],
   templateUrl: './password-recovery.component.html',
+  standalone: true,
   styleUrl: './password-recovery.component.css'
 })
 export class PasswordRecoveryComponent implements OnInit {

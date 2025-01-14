@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {
-  HTTP_INTERCEPTORS, HttpErrorResponse,
+  HTTP_INTERCEPTORS,
+  HttpErrorResponse,
   HttpEvent,
   HttpHandler,
   HttpInterceptor,

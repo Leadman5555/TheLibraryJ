@@ -1,4 +1,4 @@
-import { TimesMaxPipe } from './times-max.pipe';
+import {TimesMaxPipe} from './times-max.pipe';
 
 describe('TimesMaxPipe', () => {
   it('create an instance', () => {

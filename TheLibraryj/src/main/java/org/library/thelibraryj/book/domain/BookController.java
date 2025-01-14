@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
@@ -18,8 +20,10 @@ import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,7 +35,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -150,10 +156,14 @@ class BookController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
             @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
-    @PostMapping("books/book")
-    @PreAuthorize("#bookCreationRequest.authorEmail == authentication.principal.username")
-    public ResponseEntity<String> createBook(@RequestBody @Valid BookCreationRequest bookCreationRequest) {
-        return handle(bookService.createBook(bookCreationRequest), HttpStatus.CREATED);
+    @PostMapping(value = "books/book", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("#authorEmail == authentication.principal.username")
+    public ResponseEntity<String> createBook(@RequestPart("title") @NotNull @Size(max = 40) String title,
+                                             @RequestPart("description") @Size(max = 700) String description,
+                                             @RequestPart("tags") List<BookTag> tags,
+                                             @RequestPart(value = "coverImage", required = false) @Nullable MultipartFile coverImage,
+                                             @RequestPart("authorEmail") @NotNull String authorEmail) {
+        return handle(bookService.createBook(new BookCreationRequest(title, description, tags, coverImage, authorEmail)), HttpStatus.CREATED);
     }
 
     @Operation(
@@ -239,10 +249,16 @@ class BookController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
             @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
-    @PatchMapping("books/book")
-    @PreAuthorize("hasRole('ADMIN') or #bookUpdateRequest.authorEmail == authentication.principal.username")
-    public ResponseEntity<String> updateBook(@RequestBody @Valid BookUpdateRequest bookUpdateRequest) {
-        return handle(bookService.updateBook(bookUpdateRequest), HttpStatus.OK);
+    @PatchMapping(value = "books/book", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN') or #authorEmail == authentication.principal.username")
+    public ResponseEntity<String> updateBook(@RequestPart(value = "title", required = false) @Nullable String title,
+                                             @RequestPart(value = "description", required = false) @Nullable String description,
+                                             @RequestPart(value = "state", required = false) @Nullable BookState state,
+                                             @RequestPart(value = "coverImage", required = false) @Nullable MultipartFile coverImage,
+                                             @RequestPart(value = "bookTags", required = false) List<BookTag> bookTags,
+                                             @RequestPart("bookId") @NotNull UUID bookId,
+                                             @RequestPart("authorEmail") @NotNull String authorEmail) {
+        return handle(bookService.updateBook(new BookUpdateRequest(title, description, state, coverImage, bookTags, bookId, authorEmail)), HttpStatus.OK);
     }
 
     @Operation(

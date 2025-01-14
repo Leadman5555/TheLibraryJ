@@ -20,6 +20,7 @@ import {provideComponentStore} from '@ngrx/component-store';
     provideComponentStore(ChapterPreviewComponentStore)
   ],
   templateUrl: './book.component.html',
+  standalone: true,
   styleUrl: './book.component.css'
 })
 export class BookComponent extends PagingHelper implements OnInit {

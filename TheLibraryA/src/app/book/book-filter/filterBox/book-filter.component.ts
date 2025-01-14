@@ -1,10 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {
-  FormGroup,
-  FormsModule,
-  NonNullableFormBuilder,
-  ReactiveFormsModule, Validators
-} from "@angular/forms";
+import {FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators} from "@angular/forms";
 import {NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
 import {BookTag} from '../../shared/models/BookTag';
 import {FormOutcome} from '../filterService/form-outcome';
@@ -22,6 +17,7 @@ import {integerValidator, stepValidator} from './filterValidators';
     NgOptimizedImage
   ],
   templateUrl: './book-filter.component.html',
+  standalone: true,
   styleUrl: './book-filter.component.css'
 })
 export class BookFilterComponent implements OnInit {

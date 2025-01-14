@@ -7,6 +7,7 @@ import {GoogleCallbackResponse} from './google-callback-response';
 @Component({
   selector: 'app-auth-callback',
   template: '<p>Loading</p>',
+  standalone: true
 })
 export class AuthCallbackComponent implements OnInit{
   constructor(

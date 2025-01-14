@@ -1,8 +1,6 @@
 import {Component, inject} from '@angular/core';
 import {BookPreview} from '../../book/shared/models/book-preview';
-import {
-  ReactiveFormsModule
-} from '@angular/forms';
+import {ReactiveFormsModule} from '@angular/forms';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {BookPreviewCardComponent} from '../../book/book-preview-card/book-preview-card.component';
 import {provideComponentStore} from '@ngrx/component-store';
@@ -20,6 +18,7 @@ import {PagingHelper} from '../../shared/paging/paging-helper';
     provideComponentStore(HomeComponentStore)
   ],
   templateUrl: './home.component.html',
+  standalone: true,
   styleUrl: './home.component.css'
 })
 export class HomeComponent extends PagingHelper {

@@ -9,7 +9,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import org.library.thelibraryj.authentication.AuthenticationService;
 import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
@@ -18,6 +20,7 @@ import org.library.thelibraryj.authentication.dto.RegisterRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,8 +29,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @AllArgsConstructor
@@ -42,11 +47,13 @@ class AuthenticationController implements ErrorHandling {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Account created, activation email sent."),
             @ApiResponse(responseCode = "409", description = "Parts of user data required to be unique are not."),
-            @ApiResponse(responseCode = "500", description = "Account created, error with sending the activation email.")
     })
-    @PostMapping("/na/auth/register")
-    public ResponseEntity<String> register(@RequestBody @Valid RegisterRequest registerRequest) throws MessagingException {
-        return handle(authenticationService.register(registerRequest), HttpStatus.CREATED);
+    @PostMapping( value = "/na/auth/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> register(@RequestPart("email") @Email String email,
+                                           @RequestPart("password") @NotNull @NotEmpty String password,
+                                           @RequestPart("username") @NotNull @Size(min = 5, max = 20) String username,
+                                           @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws MessagingException {
+        return handle(authenticationService.register(new RegisterRequest(email, password.toCharArray(), username, profileImage)), HttpStatus.CREATED);
     }
 
     @Operation(
@@ -116,12 +123,14 @@ class AuthenticationController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "Refresh token missing")
     })
     @GetMapping("/na/auth/refresh")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<String> refreshJwtToken(HttpServletRequest request, HttpServletResponse response) {
         String newToken = authenticationService.regenerateAccessToken(request.getCookies());
         response.addHeader("access_token", newToken);
         return ResponseEntity.noContent().build();
     }
 
+    @SuppressWarnings("EmptyMethod")
     @Operation(
             summary = "Verify matching userData and JWT token.",
             tags = {"authentication"}

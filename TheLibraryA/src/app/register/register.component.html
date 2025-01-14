@@ -14,7 +14,7 @@
         can also be changed, even daily.<br>
         Your profile image and username will be visible to other users. Your email will not be disclosed. <br>
         By default, your account will be inactive. You will have to activate it by clicking on the link in the received
-        activation email. If you do not receive the email upon successful registration, please head to Settings=>Trouble
+        activation email. If you did not receive the email upon successful registration, please head to Settings=>Trouble
         logging in?=>Activate account.<br>
         By registering, you agree to our <a href="https://www.privacypolicies.com/blog/sample-terms-service-template/">Terms
         of Service</a> and <a href="https://www.privacypolicies.com/blog/sample-terms-service-template/">Privacy
@@ -29,7 +29,7 @@
         store Cookies in your web browser. Those Cookies are necessary for authentication purposes and keeping you
         logged in.<br>
         Without them, refreshing the page or opening it in another tab would result in you being logged out. The Cookies
-        and any other data stored after you log in are removed when you log out. No stored data is sensitive and all of it is limited
+        and any other data stored after you log in are removed when you log out. No stored data is sensitive and all of it is strictly limited
         to what other users can see.<br>
         This website does not collect any personal information.
       </p>
@@ -69,30 +69,33 @@
     }
   </div>
   <div id="formDiv">
-    <form id="passwordResetForm column" *ngIf="registerForm" [formGroup]="registerForm"
+    @if(!registerSuccess) {
+    <form id="passwordResetForm column" style="border: 3px solid darkgoldenrod; padding: 10px" *ngIf="registerForm" [formGroup]="registerForm"
           (ngSubmit)="attemptRegistration()">
-      <p class="errorBox" style="width: 100%; word-break: break-word" *ngIf="errorMessage">{{ errorMessage }}</p>
-      <div class="inputColumn">
-        <div class="input-container">
-          <input placeholder="Enter email here" class="input-field" id="emailInput" type="text" maxlength="30"
-                 formControlName="email">
-          <label for="emailInput" class="input-label">Email: </label>
-          <span class="input-highlight"></span>
+      <div class="column">
+        <p class="errorBox" style="width: 100%; word-break: break-word" *ngIf="errorMessage">{{ errorMessage }}</p>
+        <div class="inputColumn">
+          <div class="input-container">
+            <input placeholder="Enter email here" class="input-field" id="emailInput" type="text" maxlength="30"
+                   formControlName="email">
+            <label for="emailInput" class="input-label">Email: </label>
+            <span class="input-highlight"></span>
+          </div>
+          <div class="errorBox alignLeft" *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty)">
+            Enter a valid email address
+          </div>
         </div>
-        <div class="errorBox" *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty)">
-          Enter a valid email address
-        </div>
-      </div>
-      <div class="inputColumn">
-        <div class="input-container">
-          <input placeholder="Enter username here" class="input-field" id="usernameInput" type="text" maxlength="20"
-                 formControlName="username">
-          <label for="usernameInput" class="input-label">Username: </label>
-          <span class="input-highlight"></span>
-        </div>
-        <div class="errorBox" *ngIf="registerForm.get('username')?.invalid && (registerForm.get('username')?.dirty)">
-          Username can only contain letters ('a-z' and 'A-Z'), digits ('0-9'), hi-fens ('-') and underscores ('_').
-          Username must be between 5 and 20 characters long.
+        <div class="inputColumn">
+          <div class="input-container">
+            <input placeholder="Enter username here" class="input-field" id="usernameInput" type="text" maxlength="20"
+                   formControlName="username">
+            <label for="usernameInput" class="input-label">Username: </label>
+            <span class="input-highlight"></span>
+          </div>
+          <div class="errorBox alignLeft" *ngIf="registerForm.get('username')?.invalid && (registerForm.get('username')?.dirty)">
+            Username can only contain letters ('a-z' and 'A-Z'), digits ('0-9'), hi-fens ('-') and underscores ('_').
+            Username must be between 5 and 20 characters long.
+          </div>
         </div>
       </div>
       <div class="row" style="margin-top: 16px; margin-bottom: 16px">
@@ -104,7 +107,7 @@
               <label for="passwordInput1" class="input-label">Password: </label>
               <span class="input-highlight"></span>
             </div>
-            <div class="errorBox"
+            <div class="errorBox alignLeft"
                  *ngIf="registerForm.get('newPassword')?.invalid && (registerForm.get('newPassword')?.dirty)">
               Enter at between 8 and 30 characters, including at least one uppercase letter, one lowercase letter and
               one
@@ -118,7 +121,7 @@
               <label for="passwordInput2" class="input-label">Repeat password: </label>
               <span class="input-highlight"></span>
             </div>
-            <div class="errorBox" *ngIf="passwordMismatchError && registerForm.touched">
+            <div class="errorBox alignLeft" *ngIf="passwordMismatchError && registerForm.touched">
               Passwords do not match
             </div>
           </div>
@@ -153,10 +156,27 @@
           account
         </button>
         <button class="sButton" type="button" (click)="resetForm()">Reset form</button>
-        <img src="/google_register.png" width="180" height="40" alt="Register with Google"
+        <img ngSrc="/google_register.png" width="180" height="40" alt="Register with Google"
              (click)="logInWithGoogle()">
       </div>
     </form>
+    }@else {
+      <div class="column" style="font-size: 1.2rem; width: 40%; margin: auto; text-align: left">
+        <p>Registration was successful. Registered account data:</p>
+        <ul>
+          <li>Username: {{ createdUser?.username }}</li>
+          <li>Email: {{ createdUser?.email }}</li>
+          <li>Current Score: {{ createdUser?.currentScore }}</li>
+          <li>Rank: {{ createdUser?.rank }}</li>
+          <span class="column">
+            <span>Profile Image:</span> <img *ngIf="createdUser?.profileImage" src="data:image/jpg;base64,{{createdUser?.profileImage}}"
+                                alt="Profile Image" width="150" height="150">
+          </span>
+        </ul>
+        <p>Remember that you must activate your account before using it. If you did not receive an activation email, please follow the instructions on listed the left side of the screen.</p>
+        <p style="text-align: center">Peaceful journey.</p>
+        <button class="sButton" routerLink="">Return to homepage</button>
+      </div>
+    }
   </div>
-
 </div>

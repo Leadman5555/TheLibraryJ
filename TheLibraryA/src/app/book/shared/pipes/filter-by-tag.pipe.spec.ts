@@ -1,4 +1,4 @@
-import { FilterByTagNamePipe } from './filter-by-tag-name.pipe';
+import {FilterByTagNamePipe} from './filter-by-tag-name.pipe';
 
 describe('FilterByTagPipe', () => {
   it('create an instance', () => {
