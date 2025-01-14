@@ -11,6 +11,12 @@ import org.library.thelibraryj.infrastructure.exception.JsonDeserializationExcep
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+/**
+ * The ErrorHandling interface provides utility methods to handle responses within a controller
+ * by generating consistent success and error responses in a structured format.
+ * Maps service return values to HTTP responses, handling errors by using
+ * the statuses and messages defined in ApiErrorWrapper.
+ */
 public interface ErrorHandling {
     ObjectWriter ow = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).registerModule(new JavaTimeModule()).writerWithDefaultPrettyPrinter();
     private static ResponseEntity<String> createSuccessResponse(Object responseBody, HttpStatus successReturn) {
@@ -29,5 +35,13 @@ public interface ErrorHandling {
     default ResponseEntity<String> handle(Either<GeneralError, ?> serviceReturn, HttpStatus successReturn){
         return serviceReturn.mapLeft(ApiErrorWrapper::new)
                 .fold(ErrorHandling::createErrorResponse, e -> createSuccessResponse(e, successReturn));
+    }
+
+    default ResponseEntity<String> handleError(Either<GeneralError, ?> errorServiceReturn){
+        return createErrorResponse(new ApiErrorWrapper(errorServiceReturn.getLeft()));
+    }
+
+    default ResponseEntity<String> handleSuccess(Object serviceReturnBody, HttpStatus successReturn){
+        return createSuccessResponse(serviceReturnBody, successReturn);
     }
 }

@@ -1,0 +1,47 @@
+@import "../shared/styles/sButton.css";
+@import "../shared/styles/rowCol.css";
+@import "../shared/styles/sInput.css";
+@import "../shared/styles/m3Toggle.css";
+
+#mainBox{
+  background-color: cadetblue;
+  border: 3px solid darkgoldenrod;
+  padding: 20px;
+  display: flex;
+}
+
+#infoDiv{
+  width: 30%;
+}
+
+.disclaimer{
+  font-size: 1.1rem;
+  word-wrap: break-word;
+  text-align: justify;
+}
+
+#formDiv{
+  width: 70%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.drop-zone {
+  border: 2px dashed rgba(40, 0, 73, 0.7);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.drop-zone.active {
+  background-color: #e8f7ff;
+  border-color: #007bff;
+}
+
+.drop-zone img {
+  margin-top: 10px;
+  max-width: 100%;
+}

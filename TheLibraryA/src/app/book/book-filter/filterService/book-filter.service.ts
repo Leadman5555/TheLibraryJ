@@ -1,7 +1,6 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {FormOutcome} from './form-outcome';
-import {BookTag} from '../../shared/models/BookTag';
 
 @Injectable({
   providedIn: 'root'

@@ -1,13 +1,9 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {ChapterPreview} from '../shared/models/chapter-preview';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {BookService} from '../shared/book-service';
 import {ChapterContent} from '../shared/models/chapter-content';
-import {channel} from 'node:diagnostics_channel';
-import {BookPreview} from '../shared/models/book-preview';
 import {NgForOf, NgIf, NgStyle} from '@angular/common';
-import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {TimesMaxPagingPipe} from '../../shared/pipes/times-max-paging.pipe';
+import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {TimesMaxPipe} from '../../shared/pipes/times-max.pipe';
 
 @Component({
@@ -20,6 +16,7 @@ import {TimesMaxPipe} from '../../shared/pipes/times-max.pipe';
     TimesMaxPipe
   ],
   templateUrl: './chapter.component.html',
+  standalone: true,
   styleUrl: './chapter.component.css'
 })
 export class ChapterComponent implements OnInit {

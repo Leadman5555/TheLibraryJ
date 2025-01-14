@@ -1,4 +1,6 @@
 package org.library.thelibraryj.authentication.dto;
 
-public record AuthenticationRequest(String email, char[] password){
+import jakarta.validation.constraints.Email;
+
+public record AuthenticationRequest(@Email String email, char[] password){
 }

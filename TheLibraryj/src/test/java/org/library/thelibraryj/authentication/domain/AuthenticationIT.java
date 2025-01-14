@@ -4,13 +4,13 @@ import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import jakarta.mail.internet.MimeMessage;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
-import org.library.thelibraryj.authentication.dto.RegisterRequest;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -28,6 +28,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -46,6 +47,10 @@ public class AuthenticationIT {
     private static final String BASE_URL = TestProperties.BASE_URL + "/na/auth";
     private static final UUID notEnabledUserId = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
 
+    static final String existingEmail = "sample.email1@gmail.com";
+    static final String existingNonEnabledEmail = "sample.email2@gmail.com";
+    final char[] validPassword = "password".toCharArray();
+
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
             .withConfiguration(GreenMailConfiguration.aConfig().withUser("username", "password"))
@@ -61,13 +66,21 @@ public class AuthenticationIT {
     }
 
     @Test
-    public void shouldCreateUserAndSendEmail() throws Exception {
+    public void testCreateUserAndSendEmail() throws Exception {
         final String email = "sample@email.com";
         final char[] password = "password".toCharArray();
         final String username = "sampleUsername";
-        RegisterRequest requestEntity = new RegisterRequest(email, password, username, null);
+        MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
+        multipartRequest.add("email", email);
+        multipartRequest.add("password", password);
+        multipartRequest.add("username", username);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, headers);
         ResponseEntity<String> registerResponse = restTemplate.postForEntity(
-                BASE_URL + "/register", requestEntity, String.class
+                BASE_URL + "/register",
+                requestEntity,
+                String.class
         );
 
         await().atMost(10, TimeUnit.SECONDS).until(
@@ -102,37 +115,78 @@ public class AuthenticationIT {
     }
 
     @Test
-    public void shouldReturnTokenAfterSuccessfulAuthentication() throws Exception {
-        final String existingEmail = "sample.email1@gmail.com";
-        final String existingNonEnabledEmail = "sample.email2@gmail.com";
-        final char[] validPassword = "password".toCharArray();
+    public void testFailWithInvalidLogin() {
+        AuthenticationRequest invalidRequest = new AuthenticationRequest(existingEmail, ("invalidPassword").toCharArray());
+        ResponseEntity<String> authResponse2 = restTemplate.postForEntity(
+                BASE_URL+"/login", invalidRequest, String.class
+        );
+        assertEquals(HttpStatus.UNAUTHORIZED.value(), authResponse2.getStatusCode().value());
+
+        AuthenticationRequest invalidRequest2 = new AuthenticationRequest("nonexistant@email.com", validPassword);
+        ResponseEntity<String> authResponse3 = restTemplate.postForEntity(
+                BASE_URL+"/login", invalidRequest2, String.class
+        );
+        assertEquals(HttpStatus.NOT_FOUND.value(), authResponse3.getStatusCode().value());
+
+        AuthenticationRequest notEnabledRequest = new AuthenticationRequest(existingNonEnabledEmail, validPassword);
+        ResponseEntity<String> authResponse4 = restTemplate.postForEntity(
+                BASE_URL+"/login", notEnabledRequest, String.class
+        );
+        assertEquals(HttpStatus.BAD_REQUEST.value(), authResponse4.getStatusCode().value());
+    }
+
+    @Test
+    public void testReturnTokenAndCookieAfterSuccessfulAuthentication() throws Exception {
         AuthenticationRequest requestEntity = new AuthenticationRequest(existingEmail, validPassword);
         ResponseEntity<String> authResponse = restTemplate.postForEntity(
-                BASE_URL, requestEntity, String.class
+                BASE_URL+"/login", requestEntity, String.class
         );
         assertEquals(HttpStatus.OK.value(), authResponse.getStatusCode().value());
         assertNotNull(authResponse.getBody());
         JSONObject object = new JSONObject(authResponse.getBody());
         assertTrue(object.has("token"));
 
-        AuthenticationRequest invalidRequest = new AuthenticationRequest(existingEmail, ("invalidPassword").toCharArray());
-        ResponseEntity<String> authResponse2 = restTemplate.postForEntity(
-                BASE_URL, invalidRequest, String.class
-        );
-        assertEquals(HttpStatus.FORBIDDEN.value(), authResponse2.getStatusCode().value());
-
-        AuthenticationRequest invalidRequest2 = new AuthenticationRequest("nonexistant@email.com", validPassword);
-        ResponseEntity<String> authResponse3 = restTemplate.postForEntity(
-                BASE_URL, invalidRequest2, String.class
-        );
-        assertEquals(HttpStatus.NOT_FOUND.value(), authResponse3.getStatusCode().value());
-
-        AuthenticationRequest notEnabledRequest = new AuthenticationRequest(existingNonEnabledEmail, validPassword);
-        ResponseEntity<String> authResponse4 = restTemplate.postForEntity(
-                BASE_URL, notEnabledRequest, String.class
-        );
-        assertEquals(HttpStatus.BAD_REQUEST.value(), authResponse4.getStatusCode().value());
+        List<String> cookies = authResponse.getHeaders().get(HttpHeaders.SET_COOKIE);
+        Assertions.assertNotNull(cookies);
+        Assertions.assertEquals(1, cookies.size());
+        Assertions.assertTrue(cookies.getFirst().contains("refresh-token"));
     }
+
+    @Test
+    public void testRefreshTokenFail() throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.COOKIE, "refresh-token=" + "InvalidToken");
+        HttpEntity<String> httpEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                BASE_URL + "/refresh",
+                HttpMethod.GET,
+                httpEntity,
+                String.class
+        );
+
+        assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
+        assertFalse(response.getHeaders().containsKey("access_token"));
+    }
+
+    @Test
+    public void testRefreshTokenWithValidCookie() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.COOKIE, "refresh-token=" + TestProperties.alwaysValidTokenForUser1);
+        HttpEntity<String> httpEntity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                BASE_URL + "/refresh",
+                HttpMethod.GET,
+                httpEntity,
+                String.class
+        );
+
+        assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatusCode().value());
+        assertTrue(response.getHeaders().containsKey("access_token"));
+    }
+
+
 
     @Test
     public void shouldResendActivationEmail() throws Exception {
@@ -171,8 +225,12 @@ public class AuthenticationIT {
         resultSet.next();
         UUID newToken = resultSet.getObject("token", UUID.class);
 
+        MultiValueMap<String, String> params2 = new LinkedMultiValueMap<>();
+        params2.add("tokenId", newToken.toString());
+        HttpEntity<MultiValueMap<String, String>> request2 = new HttpEntity<>(params2, headers);;
+
         ResponseEntity<String> activationResponse = restTemplate.exchange(
-                BASE_URL + "/activation/" + newToken, HttpMethod.PATCH, null, String.class
+                BASE_URL + "/activation", HttpMethod.PATCH, request2, String.class
         );
         assertEquals(HttpStatus.NO_CONTENT.value(), activationResponse.getStatusCode().value());
 

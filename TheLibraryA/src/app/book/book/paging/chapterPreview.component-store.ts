@@ -1,4 +1,3 @@
-import {OnStoreInit} from '@ngrx/component-store';
 import {tapResponse} from '@ngrx/operators'
 import {inject, Injectable} from '@angular/core';
 import {BookService} from '../../shared/book-service';
@@ -32,7 +31,7 @@ const initialState: ChapterPreviewPage = {
 @Injectable({
   providedIn: 'root'
 })
-export class ChapterPreviewComponentStore extends GenericComponentStore<ChapterPreview, ChapterPreviewPage> implements OnStoreInit {
+export class ChapterPreviewComponentStore extends GenericComponentStore<ChapterPreview, ChapterPreviewPage> {
   private readonly bookService = inject(BookService);
 
   constructor() {

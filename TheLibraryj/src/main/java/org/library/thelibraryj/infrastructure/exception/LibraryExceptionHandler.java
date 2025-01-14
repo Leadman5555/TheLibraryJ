@@ -1,6 +1,7 @@
 package org.library.thelibraryj.infrastructure.exception;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.infrastructure.error.ApiErrorResponse;
@@ -8,6 +9,7 @@ import org.library.thelibraryj.infrastructure.error.ApiErrorWrapper;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,7 +23,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Slf4j
 public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({Exception.class})
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorWrapper> handleDefault(Exception ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
@@ -34,7 +36,7 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
-    @ExceptionHandler({JsonDeserializationException.class})
+    @ExceptionHandler(JsonDeserializationException.class)
     public ResponseEntity<ApiErrorWrapper> handleJsonDeserializationException(JsonDeserializationException ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
@@ -47,8 +49,8 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
-    @ExceptionHandler({MessagingException.class})
-    public ResponseEntity<ApiErrorWrapper> handleMessageConstraintException(MessagingException ex, WebRequest request) {
+    @ExceptionHandler(value = {MessagingException.class, MailException.class})
+    public ResponseEntity<ApiErrorWrapper> handleMessagingException(MessagingException ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
@@ -76,10 +78,10 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({BadCredentialsException.class})
     public ResponseEntity<ApiErrorWrapper> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
         final String uri = extractRequest(request);
-        HttpStatus errorStatus = HttpStatus.FORBIDDEN;
+        HttpStatus errorStatus = HttpStatus.UNAUTHORIZED;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message(uri.equals("/login") ? "Wrong password or email" : ex.getMessage())
+                .message(uri.contains("/login") ? "Incorrect password" : ex.getMessage())
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + uri)
                 .build();
@@ -100,9 +102,9 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
-    @ExceptionHandler({GoogleTokenVerificationException.class})
+    @ExceptionHandler(GoogleTokenVerificationException.class)
     public ResponseEntity<ApiErrorWrapper> handleGoogleTokenVerificationException(GoogleTokenVerificationException ex, WebRequest request) {
-        HttpStatus errorStatus = HttpStatus.FORBIDDEN;
+        HttpStatus errorStatus = HttpStatus.UNAUTHORIZED;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
                 .message("Google token invalid. Authorization failed: " + ex.getMessage())
@@ -113,12 +115,43 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
-    @ExceptionHandler({AccessDeniedException.class, JWTVerificationException.class})
-    public ResponseEntity<ApiErrorWrapper> handleAccessDeniedException(RuntimeException ex, WebRequest request) {
+    @ExceptionHandler(JWTVerificationException.class)
+    public ResponseEntity<ApiErrorWrapper> handleJwtVerificationException(JWTVerificationException ex, WebRequest request) {
+        HttpStatus errorStatus = HttpStatus.UNAUTHORIZED;
+        String message = "Jwt token invalid";
+        if(ex instanceof TokenExpiredException){
+            errorStatus = HttpStatus.FORBIDDEN;
+            message = "Jwt token expired";
+        }
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message(message)
+                .status(errorStatus.getReasonPhrase())
+                .path("Path: " + extractRequest(request))
+                .build();
+        logError(errorResponse);
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
+    }
+
+    @ExceptionHandler(RefreshTokenMissingException.class)
+    public ResponseEntity<ApiErrorWrapper> handleRefreshTokenMissingException(RefreshTokenMissingException ex, WebRequest request) {
+        HttpStatus errorStatus = HttpStatus.BAD_REQUEST;
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message("Refresh token missing, cannot grant new access token: " + ex.getMessage())
+                .status(errorStatus.getReasonPhrase())
+                .path("Path: " + extractRequest(request))
+                .build();
+        logError(errorResponse);
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorWrapper> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.FORBIDDEN;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message("Authorization failed: Jwt token invalid or permission lacking. Reason: " + ex.getMessage())
+                .message("Authorization failed: Permission lacking. Reason: " + ex.getMessage())
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + extractRequest(request))
                 .build();
@@ -129,11 +162,12 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(EmptyResultDataAccessException.class)
     public ResponseEntity<ApiErrorWrapper> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.NOT_FOUND;
+        final String uri = extractRequest(request);
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message("View not found: " + ex.getMessage())
+                .message(uri.contains("/login") ? "Account doesn't exist" : "Entity not found: " + ex.getMessage())
                 .status(errorStatus.getReasonPhrase())
-                .path("Path: " + extractRequest(request))
+                .path("Path: " + uri)
                 .build();
         logError(errorResponse);
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));

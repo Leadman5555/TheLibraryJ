@@ -1,6 +1,8 @@
 package org.library.thelibraryj.authentication.tokenServices.domain;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.library.thelibraryj.authentication.tokenServices.dto.password.PasswordResetRequest;
@@ -22,6 +24,11 @@ record PasswordResetController(PasswordResetServiceImpl passwordResetService) im
             summary = "Starts the password reset procedure, creating a reset token and sending a password reset email to the user of given email address.",
             tags = {"authentication", "password", "no auth required"}
     )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Password reset email sent successfully."),
+            @ApiResponse(responseCode = "400", description = "Account not eligible for password reset."),
+            @ApiResponse(responseCode = "404", description = "Account not found."),
+    })
     @PostMapping("/{emailAddress}")
     public ResponseEntity<String> startPasswordResetProcedure(@PathVariable String emailAddress) throws MessagingException {
         return handle(passwordResetService.startPasswordResetProcedure(emailAddress), HttpStatus.NO_CONTENT);
@@ -31,6 +38,11 @@ record PasswordResetController(PasswordResetServiceImpl passwordResetService) im
             summary = "Consumes an existing password reset token, changing the user's password to the new one if successful.",
             tags = {"authentication", "password", "no auth required"}
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Password reset token successfully consumed, password changed."),
+            @ApiResponse(responseCode = "400", description = "Bad Request - Invalid token or other issues."),
+            @ApiResponse(responseCode = "404", description = "Not Found - Token does not exist.")
+    })
     @PatchMapping
     public ResponseEntity<String> consumePasswordResetToken(@RequestBody @Valid PasswordResetRequest passwordResetRequest) {
         return handle(passwordResetService.consumePasswordResetToken(passwordResetRequest), HttpStatus.NO_CONTENT);

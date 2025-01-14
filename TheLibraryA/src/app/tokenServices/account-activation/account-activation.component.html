@@ -1,0 +1,54 @@
+<div id="outerBox" class="column">
+  @if(this.tokenValue !== undefined) {
+    <button class="sButton" (click)="attemptAccountActivation()">Token present, activate account</button>
+  } @else {
+    <div id="formBox">
+      <form id="emailInputForm" *ngIf="emailInputForm" [formGroup]="emailInputForm" (ngSubmit)="sendAccountActivationEmail()">
+        <div class="emailInput">
+          <div class="input-container">
+            <input placeholder="Enter email address" class="input-field" id="emailInput" type="text" maxlength="30"
+                   formControlName="email">
+            <label for="emailInput" class="input-label">Email: </label>
+            <span class="input-highlight"></span>
+          </div>
+          <div class="errorBox" *ngIf="emailInputForm.get('email')?.invalid && (emailInputForm.get('email')?.dirty)">
+            Enter a valid email address
+          </div>
+        </div>
+        <div class="row" style="margin-top: 16px;">
+          <button class="sButton" type="submit" [disabled]="emailInputForm.invalid || emailInputForm.pristine">Send account activation email
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+  <ng-container *ngIf="successSend !== undefined">
+    @if (this.successSend) {
+      <div class="column">
+        <p>Account activation email sent successfully. Click on the link (expires in 24 hours) in the received email to
+          complete the procedure. You can close this page.</p>
+        <button class="sButton" routerLink="">Go to homepage</button>
+      </div>
+    } @else {
+      <div class="column">
+        <p>Account activation email could not be sent. Please make sure the account for the given email address exists, the account isn't a Google account and
+          the account isn't already activated.</p>
+      </div>
+    }
+  </ng-container>
+  <ng-container *ngIf="successActivation !== undefined">
+    @if (this.successActivation) {
+      <div class="column">
+        <p>Account has been activated successfully. You can close this page.</p>
+        <button class="sButton" routerLink="">Go to homepage</button>
+      </div>
+    } @else {
+      <div class="column">
+        <p>Account activation failed. Please make sure the sent email is no older than 24 hours, the token in the email has
+          not been used, the account isn't a Google account and isn't already activated..</p>
+        <button class="sButton" routerLink="/account-activation" (click)="reload()">Try again</button>
+      </div>
+    }
+  </ng-container>
+</div>
+

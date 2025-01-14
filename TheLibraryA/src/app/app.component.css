@@ -1,1 +1,106 @@
+@import 'shared/styles/sButton.css';
+@import 'shared/styles/sInput.css';
+@import 'shared/styles/rowCol.css';
 
+#body{
+  z-index: 9;
+  margin-bottom: 10px;
+}
+
+#header{
+  font-family: "Bell MT", sans-serif;
+  font-size: 16px;
+  background-color: cadetblue;
+  position: relative;
+  margin: 0 0 10px;
+  height: fit-content;
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+}
+
+#home{
+  font-weight: bold;
+  font-style: italic;
+  color: goldenrod;
+  font-size: 3rem;
+  position: relative;
+  background: rgba(40, 0, 73, 0.7);
+  padding: 10px;
+  border: 3px solid cornflowerblue;
+}
+
+#home:hover{
+  cursor: pointer;
+  border: 3px solid goldenrod;
+}
+
+#right{
+    margin-left: auto;
+}
+
+#userInfo{
+  display: flex;
+  align-items: center;
+}
+
+#username{
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-right: 10px;
+}
+
+.inputColumn{
+  width: 70%;
+  padding-right: 10px;
+}
+
+@keyframes expand {
+  from{
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#settingsBox{
+  animation: expand 0.3s ease-in;
+  position: relative;
+  margin-left: auto;
+  border: 3px solid darkgoldenrod;
+  padding: 5px;
+  width: fit-content;
+  height: fit-content;
+  background: cadetblue;
+  z-index: 9;
+}
+
+#logInForm{
+  padding: 20px;
+}
+
+.menu-container {
+  position: relative;
+  display: inline-block; /* Ensures the dropdown fits with its parent */
+}
+
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%; transform: translateX(-50%);
+  background-color: cadetblue;
+  z-index: 9;
+  border: 3px solid darkgoldenrod;
+  border-top: none;
+}
+
+.dropdown button {
+  display: block;
+  margin: 15px 5px;
+}
+
+.menu-container:hover .dropdown {
+  display: block;
+}

@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { BookFilterComponent } from './book-filter.component';
+import {BookFilterComponent} from './book-filter.component';
 
 describe('BookFilterComponent', () => {
   let component: BookFilterComponent;

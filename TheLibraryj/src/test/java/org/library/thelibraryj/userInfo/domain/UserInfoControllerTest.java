@@ -53,7 +53,7 @@ public class UserInfoControllerTest {
     public void testGetUserInfoResponseByUsername() throws Exception {
         final String username = "username";
         when(userInfoService.getUserInfoResponseByUsername(username)).thenReturn(Either.right(new UserInfoWithImageResponse(username, email,1, 1, Instant.now(), null)));
-        mockMvc.perform(get(ENDPOINT + "/na/user/username/" + username)
+        mockMvc.perform(get(ENDPOINT + "/na/user/" + username)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());

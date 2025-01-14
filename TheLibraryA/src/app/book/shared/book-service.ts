@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BookPreview} from './models/book-preview';
-import {asyncScheduler, Observable, scheduled} from 'rxjs';
+import {Observable} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {BookDetail} from './models/book-detail';
 import {BookResponse} from './models/book-response';

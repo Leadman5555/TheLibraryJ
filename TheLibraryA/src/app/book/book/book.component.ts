@@ -20,6 +20,7 @@ import {provideComponentStore} from '@ngrx/component-store';
     provideComponentStore(ChapterPreviewComponentStore)
   ],
   templateUrl: './book.component.html',
+  standalone: true,
   styleUrl: './book.component.css'
 })
 export class BookComponent extends PagingHelper implements OnInit {
@@ -114,9 +115,5 @@ export class BookComponent extends PagingHelper implements OnInit {
 
   onChosenPage(pageNumber: number){
     this.componentStore.loadSpecifiedPage(pageNumber);
-  }
-
-  max(val1: number, val2: number) : number {
-    return Math.max(val1, val2);
   }
 }

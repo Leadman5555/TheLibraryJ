@@ -48,5 +48,6 @@
 }
 
 .sButton:disabled {
-  display: none;
+  visibility: hidden;
+  pointer-events: none;
 }

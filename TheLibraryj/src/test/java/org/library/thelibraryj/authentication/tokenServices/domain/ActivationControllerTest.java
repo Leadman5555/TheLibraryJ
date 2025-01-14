@@ -3,8 +3,8 @@ package org.library.thelibraryj.authentication.tokenServices.domain;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
-import org.library.thelibraryj.authentication.tokenServices.ActivationService;
 import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
+import org.library.thelibraryj.authentication.tokenServices.ActivationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -38,8 +38,8 @@ public class ActivationControllerTest {
     public void testConsumeActivationToken() throws Exception {
         UUID tokenId = UUID.randomUUID();
         when(activationService.consumeActivationToken(tokenId)).thenReturn(Either.right(true));
-
-        mockMvc.perform(patch(ENDPOINT + '/' + tokenId)
+        mockMvc.perform(patch(ENDPOINT)
+                        .param("tokenId", tokenId.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());

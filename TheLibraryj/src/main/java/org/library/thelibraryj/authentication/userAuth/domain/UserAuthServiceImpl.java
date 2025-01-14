@@ -13,6 +13,7 @@ import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
 import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ class UserAuthServiceImpl implements UserAuthService {
     private final UserInfoService userInfoService;
     private final UserAuthMapper mapper;
 
-    public UserAuthServiceImpl(UserAuthRepository userAuthRepository, UserAuthMapper mapper, UserInfoService userInfoService) {
+    public UserAuthServiceImpl(UserAuthRepository userAuthRepository, @Qualifier("userAuthMapperImpl") UserAuthMapper mapper, UserInfoService userInfoService) {
         this.userAuthRepository = userAuthRepository;
         this.mapper = mapper;
         this.userInfoService = userInfoService;

@@ -1,14 +1,10 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {AsyncPipe, NgForOf, NgIf} from "@angular/common";
+import {NgForOf} from "@angular/common";
 import {BookFilterComponent} from "../book-filter/filterBox/book-filter.component";
 import {BookPreviewCardComponent} from "../book-preview-card/book-preview-card.component";
-import {TimesMaxPagingPipe} from "../../shared/pipes/times-max-paging.pipe";
 import {BookPreview} from '../shared/models/book-preview';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {BookService} from '../shared/book-service';
-import {HttpParams} from '@angular/common/http';
-import {BookTag} from '../shared/models/BookTag';
-import {BookPage} from '../../home/home/paging/book-page';
 import {BookFilterService} from '../book-filter/filterService/book-filter.service';
 import {Subscription} from 'rxjs';
 
@@ -20,6 +16,7 @@ import {Subscription} from 'rxjs';
     NgForOf
   ],
   templateUrl: './book-view.component.html',
+  standalone: true,
   styleUrl: './book-view.component.css'
 })
 export class BookViewComponent implements OnInit, OnDestroy {

@@ -15,6 +15,8 @@ import org.library.thelibraryj.authentication.userAuth.domain.PasswordResetView;
 import org.library.thelibraryj.book.domain.ChapterPreviewTitleView;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
+import org.library.thelibraryj.userInfo.domain.UserInfoDetailsView;
+import org.library.thelibraryj.userInfo.domain.UserInfoMiniView;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,11 +54,13 @@ public class BlazePersistenceConfiguration {
     EntityViewConfiguration entityViewConfiguration() {
         EntityViewConfiguration evc = EntityViews.createDefaultConfiguration();
         evc.addEntityView(BookCreationUserView.class);
+        evc.addEntityView(UserInfoDetailsView.class);
         evc.addEntityView(RatingUpsertView.class);
         evc.addEntityView(BasicUserAuthView.class);
         evc.addEntityView(LoginDataView.class);
         evc.addEntityView(PasswordResetView.class);
         evc.addEntityView(ChapterPreviewTitleView.class);
+        evc.addEntityView(UserInfoMiniView.class);
         return evc;
     }
 

@@ -1,5 +1,3 @@
-import {ChapterPreview} from './chapter-preview';
-import {RatingResponse} from './rating-response';
 import {BookState} from './BookState';
 import {BookTag} from './BookTag';
 

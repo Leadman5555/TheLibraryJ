@@ -27,6 +27,13 @@ import org.springframework.context.annotation.Bean;
         bearerFormat = "JWT",
         in = SecuritySchemeIn.HEADER
 )
+@SecurityScheme(
+        name = "xsrfAuth",
+        description = "XSRF token sent in header and in cookie",
+        scheme = "cookie",
+        type = SecuritySchemeType.APIKEY,
+        in = SecuritySchemeIn.HEADER
+)
 public class SwaggerConfiguration {
     @Bean
     public OpenAPI TheLibraryAPI() {

@@ -12,6 +12,13 @@ import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.springframework.http.HttpStatus;
 
+/**
+ * A wrapper class for handling API error responses in a standardized format.
+ * <p>
+ * Supports predefined categories of errors defined in sealed interfaces, providing a match
+ * for every possible error.
+ * Maps given error to corresponding HTTP status code and message, as well as logging the error message in progress.
+ */
 @Data
 @Slf4j
 public class ApiErrorWrapper {
@@ -67,9 +74,9 @@ public class ApiErrorWrapper {
             case UserAuthError.UserNotEnabled e ->
                     getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "User not enabled. Email: " + e.email());
             case UserAuthError.GoogleApiNotResponding e ->
-                getErrorResponseAndLog(error, HttpStatus.SERVICE_UNAVAILABLE, "Google api not responding to query.");
+                    getErrorResponseAndLog(error, HttpStatus.SERVICE_UNAVAILABLE, "Google api not responding to query.");
             case UserAuthError.UserIsGoogleRegistered e ->
-                getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Google registered user can only login and change their password by Google api. Email: " + e.email());
+                    getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Google registered user can only login and change their password by Google api. Email: " + e.email());
             case ActivationError.UserAlreadyEnabled e ->
                     getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "User already enabled. Email: " + e.email());
             case ActivationError.ActivationTokenNotFound e ->

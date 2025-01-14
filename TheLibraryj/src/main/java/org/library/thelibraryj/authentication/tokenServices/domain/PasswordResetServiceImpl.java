@@ -40,7 +40,7 @@ class PasswordResetServiceImpl implements PasswordControl {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public Either<GeneralError, Boolean> startPasswordResetProcedure(String forEmail) throws MessagingException {
+    public Either<GeneralError, Boolean> startPasswordResetProcedure(String forEmail) {
         Either<GeneralError, PasswordResetView> fetchedData = userAuthService.getPasswordResetDataByEmail(forEmail);
         if(fetchedData.isLeft()) return Either.left(fetchedData.getLeft());
         if(fetchedData.get().getIsGoogleUser()) return Either.left(new UserAuthError.UserIsGoogleRegistered(forEmail));

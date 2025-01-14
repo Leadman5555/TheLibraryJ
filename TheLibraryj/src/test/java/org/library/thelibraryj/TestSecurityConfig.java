@@ -1,32 +1,67 @@
 //package org.library.thelibraryj;
 //
+//import jakarta.servlet.http.HttpServletRequest;
+//import jakarta.servlet.http.HttpServletResponse;
 //import lombok.RequiredArgsConstructor;
 //import org.springframework.context.annotation.Bean;
 //import org.springframework.context.annotation.Configuration;
 //import org.springframework.context.annotation.Profile;
-//import org.springframework.security.config.Customizer;
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-//import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
-//import org.springframework.security.config.http.SessionCreationPolicy;
-//import org.springframework.security.web.SecurityFilterChain;
+//import org.springframework.security.web.csrf.CsrfToken;
+//import org.springframework.security.web.csrf.CsrfTokenRepository;
+//import org.springframework.security.web.csrf.DeferredCsrfToken;
 //
 //@Profile(value = {"test"})
 //@Configuration
 //@RequiredArgsConstructor
 //class TestSecurityConfig {
 //
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http.csrf(AbstractHttpConfigurer::disable)
-//                .cors(Customizer.withDefaults())
-//                .authorizeHttpRequests(authorize -> authorize.requestMatchers("**")
-//                        .permitAll().anyRequest().authenticated()
-//                )
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .headers(headers -> headers
-//                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+//    @Profile(value = {"test"})
+//    @Bean(name="csrfTokenRepository")
+//    CsrfTokenRepository testCookieCsrfTokenRepository() {
+//        final CsrfToken token = new CsrfToken() {
+//            @Override
+//            public String getHeaderName() {
+//                return "X-XSRF-TOKEN";
+//            }
 //
-//        return http.build();
+//            @Override
+//            public String getParameterName() {
+//                return "_csrf";
+//            }
+//
+//            @Override
+//            public String getToken() {
+//                return "csrf-token";
+//            }
+//        };
+//        return new CsrfTokenRepository() {
+//            @Override
+//            public CsrfToken generateToken(HttpServletRequest request) {
+//               return token;
+//            }
+//
+//            @Override
+//            public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {}
+//
+//            @Override
+//            public CsrfToken loadToken(HttpServletRequest request) {
+//                return token;
+//            }
+//
+//            @Override
+//            public DeferredCsrfToken loadDeferredToken(HttpServletRequest request, HttpServletResponse response) {
+//                return new DeferredCsrfToken() {
+//                    @Override
+//                    public CsrfToken get() {
+//                        return token;
+//                    }
+//
+//                    @Override
+//                    public boolean isGenerated() {
+//                        return false;
+//                    }
+//                };
+//            }
+//        };
 //    }
 //}

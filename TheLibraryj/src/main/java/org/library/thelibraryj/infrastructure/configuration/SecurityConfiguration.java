@@ -31,6 +31,7 @@ import java.util.List;
 @EnableMethodSecurity
 @EnableWebSecurity
 class SecurityConfiguration {
+    /** URLs allowed passing without any authentication **/
     private static final String[] AUTH_WHITELIST = {
             "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.9/na/**"
     };
@@ -41,9 +42,33 @@ class SecurityConfiguration {
     @Value("${library.client.base_url}")
     private String clientBaseUrl;
 
+//    /**
+//     * Creates a CookieCsrfTokenRepository bean for managing CSRF tokens through browser cookies.
+//     * Configured to automatically attach a XSRF-TOKEN cookie to any authenticated request.
+//     * Checks each incoming authenticated request for:
+//     * 1. XSRF-TOKEN as a cookie
+//     * 2. X-XSRF-TOKEN header with value equal to that of the cookie
+//     * 3. Valid value of the cookie
+//     */
+//    @Profile(value={"development"})
+//    @Bean(name="csrfTokenRepository")
+//    CookieCsrfTokenRepository cookieCsrfTokenRepository() {
+//        final CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+//        repository.setCookiePath("/");
+//        return repository;
+//    }
+
+
+    /**
+     * URLs matching the AUTH_WHITELIST pass the filter chain without any checks.
+     * Any other URL needs to be validated for the required credentials
+     * Filter chain: ... -> JWT filter -> Security context filter -> ...
+     * -> 'Pre' Annotation guards
+     * */
     @Bean
-     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize.requestMatchers(AUTH_WHITELIST)
                         .permitAll().anyRequest().authenticated()
@@ -54,15 +79,16 @@ class SecurityConfiguration {
                 .addFilterBefore(filterChainExceptionHandler, JwtFilter.class)
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
-
         return http.build();
     }
 
+
+    /** Allow everything from the client to reach the server, cookies included.*/
     @Bean
     UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(clientBaseUrl));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST", "PATCH", "DELETE", "PUT", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
