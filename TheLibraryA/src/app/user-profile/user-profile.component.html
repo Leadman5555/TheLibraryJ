@@ -5,7 +5,8 @@
         <div class="row">
           <div class="column">
             <label for="userSearchInput" class="outerLabel">Find a fellow daoist: </label>
-            <div  class="errorBox alignLeft" *ngIf="userSearchForm.get('minChapters')?.invalid && (userSearchForm.get('minChapters')?.dirty)">
+            <div class="errorBox alignLeft"
+                 *ngIf="userSearchForm.get('minChapters')?.invalid && (userSearchForm.get('minChapters')?.dirty)">
               Enter letters ('a-z' and 'A-Z'), digits ('0-9'), hi-fens ('-') or underscores ('_').
               Enter between between 5 and 20 characters long.
             </div>
@@ -15,31 +16,53 @@
             <label for="userSearchInput" class="input-label">Title: </label>
             <span class="input-highlight"></span>
           </div>
-          <button class="sButton" id="searchButton" type="submit" [disabled]="userSearchForm.invalid || userSearchForm.pristine">Search
+          <button class="sButton" id="searchButton" type="submit"
+                  [disabled]="userSearchForm.invalid || userSearchForm.pristine">Search
           </button>
         </div>
       </form>
     </div>
-    @if(this.userPresent){
-      <div class="usernameBar">
-        {{this.preferenceArray[this.userData.preference]}} {{this.userData.username}}
+    @if (this.fetchedUser) {
+      <div class="usernameBar centerVH">
+        {{ this.preferenceArray[this.userData.preference] }} {{ this.userData.username }}
       </div>
-      <div class="rankDiv">
-        {{this.rankArray[this.userData.rank]}}
-        <span>Needed {{this.userData.currentScore}}/{{this.progressArray[this.userData.rank]}}</span>
+      <div class="rankDiv column">
+        <span>Cultivation stage: {{ this.userData.rank }}</span>
+        <span>Accumulation needed: {{ this.userData.currentScore }}/{{ this.progressArray[this.userData.rank] }}</span>
       </div>
       <div class="profileImgDiv">
-        <img src="data:image/jpg;base64,{{this.userData.profileImage}}" alt="Profile image" width="180px" height="240px">
+        <div style="width: 360px; height: 480px; border: 2px solid darkgoldenrod;">
+          <img src="data:image/jpg;base64,{{this.userData.profileImage}}" alt="Profile image" width="360px"
+               height="480px">
+        </div>
       </div>
       <div class="statusDiv">
-        {{this.userData.status}}
+        {{ this.userData.status }}
       </div>
-      <div class="lastUpdateDiv">
-        Username last updated at: {{parseDate(this.userData.dataUpdatedAt)}}
+      <div class="lastUpdateDiv centerVH">
+        <div>Daoist title last updated at: {{ parseDate(this.userData.dataUpdatedAt) }}</div>
+        <div>Cultivating since: {{ parseDate(this.userData.createdAt) }}</div>
+      </div>
+      <div class="previewsDiv">
+        @if (!authoredBooks) {
+          <div style="margin-bottom: 30px">
+            <button class="fetchBooks sButton" (click)="fetchAuthoredBooks()">Load authored books</button>
+          </div>
+        } @else {
+          @if (authoredBooks.length) {
+            <div class="previewsColumn">
+              @for (bp of authoredBooks; track bp.title) {
+                <app-book-preview-card [bookPreview]="bp"/>
+              }
+            </div>
+          } @else {
+            <p class="infoMsg centerVH">No works written.</p>
+          }
+        }
       </div>
     } @else {
-      <div class="usernameBar row">
-        User not found.
+      <div class="usernameBar column">
+        {{ this.userFetchErrorMsg }}
         <button class="sButton" routerLink="">Go to homepage</button>
       </div>
     }

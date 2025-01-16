@@ -59,7 +59,7 @@
     <button class="fetchRatings sButton" (click)="upsertRating()">Add/Update rating</button>
     @if(!ratings){
       <div style="margin-bottom: 30px">
-        <button class="fetchRatings sButton" *ngIf="!ratings" (click)="fetchRatings()">Load book reviews</button>
+        <button class="fetchRatings sButton" (click)="fetchRatings()">Load book reviews</button>
       </div>
     } @else {
       @if(ratings.length){

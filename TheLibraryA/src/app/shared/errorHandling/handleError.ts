@@ -7,8 +7,14 @@ export const handleError = (error: HttpErrorResponse): Observable<never> => {
       console.error('An error occurred:', error.error.message);
       return `An unexpected error occurred: ${error.error.message}`;
     } else {
-      console.error(`Server returned status code ${error.status}, reason: ${error.error.error.message || 'Unknown'}`);
-      return error.error.error.message || 'Unknown server error';
+      const subError = error.error;
+      if(subError.errorDetails){
+        console.error(`Server returned status code ${error.status}, reason: ${subError.errorDetails.message || 'Unknown'}`);
+        return subError.errorDetails.message || 'Unknown server error';
+      }else {
+        console.error(`Failed to reach server.`);
+        return 'Failed to reach server. Cannot load resource.';
+      }
     }
   });
 }

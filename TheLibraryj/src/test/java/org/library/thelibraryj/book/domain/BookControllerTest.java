@@ -98,6 +98,6 @@ public class BookControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error.message", is("Book data (details) missing. Id: " + invalidId)));
+                .andExpect(jsonPath("$.errorDetails.message", is("Book data (details) missing. Id: " + invalidId)));
     }
 }

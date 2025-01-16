@@ -423,8 +423,14 @@ class BookServiceImpl implements BookService {
 
     @Override
     public List<BookPreviewResponse> getByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags, Boolean ratingOrder) {
-        List<BookPreview> fetched = bookBlazeRepository.getBookPreviewByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder);
-        return fetched.stream().map(this::mapPreviewWithCover).toList();
+        return bookBlazeRepository.getBookPreviewByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder)
+                .stream().map(this::mapPreviewWithCover).toList();
+    }
+
+    @Override
+    public List<BookPreviewResponse> getBookPreviewsByAuthor(String byUser) {
+        return bookBlazeRepository.getAuthoredBookPreviews(byUser)
+                .stream().map(this::mapPreviewWithCover).toList();
     }
 
     @Override

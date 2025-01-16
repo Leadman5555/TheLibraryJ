@@ -2,31 +2,58 @@
 @import "../shared/styles/rowCol.css";
 @import "../shared/styles/sInput.css";
 
-.outerBox{
+.outerBox {
   display: flex;
   align-items: center;
   align-content: center;
   text-align: center;
+  height: 80vh;
+  width: 90vw;
 }
 
 .userProfileGrid {
   background-color: cadetblue;
   border: 3px solid darkgoldenrod;
   padding: 20px;
-  width: 70vw;
+  height: 100%;
+  width: 100%;
   display: grid;
-  grid-template-columns: 1fr 0.5fr 1fr 1fr;
+  grid-template-columns: 1fr 0.5fr 1fr 1fr 3fr;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1.6fr 0.4fr;
+
   gap: 0 0;
   grid-auto-flow: row;
   grid-template-areas:
-    "topBar topBar topBar topBar"
-    "usernameBar usernameBar usernameBar usernameBar"
-    "profileImgDiv profileImgDiv rankDiv rankDiv"
-    "profileImgDiv profileImgDiv statusDiv statusDiv"
-    "profileImgDiv profileImgDiv statusDiv statusDiv"
-    "profileImgDiv profileImgDiv statusDiv statusDiv"
-    "lastUpdateDiv lastUpdateDiv statusDiv statusDiv";
+    "topBar topBar topBar topBar topBar"
+    "userBar userBar userBar userBar previewsDiv"
+    "profileImgDiv profileImgDiv rankDiv rankDiv previewsDiv"
+    "profileImgDiv profileImgDiv statusDiv statusDiv previewsDiv"
+    "profileImgDiv profileImgDiv statusDiv statusDiv previewsDiv"
+    "profileImgDiv profileImgDiv statusDiv statusDiv previewsDiv"
+    "lastUpdateDiv lastUpdateDiv statusDiv statusDiv previewsDiv";
+  font-size: 1.1rem;
+}
+
+.previewsDiv {
+  grid-area: previewsDiv;
+  width: 100%;
+  height: 95%;
+  display: flex;
+  justify-content: center;
+}
+
+.previewsColumn {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  max-width: 100%;
+  height: 100%;
+  padding: 10px;
+  border: 3px solid darkgoldenrod;
+  background-color: rgba(69, 108, 108, 0.65);
+  overflow-y: auto;
 }
 
 .topBar {
@@ -35,6 +62,7 @@
   background-color: rgba(202, 243, 243, 0.65);
   width: 50%;
   padding: 10px;
+  margin-bottom: 10px;
 }
 
 #searchButton::after {
@@ -45,12 +73,31 @@
   background-color: rgba(202, 243, 243, 0.65);
 }
 
-.usernameBar { grid-area: usernameBar; }
+.usernameBar {
+  font-size: 1.2rem;
+  font-weight: bold;
+  font-style: italic;
+  grid-area: userBar;
+}
 
-.rankDiv { grid-area: rankDiv; }
+.rankDiv {
+  grid-area: rankDiv;
+}
 
-.profileImgDiv { grid-area: profileImgDiv; }
+.profileImgDiv {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  grid-area: profileImgDiv;
+}
 
-.statusDiv { grid-area: statusDiv; }
+.statusDiv {
+  grid-area: statusDiv;
+  padding: 20px;
+  overflow-wrap: break-word;
+}
 
-.lastUpdateDiv { grid-area: lastUpdateDiv; }
+.lastUpdateDiv {
+  grid-area: lastUpdateDiv;
+}

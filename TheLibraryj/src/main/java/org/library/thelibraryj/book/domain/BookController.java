@@ -94,6 +94,18 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
+            summary = "Retrieve all book previews authored by the given user",
+            tags = {"book", "no auth required"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the book previews"),
+    })
+    @GetMapping("/na/books/authored/{byUser}")
+    public ResponseEntity<List<BookPreviewResponse>> getBookPreviewsByAuthor(@PathVariable String byUser) {
+        return ResponseEntity.ok(bookService.getBookPreviewsByAuthor(byUser));
+    }
+
+    @Operation(
             summary = "Retrieve a book detail by book Id",
             tags = {"book", "no auth required"}
     )

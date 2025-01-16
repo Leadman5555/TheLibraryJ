@@ -7,16 +7,7 @@ import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
-import org.library.thelibraryj.userInfo.dto.UserInfoImageUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoMiniResponse;
-import org.library.thelibraryj.userInfo.dto.UserInfoPreferenceUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
-import org.library.thelibraryj.userInfo.dto.UserInfoScoreUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoStatusUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
+import org.library.thelibraryj.userInfo.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.Nullable;
@@ -27,8 +18,6 @@ import org.springframework.web.util.HtmlUtils;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
@@ -76,32 +65,32 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     }
 
     @Override
-    public Either<GeneralError, UserInfoWithImageResponse> getUserInfoResponseById(UUID userId) {
+    public Either<GeneralError, UserProfileResponse> getUserProfileById(UUID userId) {
         Either<GeneralError, UserInfo> fetched = getUserInfoById(userId);
         if (fetched.isLeft()) return Either.left(fetched.getLeft());
-        return Either.right(userInfoMapper.userInfoToUserInfoWithImageResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(userId)));
+        return Either.right(userInfoMapper.userInfoToUserProfileResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(userId)));
     }
 
     @Override
-    public Either<GeneralError, UserInfoWithImageResponse> getUserInfoResponseByUsername(String username) {
+    public Either<GeneralError, UserProfileResponse> getUserProfileByUsername(String username) {
         Either<GeneralError, UserInfo> fetched = Try.of(() -> userInfoRepository.getByUsername(username))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
                 .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundUsername(username)));
         if(fetched.isLeft()) return Either.left(fetched.getLeft());
-        return Either.right(userInfoMapper.userInfoToUserInfoWithImageResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(fetched.get().getId())));
+        return Either.right(userInfoMapper.userInfoToUserProfileResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(fetched.get().getId())));
     }
 
     @Override
-    public Either<GeneralError, UserInfoWithImageResponse> getUserInfoResponseByEmail(String email) {
+    public Either<GeneralError, UserProfileResponse> getUserProfileByEmail(String email) {
         Either<GeneralError, UserInfo> fetched = Try.of(() -> userInfoRepository.getByEmail(email))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
                 .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFound(email)));
         if(fetched.isLeft()) return Either.left(fetched.getLeft());
-        return Either.right(userInfoMapper.userInfoToUserInfoWithImageResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(fetched.get().getId())));
+        return Either.right(userInfoMapper.userInfoToUserProfileResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(fetched.get().getId())));
 
     }
 
@@ -157,7 +146,6 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 created.getEmail(),
                 created.getRank(),
                 created.getCurrentScore(),
-                LocalDateTime.ofInstant(created.getDataUpdatedAt(), ZoneOffset.ofHours(1)),
                 created.getStatus(),
                 created.getPreference(),
                 userInfoImageHandler.fetchProfileImage(created.getId())

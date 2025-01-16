@@ -6,10 +6,7 @@ import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.library.thelibraryj.userInfo.UserInfoService;
-import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
-import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
+import org.library.thelibraryj.userInfo.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -52,12 +49,12 @@ public class UserInfoControllerTest {
     @Test
     public void testGetUserInfoResponseByUsername() throws Exception {
         final String username = "username";
-        when(userInfoService.getUserInfoResponseByUsername(username)).thenReturn(Either.right(new UserInfoWithImageResponse(username, email,1, 1, LocalDateTime.now(), null, (short) 0, null)));
+        when(userInfoService.getUserProfileByUsername(username)).thenReturn(Either.right(new UserProfileResponse(username, email,1, 1,null, (short) 0, null, LocalDateTime.now(),LocalDateTime.now())));
         mockMvc.perform(get(ENDPOINT + "/na/user/" + username)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        verify(userInfoService).getUserInfoResponseByUsername(username);
+        verify(userInfoService).getUserProfileByUsername(username);
     }
 
     @Test
@@ -81,7 +78,7 @@ public class UserInfoControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"" + invalidEmail + "\",\"rankChange\":\"-10\"}"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error.message", is("User data (details) missing. Email: " + invalidEmail)));
+                .andExpect(jsonPath("$.errorDetails.message", is("User data (details) missing. Email: " + invalidEmail)));
     }
 
     @Test
@@ -102,7 +99,7 @@ public class UserInfoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error.message", is("User not eligible for rank increase. Missing score: " + missingScore + " Email: " + email)));
+                .andExpect(jsonPath("$.errorDetails.message", is("User not eligible for rank increase. Missing score: " + missingScore + " Email: " + email)));
     }
 
     @Test
@@ -114,6 +111,6 @@ public class UserInfoControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"" + email + "\",\"username\":\"new username\"}"))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error.message", is("Username not unique")));
+                .andExpect(jsonPath("$.errorDetails.message", is("Username not unique")));
     }
 }

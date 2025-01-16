@@ -44,6 +44,11 @@ export class BookService {
     return this.http.get<BookPreview[]>(`${this.baseUrl}/filtered`, {params});
   }
 
+  public getBookPreviewsByAuthor(author: string): Observable<BookPreview[]> {
+    return this.http.get<BookPreview[]>(`${this.baseUrl}/authored/${author}`);
+  }
+
+
   public getBookDetail(bookId: string): Observable<BookDetail> {
     return this.http.get<BookDetail>(`${this.baseUrl}/${bookId}`);
   }

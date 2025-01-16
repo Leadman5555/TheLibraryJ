@@ -47,8 +47,8 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/id/{id}")
-    public ResponseEntity<String> getUserInfoResponseById(@PathVariable("id") UUID id) {
-        return handle(userInfoService.getUserInfoResponseById(id), HttpStatus.OK);
+    public ResponseEntity<String> getUserProfileById(@PathVariable("id") UUID id) {
+        return handle(userInfoService.getUserProfileById(id), HttpStatus.OK);
     }
 
     @Operation(
@@ -60,8 +60,8 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/{username}")
-    public ResponseEntity<String> getUserInfoResponseByUsername(@PathVariable("username") String username) {
-        return handle(userInfoService.getUserInfoResponseByUsername(username), HttpStatus.OK);
+    public ResponseEntity<String> getUserProfileByUsername(@PathVariable("username") String username) {
+        return handle(userInfoService.getUserProfileByUsername(username), HttpStatus.OK);
     }
 
     @Operation(
@@ -73,8 +73,8 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/email/{email}")
-    public ResponseEntity<String> getUserInfoResponseByEmail(@PathVariable("email") String email) {
-        return handle(userInfoService.getUserInfoResponseByEmail(email), HttpStatus.OK);
+    public ResponseEntity<String> getUserProfileByEmail(@PathVariable("email") String email) {
+        return handle(userInfoService.getUserProfileByEmail(email), HttpStatus.OK);
     }
 
     @Operation(

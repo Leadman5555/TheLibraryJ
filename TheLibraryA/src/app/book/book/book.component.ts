@@ -13,6 +13,7 @@ import {Observable} from 'rxjs';
 import {PageInfo} from '../../shared/paging/models/page-info';
 import {provideComponentStore} from '@ngrx/component-store';
 import {parseDateString} from '../../shared/functions/parseData';
+import {logError} from '../../shared/errorHandling/handleError';
 
 @Component({
   selector: 'app-book',
@@ -92,7 +93,7 @@ export class BookComponent extends PagingHelper implements OnInit {
       next: (v) => {
         this.ratings = v;
       },
-      error: (_) => console.error("Error fetched ratings"),
+      error: (err) => logError(err),
     })
   }
 

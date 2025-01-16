@@ -22,7 +22,7 @@ import org.springframework.http.HttpStatus;
 @Data
 @Slf4j
 public class ApiErrorWrapper {
-    @JsonProperty("error")
+    @JsonProperty("errorDetails")
     private ApiErrorResponse errorResponse;
 
     public ApiErrorWrapper(GeneralError error) {

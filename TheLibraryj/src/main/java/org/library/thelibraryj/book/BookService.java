@@ -37,6 +37,7 @@ public interface BookService {
                                           @Nullable Float minRating, @Nullable BookState state,
                                           @Nullable BookTag[] hasTags, @Nullable Boolean ratingOrder);
 
+    List<BookPreviewResponse> getBookPreviewsByAuthor(String byUser);
     PagedChapterPreviewResponse getOffsetPagedChapterPreviewResponses(int pageSize, int page, UUID bookId);
 
     PagedChapterPreviewResponse getKeySetPagedChapterPreviewResponses(KeysetPage lastPage, int page, UUID bookId);
