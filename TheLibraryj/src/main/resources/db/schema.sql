@@ -71,6 +71,7 @@ CREATE TABLE library.library_ratings
 DROP TABLE IF EXISTS library.library_user_info;
 CREATE TABLE library.library_user_info
 (
+    status          VARCHAR(300),
     username        VARCHAR(25) UNIQUE NOT NULL,
     email           VARCHAR(48) UNIQUE NOT NULL,
     id              UUID               NOT NULL,
@@ -81,6 +82,7 @@ CREATE TABLE library.library_user_info
     data_updated_at TIMESTAMP,
     rank            INTEGER            NOT NULL DEFAULT 0,
     current_score   INTEGER            NOT NULL DEFAULT 0,
+    preference      SMALLINT           NOT NULL DEFAULT 0,
     CONSTRAINT pk_library_user_info PRIMARY KEY (id)
 );
 DROP TABLE IF EXISTS library.library_user_auth;

@@ -52,7 +52,7 @@ public class UserInfoControllerTest {
     @Test
     public void testGetUserInfoResponseByUsername() throws Exception {
         final String username = "username";
-        when(userInfoService.getUserInfoResponseByUsername(username)).thenReturn(Either.right(new UserInfoWithImageResponse(username, email,1, 1, Instant.now(), null)));
+        when(userInfoService.getUserInfoResponseByUsername(username)).thenReturn(Either.right(new UserInfoWithImageResponse(username, email,1, 1, Instant.now(), null, (short) 0, null)));
         mockMvc.perform(get(ENDPOINT + "/na/user/" + username)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -63,7 +63,7 @@ public class UserInfoControllerTest {
     @Test
     public void testForceUpdateUserInfoRank() throws Exception {
         UserInfoRankUpdateRequest request = new UserInfoRankUpdateRequest(email, 10);
-        UserInfoResponse response = new UserInfoResponse("sample", email,10, 0, Instant.now());
+        UserInfoResponse response = new UserInfoResponse("sample", email,10, 0, Instant.now(), null, (short) 0);
         when(userInfoService.forceUpdateRank(request)).thenReturn(Either.right(response));
 
         mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/force")
@@ -86,7 +86,7 @@ public class UserInfoControllerTest {
 
     @Test
     public void testUpdateUserInfoRank() throws Exception {
-        UserInfoResponse response = new UserInfoResponse("username", email,10, 10000, Instant.now());
+        UserInfoResponse response = new UserInfoResponse("username", email,10, 10000, Instant.now(),null, (short) 0);
         when(userInfoService.updateRank(userId)).thenReturn(Either.right(response));
 
         mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/" + userId)

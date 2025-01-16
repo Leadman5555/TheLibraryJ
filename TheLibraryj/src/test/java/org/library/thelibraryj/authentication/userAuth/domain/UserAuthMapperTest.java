@@ -28,6 +28,8 @@ public class UserAuthMapperTest {
                 4,
                 20,
                 Instant.now(),
+                null,
+                (short) 0,
                 null
         );
         UserCreationData mapped = userAuthMapper.userAuthAndUserInfoResponseToUserCreationResponse(userInfo, userAuth);

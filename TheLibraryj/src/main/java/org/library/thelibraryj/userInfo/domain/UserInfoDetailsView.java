@@ -10,4 +10,6 @@ public interface UserInfoDetailsView {
     int getRank();
     int getCurrentScore();
     Instant getDataUpdatedAt();
+    String getStatus();
+    short getPreference();
 }

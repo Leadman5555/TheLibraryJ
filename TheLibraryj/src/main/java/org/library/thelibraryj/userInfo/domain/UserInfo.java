@@ -45,10 +45,19 @@ class UserInfo extends AbstractEntity {
     private int currentScore;
 
     @Column(nullable = false)
+    @Min(0)
+    @Max(110)
+    private short preference;
+
+    @Column
+    @Size(max = 300)
+    private String status;
+
+    @Column(nullable = false)
     private UUID userAuthId;
 
     @Builder
-    public UserInfo(UUID id, Long version, Instant createdAt, Instant updatedAt, Instant dataUpdatedAt, String username, String email, int rank, UUID userAuthId, int currentScore) {
+    public UserInfo(UUID id, Long version, Instant createdAt, Instant updatedAt, Instant dataUpdatedAt, String username, String email, int rank, UUID userAuthId, int currentScore, short preference, String status) {
         super(id, version, createdAt, updatedAt);
         this.dataUpdatedAt = dataUpdatedAt;
         this.username = username;
@@ -56,6 +65,8 @@ class UserInfo extends AbstractEntity {
         this.rank = rank;
         this.userAuthId = userAuthId;
         this.currentScore = currentScore;
+        this.preference = preference;
+        this.status = status;
     }
 
     @Transient

@@ -9,4 +9,5 @@ public sealed interface UserInfoError extends GeneralError{
     record UsernameUpdateCooldown(long cooldownDurationLeft, String userEmail) implements UserInfoError {}
     record ProfileImageUpdateFailed() implements UserInfoError {}
     record UserNotEligibleForRankIncrease(String email, int missingScore) implements UserInfoError {}
+    record UserNotEligibleForChosenPreference(String email, int missingRank) implements UserInfoError {}
 }

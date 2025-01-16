@@ -57,7 +57,7 @@ class AuthenticationController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Returns a valid JWT token on successful login attempt.",
+            summary = "Returns a valid JWT token and refresh token as Http-only cookie on successful login attempt.",
             tags = {"authentication", "no auth required"}
     )
     @ApiResponses({

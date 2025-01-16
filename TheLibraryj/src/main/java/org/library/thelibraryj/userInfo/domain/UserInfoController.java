@@ -9,10 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.userInfo.UserInfoService;
-import org.library.thelibraryj.userInfo.dto.UserInfoImageUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoMiniResponse;
-import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -147,6 +144,39 @@ class UserInfoController implements ErrorHandling {
     @PreAuthorize("hasRole('ADMIN') or #userInfoUsernameUpdateRequest.email == authentication.principal.username")
     public ResponseEntity<String> updateUserInfoUsername(@RequestBody @Valid UserInfoUsernameUpdateRequest userInfoUsernameUpdateRequest) {
         return handle(userInfoService.updateUserInfoUsername(userInfoUsernameUpdateRequest), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Change the user's status",
+            tags = "user"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Status updated successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
+    })
+    @PatchMapping("/user/profile/status")
+    @PreAuthorize("hasRole('ADMIN') or #userInfoStatusUpdateRequest.email == authentication.principal.username")
+    public ResponseEntity<String> updateUserInfoStatus(@RequestBody @Valid UserInfoStatusUpdateRequest userInfoStatusUpdateRequest) {
+        return handle(userInfoService.updateUserInfoStatus(userInfoStatusUpdateRequest), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Change the user's preference",
+            tags = "user"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Preference updated successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid preference or rank lacking"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
+    })
+    @PatchMapping("/user/profile/preference")
+    @PreAuthorize("#userInfoPreferenceUpdateRequest.email == authentication.principal.username")
+    public ResponseEntity<String> updateUserInfoPreference(@RequestBody @Valid UserInfoPreferenceUpdateRequest userInfoPreferenceUpdateRequest) {
+        return handle(userInfoService.updateUserInfoPreference(userInfoPreferenceUpdateRequest), HttpStatus.OK);
     }
 
     @Operation(
