@@ -7,7 +7,16 @@ import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
-import org.library.thelibraryj.userInfo.dto.*;
+import org.library.thelibraryj.userInfo.dto.UserInfoImageUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoMiniResponse;
+import org.library.thelibraryj.userInfo.dto.UserInfoPreferenceUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
+import org.library.thelibraryj.userInfo.dto.UserInfoScoreUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoStatusUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.Nullable;
@@ -18,6 +27,8 @@ import org.springframework.web.util.HtmlUtils;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
@@ -146,7 +157,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 created.getEmail(),
                 created.getRank(),
                 created.getCurrentScore(),
-                created.getDataUpdatedAt(),
+                LocalDateTime.ofInstant(created.getDataUpdatedAt(), ZoneOffset.ofHours(1)),
                 created.getStatus(),
                 created.getPreference(),
                 userInfoImageHandler.fetchProfileImage(created.getId())

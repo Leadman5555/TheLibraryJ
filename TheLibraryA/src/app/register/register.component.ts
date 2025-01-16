@@ -90,7 +90,7 @@ export class RegisterComponent implements OnInit {
   }
 
   attemptRegistration(): void {
-    if (this.registerForm.invalid) return;
+    if (this.registerForm.invalid || this.registerForm.pristine) return;
 
     const formData = new FormData();
     formData.set('email', this.registerForm.value.email);

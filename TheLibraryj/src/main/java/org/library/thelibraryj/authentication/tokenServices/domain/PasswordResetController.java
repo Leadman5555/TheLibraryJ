@@ -30,7 +30,7 @@ record PasswordResetController(PasswordResetServiceImpl passwordResetService) im
             @ApiResponse(responseCode = "404", description = "Account not found."),
     })
     @PostMapping("/{emailAddress}")
-    public ResponseEntity<String> startPasswordResetProcedure(@PathVariable String emailAddress) throws MessagingException {
+    public ResponseEntity<String> startPasswordResetProcedure(@PathVariable String emailAddress) {
         return handle(passwordResetService.startPasswordResetProcedure(emailAddress), HttpStatus.NO_CONTENT);
     }
 

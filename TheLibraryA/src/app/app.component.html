@@ -18,7 +18,7 @@
   <div id="settingsBox">
     @if(this.showLoggedIn) {
       <div class="column">
-        <button class="sButton" routerLink="/profile">Profile</button>
+        <button class="sButton"  (click)="toggleSettings()" [routerLink]="['/profile', this.userMini?.username]">Profile</button>
         <button class="sButton" (click)="logOut()">Log out</button>
       </div>
     }@else {

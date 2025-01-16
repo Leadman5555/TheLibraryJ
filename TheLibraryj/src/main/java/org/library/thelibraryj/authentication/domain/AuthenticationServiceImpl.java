@@ -61,7 +61,7 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
     }
 
     @Override
-    public Either<GeneralError, UserCreationResponse> register(RegisterRequest registerRequest) throws MessagingException {
+    public Either<GeneralError, UserCreationResponse> register(RegisterRequest registerRequest) {
         Either<GeneralError, UserCreationData> createdUser = createUser(registerRequest);
         if (createdUser.isLeft()) return Either.left(createdUser.getLeft());
         UserCreationData data = createdUser.get();
@@ -79,7 +79,7 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
     }
 
     @Override
-    public Either<GeneralError, Boolean> resendActivationEmail(String email) throws MessagingException {
+    public Either<GeneralError, Boolean> resendActivationEmail(String email) {
         Either<GeneralError, ActivationTokenResponse> createdTokenE = activationService.createActivationToken(email);
         if (createdTokenE.isLeft()) return Either.left(createdTokenE.getLeft());
         sendActivationMail(email, email, createdTokenE.get());

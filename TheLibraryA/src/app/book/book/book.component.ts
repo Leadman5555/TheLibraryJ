@@ -12,6 +12,7 @@ import {ChapterPreview} from '../shared/models/chapter-preview';
 import {Observable} from 'rxjs';
 import {PageInfo} from '../../shared/paging/models/page-info';
 import {provideComponentStore} from '@ngrx/component-store';
+import {parseDateString} from '../../shared/functions/parseData';
 
 @Component({
   selector: 'app-book',
@@ -99,12 +100,6 @@ export class BookComponent extends PagingHelper implements OnInit {
 
   }
 
-  parseDate(date: string): string {
-    const splitIndex = date.indexOf('T');
-    const calendarParts = date.substring(0, splitIndex).split('-');
-    return `${calendarParts[0]}-${calendarParts[1].padStart(2, '0')}-${calendarParts[2].padStart(2, '0')} | ${date.substring(splitIndex + 1, splitIndex + 6)}`;
-  }
-
   onPreviousPage(): void {
     this.componentStore.loadPreviousPage();
   }
@@ -116,4 +111,6 @@ export class BookComponent extends PagingHelper implements OnInit {
   onChosenPage(pageNumber: number){
     this.componentStore.loadSpecifiedPage(pageNumber);
   }
+
+  protected readonly parseDate = parseDateString;
 }

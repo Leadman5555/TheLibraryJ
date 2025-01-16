@@ -3,7 +3,6 @@ package org.library.thelibraryj.authentication.tokenServices.domain;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import jakarta.mail.MessagingException;
 import org.library.thelibraryj.authentication.PasswordControl;
 import org.library.thelibraryj.authentication.tokenServices.dto.password.PasswordResetRequest;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;

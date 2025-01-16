@@ -18,8 +18,6 @@ import {handleError, logError} from '../shared/errorHandling/handleError';
 export class UserAuthService {
   private readonly baseUrl: string = 'http://localhost:8082/v0.9/na';
 
-  private readonly baseAuthUrl: string = 'http://localhost:8082/v0.9';
-
   constructor(private httpClient: HttpClient, private storageService: StorageService, private eventBus: EventBusService) {
   }
 
@@ -64,10 +62,6 @@ export class UserAuthService {
 
   private fetchUserMiniData(email: string): Observable<FetchedUserMini> {
     return this.httpClient.get<FetchedUserMini>(`${this.baseUrl}/user/mini/` + email);
-  }
-
-  register(email: string, password: string, username: string, profileImage: string): Observable<Boolean> {
-    throw new Error("Method not implemented.");
   }
 
   getGoogleLogInLink(): Observable<GoogleLinkResponse> {

@@ -6,6 +6,8 @@ import org.library.thelibraryj.authentication.userAuth.dto.UserCreationData;
 import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 public class UserAuthMapperTest {
@@ -27,7 +29,7 @@ public class UserAuthMapperTest {
                 userEmail,
                 4,
                 20,
-                Instant.now(),
+                LocalDateTime.now(),
                 null,
                 (short) 0,
                 null
@@ -37,7 +39,7 @@ public class UserAuthMapperTest {
                 () -> Assertions.assertEquals(userAuth.getId(), mapped.userAuthId()),
                 () -> Assertions.assertEquals(userAuth.getEmail(), mapped.email()),
                 () -> Assertions.assertEquals(userInfo.username(), mapped.username()),
-                () -> Assertions.assertEquals(userInfo.dataUpdatedAt(), mapped.dataUpdatedAt()),
+                () -> Assertions.assertEquals(userInfo.dataUpdatedAt().toInstant(ZoneOffset.ofHours(1)), mapped.dataUpdatedAt()),
                 () -> Assertions.assertEquals(userAuth.isEnabled(), mapped.isEnabled()),
                 () -> Assertions.assertEquals(userInfo.rank(), mapped.rank()),
                 () -> Assertions.assertEquals(userInfo.currentScore(), mapped.currentScore())

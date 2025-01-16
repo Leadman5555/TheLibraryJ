@@ -18,6 +18,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -75,7 +76,7 @@ public class UserAuthServiceTest {
                 email,
                 0,
                 0,
-                Instant.now(),
+                LocalDateTime.now(),
                 null,
                 (short) 0,
                 null
