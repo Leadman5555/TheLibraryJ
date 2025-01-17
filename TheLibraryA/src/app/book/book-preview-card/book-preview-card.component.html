@@ -1,6 +1,6 @@
 <div *ngIf="bookPreview" class="bookPreviewCard" [routerLink]="['/book/' + bookPreview.title]">
   <div class="coverImgDiv">
-    <img src="data:image/jpg;base64,{{bookPreview.coverImage}}" alt="No cover" width="180px" height="240px">
+    <img src="data:image/jpg;base64,{{bookPreview.coverImage}}" alt="No cover" style="width: 100%; height: 100%;">
   </div>
   <div class="ratingDiv">
     <div class="avgRating" style="font-size: 3rem">

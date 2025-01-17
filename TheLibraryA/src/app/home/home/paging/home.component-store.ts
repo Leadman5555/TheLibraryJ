@@ -13,7 +13,7 @@ const initialState : BookPage = {
       totalPages: 0,
       keysetPage: {
         firstResult: 0,
-        maxResults: 3,
+        maxResults: 20,
         lowest: {
           number: 0,
           id: ''

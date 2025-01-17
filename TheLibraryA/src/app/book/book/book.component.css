@@ -12,14 +12,14 @@
 
 
 .fetchRatings{
-  margin: 10px;
+  margin: 0.6rem;
 }
 
 .bookReviews {
   flex: 0 0 35%;
   border: 3px solid goldenrod;
-  margin-top: 5px;
-  padding: 10px;
+  margin-top: 0.3rem;
+  padding: 0.6rem;
   background: cadetblue;
   overflow: auto;
   max-height: 1480px;
@@ -27,7 +27,7 @@
 
 .reviewElement {
   max-width: 100%;
-  padding: 10px;
+  padding: 0.6rem;
   border: 3px dashed goldenrod;
   background-color: cadetblue;
   display: flex;
@@ -35,11 +35,11 @@
 
 .reviewData {
   border-right: 3px dashed goldenrod;
-  padding-right: 5px;
+  padding-right: 0.3rem;
 }
 
 #comment{
-  margin-left: 10px;
+  margin-left: 0.6rem;
 }
 
 .userLink {
@@ -72,8 +72,8 @@
 .bookCard {
   background-color: cadetblue;
   border: 3px solid goldenrod;
-  padding: 10px;
-  margin: 5px;
+  padding: 0.6rem;
+  margin: 0.3rem;
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 1fr;
   grid-template-rows: 1fr 0.5fr 1.5fr 0.5fr 1fr 1fr;
@@ -105,7 +105,7 @@
 }
 
 .coverDiv {
-  padding-top: 5px;
+  padding-top: 0.3rem;
   grid-area: coverDiv;
   overflow: hidden;
 }
@@ -113,20 +113,20 @@
 .descDiv {
   grid-area: descDiv;
   overflow-wrap: break-word;
-  padding: 20px;
+  padding: 1.2rem;
 }
 
 .outChapBox{
   min-width: 60vw;
   background: cadetblue;
-  padding: 10px;
-  margin: 5px;
+  padding: 0.6rem;
+  margin: 0.3rem;
   border: 3px solid goldenrod;
 
 }
 
 .pagingButtons{
-  padding: 10px;
+  padding: 0.6rem;
 }
 
 .chapterPrevBox{
@@ -134,8 +134,8 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(10, 60px);
-  gap: 10px;
-  row-gap: 20px;
+  gap: 0.6rem;
+  row-gap: 1.2rem;
   height: 100%;
   width: 100%;
   overflow: auto;
@@ -144,8 +144,8 @@
 .chapterBox {
   background-color: #969db6;
   height: 60px;
-  border-radius: 5px;
-  padding: 5px;
+  border-radius: 0.3rem;
+  padding: 0.3rem;
   border: 2px solid gray;
 }
 
@@ -168,8 +168,8 @@
 
 #chInfo{
   flex: 0 0 80%;
-  margin-top: 5px;
-  margin-bottom: 5px;
+  margin-top: 0.3rem;
+  margin-bottom: 0.3rem;
 }
 
 .tagsDiv {
@@ -180,7 +180,7 @@
 
 .tagBox {
   border: 2px solid goldenrod;
-  border-radius: 5px;
+  border-radius: 0.3rem;
   background-color: goldenrod;
 }
 

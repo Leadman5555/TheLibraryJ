@@ -4,17 +4,17 @@
 
 #body{
   z-index: 9;
-  margin-bottom: 10px;
+  margin-bottom: 0.6rem;
 }
 
 #header{
   font-family: "Bell MT", sans-serif;
-  font-size: 16px;
+  font-size: 1.2rem;
   background-color: cadetblue;
   position: relative;
-  margin: 0 0 10px;
+  margin: 0 0 0.6rem;
   height: fit-content;
-  padding: 10px;
+  padding: 0.6rem;
   display: flex;
   flex-direction: row;
 }
@@ -26,13 +26,13 @@
   font-size: 3rem;
   position: relative;
   background: rgba(40, 0, 73, 0.7);
-  padding: 10px;
-  border: 3px solid cornflowerblue;
+  padding: 0.6rem;
+  border: 0.2rem solid cornflowerblue;
 }
 
 #home:hover{
   cursor: pointer;
-  border: 3px solid goldenrod;
+  border: 0.2rem solid goldenrod;
 }
 
 #right{
@@ -47,12 +47,12 @@
 #username{
   font-weight: bold;
   font-size: 1.2rem;
-  margin-right: 10px;
+  margin-right: 0.6rem;
 }
 
 .inputColumn{
   width: 70%;
-  padding-right: 10px;
+  padding-right: 0.6rem;
 }
 
 @keyframes expand {
@@ -68,8 +68,8 @@
   animation: expand 0.3s ease-in;
   position: relative;
   margin-left: auto;
-  border: 3px solid darkgoldenrod;
-  padding: 5px;
+  border: 0.2rem solid darkgoldenrod;
+  padding: 0.3rem;
   width: fit-content;
   height: fit-content;
   background: cadetblue;
@@ -77,12 +77,12 @@
 }
 
 #logInForm{
-  padding: 20px;
+  padding: 1.2rem;
 }
 
 .menu-container {
   position: relative;
-  display: inline-block; /* Ensures the dropdown fits with its parent */
+  display: inline-block;
 }
 
 .dropdown {
@@ -92,13 +92,13 @@
   left: 50%; transform: translateX(-50%);
   background-color: cadetblue;
   z-index: 9;
-  border: 3px solid darkgoldenrod;
+  border: 0.2rem solid darkgoldenrod;
   border-top: none;
 }
 
 .dropdown button {
   display: block;
-  margin: 15px 5px;
+  margin: 0.3rem 0.3rem;
 }
 
 .menu-container:hover .dropdown {
