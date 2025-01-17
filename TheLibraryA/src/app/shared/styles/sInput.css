@@ -1,37 +1,37 @@
 .numberInput-container {
   position: relative;
-  margin: 10px 20px 20px -5px;
-  width: 100px;
+  margin: 0.6em 1.2em 1.2em -0.3em;
+  width: 6em;
 }
 
 .input-container {
   position: relative;
-  margin-top: 20px;
-  width: 250px;
+  margin-top: 1.2em;
+  width: 15em;
 }
 
 .input-field {
   display: block;
   width: 100%;
-  padding: 6px;
-  font-size: 15px;
+  padding: 0.35em;
+  font-size: 0.9em;
   border: none;
-  border-bottom: 2px solid #ccc;
+  border-bottom:0.18em solid #ccc;
   outline: none;
   background-color: transparent;
 }
 
 .outerLabel {
-  width: 200px;
+  width: 12em;
   text-align: left;
 }
 
 .input-label {
-  margin-top: 5px;
+  margin-top:0.2em;
   position: absolute;
   top: 0;
   left: 0;
-  font-size: 18px;
+  font-size: 1.08em;
   font-weight: bold;
   color: rgba(204, 204, 204, 0);
   pointer-events: none;
@@ -42,15 +42,15 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 2px;
+  height:0.18em;
   width: 0;
   background-color: goldenrod;
   transition: all 0.3s ease;
 }
 
 .input-field:focus + .input-label {
-  top: -20px;
-  font-size: 12px;
+  top: -1.2em;
+  font-size: 0.72em;
   color: goldenrod;
 }
 
@@ -59,8 +59,8 @@
 }
 
 .errorBox{
-  margin-top: 10px;
-  width: 200px;
+  margin-top: 0.6em;
+  width: 12em;
   font-style: italic;
   text-align: center;
   color: bisque;

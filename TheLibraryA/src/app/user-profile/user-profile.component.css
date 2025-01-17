@@ -1,6 +1,7 @@
 @import "../shared/styles/sButton.css";
 @import "../shared/styles/rowCol.css";
 @import "../shared/styles/sInput.css";
+@import "../shared/styles/image34.css";
 
 .outerBox {
   display: flex;
@@ -13,8 +14,8 @@
 
 .userProfileGrid {
   background-color: cadetblue;
-  border: 3px solid darkgoldenrod;
-  padding: 20px;
+  border: 0.2em solid darkgoldenrod;
+  padding: 1.2em;
   height: 100%;
   width: 100%;
   display: grid;
@@ -31,7 +32,7 @@
     "profileImgDiv profileImgDiv statusDiv statusDiv previewsDiv"
     "profileImgDiv profileImgDiv statusDiv statusDiv previewsDiv"
     "lastUpdateDiv lastUpdateDiv statusDiv statusDiv previewsDiv";
-  font-size: 1.1rem;
+  font-size: 1.1em;
 }
 
 .previewsDiv {
@@ -45,24 +46,24 @@
 .previewsColumn {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 0.6em;
   align-items: flex-start;
   justify-content: flex-start;
   max-width: 100%;
   height: 100%;
-  padding: 10px;
-  border: 3px solid darkgoldenrod;
+  padding: 0.6em;
+  border: 0.2em solid darkgoldenrod;
   background-color: rgba(69, 108, 108, 0.65);
   overflow-y: auto;
 }
 
 .topBar {
   grid-area: topBar;
-  border: 1px solid rgba(77, 1, 209, 0.7);
+  border: 0.08em solid rgba(77, 1, 209, 0.7);
   background-color: rgba(202, 243, 243, 0.65);
   width: 50%;
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 0.6em;
+  margin-bottom: 0.6em;
 }
 
 #searchButton::after {
@@ -74,7 +75,7 @@
 }
 
 .usernameBar {
-  font-size: 1.2rem;
+  font-size: 1.2em;
   font-weight: bold;
   font-style: italic;
   grid-area: userBar;
@@ -94,7 +95,7 @@
 
 .statusDiv {
   grid-area: statusDiv;
-  padding: 20px;
+  padding: 1.2em;
   overflow-wrap: break-word;
 }
 

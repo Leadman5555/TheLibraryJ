@@ -1,11 +1,11 @@
 .sButton {
-  margin-top: 5px;
+  margin-top:0.2em;
   font-family: inherit;
   font-size: 0.9em;
   width: 10em;
   position: relative;
   height: 3.5em;
-  border: 3px ridge darkgoldenrod;
+  border: 0.2em ridge darkgoldenrod;
   outline: none;
   background-color: transparent;
   color: black;
@@ -18,10 +18,10 @@
 .sButton::after {
   content: "";
   position: absolute;
-  top: -10px;
+  top: -0.6em;
   left: 3%;
   width: 95%;
-  height: 40%;
+  height: 35%;
   background-color: cadetblue;
   transition: 0.5s;
   transform-origin: center;
@@ -44,7 +44,7 @@
 }
 
 .sButton:hover {
-  box-shadow: inset 0 0 25px goldenrod;
+  box-shadow: inset 0 0 1.5em goldenrod;
 }
 
 .sButton:disabled {

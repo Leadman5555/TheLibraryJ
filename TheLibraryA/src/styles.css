@@ -8,13 +8,13 @@
   }
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1300px) {
   #mainBody{
     font-size: 14px;
   }
 }
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   #mainBody{
     font-size: 10px;
   }

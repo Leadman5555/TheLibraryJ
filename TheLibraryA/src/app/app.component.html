@@ -8,7 +8,9 @@
    @if(this.showLoggedIn) {
      <div id="userInfo">
        <span id="username">{{ this.userMini?.username }}</span>
-       <img src="data:image/jpg;base64,{{this.userMini?.profileImage}}" alt="Profile image" height="50" width="50">
+       <div class="image34Wrapper" style="height: 4.8em; width: 3.6em">
+       <img src="data:image/jpg;base64,{{this.userMini?.profileImage}}" alt="Profile image" class="image34">
+       </div>
      </div>
    }
    <button class="sButton" (click)="toggleSettings()">Settings</button>
@@ -35,7 +37,7 @@
               Enter a valid email address
             </div>
           </div>
-          <button class="sButton" type="button" style="font-size: 10px" (click)="resetForm()">
+          <button class="sButton" type="button" style="font-size: 1em" (click)="resetForm()">
             Reset form
           </button>
         </div>
@@ -50,15 +52,15 @@
               Password is required and at least 8 characters long.
             </div>
           </div>
-          <button class="sButton" type="button" style="font-size: 10px" (click)="toggleShowPassword()">
+          <button class="sButton" type="button" (click)="toggleShowPassword()">
             {{ showPassword ? 'Hide' : 'Show' }} Password
           </button>
         </div>
-        <div class="row" style="margin-top: 10px;">
+        <div class="row" style="margin-top: 0.6em;">
           <button class="sButton" type="submit" [disabled]="logInForm.invalid || logInForm.pristine">Log in</button>
           <img id="googleLogIn" ngSrc="/google_logIn.png" width="189" height="40" alt="Google sign in" priority (click)="logInWithGoogle()">
         </div>
-       <div class="row" style="margin-top: 5px;">
+       <div class="row" style="margin-top:0.2em;">
          <button class="sButton" (click)="this.showSettings=false" routerLink="/register">Register</button>
          <div class="menu-container">
            <button class="menu-button sButton">Trouble logging in?</button>

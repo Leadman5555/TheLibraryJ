@@ -8,17 +8,17 @@
 
 .blueBox {
   background-color: cadetblue;
-  padding: 15px;
-  border: 3px solid goldenrod;
-  gap: 20px;
+  padding: 0.9em;
+  border: 0.2em solid goldenrod;
+  gap: 1.2em;
 }
 
 #infoHeader {
-  margin-top: 20px;
+  margin-top: 1.2em;
 }
 
 #bookTitle {
-  font-size: 2rem;
+  font-size: 2em;
   font-weight: bold;
 }
 
@@ -43,20 +43,20 @@
 }
 
 .settingsElem{
-  padding: 10px;
+  padding: 0.6em;
 }
 
 .chContent {
-  padding: 20px;
+  padding: 1.2em;
   width: 90%;
   height: auto;
   white-space: pre-wrap;
-  border: 1px solid #969db6;
+  border: 0.08em solid #969db6;
   transition-duration: 0.3s;
 }
 
 .chTitle {
-  font-size: 1.5rem;
+  font-size: 1.5em;
   font-weight: bold;
 }
 
@@ -70,12 +70,12 @@
 
 .row {
   display: flex;
-  gap: 10px;
+  gap: 0.6em;
 }
 
 .centerVH {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 0.6em;
 }

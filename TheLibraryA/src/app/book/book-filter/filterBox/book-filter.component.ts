@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators} from "@angular/forms";
-import {NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
+import {NgForOf, NgIf} from "@angular/common";
 import {BookTag} from '../../shared/models/BookTag';
 import {FormOutcome} from '../filterService/form-outcome';
 import {BookFilterService} from '../filterService/book-filter.service';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {integerValidator, stepValidator} from './filterValidators';
 
 @Component({
@@ -13,8 +13,7 @@ import {integerValidator, stepValidator} from './filterValidators';
     FormsModule,
     NgForOf,
     NgIf,
-    ReactiveFormsModule,
-    NgOptimizedImage
+    ReactiveFormsModule
   ],
   templateUrl: './book-filter.component.html',
   standalone: true,
@@ -22,7 +21,10 @@ import {integerValidator, stepValidator} from './filterValidators';
 })
 export class BookFilterComponent implements OnInit {
 
-  constructor(private fb: NonNullableFormBuilder, private router: Router, private filterService: BookFilterService) {
+  constructor(private fb: NonNullableFormBuilder,
+              private router: Router,
+              private filterService: BookFilterService,
+              private activatedRoute: ActivatedRoute) {
   }
 
   readonly allTags: BookTag[] = ['TAG1', 'TAG2', 'TAG3', 'TAG4', 'TAG5', 'TAG6', 'TAG7', 'TAG8', 'UNTAGGED'];
@@ -45,30 +47,71 @@ export class BookFilterComponent implements OnInit {
     }
   };
 
-  private wasIRedirected: boolean = false;
-
   filterForm!: FormGroup;
 
   handleFilterSubmit(): void {
     if (this.filterForm.pristine) return;
     const url = this.router.url;
-    if (url.substring(url.lastIndexOf('/') + 1) !== 'filter') {
-      this.filterService.onFormSubmit(this.getFormOutcomeRedirected());
-      this.router.navigate(['filter']);
-    } else this.filterService.onFormSubmit(this.getFormOutcome());
+    if (url.substring(url.lastIndexOf('/') + 1, 7) !== 'filter') {
+      //submit on home
+      const outcome = this.getFormOutcomeRedirected();
+      if (outcome !== null) {
+        this.filterService.onFormSubmit(outcome);
+        this.router.navigate(['filter']);
+      } else this.filterForm.markAsPristine();
+    } else {
+      //submit on filter
+      const outcome = this.getFormOutcome();
+      if (outcome !== null) this.filterService.onFormSubmit(outcome);
+      else this.filterForm.markAsPristine();
+    }
   }
 
   resetFilters(): void {
-    if (!this.filterForm.pristine || this.wasIRedirected) this.filterService.onFormSubmit(new FormOutcome(true));
-    this.wasIRedirected = false;
+    if (this.filterForm.pristine) return;
+    if (!this.router.url.includes('/filter')) {
+      this.filterForm.reset(this.defaultFormValues);
+      this.filterForm.markAsPristine();
+      return;
+    }
     this.filterForm.reset(this.defaultFormValues);
-    this.lastSubmittedData = this.filterForm.value;
+    if (this.wasISubmitted) {
+      if (this.wasIReallyChanged()) {
+        this.filterService.onFormSubmit(new FormOutcome(true));
+        this.wasISubmitted = false;
+        this.lastSubmittedData = this.defaultFormValues;
+      } else {
+        this.filterForm.markAsPristine();
+      }
+    }
   }
 
-  private lastSubmittedData: any;
+  private wasIReallyChanged(): boolean {
+    const values = this.filterForm.value;
+    if (values.titleLike !== this.lastSubmittedData.titleLike) return true;
+    if (values.minChapters !== this.lastSubmittedData.minChapters) return true;
+    if (values.minRating !== this.lastSubmittedData.minRating) return true;
+    const lastTags = this.getSelectedTags(this.lastSubmittedData.filterByTags);
+    const currentTags = this.getSelectedTags(values.filterByTags);
+    if (lastTags.length !== currentTags.length) return true;
+    return !currentTags.every((value, index) => value === lastTags[index]);
+  }
 
-  private getFormOutcome(): FormOutcome {
+  private amINotDefault(values: any): boolean {
+    if (values.titleLike !== this.defaultFormValues.titleLike) return true;
+    if (values.minChapters !== this.defaultFormValues.minChapters) return true;
+    if (values.minRating !== this.defaultFormValues.minRating) return true;
+    if (values.ratingOrder !== this.defaultFormValues.ratingOrder) return true;
+    return this.getSelectedTags(values.filterByTags).length > 0;
+  }
+
+  private wasISubmitted = false;
+  private lastSubmittedData: any = this.defaultFormValues;
+
+  private getFormOutcome(): FormOutcome | null {
     const currentValues = this.filterForm.value;
+    if (!this.amINotDefault(currentValues)) return null;
+
     let result: FormOutcome = new FormOutcome(false);
     const titleLike: string = currentValues.titleLike.trim();
     const lastTitle: string = this.lastSubmittedData['titleLike'];
@@ -106,7 +149,7 @@ export class BookFilterComponent implements OnInit {
     }
 
     const ratingOrder: string = currentValues.ratingOrder;
-    if (ratingOrder !== 'No order') result.sortAsc = (ratingOrder === 'A');
+    if (ratingOrder !== this.defaultFormValues.ratingOrder) result.sortAsc = (ratingOrder === 'A');
 
     if (!result.isValid) {
       if (titleLike !== this.defaultFormValues.titleLike) result.setParam('titleLike', titleLike);
@@ -115,27 +158,46 @@ export class BookFilterComponent implements OnInit {
       if (result.sortAsc !== undefined) result.setParam('ratingOrder', result.sortAsc);
       selectedTags.forEach(tag => result.appendParam('hasTags', tag));
     }
+    this.wasISubmitted = true;
     this.lastSubmittedData = currentValues;
 
     return result;
   }
 
-  private getFormOutcomeRedirected(): FormOutcome {
+  private getFormOutcomeRedirected(): FormOutcome | null {
     const currentValues = this.filterForm.value;
     let result: FormOutcome = new FormOutcome(true);
+    let anyValue: boolean = false;
     const titleLike: string = currentValues.titleLike.trim();
     const minChapters: number = currentValues.minChapters ?? 0;
     const minRating: number = currentValues.minRating ?? 0;
     const selectedTags: BookTag[] = this.getSelectedTags(currentValues.filterByTags);
     const ratingOrder: string = currentValues.ratingOrder;
 
-    if (titleLike !== this.defaultFormValues.titleLike) result.setRedirectTitleLike(titleLike);
-    if (minRating !== this.defaultFormValues.minRating) result.setRedirectMinRating(minRating);
-    if (minChapters !== this.defaultFormValues.minChapters) result.setRedirectChapterCount(minChapters);
-    if (ratingOrder !== 'No order') result.setRedirectRatingOrder((ratingOrder === 'A'));
-    if (selectedTags.length > 0) result.setRedirectTags(selectedTags);
+    if (titleLike !== this.defaultFormValues.titleLike) {
+      result.setRedirectTitleLike(titleLike);
+      anyValue = true;
+    }
+    if (minRating !== this.defaultFormValues.minRating) {
+      result.setRedirectMinRating(minRating);
+      anyValue = true;
+    }
+    if (minChapters !== this.defaultFormValues.minChapters) {
+      result.setRedirectChapterCount(minChapters);
+      anyValue = true;
+    }
+    if (ratingOrder !== 'No order') {
+      result.setRedirectRatingOrder((ratingOrder === 'A'));
+      anyValue = true;
+    }
+    if (selectedTags.length > 0) {
+      result.setRedirectTags(selectedTags);
+      anyValue = true;
+    }
     this.lastSubmittedData = currentValues;
 
+    if (!anyValue) return null;
+    this.wasISubmitted = true;
     result.isRedirected = true;
     return result;
   }
@@ -152,10 +214,29 @@ export class BookFilterComponent implements OnInit {
 
   ngOnInit(): void {
     this.createFilterForm();
-
-    const redirectData: FormOutcome | undefined = this.filterService.getRedirectData();
+    const tagsFromRedirect = this.activatedRoute.snapshot.paramMap.getAll('hasTags');
+    if (tagsFromRedirect.length > 0) {
+      //redirect from book tag
+      const formOutcome = new FormOutcome(true);
+      formOutcome.isRedirected = true;
+      formOutcome.setRedirectTags(tagsFromRedirect);
+      tagsFromRedirect.forEach(tag => {
+        this.filterForm.patchValue({
+          filterByTags: {
+            [tag]: true
+          }
+        })
+      });
+      this.lastSubmittedData = this.filterForm.value;
+      this.wasISubmitted = true;
+      this.filterForm.markAsDirty();
+      this.filterService.onFormSubmit(formOutcome);
+      return;
+    }
+    //redirect from home
+    const redirectData = this.filterService.getRedirectData();
     if (redirectData) {
-      this.wasIRedirected = true;
+      this.filterService.refreshSelection(); //don't ask why, it works
       const redirectTags = redirectData.getRedirectTags();
       if (redirectTags) redirectTags.forEach(tag => {
         this.filterForm.patchValue({
@@ -176,9 +257,10 @@ export class BookFilterComponent implements OnInit {
 
       const redirectRatingOrder = redirectData.getRedirectRatingOrder();
       if (redirectRatingOrder !== undefined) this.filterForm.patchValue({ratingOrder: [redirectRatingOrder ? 'A' : 'D']});
+      this.lastSubmittedData = this.filterForm.value;
+      this.wasISubmitted = true;
+      this.filterForm.markAsDirty();
     }
-
-    this.lastSubmittedData = this.filterForm.value;
   }
 
   private createFilterForm() {
@@ -205,7 +287,7 @@ export class BookFilterComponent implements OnInit {
     });
   }
 
-  identifyTag(index: number, item: BookTag) {
+  identifyTag(_: number, item: BookTag) {
     return item;
   }
 }

@@ -8,22 +8,22 @@
   position: relative;
   box-sizing: border-box;
   cursor: pointer;
-  width: 7em;
-  height: 2em;
+  width: 4.9em;
+  height: 1.4em;
   background: #fff;
-  box-shadow: inset 0 .1em .03em rgba(0, 0, 0, .2), inset 0 .1em .3em rgba(0, 0, 0, .3), 0 0 2em hsla(0, 0%, 100%, .6);
-  transition: all .3s ease
+  box-shadow: inset 0 .07em .021em rgba(0, 0, 0, .2), inset 0 .07em .21em rgba(0, 0, 0, .3), 0 0 1.4em hsla(0, 0%, 100%, .6);
+  transition: all .21s ease
 }
 
 .mt-square3d-custom label:before {
   content: "";
   display: block;
   position: absolute;
-  width: 3.6em;
-  height: 3.2em;
-  top: -.7em;
-  left: -.1em;
-  transition: .5s cubic-bezier(.52, -.41, .55, 1.46)
+  width: 2.52em;
+  height: 2.24em;
+  top: -.49em;
+  left: -.07em;
+  transition: .35s cubic-bezier(.52, -.41, .55, 1.46)
 }
 
 .mt-square3d-custom input {
@@ -45,7 +45,7 @@
 }
 
 .mt-square3d-custom input:checked + label:before {
-  transform: translateX(3.5em)
+  transform: translateX(2.45em)
 }
 
 .mt-square3d-custom input:disabled + label {
@@ -55,18 +55,18 @@
 
 .mt-square3d-custom input:disabled + label:before {
   background: #ccc !important;
-  border-bottom: .07em solid #ccc !important;
-  box-shadow: 0 .16em .01em #aaa, 0 .12em .3em hsla(0, 0%, 39.2%, .6), 0 .12em 2em rgba(0, 0, 0, .3), .12em .15em .2em rgba(0, 0, 0, .2) !important
+  border-bottom: .049em solid #ccc !important;
+  box-shadow: 0 .112em .007em #aaa, 0 .084em .21em hsla(0, 0%, 39.2%, .6), 0 .084em 1.4em rgba(0, 0, 0, .3), .084em .105em .14em rgba(0, 0, 0, .2) !important
 }
 
 .mt-square3d-custom label:before {
   background: #5b5656;
-  border-bottom: .07em solid #756f6f;
-  box-shadow: 0 .16em .01em #343131, 0 .12em .3em rgba(52, 49, 49, .6), 0 .12em 2em rgba(0, 0, 0, .3), .12em .15em .2em rgba(0, 0, 0, .2)
+  border-bottom: .049em solid #756f6f;
+  box-shadow: 0 .112em .007em #343131, 0 .084em .21em rgba(52, 49, 49, .6), 0 .084em 1.4em rgba(0, 0, 0, .3), .084em .105em .14em rgba(0, 0, 0, .2)
 }
 
 .mt-square3d-custom input:checked + label:before {
   background: #daa520;
-  border-bottom: .07em solid #b8860b;
-  box-shadow: 0 .16em .01em #efb429, 0 .12em .3em rgb(151, 108, 3), 0 .12em 2em rgba(0, 0, 0, .3), -.12em .15em .2em rgba(0, 0, 0, .2)
+  border-bottom: .049em solid #b8860b;
+  box-shadow: 0 .112em .007em #efb429, 0 .084em .21em rgb(151, 108, 3), 0 .084em 1.4em rgba(0, 0, 0, .3), -.084em .105em .14em rgba(0, 0, 0, .2)
 }

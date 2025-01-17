@@ -1,45 +1,46 @@
 @import '../../shared/styles/sButton.css';
 @import '../../shared/styles/pageNumberBox.css';
 @import '../../shared/styles/rowCol.css';
+@import '../../shared/styles/image34.css';
 
-.description {
-  line-height: 1.1;
+#description {
+  line-height: 1;;
   white-space: pre-wrap;
   text-align: left;
   font-family: inherit;
-  font-size: inherit;
+  font-size: 1.1em;
 }
 
 
-.fetchRatings{
-  margin: 0.6rem;
+.fetchRatings {
+  margin: 0.6em;
 }
 
 .bookReviews {
   flex: 0 0 35%;
-  border: 3px solid goldenrod;
-  margin-top: 0.3rem;
-  padding: 0.6rem;
+  border: 0.2em solid goldenrod;
+  margin-top: 0.3em;
+  padding: 0.6em;
   background: cadetblue;
   overflow: auto;
-  max-height: 1480px;
+  max-height: 88.8em;
 }
 
 .reviewElement {
   max-width: 100%;
-  padding: 0.6rem;
-  border: 3px dashed goldenrod;
+  padding: 0.6em;
+  border: 0.2em dashed goldenrod;
   background-color: cadetblue;
   display: flex;
 }
 
 .reviewData {
-  border-right: 3px dashed goldenrod;
-  padding-right: 0.3rem;
+  border-right: 0.2em dashed goldenrod;
+  padding-right: 0.3em;
 }
 
-#comment{
-  margin-left: 0.6rem;
+#comment {
+  margin-left: 0.6em;
 }
 
 .userLink {
@@ -71,9 +72,9 @@
 
 .bookCard {
   background-color: cadetblue;
-  border: 3px solid goldenrod;
-  padding: 0.6rem;
-  margin: 0.3rem;
+  border: 0.2em solid goldenrod;
+  padding: 0.6em;
+  margin: 0.3em;
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 1fr;
   grid-template-rows: 1fr 0.5fr 1.5fr 0.5fr 1fr 1fr;
@@ -88,12 +89,12 @@
     "infoDiv descDiv descDiv descDiv";
   text-align: center;
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 1.15em;
 }
 
 .titleDiv {
   grid-area: titleDiv;
-  font-size: 2rem;
+  font-size: 2em;
 }
 
 .ratingDataDiv {
@@ -105,7 +106,7 @@
 }
 
 .coverDiv {
-  padding-top: 0.3rem;
+  padding-top: 0.3em;
   grid-area: coverDiv;
   overflow: hidden;
 }
@@ -113,29 +114,29 @@
 .descDiv {
   grid-area: descDiv;
   overflow-wrap: break-word;
-  padding: 1.2rem;
+  padding: 1.2em;
 }
 
-.outChapBox{
+.outChapBox {
   min-width: 60vw;
   background: cadetblue;
-  padding: 0.6rem;
-  margin: 0.3rem;
-  border: 3px solid goldenrod;
+  padding: 0.6em;
+  margin: 0.3em;
+  border: 0.2em solid goldenrod;
 
 }
 
-.pagingButtons{
-  padding: 0.6rem;
+.pagingButtons {
+  padding: 0.6em;
 }
 
-.chapterPrevBox{
+.chapterPrevBox {
   grid-area: chapterPrevBox;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(10, 60px);
-  gap: 0.6rem;
-  row-gap: 1.2rem;
+  grid-template-rows: repeat(10, 3.6em);
+  gap: 0.6em;
+  row-gap: 1.2em;
   height: 100%;
   width: 100%;
   overflow: auto;
@@ -143,44 +144,44 @@
 
 .chapterBox {
   background-color: #969db6;
-  height: 60px;
-  border-radius: 0.3rem;
-  padding: 0.3rem;
-  border: 2px solid gray;
+  height: 3.6em;
+  border-radius: 0.3em;
+  padding: 0.3em;
+  border: 0.18em solid gray;
 }
 
 .chapterBox:hover {
   background: goldenrod;
-  box-shadow: 3px 3px 2px gray;
+  box-shadow: 0.2em 0.2em 0.18em gray;
   cursor: pointer;
 }
 
-.bold{
+.bold {
   font-weight: bold;
-  font-size: 1.05rem;
+  font-size: 1.05em;
 }
 
-#chNumber{
-  font-size: 1.5rem;
-  border-right: 2px solid gray;
+#chNumber {
+  font-size: 1.3em;
+  border-right: 0.18em solid gray;
   flex: 0 0 18%;
 }
 
-#chInfo{
+#chInfo {
   flex: 0 0 80%;
-  margin-top: 0.3rem;
-  margin-bottom: 0.3rem;
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
 }
 
 .tagsDiv {
   grid-area: tagsDiv;
   display: flex;
-  gap: 3px;
+  gap: 0.2em;
 }
 
 .tagBox {
-  border: 2px solid goldenrod;
-  border-radius: 0.3rem;
+  border: 0.18em solid goldenrod;
+  border-radius: 0.3em;
   background-color: goldenrod;
 }
 
@@ -188,9 +189,9 @@
   cursor: pointer;
   background-color: darkgoldenrod;
   border-color: darkgoldenrod;
-  box-shadow: 3px 3px 2px gray;
+  box-shadow: 0.2em 0.2em .18em gray;
 }
 
-.infoMsg{
-  font-size: 1.2rem;
+.infoMsg {
+  font-size: 1.2em;
 }

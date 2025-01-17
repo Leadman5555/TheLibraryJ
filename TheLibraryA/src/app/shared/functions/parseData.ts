@@ -7,6 +7,3 @@ export function parseDateString(date: string): string {
 export function parseDateArray(date: number[]): string {
   return `${date[0]}-${date[1].toString().padStart(2, '0')}-${date[2].toString().padStart(2, '0')} | ${date[3]}:${date[4].toString().padStart(2, '0')}`;
 }
-
-export class parseDate {
-}

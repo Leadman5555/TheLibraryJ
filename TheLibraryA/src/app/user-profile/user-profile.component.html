@@ -31,9 +31,8 @@
         <span>Accumulation needed: {{ this.userData.currentScore }}/{{ this.progressArray[this.userData.rank] }}</span>
       </div>
       <div class="profileImgDiv">
-        <div style="width: 360px; height: 480px; border: 2px solid darkgoldenrod;">
-          <img src="data:image/jpg;base64,{{this.userData.profileImage}}" alt="Profile image" width="360px"
-               height="480px">
+        <div class="image34Wrapper">
+          <img class="image34" src="data:image/jpg;base64,{{this.userData.profileImage}}" alt="Profile image">
         </div>
       </div>
       <div class="statusDiv">
@@ -45,7 +44,7 @@
       </div>
       <div class="previewsDiv">
         @if (!authoredBooks) {
-          <div style="margin-bottom: 30px">
+          <div style="margin-bottom: 1.8em">
             <button class="fetchBooks sButton" (click)="fetchAuthoredBooks()">Load authored books</button>
           </div>
         } @else {

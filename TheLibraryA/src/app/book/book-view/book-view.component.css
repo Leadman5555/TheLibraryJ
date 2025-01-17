@@ -44,13 +44,13 @@
 }
 
 .previewContainer {
-  flex: 0 0 75%;
+  flex: 0 0 70%;
   display: grid;
-  grid-template-columns: repeat(4, 310px);
-  grid-template-rows: repeat(auto-fill, 310px);
+  grid-template-columns: repeat(3, 18.6em);
+  grid-template-rows: repeat(auto-fill, 18.6em);
   grid-auto-rows: 1fr;
   grid-auto-columns: 80vw;
-  gap: 20px;
+  gap: 1.2em;
 }
 
 .filterContainer{
@@ -67,12 +67,12 @@
 .column{
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.6em;
   align-items: center;
   justify-content: center;
 }
 
 .row{
   display: flex;
-  gap: 10px;
+  gap: 0.6em;
 }

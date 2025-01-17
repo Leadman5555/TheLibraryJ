@@ -1,9 +1,8 @@
 .bookPreviewCard {
   background-color: cadetblue;
-  border: 0.3rem solid goldenrod;
+  border: 0.3em solid goldenrod;
   height: 100%;
-  min-height: 220px;
-  max-height: 300px;
+  max-height: 18em;
   aspect-ratio: 1 / 1;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -23,7 +22,7 @@
 
 .bookPreviewCard:hover {
   background-color: royalblue;
-  box-shadow: 0.6rem 0.6rem 0.3rem gray;
+  box-shadow: 0.6em 0.6em 0.3em gray;
 }
 
 .coverImgDiv {
@@ -33,9 +32,9 @@
 .stateDiv {
   grid-area: stateDiv;
   background-color: lightblue;
-  font-size: 0.9rem;
-  border-bottom: 0.3rem solid goldenrod;
-  border-left: 0.3rem solid goldenrod;
+  font-size: 0.9em;
+  border-bottom: 0.3em solid goldenrod;
+  border-left: 0.3em solid goldenrod;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -46,9 +45,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 2rem;
-  border-left: 0.3rem solid goldenrod;
-  border-bottom: 0.23rem solid goldenrod;
+  font-size: 2em;
+  border-left: 0.15em solid goldenrod;
+  border-bottom: 0.1em solid goldenrod;
 }
 
 .ratingDiv {
@@ -57,8 +56,8 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border-left: 0.3rem solid goldenrod;
-  border-top: 0.16rem solid goldenrod;
+  border-left: 0.3em solid goldenrod;
+  border-top: 0.16em solid goldenrod;
 }
 
 .titleDiv {
@@ -66,5 +65,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border-top: 0.3rem solid goldenrod;
+  border-top: 0.3em solid goldenrod;
+  font-size: 1.1em;
 }

@@ -7,10 +7,12 @@
       </div>
       <div class="descDiv">
         <span id="header">Description:</span>
-        <pre class="description"> {{ bookDetail.description }}</pre>
+        <pre id="description"> {{ bookDetail.description }}</pre>
       </div>
       <div class="infoDiv column">
-        <div class="authorDiv"> Penned by: <span class="userLink" [routerLink]="['/user', bookDetail.author]"> {{ bookDetail.author }}</span></div>
+        <div class="authorDiv"> Penned by: <span class="userLink"
+                                                 [routerLink]="['/user', bookDetail.author]"> {{ bookDetail.author }}</span>
+        </div>
         <div class="stateDiv">Book state: {{ bookPreview.bookState }}</div>
         <div class="chapterCount">Chapter count: {{ bookPreview.chapterCount }}</div>
         <div class="tagsDiv">
@@ -20,49 +22,56 @@
         </div>
       </div>
       <div class="coverDiv">
-        <img src="data:image/jpg;base64,{{bookPreview.coverImage}}" alt="Cover image">
+        <div class="image34Wrapper">
+          <img class="image34" src="data:image/jpg;base64,{{bookPreview.coverImage}}" alt="Cover image">
+        </div>
       </div>
     </div>
 
     <ng-container *ngIf="vm$ | async as vm">
-        <div class="outChapBox column">
-          @if(vm.length){
-            <div *ngIf="info$ | async as info" class="pagingButtons row">
-              <div class="pageNumberBox" aria-label="First page" (click)="onChosenPage(0)" [class.selected]="0 == info.page">1</div>
-              <button type="button" class="pageNumberBox" aria-label="Previous Page" (click)="onPreviousPage()">←</button>
-              <div class="pageNumberBox" *ngFor="let pageNumber of info.totalPages - 1 | timesMaxPaging : info.page : 6; trackBy identifyPage"
-                   (click)="onChosenPage(pageNumber)"
-                   [class.selected]="pageNumber === info.page">{{ pageNumber + 1 }}
-              </div>
-              <button type="button" class="pageNumberBox" aria-label="Next Page" (click)="onNextPage()">→</button>
-              <div class="pageNumberBox" aria-label="Last page" (click)="onChosenPage(info.totalPages - 1)" [class.selected]="info.totalPages -1 === info.page">{{info.totalPages}}</div>
+      <div class="outChapBox column">
+        @if (vm.length) {
+          <div *ngIf="info$ | async as info" class="pagingButtons row">
+            <div class="pageNumberBox" aria-label="First page" (click)="onChosenPage(0)"
+                 [class.selected]="0 == info.page">1
             </div>
-            <div class="chapterPrevBox">
-              @for (chPrev of vm; track chPrev.number) {
-                <div class="chapterBox row" [routerLink]="['chapter', chPrev.number, this.bookPreview.id]">
-                  <span class="bold centerVH" id="chNumber">{{ chPrev.number.toString().padStart(4, '0')}}</span>
-                  <div class="column" id="chInfo">
-                    <span class="bold">{{ chPrev.title }}</span>
-                    <span>Updated at: {{ parseDate(chPrev.updatedAt) }}</span>
-                  </div>
+            <button type="button" class="pageNumberBox" aria-label="Previous Page" (click)="onPreviousPage()">←</button>
+            <div class="pageNumberBox"
+                 *ngFor="let pageNumber of info.totalPages - 1 | timesMaxPaging : info.page : 6; trackBy identifyPage"
+                 (click)="onChosenPage(pageNumber)"
+                 [class.selected]="pageNumber === info.page">{{ pageNumber + 1 }}
+            </div>
+            <button type="button" class="pageNumberBox" aria-label="Next Page" (click)="onNextPage()">→</button>
+            <div class="pageNumberBox" aria-label="Last page" (click)="onChosenPage(info.totalPages - 1)"
+                 [class.selected]="info.totalPages -1 === info.page">{{ info.totalPages }}
+            </div>
+          </div>
+          <div class="chapterPrevBox">
+            @for (chPrev of vm; track chPrev.number) {
+              <div class="chapterBox row" [routerLink]="['chapter', chPrev.number, this.bookPreview.id]">
+                <span class="bold centerVH" id="chNumber">{{ chPrev.number.toString().padStart(4, '0') }}</span>
+                <div class="column" id="chInfo">
+                  <span class="bold">{{ chPrev.title }}</span>
+                  <span>Updated at: {{ parseDate(chPrev.updatedAt) }}</span>
                 </div>
-              }
-            </div>
-          } @else {
-            <p class="infoMsg centerVH">No chapters available.</p>
-          }
-        </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="infoMsg centerVH">No chapters available.</p>
+        }
+      </div>
     </ng-container>
 
   </div>
   <div class="bookReviews">
     <button class="fetchRatings sButton" (click)="upsertRating()">Add/Update rating</button>
-    @if(!ratings){
-      <div style="margin-bottom: 30px">
+    @if (!ratings) {
+      <div style="margin-bottom: 1.8em">
         <button class="fetchRatings sButton" (click)="fetchRatings()">Load book reviews</button>
       </div>
     } @else {
-      @if(ratings.length){
+      @if (ratings.length) {
         <div class="column">
           @for (review of ratings; track review.username) {
             <div class="reviewElement">

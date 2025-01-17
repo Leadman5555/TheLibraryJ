@@ -4,8 +4,8 @@
 @import '../../../shared/styles/rowCol.css';
 
 .filterBox {
-  border: 3px solid darkgoldenrod;
-  padding: 10px 10px 15px;
+  border: 0.2em solid darkgoldenrod;
+  padding: 0.6em 0.6em 0.9em;
   background-color: cadetblue;
   font-family: "Bell MT", serif;
 }
@@ -15,10 +15,10 @@ select {
 }
 
 .tagsDiv {
-  padding-top: 15px;
+  padding-top: 0.9em;
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 1.2em;
   justify-content: center;
 }
 
@@ -29,8 +29,8 @@ select {
 
 .tagName {
   font-weight: bold;
-  font-size: 1.2rem;
-  margin-right: 10px;
+  font-size: 1.2em;
+  margin-right: 0.6em;
 }
 
 .left {
@@ -38,8 +38,8 @@ select {
 }
 
 .filterButtons{
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-top: 1em;
+  padding-bottom: 0.48em;
 }
 
 #dropdownRatingList{
@@ -48,7 +48,7 @@ select {
 }
 
 #titleColumn{
-  margin-bottom: 10px;
+  margin-bottom: 0.6em;
 }
 
 
