@@ -21,7 +21,7 @@
           </select>
         </div>
         <div class="row settingsElem">
-          <label for="dropdownFontFamilyList" class="outerLabel">Line height: </label>
+          <label for="dropdownFontFamilyList" class="outerLabel">Font family: </label>
           <select formControlName="fontFamily" id="dropdownFontFamilyList">
             <option *ngFor="let fontFamily of fontFamilies; trackBy identifyByValue"
                     value="{{fontFamily}}">{{ fontFamily }}
@@ -29,7 +29,7 @@
           </select>
         </div>
         <div class="row settingsElem">
-          <label for="dropdownLineHeightList" class="outerLabel">Font family: </label>
+          <label for="dropdownLineHeightList" class="outerLabel">Line height: </label>
           <select formControlName="lineHeight" id="dropdownLineHeightList">
             <option *ngFor="let lh of maxLineHeight | timesMax: minLineHeight; trackBy identifyByValue"
                     value="{{lh*10}}">{{ lh * 10 }}%

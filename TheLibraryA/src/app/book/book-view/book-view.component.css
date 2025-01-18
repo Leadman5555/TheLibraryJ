@@ -1,3 +1,6 @@
+@import "../../shared/styles/rowCol.css";
+@import "../../shared/styles/emptyInfoBox.css";
+
 @keyframes gradientAnimation {
   0% {
     background-color:  rgba(202,243,243,0.65);
@@ -23,6 +26,7 @@
 #backgroundScroll {
   position: fixed;
   left: 0;
+  top: 0;
   width: 100vw;
   height: 100vh;
   background-size: cover;
@@ -44,13 +48,27 @@
 }
 
 .previewContainer {
-  flex: 0 0 70%;
+  flex: 0 0 75%;
   display: grid;
-  grid-template-columns: repeat(3, 18.6em);
-  grid-template-rows: repeat(auto-fill, 18.6em);
   grid-auto-rows: 1fr;
   grid-auto-columns: 80vw;
-  gap: 1.2em;
+  gap: 0.5em;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(auto-fill, 1fr);
+}
+
+@media (max-width: 2200px) {
+  .previewContainer{
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(auto-fill, 1fr);
+  }
+}
+
+@media (max-width: 1550px) {
+  .previewContainer{
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(auto-fill, 1fr);
+  }
 }
 
 .filterContainer{
@@ -64,15 +82,8 @@
   top: 0;
 }
 
-.column{
-  display: flex;
-  flex-direction: column;
-  gap: 0.6em;
-  align-items: center;
-  justify-content: center;
+.row{
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
-.row{
-  display: flex;
-  gap: 0.6em;
-}

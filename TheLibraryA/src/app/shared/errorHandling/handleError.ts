@@ -21,5 +21,12 @@ export const handleError = (error: HttpErrorResponse): Observable<never> => {
 
 export const logError = (error: HttpErrorResponse): void => {
   if (error.error instanceof ErrorEvent) console.error('An error occurred:', error.error.message);
-  else console.error(`Server returned status code ${error.status}, reason: ${error.error.error.message || 'Unknown'}`);
+  else{
+    const subError = error.error;
+    if(subError.errorDetails){
+      console.error(`Server returned status code ${error.status}, reason: ${subError.errorDetails.message || 'Unknown'}`);
+    }else {
+      console.error(`Failed to reach server.`);
+    }
+  }
 }

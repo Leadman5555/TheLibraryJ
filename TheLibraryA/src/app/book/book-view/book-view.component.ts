@@ -6,7 +6,8 @@ import {BookPreview} from '../shared/models/book-preview';
 import {ActivatedRoute} from '@angular/router';
 import {BookService} from '../shared/book-service';
 import {BookFilterService} from '../book-filter/filterService/book-filter.service';
-import {skip, Subscription} from 'rxjs';
+import {catchError, skip, Subscription} from 'rxjs';
+import {handleError} from '../../shared/errorHandling/handleError';
 
 @Component({
   selector: 'app-book-view',
@@ -27,7 +28,7 @@ export class BookViewComponent implements OnInit, OnDestroy {
   constructor(private filterService: BookFilterService) {}
 
   ngOnInit(): void {
-    this.filterSubscription =  this.filterService.currentForm$.pipe(skip(1)).subscribe(outcome => {
+    this.filterSubscription =  this.filterService.currentForm$.pipe(skip(1), catchError(handleError)).subscribe(outcome => {
       if(outcome.isValid && !outcome.isRedirected) {
         if(outcome.sortAsc !== undefined){
           let compareF;
@@ -39,11 +40,11 @@ export class BookViewComponent implements OnInit, OnDestroy {
         }
       }else this.bookService.getBookPreviewsByParams(outcome.params).subscribe({
         next: (v) => {
-          console.log('fetching')
-          console.log(outcome)
           this.bookPreviews = v
-        },
-        error: (_) => console.error("Error fetched data"),
+          for(let i = 0; i < 100; i++){
+            this.bookPreviews.push(this.bookPreviews[i]);
+          }
+        }
       });
     });
   }

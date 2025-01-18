@@ -1,6 +1,6 @@
-<div id="backgroundScroll"></div>
 <div class="row">
   @if (this.bookPreviews.length) {
+    <div id="backgroundScroll"></div>
     <div class="previewContainer">
       <app-book-preview-card
         *ngFor="let bp  of bookPreviews; trackBy : identifyBp"
@@ -8,7 +8,7 @@
       />
     </div>
   } @else {
-    <div id="noPreviews">No scriptures here, fellow daoist. Just us.</div>
+    <div class="emptyInfoBox">No scriptures here, fellow daoist. Just us.</div>
   }
-  <div class="filterContainer"><app-book-filter class="stick"/></div>
+  <div class="filterContainer stick"><app-book-filter/></div>
 </div>

@@ -260,7 +260,7 @@ export class BookFilterComponent implements OnInit {
       this.lastSubmittedData = this.filterForm.value;
       this.wasISubmitted = true;
       this.filterForm.markAsDirty();
-    }
+    }else this.filterService.refreshSelection();
   }
 
   private createFilterForm() {
