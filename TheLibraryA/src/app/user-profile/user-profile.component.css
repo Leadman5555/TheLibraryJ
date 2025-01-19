@@ -7,13 +7,13 @@
   align-items: center;
   align-content: center;
   text-align: center;
-  min-height: 80vh;
+  justify-content: center;
+  height: 80vh;
+  background-color: cadetblue;
+  border: 0.2em solid darkgoldenrod;
 }
 
 .userProfileGrid {
-  background-color: cadetblue;
-  border: 0.2em solid darkgoldenrod;
-  padding: 1.2em;
   height: 100%;
   width: 100%;
   display: grid;
@@ -27,7 +27,7 @@
     "profileImgDiv profileImgDiv statusDiv statusDiv previewsDiv"
     "profileImgDiv profileImgDiv statusDiv statusDiv previewsDiv"
     "profileImgDiv profileImgDiv statusDiv statusDiv previewsDiv"
-    "lastUpdateDiv lastUpdateDiv statusDiv statusDiv previewsDiv";
+    "lastUpdateDiv lastUpdateDiv  -  - previewsDiv";
   font-size: 1.1em;
 }
 
@@ -37,6 +37,7 @@
   height: 95%;
   display: flex;
   justify-content: center;
+  margin-top: 1em;
 }
 
 .previewsColumn {
@@ -46,7 +47,7 @@
   align-items: flex-start;
   justify-content: flex-start;
   max-width: 100%;
-  max-height: 60vh;
+  max-height: 100%;
   padding: 0.6em;
   border: 0.2em solid darkgoldenrod;
   background-color: rgba(69, 108, 108, 0.65);

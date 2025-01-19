@@ -61,6 +61,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private resetUserState(): void {
     this.userData = null;
     this.userFetchErrorMsg = null;
+    this.authoredBooks = undefined;
   }
 
   readonly preferenceArray: string[] = ['Junior disciple', 'Senior disciple'];

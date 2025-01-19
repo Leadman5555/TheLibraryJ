@@ -1,9 +1,6 @@
 import { Component } from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgIf} from '@angular/common';
-import {UserProfileData} from '../user-profile-data';
-import {catchError} from 'rxjs';
-import {handleError} from '../../shared/errorHandling/handleError';
 import {Router} from '@angular/router';
 
 @Component({
@@ -12,6 +9,7 @@ import {Router} from '@angular/router';
     NgIf,
     ReactiveFormsModule
   ],
+  standalone: true,
   templateUrl: './user-search.component.html',
   styleUrl: './user-search.component.css'
 })
@@ -32,8 +30,7 @@ export class UserSearchComponent {
 
   searchForUser() {
     if(this.userSearchForm.pristine || this.userSearchForm.invalid) return;
-    const username = this.userSearchForm.value.username;
-    this.router.navigate(['/profile', username]);
+    this.router.navigate(['/profile', this.userSearchForm.value.username]);
     this.userSearchForm.reset();
   }
 }

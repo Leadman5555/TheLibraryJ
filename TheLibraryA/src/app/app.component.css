@@ -45,6 +45,11 @@
   align-items: center;
 }
 
+#userInfo:hover{
+  cursor: pointer;
+  color: rgba(77, 1, 209, 0.7);
+}
+
 #username{
   font-weight: bold;
   font-size: 1.2em;
@@ -65,7 +70,7 @@
   }
 }
 
-#menuBox{
+.window{
   animation: expand 0.3s ease-in;
   position: relative;
   margin-left: auto;
@@ -95,11 +100,16 @@
   z-index: 9;
   border: 0.2em solid darkgoldenrod;
   border-top: none;
+  margin-top: 0.2em;
 }
 
 .dropdown button {
   display: block;
   margin: 0.3em 0.3em;
+}
+
+.dropButton{
+  margin-top: 0.5em;
 }
 
 .menu-container:hover .dropdown {

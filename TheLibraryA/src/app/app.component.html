@@ -1,84 +1,100 @@
 <div id="mainBody">
-<div id="body">
-<div id="header">
- <div id="home" routerLink="">
-   The Library
- </div>
- <div id="right" class="row">
-   <app-user-search (click)="this.showMenu = false"></app-user-search>
-   @if(this.showLoggedIn) {
-     <div id="userInfo">
-       <span id="username">{{ this.userMini?.username }}</span>
-       <div class="image34Wrapper" style="height: 4.8em; width: 3.6em">
-       <img src="data:image/jpg;base64,{{this.userMini?.profileImage}}" alt="Profile image" class="image34">
-       </div>
-     </div>
-   }
-   <button class="sButton" (click)="toggleMenu()">Menu</button>
- </div>
-</div>
-@if (this.showMenu) {
-  <div id="menuBox">
-    @if(this.showLoggedIn) {
-      <div class="column">
-        <button class="sButton"  (click)="toggleMenu()" [routerLink]="['/profile', this.userMini?.username]">Profile</button>
-        <button class="sButton" (click)="logOut()">Log out</button>
+  <div id="body">
+    <div id="header">
+      <div id="home" routerLink="">
+        The Library
       </div>
-    }@else {
-      <form id="logInForm"  *ngIf="logInForm" [formGroup]="logInForm" (ngSubmit)="handleLogInSubmit()">
-        <p class="errorBox" style="width: 100%; word-break: break-word" *ngIf="errorMessage">{{errorMessage}}</p>
-        <div class="row">
-          <div class="inputColumn">
-            <div class="input-container">
-              <input placeholder="Enter email here" class="input-field" id="emailInput" type="text" maxlength="30" formControlName="email">
-              <label for="emailInput" class="input-label">Email: </label>
-              <span class="input-highlight"></span>
-            </div>
-            <div class="errorBox"  *ngIf="logInForm.get('email')?.invalid && (logInForm.get('email')?.dirty)">
-              Enter a valid email address
+      <div id="right" class="row">
+        @if (this.showLoggedIn) {
+          <div id="userInfo" (click)="hideWindows()" [routerLink]="['/profile', this.userMini?.username]">
+            <span id="username">{{ this.userMini?.username }}</span>
+            <div class="image34Wrapper" style="height: 4.8em; width: 3.6em">
+              <img src="data:image/jpg;base64,{{this.userMini?.profileImage}}" alt="Profile image" class="image34">
             </div>
           </div>
-          <button class="sButton" type="button" style="font-size: 1em" (click)="resetForm()">
-            Reset form
-          </button>
-        </div>
-        <div class="row">
-          <div class="inputColumn">
-            <div class="input-container">
-              <input placeholder="Password" class="input-field" id="passwordInput" [type]="showPassword ? 'text' : 'password'" maxlength="30" formControlName="password">
-              <label for="passwordInput" class="input-label">Password: </label>
-              <span class="input-highlight"></span>
-            </div>
-            <div class="errorBox"  *ngIf="logInForm.get('password')?.invalid && (logInForm.get('password')?.dirty)">
-              Password is required and at least 8 characters long.
-            </div>
+        }
+        <button class="sButton" (click)="toggleMenu()">
+          @if (this.showLoggedIn) {
+            Profile
+          } @else {
+            Log in
+          }
+        </button>
+        <button class="sButton" (click)="toggleOptions()">Options</button>
+      </div>
+    </div>
+    @if (this.showMenu) {
+      <div class="window">
+        @if (this.showLoggedIn) {
+          <div class="column">
+            <button class="sButton" (click)="hideWindows()" [routerLink]="['/profile', this.userMini?.username]">
+              See profile
+            </button>
+            <button class="sButton" (click)="hideWindows()" [routerLink]="['/profile-edit']">Edit profile</button>
+            <button class="sButton" (click)="logOut()">Log out</button>
           </div>
-          <button class="sButton" type="button" (click)="toggleShowPassword()">
-            {{ showPassword ? 'Hide' : 'Show' }} Password
-          </button>
-        </div>
-        <div class="row" style="margin-top: 0.6em;">
-          <button class="sButton" type="submit" [disabled]="logInForm.invalid || logInForm.pristine">Log in</button>
-          <img id="googleLogIn" ngSrc="/google_logIn.png" width="189" height="40" alt="Google sign in" priority (click)="logInWithGoogle()">
-        </div>
-       <div class="row" style="margin-top:0.2em;">
-         <button class="sButton" (click)="this.showMenu=false" routerLink="/register">Register</button>
-         <div class="menu-container">
-           <button class="menu-button sButton">Trouble logging in?</button>
-           <div class="dropdown">
-             <button class="sButton" (click)="this.showMenu=false" routerLink="/password-recovery">Reset password
-             </button>
-             <button class="sButton" (click)="this.showMenu=false" routerLink="/activate-account">Activate account
-             </button>
-           </div>
-         </div>
-       </div>
-      </form>
+        } @else {
+          <form id="logInForm" *ngIf="logInForm" [formGroup]="logInForm" (ngSubmit)="handleLogInSubmit()">
+            <p class="errorBox" style="width: 100%; word-break: break-word" *ngIf="errorMessage">{{ errorMessage }}</p>
+            <div class="row" style="margin-bottom: 0.2em">
+              <div class="inputColumn">
+                <div class="input-container">
+                  <input placeholder="Enter email here" class="input-field" id="emailInput" type="text" maxlength="30"
+                         formControlName="email">
+                  <label for="emailInput" class="input-label">Email: </label>
+                  <span class="input-highlight"></span>
+                </div>
+                <div class="errorBox" *ngIf="logInForm.get('email')?.invalid && (logInForm.get('email')?.dirty)">
+                  Enter a valid email address
+                </div>
+              </div>
+              <button class="sButton" type="button" (click)="resetForm()">
+                Reset form
+              </button>
+            </div>
+            <div class="row">
+              <div class="inputColumn">
+                <div class="input-container">
+                  <input placeholder="Password" class="input-field" id="passwordInput"
+                         [type]="showPassword ? 'text' : 'password'" maxlength="30" formControlName="password">
+                  <label for="passwordInput" class="input-label">Password: </label>
+                  <span class="input-highlight"></span>
+                </div>
+                <div class="errorBox" *ngIf="logInForm.get('password')?.invalid && (logInForm.get('password')?.dirty)">
+                  Password is required and at least 8 characters long.
+                </div>
+              </div>
+              <button class="sButton" type="button" (click)="toggleShowPassword()">
+                {{ showPassword ? 'Hide' : 'Show' }} Password
+              </button>
+            </div>
+            <div class="row" style="margin-top: 0.6em; margin-bottom: 0.2em">
+              <button class="sButton" type="submit" [disabled]="logInForm.invalid || logInForm.pristine">Log in</button>
+              <img id="googleLogIn" ngSrc="/google_logIn.png" width="189" height="40" alt="Google sign in" priority
+                   (click)="logInWithGoogle()">
+            </div>
+            <div class="row" style="margin-top:0.2em;">
+              <button class="sButton" (click)="this.showMenu=false" routerLink="/register">Register</button>
+              <div class="menu-container">
+                <button class="menu-button sButton">Trouble logging in?</button>
+                <div class="dropdown">
+                  <button class="sButton dropButton" (click)="this.showMenu=false" routerLink="/password-recovery">Reset password
+                  </button>
+                  <button class="sButton dropButton" (click)="this.showMenu=false" routerLink="/activate-account">Activate account
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        }
+      </div>
+    } @else if (this.showOptions) {
+      <div class="window column">
+        <app-user-search (click)="this.showMenu = false"></app-user-search>
+      </div>
     }
   </div>
-}
-</div>
-<div>
-  <router-outlet />
-</div>
+  <div>
+    <router-outlet/>
+  </div>
 </div>

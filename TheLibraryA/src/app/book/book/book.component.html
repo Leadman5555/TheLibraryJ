@@ -10,8 +10,7 @@
         <pre id="description"> {{ bookDetail.description }}</pre>
       </div>
       <div class="infoDiv column">
-        <div class="authorDiv"> Penned by: <span class="userLink"
-                                                 [routerLink]="['/user', bookDetail.author]"> {{ bookDetail.author }}</span>
+        <div class="authorDiv"> Penned by: <span class="userLink" [routerLink]="['/profile', bookDetail.author]"> {{ bookDetail.author }}</span>
         </div>
         <div class="stateDiv">Book state: {{ bookPreview.bookState }}</div>
         <div class="chapterCount">Chapter count: {{ bookPreview.chapterCount }}</div>
@@ -21,7 +20,7 @@
           }
         </div>
       </div>
-      <div class="coverDiv">
+      <div class="coverDiv centerVH">
         <div class="image34Wrapper">
           <img class="image34" src="data:image/jpg;base64,{{bookPreview.coverImage}}" alt="Cover image">
         </div>
@@ -65,7 +64,9 @@
 
   </div>
   <div class="bookReviews">
-    <button class="fetchRatings sButton" (click)="upsertRating()">Add/Update rating</button>
+    <button class="fetchRatings sButton" (click)="upsertRating()">Add/Update
+      rating
+    </button>
     @if (!ratings) {
       <div style="margin-bottom: 1.8em">
         <button class="fetchRatings sButton" (click)="fetchRatings()">Load book reviews</button>
@@ -76,7 +77,7 @@
           @for (review of ratings; track review.username) {
             <div class="reviewElement">
               <div class="column reviewData">
-                <span>By: <span class="userLink" [routerLink]="['/user', review.username]">{{ review.username }}</span></span>
+                <span>By: <span class="userLink" [routerLink]="['/profile', review.username]">{{ review.username }}</span></span>
                 <span>Rating: <span style="font-weight:bold">{{ review.currentRating }}/10</span></span>
                 <span>At: {{ parseDate(review.updatedAt) }}</span>
               </div>

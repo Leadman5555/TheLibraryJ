@@ -13,7 +13,8 @@
 
 
 .fetchRatings {
-  margin: 0.6em;
+  display: block;
+  margin: 0.6em auto;
 }
 
 .bookReviews {
@@ -23,7 +24,7 @@
   padding: 0.6em;
   background: cadetblue;
   overflow: auto;
-  max-height: 88.8em;
+  max-height: 97.75em;
 }
 
 .reviewElement {

@@ -41,9 +41,9 @@ export class BookViewComponent implements OnInit, OnDestroy {
       }else this.bookService.getBookPreviewsByParams(outcome.params).subscribe({
         next: (v) => {
           this.bookPreviews = v
-          for(let i = 0; i < 100; i++){
-            this.bookPreviews.push(this.bookPreviews[i]);
-          }
+          // for(let i = 0; i < 100; i++){
+          //   this.bookPreviews.push(this.bookPreviews[i]);
+          // }
         }
       });
     });

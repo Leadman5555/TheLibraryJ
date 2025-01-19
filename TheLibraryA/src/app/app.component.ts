@@ -1,7 +1,7 @@
 import {afterNextRender, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {RouterLink, RouterOutlet} from '@angular/router';
 import {UserAuthService} from './user/user-auth.service';
-import {FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
+import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgIf, NgOptimizedImage} from '@angular/common';
 import {AuthenticationRequest} from './user/shared/models/authentication-request';
 import {UserMini} from './user/shared/models/user-mini';
@@ -12,7 +12,7 @@ import {UserSearchComponent} from './user-profile/user-search/user-search.compon
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, FormsModule, NgIf, ReactiveFormsModule, NgOptimizedImage, UserSearchComponent],
+  imports: [RouterOutlet, RouterLink, NgIf, ReactiveFormsModule, NgOptimizedImage, UserSearchComponent],
   templateUrl: './app.component.html',
   standalone: true,
   styleUrl: './app.component.css'
@@ -43,6 +43,7 @@ export class AppComponent implements OnInit {
 
   private eventBusSubscription?: Subscription;
   showMenu: boolean = false;
+  showOptions: boolean = false;
   showLoggedIn: boolean = false;
   showPassword: boolean = false;
   logInForm!: FormGroup;
@@ -62,7 +63,7 @@ export class AppComponent implements OnInit {
         this.errorMessage = error || 'An unknown error occurred!';
       },
       complete: () => {
-        this.showMenu = false;
+        this.hideWindows();
         this.resetForm();
       }
     });
@@ -76,6 +77,17 @@ export class AppComponent implements OnInit {
 
   toggleMenu() {
     this.showMenu = !this.showMenu;
+    this.showOptions = false;
+  }
+
+  toggleOptions() {
+    this.showOptions = !this.showOptions;
+    this.showMenu = false;
+  }
+
+  hideWindows(){
+    this.showMenu = false;
+    this.showOptions = false;
   }
 
   toggleShowPassword() {
