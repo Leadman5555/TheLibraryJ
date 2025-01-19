@@ -65,7 +65,7 @@
   }
 }
 
-#settingsBox{
+#menuBox{
   animation: expand 0.3s ease-in;
   position: relative;
   margin-left: auto;

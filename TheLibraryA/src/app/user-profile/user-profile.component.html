@@ -1,34 +1,13 @@
 <div class="outerBox">
   <div class="userProfileGrid">
-    <div class="topBar">
-      <form id="emailInputForm" *ngIf="userSearchForm" [formGroup]="userSearchForm" (ngSubmit)="searchForUser()">
-        <div class="row">
-          <div class="column">
-            <label for="userSearchInput" class="outerLabel">Find a fellow daoist: </label>
-            <div class="errorBox alignLeft"
-                 *ngIf="userSearchForm.get('minChapters')?.invalid && (userSearchForm.get('minChapters')?.dirty)">
-              Enter letters ('a-z' and 'A-Z'), digits ('0-9'), hi-fens ('-') or underscores ('_').
-              Enter between between 5 and 20 characters long.
-            </div>
-          </div>
-          <div>
-            <input placeholder="" class="input-field" id="userSearchInput" type="text" formControlName="username">
-            <label for="userSearchInput" class="input-label">Title: </label>
-            <span class="input-highlight"></span>
-          </div>
-          <button class="sButton" id="searchButton" type="submit"
-                  [disabled]="userSearchForm.invalid || userSearchForm.pristine">Search
-          </button>
-        </div>
-      </form>
-    </div>
-    @if (this.fetchedUser) {
+    @if (this.userData) {
       <div class="usernameBar centerVH">
         {{ this.preferenceArray[this.userData.preference] }} {{ this.userData.username }}
       </div>
-      <div class="rankDiv column">
-        <span>Cultivation stage: {{ this.userData.rank }}</span>
-        <span>Accumulation needed: {{ this.userData.currentScore }}/{{ this.progressArray[this.userData.rank] }}</span>
+      <div class="rankDiv row">
+        <span style="font-size: 1.1em; margin-right: 0.4em">Cultivation stage:<br><b>{{ this.rankArray[this.userData.rank] }}</b></span>
+        <span>Accumulation needed: <app-progress-bar [current]="userData.currentScore"
+                                                     [goal]="progressArray[userData.rank]"></app-progress-bar></span>
       </div>
       <div class="profileImgDiv">
         <div class="image34Wrapper">
@@ -38,9 +17,9 @@
       <div class="statusDiv">
         {{ this.userData.status }}
       </div>
-      <div class="lastUpdateDiv centerVH">
-        <div>Daoist title last updated at: {{ parseDate(this.userData.dataUpdatedAt) }}</div>
-        <div>Cultivating since: {{ parseDate(this.userData.createdAt) }}</div>
+      <div class="lastUpdateDiv row">
+        <div>Daoist title last updated at:<br>{{ parseDate(this.userData.dataUpdatedAt) }}</div>
+        <div>Cultivating since:<br>{{ parseDate(this.userData.createdAt) }}</div>
       </div>
       <div class="previewsDiv">
         @if (!authoredBooks) {

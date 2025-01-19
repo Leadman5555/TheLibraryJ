@@ -1,6 +1,5 @@
 @import "../shared/styles/sButton.css";
 @import "../shared/styles/rowCol.css";
-@import "../shared/styles/sInput.css";
 @import "../shared/styles/image34.css";
 
 .outerBox {
@@ -8,8 +7,7 @@
   align-items: center;
   align-content: center;
   text-align: center;
-  height: 80vh;
-  width: 90vw;
+  min-height: 80vh;
 }
 
 .userProfileGrid {
@@ -20,12 +18,10 @@
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 0.5fr 1fr 1fr 3fr;
-  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1.6fr 0.4fr;
-
+  grid-template-rows: 1fr 1fr 1fr 1fr 1.2fr 0.8fr;
   gap: 0 0;
   grid-auto-flow: row;
   grid-template-areas:
-    "topBar topBar topBar topBar topBar"
     "userBar userBar userBar userBar previewsDiv"
     "profileImgDiv profileImgDiv rankDiv rankDiv previewsDiv"
     "profileImgDiv profileImgDiv statusDiv statusDiv previewsDiv"
@@ -50,32 +46,15 @@
   align-items: flex-start;
   justify-content: flex-start;
   max-width: 100%;
-  height: 100%;
+  max-height: 60vh;
   padding: 0.6em;
   border: 0.2em solid darkgoldenrod;
   background-color: rgba(69, 108, 108, 0.65);
   overflow-y: auto;
 }
 
-.topBar {
-  grid-area: topBar;
-  border: 0.08em solid rgba(77, 1, 209, 0.7);
-  background-color: rgba(202, 243, 243, 0.65);
-  width: 50%;
-  padding: 0.6em;
-  margin-bottom: 0.6em;
-}
-
-#searchButton::after {
-  background-color: rgba(202, 243, 243, 0.65);
-}
-
-#searchButton::before {
-  background-color: rgba(202, 243, 243, 0.65);
-}
-
 .usernameBar {
-  font-size: 1.2em;
+  font-size: 1.4em;
   font-weight: bold;
   font-style: italic;
   grid-area: userBar;

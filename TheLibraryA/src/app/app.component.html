@@ -5,6 +5,7 @@
    The Library
  </div>
  <div id="right" class="row">
+   <app-user-search (click)="this.showMenu = false"></app-user-search>
    @if(this.showLoggedIn) {
      <div id="userInfo">
        <span id="username">{{ this.userMini?.username }}</span>
@@ -13,14 +14,14 @@
        </div>
      </div>
    }
-   <button class="sButton" (click)="toggleSettings()">Settings</button>
+   <button class="sButton" (click)="toggleMenu()">Menu</button>
  </div>
 </div>
-@if (this.showSettings) {
-  <div id="settingsBox">
+@if (this.showMenu) {
+  <div id="menuBox">
     @if(this.showLoggedIn) {
       <div class="column">
-        <button class="sButton"  (click)="toggleSettings()" [routerLink]="['/profile', this.userMini?.username]">Profile</button>
+        <button class="sButton"  (click)="toggleMenu()" [routerLink]="['/profile', this.userMini?.username]">Profile</button>
         <button class="sButton" (click)="logOut()">Log out</button>
       </div>
     }@else {
@@ -61,13 +62,13 @@
           <img id="googleLogIn" ngSrc="/google_logIn.png" width="189" height="40" alt="Google sign in" priority (click)="logInWithGoogle()">
         </div>
        <div class="row" style="margin-top:0.2em;">
-         <button class="sButton" (click)="this.showSettings=false" routerLink="/register">Register</button>
+         <button class="sButton" (click)="this.showMenu=false" routerLink="/register">Register</button>
          <div class="menu-container">
            <button class="menu-button sButton">Trouble logging in?</button>
            <div class="dropdown">
-             <button class="sButton" (click)="this.showSettings=false" routerLink="/password-recovery">Reset password
+             <button class="sButton" (click)="this.showMenu=false" routerLink="/password-recovery">Reset password
              </button>
-             <button class="sButton" (click)="this.showSettings=false" routerLink="/activate-account">Activate account
+             <button class="sButton" (click)="this.showMenu=false" routerLink="/activate-account">Activate account
              </button>
            </div>
          </div>

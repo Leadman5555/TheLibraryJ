@@ -8,10 +8,11 @@ import {UserMini} from './user/shared/models/user-mini';
 import {EventBusService} from './shared/eventBus/event-bus.service';
 import {Subscription} from 'rxjs';
 import {StorageService} from './shared/storage/storage.service';
+import {UserSearchComponent} from './user-profile/user-search/user-search.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, FormsModule, NgIf, ReactiveFormsModule, NgOptimizedImage],
+  imports: [RouterOutlet, RouterLink, FormsModule, NgIf, ReactiveFormsModule, NgOptimizedImage, UserSearchComponent],
   templateUrl: './app.component.html',
   standalone: true,
   styleUrl: './app.component.css'
@@ -41,7 +42,7 @@ export class AppComponent implements OnInit {
   }
 
   private eventBusSubscription?: Subscription;
-  showSettings: boolean = false;
+  showMenu: boolean = false;
   showLoggedIn: boolean = false;
   showPassword: boolean = false;
   logInForm!: FormGroup;
@@ -61,7 +62,7 @@ export class AppComponent implements OnInit {
         this.errorMessage = error || 'An unknown error occurred!';
       },
       complete: () => {
-        this.showSettings = false;
+        this.showMenu = false;
         this.resetForm();
       }
     });
@@ -73,8 +74,8 @@ export class AppComponent implements OnInit {
     this.logInForm.reset();
   }
 
-  toggleSettings() {
-    this.showSettings = !this.showSettings;
+  toggleMenu() {
+    this.showMenu = !this.showMenu;
   }
 
   toggleShowPassword() {

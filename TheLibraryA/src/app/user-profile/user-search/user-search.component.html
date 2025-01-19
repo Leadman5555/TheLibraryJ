@@ -1,0 +1,23 @@
+<div class="topBar">
+  <form class="column" *ngIf="userSearchForm" [formGroup]="userSearchForm" (ngSubmit)="searchForUser()">
+    <div class="row" style="gap: 1em">
+      <span style="font-size: 1.2em">Find a fellow daoist:</span>
+      <div>
+        <div class="input-container">
+          <input class="input-field" id="userSearchInput"
+                 type="text" maxlength="20" formControlName="username">
+          <label for="userSearchInput" class="input-label">Enter daoist title</label>
+          <span class="input-highlight"></span>
+        </div>
+      </div>
+      <button class="sButton" style="font-size: 0.8em" id="searchButton" type="submit"
+              [disabled]="userSearchForm.invalid || userSearchForm.pristine">Search
+      </button>
+    </div>
+    <div class="errorBox"
+         *ngIf="userSearchForm.get('username')?.invalid && (userSearchForm.get('username')?.dirty)">
+      Enter letters ('a-z' and 'A-Z'), digits ('0-9'), hi-fens ('-') or underscores ('_').
+      Enter between between 5 and 20 characters long.
+    </div>
+  </form>
+</div>
