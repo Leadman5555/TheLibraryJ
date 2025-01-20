@@ -132,27 +132,7 @@
           {{ showPassword ? 'Hide' : 'Show' }} Password
         </button>
       </div>
-      <div class="column">
-        <div
-          class="drop-zone"
-          (dragover)="onDragOver($event)"
-          (dragleave)="onDragLeave($event)"
-          (drop)="onDrop($event)"
-          [class.active]="isDropZoneActive"
-        >
-          <p *ngIf="!imagePreview">Drag and drop your profile image here, or click to browse.</p>
-          <img *ngIf="imagePreview" [src]="imagePreview" alt="Image preview" width="200" height="200"/>
-          <input
-            type="file"
-            id="fileInput"
-            hidden
-            accept="image/*"
-            (change)="onFileChange($event)"
-            #fileInput
-          />
-        </div>
-        <button type="button" class="sButton" (click)="fileInput.click()">Browse local images</button>
-      </div>
+      <app-image-drop [parentControl]="profileImageControl"></app-image-drop>
       <div class="row" style="margin-top:  1em;">
         <button class="sButton" type="submit" [disabled]="registerForm.invalid || registerForm.pristine">Register
           account
@@ -175,7 +155,7 @@
                                 alt="Profile Image" width="150" height="150">
           </span>
         </ul>
-        <p>emember that you must activate your account before using it. If you did not receive an activation email, please follow the instructions on listed the left side of the screen.</p>
+        <p>Remember that you must activate your account before using it. If you did not receive an activation email, please follow the instructions on listed the left side of the screen.</p>
         <p style="text-align: center">Peaceful journey.</p>
         <button class="sButton" routerLink="">Return to homepage</button>
       </div>

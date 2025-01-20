@@ -5,7 +5,18 @@ import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
 import org.library.thelibraryj.userInfo.domain.UserInfoDetailsView;
-import org.library.thelibraryj.userInfo.dto.*;
+import org.library.thelibraryj.userInfo.dto.UserInfoImageUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoMiniResponse;
+import org.library.thelibraryj.userInfo.dto.UserInfoPreferenceUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
+import org.library.thelibraryj.userInfo.dto.UserInfoScoreUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoStatusUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
+import org.library.thelibraryj.userInfo.dto.UserProfileResponse;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,5 +44,6 @@ public interface UserInfoService {
     Either<GeneralError, UserInfoWithImageResponse> updateProfileImage(UserInfoImageUpdateRequest userInfoImageUpdateRequest) throws IOException;
     Either<GeneralError, UserInfoResponse> updateUserInfoStatus(UserInfoStatusUpdateRequest userInfoStatusUpdateRequest);
     Either<GeneralError, UserInfoResponse> updateUserInfoPreference(UserInfoPreferenceUpdateRequest userInfoPreferenceUpdateRequest);
+    @Async
     void updateRatingScore(UserInfoScoreUpdateRequest userInfoScoreUpdateRequest);
 }

@@ -8,7 +8,7 @@ import {
   HttpRequest
 } from '@angular/common/http';
 import {catchError, Observable, switchMap, throwError} from 'rxjs';
-import {UserAuthService} from '../user/user-auth.service';
+import {UserAuthService} from '../user/userAuth/user-auth.service';
 import {EventData} from '../shared/eventBus/event.class';
 import {EventBusService} from '../shared/eventBus/event-bus.service';
 import {StorageService} from '../shared/storage/storage.service';

@@ -1,0 +1,14 @@
+<div id="outerBox">
+  <div id="imageDiv" class="column">
+    <form [formGroup]="imageUpdateForm" (ngSubmit)="updateProfileImage()">
+      <span>Current profile image</span>
+      <div class="image34Wrapper">
+        <img class="image34" src="data:image/jpg;base64,{{this.userData.profileImage}}" alt="Current profile image">
+      </div>
+      <span>Updated profile image</span>
+      <app-image-drop [parentControl]="imageControl"></app-image-drop>
+      <button class="sButton" type="submit">Change profile image</button>
+    </form>
+  </div>
+
+</div>

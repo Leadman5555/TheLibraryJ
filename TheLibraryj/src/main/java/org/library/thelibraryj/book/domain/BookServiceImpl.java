@@ -449,7 +449,7 @@ class BookServiceImpl implements BookService {
 
     @Override
     @CacheEvict(value = {"bookPreviewsOffset", "bookPreviewsKeySet"})
-    @Scheduled(fixedDelayString = "${library.caching.bookPreviewTTL}")
+    @Scheduled(cron = "0 */${library.caching.bookPreviewTTL} * * * *")
     public void resetBookPreviewsCache() {
         bookPreviewRepository.flush();
         ratingRepository.flush();

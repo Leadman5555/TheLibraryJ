@@ -1,6 +1,6 @@
 import {afterNextRender, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {RouterLink, RouterOutlet} from '@angular/router';
-import {UserAuthService} from './user/user-auth.service';
+import {UserAuthService} from './user/userAuth/user-auth.service';
 import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgIf, NgOptimizedImage} from '@angular/common';
 import {AuthenticationRequest} from './user/shared/models/authentication-request';
@@ -8,7 +8,7 @@ import {UserMini} from './user/shared/models/user-mini';
 import {EventBusService} from './shared/eventBus/event-bus.service';
 import {Subscription} from 'rxjs';
 import {StorageService} from './shared/storage/storage.service';
-import {UserSearchComponent} from './user-profile/user-search/user-search.component';
+import {UserSearchComponent} from './user/profile/user-search/user-search.component';
 
 @Component({
   selector: 'app-root',

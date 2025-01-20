@@ -9,7 +9,7 @@ export class StorageService {
   constructor() { }
 
   public isLoggedIn(): boolean {
-    return localStorage.getItem('access_token') !== null;
+    return localStorage.getItem('access_token') !== null && localStorage.getItem('user_mini') !== null;
   }
 
   public getAccessToken(): string {

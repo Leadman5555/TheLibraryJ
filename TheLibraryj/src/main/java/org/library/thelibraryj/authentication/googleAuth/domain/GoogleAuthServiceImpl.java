@@ -1,10 +1,6 @@
 package org.library.thelibraryj.authentication.googleAuth.domain;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.googleapis.auth.oauth2.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import org.library.thelibraryj.authentication.googleAuth.GoogleAuthService;
@@ -20,7 +16,6 @@ import org.library.thelibraryj.userInfo.UserInfoService;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Random;
@@ -73,26 +68,38 @@ class GoogleAuthServiceImpl implements GoogleAuthService {
         }
         if (idToken == null) throw new GoogleTokenVerificationException("Failed to verify idToken");
         GoogleIdToken.Payload payload = idToken.getPayload();
-        createUserIfNotRegistered(payload.get("given_name") + ((String) payload.get("family_name")), payload.getEmail());
+        StringBuilder sb = new StringBuilder((String) payload.get("given_name"));
+        createUserIfNotRegistered(sb.append(((String) payload.get("family_name"))), payload.getEmail());
         return new GoogleCallbackResponseWrapper(
                 new GoogleCallbackResponse(payload.getEmail(), jwtService.generateToken(payload.getEmail()).token()),
                 jwtService.generateRefreshToken(payload.getEmail())
         );
     }
 
-    private void createUserIfNotRegistered(String defaultUsername, String email) {
+    private void createUserIfNotRegistered(StringBuilder defaultUsername, String email) {
         if (!userInfoService.existsByEmail(email)) {
-            if (defaultUsername.length() > 20) defaultUsername = defaultUsername.substring(0, 20);
-            if (userInfoService.existsByUsername(defaultUsername)) {
-                byte[] padding = new byte[24 - defaultUsername.length()];
-                new Random().nextBytes(padding);
-                defaultUsername += new String(padding, StandardCharsets.UTF_8);
+            if (defaultUsername.length() > 20) defaultUsername.delete(21, defaultUsername.length());
+            Random random = new Random();
+            for (int i = 0; i < defaultUsername.length(); i++) {
+                char c = defaultUsername.charAt(i);
+                if ((c <= 'A' || c >= 'Z') && (c <= 'a' || c >= 'z') && (c <= '0' || c >= '9'))
+                    defaultUsername.setCharAt(i, getRandomChar(random));
+            }
+            if (userInfoService.existsByUsername(defaultUsername.toString())) {
+                char[] padding = new char[24 - defaultUsername.length()];
+                for (int i = 0; i < padding.length; i++) padding[i] = getRandomChar(random);
+                defaultUsername.append(padding);
             }
             userAuthService.createNewGoogleUser(new GoogleUserCreationRequest(
                     email,
-                    defaultUsername
+                    defaultUsername.toString()
             ));
         }
+    }
+
+    private static char getRandomChar(Random random) {
+        String allowedCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        return allowedCharacters.charAt(random.nextInt(allowedCharacters.length()));
     }
 
 }

@@ -1,6 +1,6 @@
-@import "../shared/styles/sButton.css";
-@import "../shared/styles/rowCol.css";
-@import "../shared/styles/image34.css";
+@import "../../../shared/styles/sButton.css";
+@import "../../../shared/styles/rowCol.css";
+@import "../../../shared/styles/image34.css";
 
 .outerBox {
   display: flex;

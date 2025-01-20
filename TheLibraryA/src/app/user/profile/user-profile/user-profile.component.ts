@@ -1,15 +1,15 @@
 import {HttpClient} from '@angular/common/http';
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
-import {UserProfileData} from './user-profile-data';
-import {parseDateArray} from '../shared/functions/parseData';
+import {UserProfileData} from '../shared/user-profile-data';
+import {parseDateArray} from '../../../shared/functions/parseData';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {handleError, logAndExtractMessage, logError} from '../shared/errorHandling/handleError';
+import {handleError, logAndExtractMessage, logError} from '../../../shared/errorHandling/handleError';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {BookService} from '../book/shared/book-service';
+import {BookService} from '../../../book/shared/book-service';
 import {catchError, Subscription, switchMap} from 'rxjs';
-import {BookPreview} from '../book/shared/models/book-preview';
-import {BookPreviewCardComponent} from '../book/book-preview-card/book-preview-card.component';
-import {ProgressBarComponent} from '../shared/progress-bar/progress-bar.component';
+import {BookPreview} from '../../../book/shared/models/book-preview';
+import {BookPreviewCardComponent} from '../../../book/book-preview-card/book-preview-card.component';
+import {ProgressBarComponent} from '../../../shared/progress-bar/progress-bar.component';
 
 @Component({
   selector: 'app-user-profile',
