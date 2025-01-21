@@ -6,7 +6,10 @@ import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.library.thelibraryj.userInfo.UserInfoService;
-import org.library.thelibraryj.userInfo.dto.*;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.response.UserProfileResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -60,7 +63,7 @@ public class UserInfoControllerTest {
     @Test
     public void testForceUpdateUserInfoRank() throws Exception {
         UserInfoRankUpdateRequest request = new UserInfoRankUpdateRequest(email, 10);
-        UserInfoResponse response = new UserInfoResponse("sample", email,10, 0, LocalDateTime.now(), null, (short) 0);
+        UserRankUpdateResponse response = new UserRankUpdateResponse(10, 0, (short) 0);
         when(userInfoService.forceUpdateRank(request)).thenReturn(Either.right(response));
 
         mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/force")
@@ -83,19 +86,19 @@ public class UserInfoControllerTest {
 
     @Test
     public void testUpdateUserInfoRank() throws Exception {
-        UserInfoResponse response = new UserInfoResponse("username", email,10, 10000, LocalDateTime.now(),null, (short) 0);
-        when(userInfoService.updateRank(userId)).thenReturn(Either.right(response));
+        UserRankUpdateResponse response = new UserRankUpdateResponse(10, 0, (short) 0);
+        when(userInfoService.updateRank(email)).thenReturn(Either.right(response));
 
-        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/" + userId)
+        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/" + email)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json("{'rank': 10}"));
 
         int missingScore = 10;
-        when(userInfoService.updateRank(userId)).thenReturn(Either.left(new UserInfoError.UserNotEligibleForRankIncrease(email, missingScore)));
+        when(userInfoService.updateRank(email)).thenReturn(Either.left(new UserInfoError.UserNotEligibleForRankIncrease(email, missingScore)));
 
-        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/" + userId)
+        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/" + email)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())

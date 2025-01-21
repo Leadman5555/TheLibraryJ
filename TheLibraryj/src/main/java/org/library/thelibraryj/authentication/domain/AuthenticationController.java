@@ -118,7 +118,7 @@ class AuthenticationController implements ErrorHandling {
             tags = {"authentication", "activation", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "XSRF token cookie refreshed and attached as cookie to response."),
+            @ApiResponse(responseCode = "204", description = "Jwt token cookie refreshed and attached as cookie to response."),
             @ApiResponse(responseCode = "401", description = "Refresh token invalid."),
             @ApiResponse(responseCode = "404", description = "Refresh token missing")
     })

@@ -8,9 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
-import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
-import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -111,11 +112,11 @@ public class UserInfoServiceTest {
     @Test
     public void testUpdateRank(){
         userInfo.setCurrentScore(600);
-        when(userInfoRepository.findById(userId)).thenReturn(Optional.ofNullable(userInfo));
-        Either<GeneralError, UserInfoResponse> response = userInfoService.updateRank(userId);
+        when(userInfoRepository.getByEmail(userEmail)).thenReturn(Optional.ofNullable(userInfo));
+        Either<GeneralError, UserRankUpdateResponse> response = userInfoService.updateRank(userEmail);
         Assertions.assertTrue(response.isRight());
-        Assertions.assertEquals(8 , response.get().rank());
-        Assertions.assertEquals(240, response.get().currentScore());
+        Assertions.assertEquals(8 , response.get().newRank());
+        Assertions.assertEquals(240, response.get().newScore());
         verify(userInfoRepository).update(userInfo);
     }
 
@@ -123,9 +124,9 @@ public class UserInfoServiceTest {
     public void testForceUpdateRank(){
         when(userInfoRepository.getByEmail(userEmail)).thenReturn(Optional.ofNullable(userInfo));
         UserInfoRankUpdateRequest request = new UserInfoRankUpdateRequest(userEmail, 10);
-        Either<GeneralError, UserInfoResponse> response = userInfoService.forceUpdateRank(request);
+        Either<GeneralError, UserRankUpdateResponse> response = userInfoService.forceUpdateRank(request);
         Assertions.assertTrue(response.isRight());
-        Assertions.assertEquals(10, response.get().rank());
+        Assertions.assertEquals(10, response.get().newRank());
         verify(userInfoRepository).update(userInfo);
     }
 
@@ -135,17 +136,17 @@ public class UserInfoServiceTest {
         when(userInfoRepository.existsByUsername(newUsername)).thenReturn(false);
         when(userInfoRepository.getByEmail(userEmail)).thenReturn(Optional.ofNullable(userInfo));
         UserInfoUsernameUpdateRequest request = new UserInfoUsernameUpdateRequest(userEmail, newUsername);
-        Either<GeneralError, UserInfoResponse> response = userInfoService.updateUserInfoUsername(request);
+        Either<GeneralError, UserUsernameUpdateResponse> response = userInfoService.updateUserInfoUsername(request);
         Assertions.assertTrue(response.isRight());
-        Assertions.assertEquals(newUsername, response.get().username());
+        Assertions.assertEquals(newUsername, response.get().newUsername());
 
         userInfo.setDataUpdatedAt(Instant.now());
-        Either<GeneralError, UserInfoResponse> response2 = userInfoService.updateUserInfoUsername(request);
+        Either<GeneralError, UserUsernameUpdateResponse> response2 = userInfoService.updateUserInfoUsername(request);
         Assertions.assertFalse(response2.isRight());
         Assertions.assertEquals(new UserInfoError.UsernameUpdateCooldown(userInfoProperties.getUsername_change_cooldown_days(), userEmail), response2.getLeft());
 
         when(userInfoRepository.existsByUsername(newUsername)).thenReturn(true);
-        Either<GeneralError, UserInfoResponse> response3 = userInfoService.updateUserInfoUsername(request);
+        Either<GeneralError, UserUsernameUpdateResponse> response3 = userInfoService.updateUserInfoUsername(request);
         Assertions.assertFalse(response3.isRight());
         Assertions.assertEquals(new UserInfoError.UsernameNotUnique(), response3.getLeft());
 

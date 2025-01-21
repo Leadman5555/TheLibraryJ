@@ -2,3 +2,41 @@
 @import "../../../shared/styles/sInput.css";
 @import "../../../shared/styles/sButton.css";
 @import "../../../shared/styles/image34.css";
+
+.userProfileEditGrid {  display: grid;
+  grid-template-columns: 1fr 0.5fr 1fr 1fr 0.5fr 1fr 0.5fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+  gap: 0 0;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "topBarDiv topBarDiv topBarDiv topBarDiv topBarDiv topBarDiv topBarDiv"
+    "imageDiv imageDiv statusDiv statusDiv statusDiv usernameDiv usernameDiv"
+    "imageDiv imageDiv statusDiv statusDiv statusDiv usernameDiv usernameDiv"
+    "imageDiv imageDiv rankDiv rankDiv rankDiv infoDiv infoDiv"
+    "imageDiv imageDiv rankDiv rankDiv rankDiv infoDiv infoDiv";
+  background-color: cadetblue;
+  border: 0.2em solid darkgoldenrod;
+}
+
+.imageDiv { grid-area: imageDiv; }
+
+.topBarDiv { grid-area: topBarDiv; }
+
+.statusDiv { grid-area: statusDiv; }
+
+#statusInput {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: none;
+}
+
+.rankDiv { grid-area: rankDiv; }
+
+.usernameDiv { grid-area: usernameDiv; }
+
+.infoDiv { grid-area: infoDiv; }

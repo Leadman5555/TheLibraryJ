@@ -1,14 +1,91 @@
-<div id="outerBox">
-  <div id="imageDiv" class="column">
-    <form [formGroup]="imageUpdateForm" (ngSubmit)="updateProfileImage()">
-      <span>Current profile image</span>
-      <div class="image34Wrapper">
-        <img class="image34" src="data:image/jpg;base64,{{this.userData.profileImage}}" alt="Current profile image">
+<div id="outerBox" class="userProfileEditGrid">
+  <div id="topBarDiv"></div>
+  @if(this.userFetchErrorMsg === undefined){
+    <div id="imageDiv" class="column">
+      <div class="errorBox" *ngIf="profileImageUpdateErrorMessage !== undefined">{{profileImageUpdateErrorMessage}}</div>
+      <form [formGroup]="imageUpdateForm" (ngSubmit)="updateProfileImage()">
+        <span>Current profile image</span>
+        <div class="image34Wrapper">
+          <img class="image34" src="data:image/jpg;base64,{{this.userData.profileImage}}" alt="Current profile image">
+        </div>
+        <span>Updated profile image</span>
+        <app-image-drop [parentControl]="imageControl"></app-image-drop>
+        <button class="sButton" type="submit">Change profile image</button>
+      </form>
+    </div>
+    <div id="statusDiv">
+      <div class="errorBox alignLeft" *ngIf="statusUpdateErrorMessage !== undefined">{{statusUpdateErrorMessage}}</div>
+      <form [formGroup]="statusUpdateForm" (ngSubmit)="updateStatus()">
+        <label for="statusInput">Update Your Status:</label>
+        <textarea
+          id="statusInput"
+          formControlName="newStatus"
+          rows="6"
+          cols="50"
+          maxlength="300"
+        ></textarea>
+        <button type="submit" class="sButton" [disabled]="statusUpdateForm.invalid">Update status</button>
+      </form>
+    </div>
+    <div id="usernameDiv">
+      <form [formGroup]="usernameUpdateForm" (ngSubmit)="updateUsername()">
+        <div class="errorBox alignLeft" *ngIf="usernameUpdateErrorMessage !== undefined">{{usernameUpdateErrorMessage}}</div>
+        <span>Your current username is: {{this.userData.username}}</span>
+        <div class="inputColumn">
+          <div class="input-container">
+            <input placeholder="Enter username here" class="input-field" id="usernameInput" type="text" maxlength="20"
+                   formControlName="username">
+            <label for="usernameInput" class="input-label">New username: </label>
+            <span class="input-highlight"></span>
+          </div>
+          <div class="errorBox alignLeft" *ngIf="usernameUpdateForm.get('username')?.invalid && (usernameUpdateForm.get('username')?.dirty)">
+            Username can only contain letters ('a-z' and 'A-Z'), digits ('0-9'), hi-fens ('-') and underscores ('_').
+            Username must be between 5 and 20 characters long.
+          </div>
+          <div class="input-container">
+            <input placeholder="Enter username here" class="input-field" id="usernameRepeatInput" type="text" maxlength="20"
+                   formControlName="repeatUsername">
+            <label for="usernameRepeatInput" class="input-label">Repeat username: </label>
+            <span class="input-highlight"></span>
+          </div>
+          <div class="errorBox alignLeft" *ngIf="usernameMismatchError && usernameUpdateForm.touched">
+            Usernames do not match
+          </div>
+        </div>
+      </form>
+    </div>
+    <div id="rankDiv" class="column">
+      <div>
+        <div class="errorBox" *ngIf="preferenceUpdateErrorMessage !== undefined">{{preferenceUpdateErrorMessage}}</div>
+        <form class="row" [formGroup]="preferenceUpdateForm" (ngSubmit)="updatePreference()">
+          <select formControlName="chosenPreference" id="dropdownPreferenceList">
+            <option *ngFor="let title of preferenceArray; index as i; trackBy identifyByIndex"
+                    value="{{i}}"
+                    [disabled]="i/10 > this.userData.rank">Rank {{i/10}} - {{i}}: {{ title }}
+            </option>
+          </select>
+          <button class="sButton" type="submit" [disabled]="preferenceUpdateForm.pristine"></button>
+        </form>
       </div>
-      <span>Updated profile image</span>
-      <app-image-drop [parentControl]="imageControl"></app-image-drop>
-      <button class="sButton" type="submit">Change profile image</button>
-    </form>
+      <div>
+        <div class="errorBox" *ngIf="rankUpdateErrorMessage !== undefined">{{rankUpdateErrorMessage}}</div>
+        <div class="rankDiv column">
+        <span
+          style="font-size: 1.1em; margin-right: 0.4em">Cultivation stage:<br><b>{{ rankArray[this.userData.rank] }}</b></span>
+          <span>Accumulation needed: <app-progress-bar [current]="userData.currentScore"
+                                                       [goal]="progressArray[userData.rank]"></app-progress-bar></span>
+          <button class="sButton" [disabled]="userData.currentScore < progressArray[userData.rank]" (click)="updateRank()">Breakthrough</button>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="centerVH">
+      <span>{{this.userFetchErrorMsg}}</span>
+      <button class="sButton" routerLink="">Go to homepage</button>
+    </div>
+  }
+  <div id="infoDiv">
+
   </div>
 
 </div>

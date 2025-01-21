@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {catchError, map, Observable, switchMap} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpResponse} from '@angular/common/http';
 import {AuthenticationResponse} from '../shared/models/authentication-response';
 import {AuthenticationRequest} from '../shared/models/authentication-request';
 import {GoogleCallbackResponse} from '../../googleOAuth2/auth-callback/google-callback-response';
@@ -21,8 +21,8 @@ export class UserAuthService {
   constructor(private httpClient: HttpClient, private storageService: StorageService, private eventBus: EventBusService) {
   }
 
-  refreshAccessToken(): Observable<any> {
-    return this.httpClient.get(`${this.baseUrl}/auth/refresh`);
+  refreshAccessToken(): Observable<HttpResponse<any>> {
+    return this.httpClient.get(`${this.baseUrl}/auth/refresh`, {withCredentials: true, observe: 'response'});
   }
 
   private setUserData(user: UserMini, token: string): void {
@@ -68,6 +68,14 @@ export class UserAuthService {
     return this.httpClient.get<FetchedUserMini>(`${this.baseUrl}/user/mini/` + email);
   }
 
+  updateUserMiniDataImage(image: string){
+    if(!this.storageService.setUserMiniImage(image)) this.eventBus.emit(new EventData('logout', null));
+  }
+
+  updateUserMiniDataUsername(username: string){
+    if(!this.storageService.setUserMiniUsername(username)) this.eventBus.emit(new EventData('logout', null));
+  }
+
   getGoogleLogInLink(): Observable<GoogleLinkResponse> {
     return this.httpClient.get<GoogleLinkResponse>(`${this.baseUrl}/auth/google`);
   }
@@ -86,5 +94,12 @@ export class UserAuthService {
         logError(error);
       }
     });
+  }
+
+  getLoggedInUsername(): string {
+    const username = this.storageService.getUserMiniUsername();
+    if(username !== undefined) return username;
+    this.eventBus.emit(new EventData('logout', null));
+    throw new Error("Invalid session data");
   }
 }

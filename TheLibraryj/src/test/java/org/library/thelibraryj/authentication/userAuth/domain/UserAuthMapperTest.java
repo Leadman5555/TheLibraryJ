@@ -3,7 +3,7 @@ package org.library.thelibraryj.authentication.userAuth.domain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationData;
-import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
 
 import java.util.UUID;
 

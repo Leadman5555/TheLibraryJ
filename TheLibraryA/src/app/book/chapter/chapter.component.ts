@@ -5,6 +5,7 @@ import {ChapterContent} from '../shared/models/chapter-content';
 import {NgForOf, NgIf, NgStyle} from '@angular/common';
 import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {TimesMaxPipe} from '../../shared/pipes/times-max.pipe';
+import {identifyByValue} from '../../shared/functions/indentify';
 
 @Component({
   selector: 'app-chapter',
@@ -107,7 +108,5 @@ export class ChapterComponent implements OnInit {
     this.router.navigate([this.bookNav, this.bookTitle]);
   }
 
-  identifyByValue(_: number, item: any) : any {
-    return item;
-  }
+  protected readonly identifyByValue = identifyByValue;
 }

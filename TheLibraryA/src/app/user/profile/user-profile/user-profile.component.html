@@ -2,11 +2,11 @@
   @if (this.userData) {
     <div class="userProfileGrid">
       <div class="usernameBar centerVH">
-        {{ this.preferenceArray[this.userData.preference] }} {{ this.userData.username }}
+        {{ preferenceArray[this.userData.preference] }} {{ this.userData.username }}
       </div>
       <div class="rankDiv row">
         <span
-          style="font-size: 1.1em; margin-right: 0.4em">Cultivation stage:<br><b>{{ this.rankArray[this.userData.rank] }}</b></span>
+          style="font-size: 1.1em; margin-right: 0.4em">Cultivation stage:<br><b>{{ rankArray[this.userData.rank] }}</b></span>
         <span>Accumulation needed: <app-progress-bar [current]="userData.currentScore"
                                                      [goal]="progressArray[userData.rank]"></app-progress-bar></span>
       </div>

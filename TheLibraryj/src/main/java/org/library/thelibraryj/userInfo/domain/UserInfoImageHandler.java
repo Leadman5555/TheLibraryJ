@@ -1,5 +1,6 @@
 package org.library.thelibraryj.userInfo.domain;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 @Component
 class UserInfoImageHandler {
+    @Getter
     private byte[] defaultImage;
     private final Path basePath;
 
@@ -40,4 +42,14 @@ class UserInfoImageHandler {
             return false;
         }
     }
+
+    public boolean removeExistingProfileImage(UUID forUUID) {
+        try {
+            Files.deleteIfExists(basePath.resolve(forUUID + ".jpg"));
+            return true;
+        } catch (IOException _) {
+            return false;
+        }
+    }
+
 }

@@ -1,4 +1,4 @@
-package org.library.thelibraryj.userInfo.dto;
+package org.library.thelibraryj.userInfo.dto.response;
 
 import java.time.LocalDateTime;
 

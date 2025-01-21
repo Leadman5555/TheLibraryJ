@@ -1,4 +1,3 @@
-import {HttpClient} from '@angular/common/http';
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {UserProfileData} from '../shared/user-profile-data';
 import {parseDateArray} from '../../../shared/functions/parseData';
@@ -10,6 +9,8 @@ import {catchError, Subscription, switchMap} from 'rxjs';
 import {BookPreview} from '../../../book/shared/models/book-preview';
 import {BookPreviewCardComponent} from '../../../book/book-preview-card/book-preview-card.component';
 import {ProgressBarComponent} from '../../../shared/progress-bar/progress-bar.component';
+import {preferenceArray, progressArray, rankArray} from '../shared/rankTitles';
+import {UserProfileService} from '../user-profile.service';
 
 @Component({
   selector: 'app-user-profile',
@@ -26,9 +27,7 @@ import {ProgressBarComponent} from '../../../shared/progress-bar/progress-bar.co
 
 export class UserProfileComponent implements OnInit, OnDestroy {
 
-  private readonly baseUrl: string = 'http://localhost:8082/v0.9/na';
-
-  constructor(private http: HttpClient, private activatedRoute: ActivatedRoute) {
+  constructor(private activatedRoute: ActivatedRoute, private userProfileService: UserProfileService) {
   }
 
   private routeSubscription!: Subscription;
@@ -43,7 +42,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         const username = params.get('username');
         this.resetUserState();
         if (username)
-          return this.http.get<UserProfileData>(this.baseUrl + '/user/' + username)
+          return this.userProfileService.fetchUserProfile(username)
             .pipe(catchError((error) => {
                 this.userFetchErrorMsg = logAndExtractMessage(error);
                 return [];
@@ -63,10 +62,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.userFetchErrorMsg = null;
     this.authoredBooks = undefined;
   }
-
-  readonly preferenceArray: string[] = ['Junior disciple', 'Senior disciple'];
-  readonly rankArray: string[] = ['Mortal', 'Qi condensation'];
-  readonly progressArray: number[] = [3, 5, 10, 20, 40, 60, 100, 200, 500, 1000, 3333];
 
   userData: UserProfileData | null = null;
   userFetchErrorMsg: string | null = null;
@@ -88,4 +83,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     });
   }
 
+  protected readonly preferenceArray = preferenceArray;
+  protected readonly progressArray = progressArray;
+  protected readonly rankArray = rankArray;
 }

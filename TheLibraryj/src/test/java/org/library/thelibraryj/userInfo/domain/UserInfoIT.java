@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
-import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;

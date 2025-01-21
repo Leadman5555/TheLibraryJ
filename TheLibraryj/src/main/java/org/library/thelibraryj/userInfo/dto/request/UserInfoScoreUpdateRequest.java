@@ -1,4 +1,4 @@
-package org.library.thelibraryj.userInfo.dto;
+package org.library.thelibraryj.userInfo.dto.request;
 
 import java.util.UUID;
 

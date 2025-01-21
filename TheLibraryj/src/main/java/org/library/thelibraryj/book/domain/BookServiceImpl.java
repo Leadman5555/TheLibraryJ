@@ -28,7 +28,7 @@ import org.library.thelibraryj.infrastructure.model.PageInfo;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
-import org.library.thelibraryj.userInfo.dto.UserInfoScoreUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoScoreUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;

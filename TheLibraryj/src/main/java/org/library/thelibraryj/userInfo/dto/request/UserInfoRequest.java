@@ -1,4 +1,4 @@
-package org.library.thelibraryj.userInfo.dto;
+package org.library.thelibraryj.userInfo.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

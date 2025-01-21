@@ -24,9 +24,33 @@ export class StorageService {
     localStorage.setItem('user_mini', JSON.stringify(userMini));
   }
 
+  public setUserMiniImage(image: string): boolean {
+    const userMini = localStorage.getItem('user_mini');
+    if(!userMini) return false;
+    const parsedMini: UserMini = JSON.parse(userMini);
+    parsedMini.profileImage = image;
+    this.setUserMini(parsedMini);
+    return true;
+  }
+
+  public setUserMiniUsername(username: string): boolean {
+    const userMini = localStorage.getItem('user_mini');
+    if(!userMini) return false;
+    const parsedMini: UserMini = JSON.parse(userMini);
+    parsedMini.username = username;
+    this.setUserMini(parsedMini);
+    return true;
+  }
+
   public getUserMini(): UserMini | undefined {
     const fetched = localStorage.getItem('user_mini');
     if(fetched && fetched.length > 0) return JSON.parse(fetched);
+    return undefined;
+  }
+
+  public getUserMiniUsername(): string | undefined {
+    const fetched = localStorage.getItem('user_mini');
+    if(fetched && fetched.length > 0) return JSON.parse(fetched).username;
     return undefined;
   }
 
