@@ -1,8 +1,13 @@
-export interface PreferenceTitle{
+export interface PreferenceTitle {
   requiredRank: number,
   index: number,
   title: string
 }
+
+export function findTitle(index: number): PreferenceTitle {
+  return preferenceArray.find(pref => pref.index === index)!;
+}
+
 export const preferenceArray: PreferenceTitle[] = [
   {requiredRank: 0, index: 0, title: 'Mortal'},
   {requiredRank: 0, index: 1, title: 'Insignificant Ant'},
@@ -84,5 +89,5 @@ export const preferenceArray: PreferenceTitle[] = [
   {requiredRank: 10, index: 102, title: 'Venerable'},
   {requiredRank: 10, index: 103, title: 'Forever waiting'},
 ];
-export const rankArray: string[] = ['Mortal', 'Qi condensation', 'Foundation establishment', 'Core formation', 'Nascent soul', 'Spirit transformation' ,'Spirit severing', 'Vessel refining', 'Eternal furnace', 'Dao seeking', 'Ascension'];
+export const rankArray: string[] = ['Mortal', 'Qi condensation', 'Foundation establishment', 'Core formation', 'Nascent soul', 'Spirit transformation', 'Spirit severing', 'Vessel refining', 'Eternal furnace', 'Dao seeking', 'Ascension'];
 export const progressArray: number[] = [3, 5, 10, 20, 40, 60, 100, 200, 500, 1000];

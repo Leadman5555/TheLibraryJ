@@ -1,6 +1,6 @@
-import {Component, Host, Input, Optional} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {NgIf} from "@angular/common";
-import {ControlContainer, FormControl, FormGroup} from '@angular/forms';
+import {FormControl} from '@angular/forms';
 
 @Component({
   selector: 'app-image-drop',

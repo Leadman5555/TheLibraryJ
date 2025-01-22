@@ -3,6 +3,22 @@
 @import "../../../shared/styles/sButton.css";
 @import "../../../shared/styles/image34.css";
 
+#rankUpAnimation {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  top: 60em;
+  left: 50%;
+  z-index: -1;
+  border-radius: 30em;
+  background: rgb(166, 108, 0);
+  text-align: center;
+  font-style: italic;
+  font-size: 1.2em;
+}
+
 #outerBox {
   text-align: center;
   background-color: cadetblue;

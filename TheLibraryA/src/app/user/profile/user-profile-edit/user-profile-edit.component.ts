@@ -4,7 +4,7 @@ import {UserProfileData} from '../shared/user-profile-data';
 import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
 import {NgForOf, NgIf} from '@angular/common';
 import {usernameMatchValidator} from './usernameMatchValidator';
-import {preferenceArray, PreferenceTitle, progressArray, rankArray} from '../shared/rankTitles';
+import {findTitle, preferenceArray, PreferenceTitle, progressArray, rankArray} from '../shared/rankTitles';
 import {identifyByIndex} from '../../../shared/functions/indentify';
 import {ProgressBarComponent} from '../../../shared/progress-bar/progress-bar.component';
 import {catchError} from 'rxjs';
@@ -12,24 +12,49 @@ import {handleError} from '../../../shared/errorHandling/handleError';
 import {UserProfileService} from '../user-profile.service';
 import {UserAuthService} from '../../userAuth/user-auth.service';
 import {
-  UserPreferenceUpdateRequest, UserPreferenceUpdateResponse,
-  UserProfileImageUpdateResponse, UserRankUpdateResponse, UserStatusUpdateRequest,
+  UserPreferenceUpdateRequest,
+  UserPreferenceUpdateResponse,
+  UserProfileImageUpdateResponse,
+  UserRankUpdateResponse,
+  UserStatusUpdateRequest,
   UserUsernameUpdateRequest,
   UserUsernameUpdateResponse
 } from './dto/UserUpdateDtos';
-import {parseDateArray, parseDateString} from '../../../shared/functions/parseData';
+import {parseDateArray} from '../../../shared/functions/parseData';
+import {animate, state, style, transition, trigger} from '@angular/animations';
+
+const ANIMATION_IN_MS: number = 500;
+const ANIMATION_OUT_MS: number = 1000;
+const ANIMATION_HOLD_MS: number = 2000;
 
 @Component({
   selector: 'app-user-profile-edit',
   imports: [
     ImageDropComponent,
-    ReactiveFormsModule,
     NgIf,
     NgForOf,
-    ProgressBarComponent
+    ReactiveFormsModule,
+    ProgressBarComponent,
   ],
   templateUrl: './user-profile-edit.component.html',
-  styleUrl: './user-profile-edit.component.css'
+  styleUrl: './user-profile-edit.component.css',
+  animations: [
+    trigger('rankUpAnimation', [
+      state('start', style({})),
+      state('end', style({
+        width: '300vw',
+        height: '300vh',
+        opacity: 1,
+        zIndex: 1000,
+      })),
+      transition('start => end', [
+        animate(`${ANIMATION_IN_MS}ms ease-in`)
+      ]),
+      transition('end => start', [
+        animate(`${ANIMATION_OUT_MS}ms ease-in-out`)
+      ])
+    ])
+  ]
 })
 export class UserProfileEditComponent implements OnInit {
   constructor(private fb: NonNullableFormBuilder, private userProfileService: UserProfileService, private userAuthService: UserAuthService) {
@@ -68,20 +93,38 @@ export class UserProfileEditComponent implements OnInit {
       newStatus: [this.userData.status, Validators.maxLength(300)]
     });
     this.preferenceUpdateForm = this.fb.group({
-      chosenPreference: [preferenceArray.find(pref => pref.index === this.userData.preference)!, [Validators.required, Validators.min(0), Validators.max(preferenceArray.length - 1)]]
+      chosenPreference: [findTitle(this.userData.preference), [Validators.required, Validators.min(0), Validators.max(preferenceArray.length - 1)]]
     });
   }
 
-  imageUpdateForm!: FormGroup;
+  protected animationState: string = 'start';
+  private isAnimating: boolean = false;
+
+  private async triggerRankUpAnimation(modifier: number) {
+    if (this.isAnimating) return;
+    this.isAnimating = true;
+    this.animationState = 'end';
+    await this.delay(ANIMATION_IN_MS + modifier * ANIMATION_HOLD_MS);
+    this.animationState = 'start';
+    await this.delay(ANIMATION_OUT_MS);
+    this.isAnimating = false;
+  }
+
+  private delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+
+  protected imageUpdateForm!: FormGroup;
 
   get imageControl(): FormControl {
     return this.imageUpdateForm.get('newImage') as FormControl;
   }
 
-  userData!: UserProfileData;
-  statusUpdateForm!: FormGroup;
-  usernameUpdateForm: FormGroup;
-  preferenceUpdateForm!: FormGroup;
+  protected userData!: UserProfileData;
+  protected statusUpdateForm!: FormGroup;
+  protected usernameUpdateForm: FormGroup;
+  protected preferenceUpdateForm!: FormGroup;
 
 
   profileImageUpdateErrorMessage?: String = undefined;
@@ -89,7 +132,7 @@ export class UserProfileEditComponent implements OnInit {
   updateProfileImage() {
     if (this.imageUpdateForm.invalid) return;
     const image = this.imageUpdateForm.value.newImage;
-    if(image === this.userData.profileImage) return;
+    if (image === this.userData.profileImage) return;
     const formData = new FormData();
     formData.set('newImage', image);
     formData.set('email', this.userData.email);
@@ -106,8 +149,8 @@ export class UserProfileEditComponent implements OnInit {
     });
   }
 
-  statusUpdateErrorMessage?: String = undefined;
-  statusUpdated: boolean = false;
+  protected statusUpdateErrorMessage?: String = undefined;
+  protected statusUpdated: boolean = false;
 
   updateStatus() {
     this.statusUpdated = false;
@@ -129,7 +172,7 @@ export class UserProfileEditComponent implements OnInit {
     })
   }
 
-  usernameUpdateErrorMessage?: String = undefined;
+  protected usernameUpdateErrorMessage?: String = undefined;
 
   get usernameMismatchError(): boolean {
     return this.usernameUpdateForm?.errors?.['usernameMismatch'] ?? false;
@@ -158,11 +201,11 @@ export class UserProfileEditComponent implements OnInit {
     });
   }
 
-  preferenceUpdateErrorMessage?: String = undefined;
+  protected preferenceUpdateErrorMessage?: String = undefined;
 
   updatePreference() {
-    const chosenPreference : PreferenceTitle = this.preferenceUpdateForm.value.chosenPreference;
-    if(chosenPreference.index === this.userData.preference) return;
+    const chosenPreference: PreferenceTitle = this.preferenceUpdateForm.value.chosenPreference;
+    if (chosenPreference.index === this.userData.preference) return;
     if (chosenPreference.requiredRank > this.userData.rank) {
       this.preferenceUpdateErrorMessage = "You cannot choose this title at your current cultivation stage.";
       return;
@@ -172,7 +215,7 @@ export class UserProfileEditComponent implements OnInit {
     this.userProfileService.updatePreference(request).subscribe({
       next: (response: UserPreferenceUpdateResponse) => {
         this.userData.preference = response.newPreference;
-        this.preferenceUpdateForm.reset({chosenPreference: preferenceArray.find(pref => pref.index === response.newPreference)!});
+        this.preferenceUpdateForm.reset({chosenPreference: findTitle(response.newPreference)});
       },
       error: (error: string) => {
         this.preferenceUpdateErrorMessage = error;
@@ -180,7 +223,7 @@ export class UserProfileEditComponent implements OnInit {
     });
   }
 
-  rankUpdateErrorMessage?: String = undefined;
+  protected rankUpdateErrorMessage?: String = undefined;
 
   updateRank() {
     if (this.userData.currentScore < progressArray[this.userData.rank]) {
@@ -190,6 +233,7 @@ export class UserProfileEditComponent implements OnInit {
     this.rankUpdateErrorMessage = undefined;
     this.userProfileService.updateRank(this.userData.email).subscribe({
       next: (response: UserRankUpdateResponse) => {
+        this.triggerRankUpAnimation(response.newRank);
         this.userData.rank = response.newRank;
         this.userData.currentScore = response.newScore;
       },

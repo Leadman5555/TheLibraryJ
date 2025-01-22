@@ -3,7 +3,6 @@ import {NgForOf} from "@angular/common";
 import {BookFilterComponent} from "../book-filter/filterBox/book-filter.component";
 import {BookPreviewCardComponent} from "../book-preview-card/book-preview-card.component";
 import {BookPreview} from '../shared/models/book-preview';
-import {ActivatedRoute} from '@angular/router';
 import {BookService} from '../shared/book-service';
 import {BookFilterService} from '../book-filter/filterService/book-filter.service';
 import {catchError, skip, Subscription} from 'rxjs';

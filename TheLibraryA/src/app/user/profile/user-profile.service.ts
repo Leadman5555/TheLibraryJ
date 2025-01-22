@@ -1,5 +1,5 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
 import {catchError, Observable} from 'rxjs';
 import {UserProfileData} from './shared/user-profile-data';
 import {handleError} from '../../shared/errorHandling/handleError';
@@ -7,8 +7,10 @@ import {
   UserPreferenceUpdateRequest,
   UserPreferenceUpdateResponse,
   UserProfileImageUpdateResponse,
-  UserRankUpdateResponse, UserStatusUpdateRequest,
-  UserStatusUpdateResponse, UserUsernameUpdateRequest,
+  UserRankUpdateResponse,
+  UserStatusUpdateRequest,
+  UserStatusUpdateResponse,
+  UserUsernameUpdateRequest,
   UserUsernameUpdateResponse
 } from './user-profile-edit/dto/UserUpdateDtos';
 

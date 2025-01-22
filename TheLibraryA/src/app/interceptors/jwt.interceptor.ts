@@ -7,14 +7,7 @@ import {
   HttpInterceptor,
   HttpRequest
 } from '@angular/common/http';
-import {
-  catchError,
-  Observable,
-  of,
-  Subscriber,
-  switchMap,
-  throwError
-} from 'rxjs';
+import {catchError, Observable, of, Subscriber, switchMap, throwError} from 'rxjs';
 import {UserAuthService} from '../user/userAuth/user-auth.service';
 import {StorageService} from '../shared/storage/storage.service';
 

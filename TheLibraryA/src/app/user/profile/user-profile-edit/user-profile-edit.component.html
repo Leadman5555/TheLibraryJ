@@ -1,3 +1,12 @@
+<div id="rankUpAnimation" [@rankUpAnimation]="animationState" class="centerVH">
+  @if (this.userData.rank === 10) {
+    Heaven's Will is merciless,<br>Sea of Bitterness endless,<br>path to Ascension forever blocked...
+  } @else {
+    Heaven's Will is generous,<br>Sea of Bitterness not without a shore,
+    <br>path to Ascension steep, but not impossible to tread upon.<br><br>
+    Akin to a carp, leaping through the Dragon Gate,<br>so shall I rise, ten thousand li with a single step.
+  }
+</div>
 <div id="outerBox">
   <div id="userProfileEditGrid" *ngIf="this.userData">
     <div id="topBarDiv">
@@ -51,7 +60,7 @@
         <div class="errorBox alignLeft"
              *ngIf="usernameUpdateErrorMessage !== undefined">{{ usernameUpdateErrorMessage }}
         </div>
-        <span>Update your daoist name:<br>Your current daoist name is: <b>{{ this.userData.username }}</b><br>Last changed: {{parseDateArray(this.userData.dataUpdatedAt)}}</span>
+        <span>Update your daoist name:<br>Your current daoist name is: <b>{{ this.userData.username }}</b><br>Last changed: {{ parseDateArray(this.userData.dataUpdatedAt) }}</span>
         <div class="inputColumn">
           <div class="input-container">
             <input placeholder="Enter new name here" class="input-field" id="usernameInput" type="text" maxlength="20"
@@ -104,10 +113,11 @@
         <div class="errorBox" *ngIf="rankUpdateErrorMessage !== undefined">{{ rankUpdateErrorMessage }}</div>
         <div class="rankDiv column">
         <span
-          style="font-size: 1.1em; margin-right: 0.4em; width: fit-content">Cultivation stage: <b>{{ rankArray[this.userData.rank] }}</b></span>
+          style="font-size: 1.1em; margin-right: 0.4em; width: fit-content">Cultivation stage: <b
+          style="font-style: italic;">{{ rankArray[this.userData.rank] }}</b></span>
           <span>Accumulation needed:
             @if (this.userData.rank === 10) {
-              <br>Heaven's will is merciless,<br>sea of bitterness endless,<br>path to ascension forever blocked.
+              <span style="color: #976c03; font-style: italic"><br>Heaven's Will is merciless,<br>Sea of Bitterness endless,<br>path to Ascension forever blocked...</span>
             } @else {
               <app-progress-bar [current]="userData.currentScore"
                                 [goal]="progressArray[userData.rank]"></app-progress-bar>
@@ -124,7 +134,7 @@
       <b>Title</b>: you can change it freely at any time. Your cultivation rank needs to be greater or equal to the rank
       of the title.<br>
       <b>Daoist name</b>: you can change the username every 90 days. It has to be unique, remember that once you change
-      your username, a fellow reader may make your previous one their own.<br>
+      your username, a fellow reader may take your previous one for their own.<br>
       <b>Cultivation progress</b>: you can accumulate the needed experience by rating and reviewing scriptures - it also
       allows the author's cultivation to progress. The extent of their progress is heavily determined by the review you
       have given. You can attempt to breakthrough once your accumulation grows enough.<br>

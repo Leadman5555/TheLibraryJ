@@ -9,7 +9,7 @@ import {catchError, Subscription, switchMap} from 'rxjs';
 import {BookPreview} from '../../../book/shared/models/book-preview';
 import {BookPreviewCardComponent} from '../../../book/book-preview-card/book-preview-card.component';
 import {ProgressBarComponent} from '../../../shared/progress-bar/progress-bar.component';
-import {preferenceArray, progressArray, rankArray} from '../shared/rankTitles';
+import {findTitle, preferenceArray, progressArray, rankArray} from '../shared/rankTitles';
 import {UserProfileService} from '../user-profile.service';
 
 @Component({
@@ -86,4 +86,5 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   protected readonly preferenceArray = preferenceArray;
   protected readonly progressArray = progressArray;
   protected readonly rankArray = rankArray;
+  protected readonly findTitle = findTitle;
 }
