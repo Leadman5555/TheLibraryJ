@@ -45,7 +45,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 2em;
+  font-size: 1.8em;
   border-left: 0.15em solid goldenrod;
   border-bottom: 0.1em solid goldenrod;
 }

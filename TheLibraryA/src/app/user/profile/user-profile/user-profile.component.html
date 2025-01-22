@@ -2,13 +2,17 @@
   @if (this.userData) {
     <div class="userProfileGrid">
       <div class="usernameBar centerVH">
-        {{ preferenceArray[this.userData.preference] }} {{ this.userData.username }}
+        {{ preferenceArray[this.userData.preference].title }}<span style="color: #280049; margin-left: 0.2em">{{ this.userData.username }}</span>
       </div>
       <div class="rankDiv row">
-        <span
-          style="font-size: 1.1em; margin-right: 0.4em">Cultivation stage:<br><b>{{ rankArray[this.userData.rank] }}</b></span>
-        <span>Accumulation needed: <app-progress-bar [current]="userData.currentScore"
-                                                     [goal]="progressArray[userData.rank]"></app-progress-bar></span>
+        <span style="font-size: 1.1em; margin-right: 0.4em">Cultivation stage:<br><b>{{ rankArray[this.userData.rank] }}</b></span>
+        <span>Accumulation needed:
+          @if(this.userData.rank === 10){
+          <br>Heaven's will is merciless,<br>sea of bitterness endless,<br>path to ascension forever blocked.
+        } @else {
+          <app-progress-bar [current]="userData.currentScore"
+                            [goal]="progressArray[userData.rank]"></app-progress-bar>
+        }</span>
       </div>
       <div class="profileImgDiv">
         <div class="image34Wrapper">
@@ -19,8 +23,8 @@
         {{ this.userData.status }}
       </div>
       <div class="lastUpdateDiv row">
-        <div>Daoist title last updated at:<br>{{ parseDate(this.userData.dataUpdatedAt) }}</div>
-        <div>Cultivating since:<br>{{ parseDate(this.userData.createdAt) }}</div>
+        <div class="column noGap"><span>Daoist title last updated at:</span> {{ parseDate(this.userData.dataUpdatedAt) }}</div>
+        <div class="column noGap"><span>Cultivating since: </span>{{ parseDate(this.userData.createdAt) }}</div>
       </div>
       <div class="previewsDiv">
         @if (!authoredBooks) {

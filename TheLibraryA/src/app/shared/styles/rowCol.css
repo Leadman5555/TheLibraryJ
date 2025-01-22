@@ -18,3 +18,7 @@
   justify-content: center;
   align-items: center;
 }
+
+.noGap{
+  gap: 0;
+}

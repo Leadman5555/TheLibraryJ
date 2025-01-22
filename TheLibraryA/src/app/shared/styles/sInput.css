@@ -69,3 +69,12 @@
 .alignLeft{
   text-align: left;
 }
+
+.successBox{
+  margin-top: 0.6em;
+  width: 12em;
+  font-style: italic;
+  text-align: center;
+  font-size: 1.2em;
+  color: rgba(77, 1, 209, 0.7);
+}

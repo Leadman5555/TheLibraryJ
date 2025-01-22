@@ -458,7 +458,8 @@ class BookServiceImpl implements BookService {
     }
 
     private static String escapeHtml(String toEscape) {
-        return HtmlUtils.htmlEscape(toEscape);
+        return HtmlUtils.htmlEscape(toEscape)
+                .replace("&#39;", "'").replace("&quot;", "\"");
     }
 
     private BookPreviewResponse mapPreviewWithCover(BookPreview bookPreview) {

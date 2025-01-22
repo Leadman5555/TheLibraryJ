@@ -51,3 +51,7 @@
   visibility: hidden;
   pointer-events: none;
 }
+
+.disabledHide:disabled{
+  display: none;
+}

@@ -9,11 +9,12 @@
   text-align: center;
   cursor: pointer;
   transition: background-color 0.3s, border-color 0.3s;
+  font-size: var(--imageDropSize);
 }
 
 .drop-zone.active {
-  background-color: #e8f7ff;
-  border-color: #007bff;
+  background-color: #969db6;
+  border-color: #ac7b03;
 }
 
 .drop-zone img {

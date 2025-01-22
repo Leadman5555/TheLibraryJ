@@ -16,8 +16,6 @@ import {
   throwError
 } from 'rxjs';
 import {UserAuthService} from '../user/userAuth/user-auth.service';
-import {EventData} from '../shared/eventBus/event.class';
-import {EventBusService} from '../shared/eventBus/event-bus.service';
 import {StorageService} from '../shared/storage/storage.service';
 
 
@@ -28,7 +26,6 @@ export class JwtInterceptor implements HttpInterceptor {
 
   constructor(
     private userAuthService: UserAuthService,
-    private eventBusService: EventBusService,
     private storageService: StorageService
   ) {
   }
@@ -88,13 +85,14 @@ export class JwtInterceptor implements HttpInterceptor {
             this.isRefreshing = false;
             return of(true);
           } else {
-            this.eventBusService.emit(new EventData('logout', null));
+            this.userAuthService.sendLogOutEvent()
             this.isRefreshing = false;
+            alert('Session expired, please log in again.');
             return of(false);
           }
         }),
         catchError((_) => {
-          this.eventBusService.emit(new EventData('logout', null));
+          this.userAuthService.sendLogOutEvent()
           this.isRefreshing = false;
           return of(false);
         })

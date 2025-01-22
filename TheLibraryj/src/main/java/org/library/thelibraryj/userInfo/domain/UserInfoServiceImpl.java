@@ -7,8 +7,22 @@ import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
-import org.library.thelibraryj.userInfo.dto.request.*;
-import org.library.thelibraryj.userInfo.dto.response.*;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoScoreUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoStatusUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.response.UserInfoMiniResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserInfoResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserPreferenceUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserProfileImageUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserProfileResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserStatusUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.Nullable;
@@ -225,6 +239,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         return Either.right(userInfoMapper.dataToUserUsernameUpdateResponse(escapedUsername, fetched.getDataUpdatedAt()));
     }
 
+    @Transactional
     @Override
     public Either<GeneralError, UserProfileImageUpdateResponse> updateProfileImage(UserInfoImageUpdateRequest userInfoImageUpdateRequest) throws IOException {
         Either<GeneralError, UUID> fetchedE = getUserInfoIdByEmail(userInfoImageUpdateRequest.email());
@@ -234,12 +249,13 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 return Either.left(new UserInfoError.ProfileImageUpdateFailed());
             return Either.right(new UserProfileImageUpdateResponse(userInfoImageHandler.getDefaultImage()));
         } else {
-            if (userInfoImageHandler.upsertProfileImageImage(fetchedE.get(), userInfoImageUpdateRequest.newImage()))
+            if (!userInfoImageHandler.upsertProfileImageImage(fetchedE.get(), userInfoImageUpdateRequest.newImage()))
                 return Either.left(new UserInfoError.ProfileImageUpdateFailed());
             return Either.right(new UserProfileImageUpdateResponse(userInfoImageUpdateRequest.newImage().getBytes()));
         }
     }
 
+    @Transactional
     @Override
     public Either<GeneralError, UserStatusUpdateResponse> updateUserInfoStatus(UserInfoStatusUpdateRequest userInfoStatusUpdateRequest) {
         Either<GeneralError, UserInfo> fetchedE = getUserInfoByEmail(userInfoStatusUpdateRequest.email());
@@ -251,6 +267,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         return Either.right(new UserStatusUpdateResponse(escapedStatus));
     }
 
+    @Transactional
     @Override
     public Either<GeneralError, UserPreferenceUpdateResponse> updateUserInfoPreference(UserInfoPreferenceUpdateRequest userInfoPreferenceUpdateRequest) {
         Either<GeneralError, UserInfo> fetchedE = getUserInfoByEmail(userInfoPreferenceUpdateRequest.email());
@@ -293,6 +310,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     }
 
     private static String escapeHtml(String toEscape) {
-        return HtmlUtils.htmlEscape(toEscape);
+        return HtmlUtils.htmlEscape(toEscape)
+                .replace("&#39;", "'").replace("&quot;", "\"");
     }
 }

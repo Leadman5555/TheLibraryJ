@@ -4,20 +4,20 @@ import {UserProfileData} from '../shared/user-profile-data';
 import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
 import {NgForOf, NgIf} from '@angular/common';
 import {usernameMatchValidator} from './usernameMatchValidator';
-import {preferenceArray, progressArray, rankArray} from '../shared/rankTitles';
+import {preferenceArray, PreferenceTitle, progressArray, rankArray} from '../shared/rankTitles';
 import {identifyByIndex} from '../../../shared/functions/indentify';
 import {ProgressBarComponent} from '../../../shared/progress-bar/progress-bar.component';
 import {catchError} from 'rxjs';
 import {handleError} from '../../../shared/errorHandling/handleError';
 import {UserProfileService} from '../user-profile.service';
 import {UserAuthService} from '../../userAuth/user-auth.service';
-import {RouterLink} from '@angular/router';
 import {
   UserPreferenceUpdateRequest, UserPreferenceUpdateResponse,
   UserProfileImageUpdateResponse, UserRankUpdateResponse, UserStatusUpdateRequest,
   UserUsernameUpdateRequest,
   UserUsernameUpdateResponse
 } from './dto/UserUpdateDtos';
+import {parseDateArray, parseDateString} from '../../../shared/functions/parseData';
 
 @Component({
   selector: 'app-user-profile-edit',
@@ -26,8 +26,7 @@ import {
     ReactiveFormsModule,
     NgIf,
     NgForOf,
-    ProgressBarComponent,
-    RouterLink
+    ProgressBarComponent
   ],
   templateUrl: './user-profile-edit.component.html',
   styleUrl: './user-profile-edit.component.css'
@@ -49,17 +48,14 @@ export class UserProfileEditComponent implements OnInit {
     );
   }
 
-  userFetchErrorMsg?: string = 'Fetching profile';
-
   ngOnInit(): void {
     this.userProfileService.fetchUserProfile(this.userAuthService.getLoggedInUsername()).pipe(catchError(handleError)).subscribe({
       next: (fetchedData) => {
         this.userData = fetchedData;
         this.createForms();
-        this.userFetchErrorMsg = undefined;
       },
-      error: (error: string) => {
-        this.userFetchErrorMsg = error;
+      error: (_) => {
+        this.userAuthService.sendLogOutEvent();
       }
     })
   }
@@ -72,7 +68,7 @@ export class UserProfileEditComponent implements OnInit {
       newStatus: [this.userData.status, Validators.maxLength(300)]
     });
     this.preferenceUpdateForm = this.fb.group({
-      chosenPreference: [this.userData.preference, [Validators.required, Validators.min(0), Validators.max(preferenceArray.length - 1)]]
+      chosenPreference: [preferenceArray.find(pref => pref.index === this.userData.preference)!, [Validators.required, Validators.min(0), Validators.max(preferenceArray.length - 1)]]
     });
   }
 
@@ -91,9 +87,11 @@ export class UserProfileEditComponent implements OnInit {
   profileImageUpdateErrorMessage?: String = undefined;
 
   updateProfileImage() {
-    if (this.imageUpdateForm.pristine || this.imageUpdateForm.invalid) return;
+    if (this.imageUpdateForm.invalid) return;
+    const image = this.imageUpdateForm.value.newImage;
+    if(image === this.userData.profileImage) return;
     const formData = new FormData();
-    formData.set('newImage', this.imageUpdateForm.value.newImage);
+    formData.set('newImage', image);
     formData.set('email', this.userData.email);
     this.profileImageUpdateErrorMessage = undefined;
     this.userProfileService.updateProfileImage(formData).subscribe({
@@ -109,8 +107,10 @@ export class UserProfileEditComponent implements OnInit {
   }
 
   statusUpdateErrorMessage?: String = undefined;
+  statusUpdated: boolean = false;
 
   updateStatus() {
+    this.statusUpdated = false;
     if (this.statusUpdateForm.pristine || this.statusUpdateForm.invalid || this.statusUpdateForm.status === this.userData.status) return;
     const request: UserStatusUpdateRequest = {
       email: this.userData.email,
@@ -119,9 +119,9 @@ export class UserProfileEditComponent implements OnInit {
     this.statusUpdateErrorMessage = undefined;
     this.userProfileService.updateStatus(request).subscribe({
       next: (response) => {
-        console.log(response);
+        this.statusUpdated = true;
         this.userData.status = response.newStatus;
-        this.statusUpdateForm.reset();
+        this.statusUpdateForm.reset({newStatus: response.newStatus});
       },
       error: (error: string) => {
         this.statusUpdateErrorMessage = error;
@@ -161,17 +161,18 @@ export class UserProfileEditComponent implements OnInit {
   preferenceUpdateErrorMessage?: String = undefined;
 
   updatePreference() {
-    const chosenPreference = this.preferenceUpdateForm.value.chosenPreference;
-    if (chosenPreference % 10 < this.userData.rank) {
+    const chosenPreference : PreferenceTitle = this.preferenceUpdateForm.value.chosenPreference;
+    if(chosenPreference.index === this.userData.preference) return;
+    if (chosenPreference.requiredRank > this.userData.rank) {
       this.preferenceUpdateErrorMessage = "You cannot choose this title at your current cultivation stage.";
       return;
     }
     this.preferenceUpdateErrorMessage = undefined;
-    const request: UserPreferenceUpdateRequest = {email: this.userData.email, preference: chosenPreference};
+    const request: UserPreferenceUpdateRequest = {email: this.userData.email, preference: chosenPreference.index};
     this.userProfileService.updatePreference(request).subscribe({
       next: (response: UserPreferenceUpdateResponse) => {
         this.userData.preference = response.newPreference;
-        this.preferenceUpdateForm.reset();
+        this.preferenceUpdateForm.reset({chosenPreference: preferenceArray.find(pref => pref.index === response.newPreference)!});
       },
       error: (error: string) => {
         this.preferenceUpdateErrorMessage = error;
@@ -203,4 +204,5 @@ export class UserProfileEditComponent implements OnInit {
   protected readonly preferenceArray = preferenceArray;
   protected readonly progressArray = progressArray;
   protected readonly rankArray = rankArray;
+  protected readonly parseDateArray = parseDateArray;
 }

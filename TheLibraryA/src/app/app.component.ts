@@ -5,7 +5,7 @@ import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators} from
 import {NgIf, NgOptimizedImage} from '@angular/common';
 import {AuthenticationRequest} from './user/shared/models/authentication-request';
 import {UserMini} from './user/shared/models/user-mini';
-import {EventBusService} from './shared/eventBus/event-bus.service';
+import {EventBusService, LOGIN_EVENT, LOGOUT_EVENT, REFRESH_EVENT} from './shared/eventBus/event-bus.service';
 import {Subscription} from 'rxjs';
 import {StorageService} from './shared/storage/storage.service';
 import {UserSearchComponent} from './user/profile/user-search/user-search.component';
@@ -117,12 +117,16 @@ export class AppComponent implements OnInit {
 
   private subscribeToLogIn(): void {
     this.eventBusSubscription?.unsubscribe();
-    this.eventBusSubscription = this.eventBus.on('login', () => this.logIn());
+    this.eventBusSubscription = this.eventBus.on(LOGIN_EVENT, () => this.logIn());
   }
 
   private subscribeToLogOut(): void {
     this.eventBusSubscription?.unsubscribe();
-    this.eventBusSubscription = this.eventBus.on('logout', () => this.logOut());
+    this.eventBusSubscription = this.eventBus.onMultiple([{eventName: LOGOUT_EVENT, action: () => this.logOut()}, {eventName: REFRESH_EVENT, action: () => this.refreshMini()}]);
+  }
+
+  private refreshMini() {
+    this.userMini = this.storageService.getUserMini();
   }
 
   logInWithGoogle() {

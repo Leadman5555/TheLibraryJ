@@ -8,7 +8,7 @@ import {GoogleLinkResponse} from '../../googleOAuth2/auth-callback/google-link-r
 import {UserMini} from '../shared/models/user-mini';
 import {FetchedUserMini} from '../shared/models/fetched-user-mini';
 import {StorageService} from '../../shared/storage/storage.service';
-import {EventBusService} from '../../shared/eventBus/event-bus.service';
+import {EventBusService, LOGIN_EVENT, LOGOUT_EVENT, REFRESH_EVENT} from '../../shared/eventBus/event-bus.service';
 import {EventData} from '../../shared/eventBus/event.class';
 import {handleError, logError} from '../../shared/errorHandling/handleError';
 
@@ -30,6 +30,10 @@ export class UserAuthService {
     this.storageService.setUserMini(user);
   }
 
+  sendLogOutEvent(): void {
+    this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
+  }
+
   logOut(): Observable<any> {
     this.storageService.clearData();
     return this.httpClient.get(`${this.baseUrl}/auth/logout`, {withCredentials: true});
@@ -49,7 +53,7 @@ export class UserAuthService {
               profileImage: userProfile.profileImage,
               email: request.email
             }, response.token);
-            this.eventBus.emit(new EventData('login', null));
+            this.eventBus.emit(new EventData(LOGIN_EVENT, null));
           }),
           catchError((error) => {
             this.logOut();
@@ -69,11 +73,13 @@ export class UserAuthService {
   }
 
   updateUserMiniDataImage(image: string){
-    if(!this.storageService.setUserMiniImage(image)) this.eventBus.emit(new EventData('logout', null));
+    if(!this.storageService.setUserMiniImage(image)) this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
+    else this.eventBus.emit(new EventData(REFRESH_EVENT, null));
   }
 
   updateUserMiniDataUsername(username: string){
-    if(!this.storageService.setUserMiniUsername(username)) this.eventBus.emit(new EventData('logout', null));
+    if(!this.storageService.setUserMiniUsername(username)) this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
+    else this.eventBus.emit(new EventData(REFRESH_EVENT, null));
   }
 
   getGoogleLogInLink(): Observable<GoogleLinkResponse> {
@@ -88,7 +94,7 @@ export class UserAuthService {
           profileImage: userProfile.profileImage,
           email: response.email
         }, response.token);
-        this.eventBus.emit(new EventData('login', null));
+        this.eventBus.emit(new EventData(LOGIN_EVENT, null));
       },
       error: (error) => {
         logError(error);
@@ -99,7 +105,7 @@ export class UserAuthService {
   getLoggedInUsername(): string {
     const username = this.storageService.getUserMiniUsername();
     if(username !== undefined) return username;
-    this.eventBus.emit(new EventData('logout', null));
+    this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
     throw new Error("Invalid session data");
   }
 }
