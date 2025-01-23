@@ -54,6 +54,12 @@ export class StorageService {
     return undefined;
   }
 
+  public getUserMiniEmail(): string | undefined {
+    const fetched = localStorage.getItem('user_mini');
+    if(fetched && fetched.length > 0) return JSON.parse(fetched).email;
+    return undefined;
+  }
+
   public saveData(key: string, value: string) {
     localStorage.setItem(key, value);
   }

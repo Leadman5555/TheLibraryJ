@@ -14,10 +14,13 @@ import {PageInfo} from '../../shared/paging/models/page-info';
 import {provideComponentStore} from '@ngrx/component-store';
 import {parseDateString} from '../../shared/functions/parseData';
 import {logError} from '../../shared/errorHandling/handleError';
+import {UserAuthService} from '../../user/userAuth/user-auth.service';
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {RangeSelectorComponent} from '../../shared/range-selector/range-selector.component';
 
 @Component({
   selector: 'app-book',
-  imports: [RouterLink, NgIf, AsyncPipe, NgForOf, TimesMaxPagingPipe],
+  imports: [RouterLink, NgIf, AsyncPipe, NgForOf, TimesMaxPagingPipe, ReactiveFormsModule, FormsModule, RangeSelectorComponent],
   providers: [
     provideComponentStore(ChapterPreviewComponentStore)
   ],
@@ -30,14 +33,14 @@ export class BookComponent extends PagingHelper implements OnInit {
   private defaultRoute: string = '';
   bookPreview!: BookPreview;
   bookDetail!: BookDetail;
-  ratings!: RatingResponse[];
+  ratings?: RatingResponse[];
 
   private readonly componentStore: ChapterPreviewComponentStore = inject(ChapterPreviewComponentStore);
   readonly vm$: Observable<ChapterPreview[]> = this.componentStore.vm$;
   readonly info$: Observable<PageInfo> = this.componentStore.info$;
   private bookService: BookService = inject(BookService);
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private userAuthService: UserAuthService) {
     super();
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state) {
@@ -83,22 +86,113 @@ export class BookComponent extends PagingHelper implements OnInit {
     }
   }
 
-  private fetchChapterPreviews(){
+  private fetchChapterPreviews() {
     this.componentStore.updateBookId(this.bookPreview.id);
     this.componentStore.loadPageByOffset();
   }
 
-  fetchRatings() {
-    this.bookService.getRatingsForBook(this.bookPreview.id).subscribe({
-      next: (v) => {
-        this.ratings = v;
-      },
-      error: (err) => logError(err),
-    })
+  fetchRatings(): Observable<never> {
+    return new Observable<never>((observer) => {
+      this.bookService.getRatingsForBook(this.bookPreview.id).subscribe({
+        next: (v) => {
+          this.ratings = v;
+          observer.complete();
+        },
+        error: (err) => {
+          logError(err);
+          observer.error();
+        },
+      });
+    });
   }
 
-  upsertRating(){
+  protected ratingUpsertMessage?: string = undefined;
+  protected ratingUpsertForm!: FormGroup;
+  protected showRatingUpsertForm: boolean = false;
+  protected previousRating?: RatingResponse;
+  protected ratingValues: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
+  startUpsertRatingProcedure() {
+    if (!this.userAuthService.isLoggedIn()) {
+      alert("Please log in to rate the book.");
+      return;
+    }
+    if (this.ratings === undefined)
+      this.fetchRatings().subscribe({
+        complete: () => this.createRatingUpsertForm()
+      });
+    else this.createRatingUpsertForm();
+  }
+
+  private createRatingUpsertForm() {
+    const loggedUser: string = this.userAuthService.getLoggedInUsername();
+    const foundRating = this.ratings!.find(rating => rating.username === loggedUser);
+    if (foundRating !== undefined) {
+      this.ratingUpsertForm = new FormGroup({
+        currentRating: new FormControl(foundRating.currentRating, {
+          validators: [
+            Validators.required,
+            Validators.min(1),
+            Validators.max(10)
+          ]
+        }),
+        comment: new FormControl(foundRating.comment, {
+          validators: [
+            Validators.maxLength(200)
+          ]
+        })
+      });
+      this.previousRating = foundRating;
+    } else {
+      this.ratingUpsertForm = new FormGroup({
+        currentRating: new FormControl(5, {
+          validators: [
+            Validators.required,
+            Validators.min(1),
+            Validators.max(10)
+          ]
+        }),
+        comment: new FormControl('', {
+          validators: [
+            Validators.maxLength(200)
+          ]
+        })
+      });
+    }
+    this.ratingUpsertMessage = undefined;
+    this.showRatingUpsertForm = true;
+  }
+
+  upsertRating() {
+    if (this.ratingUpsertForm.pristine || this.ratingUpsertForm.invalid) return;
+    this.ratingUpsertMessage = undefined;
+    const values = this.ratingUpsertForm.value;
+    if (this.previousRating !== undefined) {
+      if (values.currentRating === this.previousRating.currentRating && (values.comment === this.previousRating.comment)) return;
+    }
+    this.bookService.upsertRatingForBook({
+      currentRating: values.currentRating,
+      comment: values.comment,
+      bookId: this.bookPreview.id,
+      userEmail: this.userAuthService.getLoggedInEmail()
+    })
+      .subscribe({
+        next: (v) => {
+          this.ratings!.push(v);
+          this.previousRating = undefined
+          this.showRatingUpsertForm = false;
+        },
+        error: (error) => this.ratingUpsertMessage = error
+      })
+  }
+
+  get rangeSelectorControl(): FormControl {
+    return this.ratingUpsertForm.get('currentRating') as FormControl;
+  }
+
+  closeRatingUpsertForm() {
+    this.ratingUpsertForm.reset();
+    this.showRatingUpsertForm = false;
   }
 
   onPreviousPage(): void {
@@ -109,7 +203,7 @@ export class BookComponent extends PagingHelper implements OnInit {
     this.componentStore.loadNextPage();
   }
 
-  onChosenPage(pageNumber: number){
+  onChosenPage(pageNumber: number) {
     this.componentStore.loadSpecifiedPage(pageNumber);
   }
 

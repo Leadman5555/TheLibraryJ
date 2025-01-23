@@ -10,7 +10,8 @@
         <pre id="description"> {{ bookDetail.description }}</pre>
       </div>
       <div class="infoDiv column">
-        <div class="authorDiv"> Penned by: <span class="userLink" [routerLink]="['/profile', bookDetail.author]"> {{ bookDetail.author }}</span>
+        <div class="authorDiv"> Penned by: <span class="userLink"
+                                                 [routerLink]="['/profile', bookDetail.author]"> {{ bookDetail.author }}</span>
         </div>
         <div class="stateDiv">Book state: {{ bookPreview.bookState }}</div>
         <div class="chapterCount">Chapter count: {{ bookPreview.chapterCount }}</div>
@@ -64,12 +65,12 @@
 
   </div>
   <div class="bookReviews">
-    <button class="fetchRatings sButton" (click)="upsertRating()">Add/Update
+    <button class="fetchRatings sButton" (click)="startUpsertRatingProcedure()">Add/Update
       rating
     </button>
     @if (!ratings) {
       <div style="margin-bottom: 1.8em">
-        <button class="fetchRatings sButton" (click)="fetchRatings()">Load book reviews</button>
+        <button class="fetchRatings sButton" (click)="fetchRatings().subscribe()">Load book reviews</button>
       </div>
     } @else {
       @if (ratings.length) {
@@ -77,7 +78,8 @@
           @for (review of ratings; track review.username) {
             <div class="reviewElement">
               <div class="column reviewData">
-                <span>By: <span class="userLink" [routerLink]="['/profile', review.username]">{{ review.username }}</span></span>
+                <span>By: <span class="userLink"
+                                [routerLink]="['/profile', review.username]">{{ review.username }}</span></span>
                 <span>Rating: <span style="font-weight:bold">{{ review.currentRating }}/10</span></span>
                 <span>At: {{ parseDate(review.updatedAt) }}</span>
               </div>
@@ -90,4 +92,28 @@
       }
     }
   </div>
+  @if (showRatingUpsertForm) {
+    <div class="upsertRatingForm">
+      <form [formGroup]="ratingUpsertForm" (ngSubmit)="upsertRating()" class="column">
+        <span id="ratingUpsertInfo">
+          <b>Add or edit your previous rating for this book.</b><br>Choose a rating between 1 and 10 to proceed. You are also encouraged to add a comment - up to 200 characters in length.<br>Leaving reviews can not only help fellow daoists, but increase your own accumulation as well.
+        </span>
+        <label for="commentInput">Comment:</label>
+        <textarea
+          id="commentInput"
+          class="textArea"
+          formControlName="comment"
+          rows="4"
+          cols="50"
+          maxlength="200"
+        ></textarea>
+        <b>Choose rating:</b>
+        <app-range-selector [parentControl]="rangeSelectorControl" [values]="ratingValues" [selectedIndex]="rangeSelectorControl.value-1"></app-range-selector>
+        <div class="row">
+          <button type="submit" class="sButton">@if (this.previousRating) {Edit rating} @else {Add rating}</button>
+          <button class="sButton" (click)="closeRatingUpsertForm()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  }
 </div>

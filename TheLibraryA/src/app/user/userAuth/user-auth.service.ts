@@ -108,4 +108,11 @@ export class UserAuthService {
     this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
     throw new Error("Invalid session data");
   }
+
+  getLoggedInEmail(): string {
+    const email = this.storageService.getUserMiniEmail();
+    if(email !== undefined) return email;
+    this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
+    throw new Error("Invalid session data");
+  }
 }

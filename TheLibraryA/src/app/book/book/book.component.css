@@ -2,6 +2,7 @@
 @import '../../shared/styles/pageNumberBox.css';
 @import '../../shared/styles/rowCol.css';
 @import '../../shared/styles/image34.css';
+@import '../../shared/styles/textArea.css';
 
 #description {
   line-height: 1;;
@@ -15,6 +16,20 @@
 .fetchRatings {
   display: block;
   margin: 0.6em auto;
+}
+
+.upsertRatingForm {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: fit-content;
+  height: fit-content;
+  background-color: cadetblue;
+  border: 0.25em solid goldenrod;
+  box-shadow: 0 0.3em 0.3em rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 1.2em;
 }
 
 .bookReviews {
@@ -100,6 +115,12 @@
 
 .ratingDataDiv {
   grid-area: ratingDataDiv;
+}
+
+#ratingUpsertInfo{
+  font-size: 1em;
+  padding: 0.3em;
+  text-align: center;
 }
 
 .infoDiv {

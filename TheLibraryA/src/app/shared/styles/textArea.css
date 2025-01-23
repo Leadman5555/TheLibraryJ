@@ -1,0 +1,14 @@
+.textArea {
+  width: 100%;
+  max-width: 30em;
+  height: auto;
+  padding: 0.6em;
+  font-size: inherit;
+  border: 0.2em solid darkgoldenrod;
+  border-radius: 0.3em;
+  resize: none;
+  font-family: inherit;
+  overflow-wrap: break-word;
+  line-height: 1.5;
+  background-color: rgba(202, 243, 243, 0.65);
+}
