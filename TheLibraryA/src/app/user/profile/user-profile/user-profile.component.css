@@ -75,10 +75,45 @@
   grid-area: profileImgDiv;
 }
 
+#statusBox {
+  width: 90%;
+  height: 80%;
+  overflow-wrap: break-word;
+  transform-style: preserve-3d;
+  border-radius: 0.3em;
+  color: bisque;
+}
+
 .statusDiv {
   grid-area: statusDiv;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 1.2em;
-  overflow-wrap: break-word;
+  position: relative;
+}
+
+#statusBox::before {
+  content: "";
+  position: absolute;
+  inset: -1.2em;
+  background: conic-gradient(
+    from 90deg at 40% -25%,
+    cadetblue,
+    goldenrod,
+    rgba(40, 0, 73, 0.88),
+    #969DB6FF,
+    aquamarine,
+    lightsteelblue,
+    rosybrown,
+    rgba(40, 0, 73, 0.7),
+    darkgoldenrod,
+    cadetblue
+  );
+  filter: blur(2.1em);
+  transform: translate3d(0px,0px,-1px);
+  border-radius: inherit;
+  pointer-events: none;
 }
 
 .lastUpdateDiv {
