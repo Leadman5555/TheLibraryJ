@@ -28,7 +28,7 @@ import org.library.thelibraryj.infrastructure.model.PageInfo;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
-import org.library.thelibraryj.userInfo.dto.UserInfoScoreUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoScoreUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
@@ -196,9 +196,7 @@ class BookServiceImpl implements BookService {
         Optional<Rating> prevRating = ratingRepository.getRatingForBookAndUser(ratingRequest.bookId(), userId);
         BookPreview preview = ePreview.get();
 
-        final String escapedComment;
-        if (ratingRequest.comment() == null) escapedComment = "";
-        else escapedComment = escapeHtml(ratingRequest.comment());
+        final String escapedComment = ratingRequest.comment() == null ? "" : escapeHtml(ratingRequest.comment());
 
         if (prevRating.isPresent()) {
             Rating rating = prevRating.get();
@@ -213,7 +211,7 @@ class BookServiceImpl implements BookService {
             userInfoService.updateRatingScore(new UserInfoScoreUpdateRequest(
                     userId,
                     detail.getAuthorId(),
-                    ratingRequest.comment() != null
+                    ratingRequest.comment() != null && !ratingRequest.comment().isBlank()
             ));
             preview.setAverageRating(
                     (preview.getAverageRating() * preview.getRatingCount() + ratingRequest.currentRating()) / (preview.getRatingCount() + 1)
@@ -423,8 +421,14 @@ class BookServiceImpl implements BookService {
 
     @Override
     public List<BookPreviewResponse> getByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags, Boolean ratingOrder) {
-        List<BookPreview> fetched = bookBlazeRepository.getBookPreviewByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder);
-        return fetched.stream().map(this::mapPreviewWithCover).toList();
+        return bookBlazeRepository.getBookPreviewByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder)
+                .stream().map(this::mapPreviewWithCover).toList();
+    }
+
+    @Override
+    public List<BookPreviewResponse> getBookPreviewsByAuthor(String byUser) {
+        return bookBlazeRepository.getAuthoredBookPreviews(byUser)
+                .stream().map(this::mapPreviewWithCover).toList();
     }
 
     @Override
@@ -443,7 +447,7 @@ class BookServiceImpl implements BookService {
 
     @Override
     @CacheEvict(value = {"bookPreviewsOffset", "bookPreviewsKeySet"})
-    @Scheduled(fixedDelayString = "${library.caching.bookPreviewTTL}")
+    @Scheduled(cron = "0 */${library.caching.bookPreviewTTL} * * * *")
     public void resetBookPreviewsCache() {
         bookPreviewRepository.flush();
         ratingRepository.flush();
@@ -452,7 +456,8 @@ class BookServiceImpl implements BookService {
     }
 
     private static String escapeHtml(String toEscape) {
-        return HtmlUtils.htmlEscape(toEscape);
+        return HtmlUtils.htmlEscape(toEscape)
+                .replace("&#39;", "'").replace("&quot;", "\"");
     }
 
     private BookPreviewResponse mapPreviewWithCover(BookPreview bookPreview) {

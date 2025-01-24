@@ -3,7 +3,6 @@ package org.library.thelibraryj.authentication.tokenServices.domain;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.library.thelibraryj.authentication.tokenServices.dto.password.PasswordResetRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
@@ -30,7 +29,7 @@ record PasswordResetController(PasswordResetServiceImpl passwordResetService) im
             @ApiResponse(responseCode = "404", description = "Account not found."),
     })
     @PostMapping("/{emailAddress}")
-    public ResponseEntity<String> startPasswordResetProcedure(@PathVariable String emailAddress) throws MessagingException {
+    public ResponseEntity<String> startPasswordResetProcedure(@PathVariable String emailAddress) {
         return handle(passwordResetService.startPasswordResetProcedure(emailAddress), HttpStatus.NO_CONTENT);
     }
 

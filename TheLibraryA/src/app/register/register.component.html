@@ -1,14 +1,16 @@
 <div id="mainBox">
   <div id="infoDiv">
-    <div class="mt-square3d-custom" style="font-size:10px;">
-      <span style="font-size: 2rem; font-weight: bold">Show version for fellow daoists.   </span>
-      <input id="toggle" type="checkbox" (click)="toggleShowVersion()"/>
-      <label for="toggle"> </label>
+    <div class="row">
+      <span style="font-size: 1.2em; font-weight: bold">Show version for fellow daoists:</span>
+      <div class="mt-square3d-custom" >
+        <input id="toggle" type="checkbox" (click)="toggleShowVersion()"/>
+        <label for="toggle"> </label>
+    </div>
     </div>
     @if (showVersion) {
       <p class="disclaimer">
         Register your account. <br>
-        Remember emails and usernames must be unique, so your desired one might not be available. Don't worry if that
+        emember emails and usernames must be unique, so your desired one might not be available. Don't worry if that
         happens, you can change your username every 90 days.
         <br> Setting the profile image is optional. If you don't set it, a default image will be used instead. The image
         can also be changed, even daily.<br>
@@ -21,7 +23,7 @@
         Policy</a>.<br>
         If you decide to register with Google, you will be asked to authorize the application to access some of your
         Google account details, limited to your name, surname and email. No other information will be processed.
-        The default username after Google registration will be the concatenation of your name and surname. The profile
+        The default username after Google registration will be the concatenation of your name and surname (non latin characters will be replaced). The profile
         image will be the default one. You can change that after registration.
         Additionally, if you register your account with Google, you will not be able to log in without using Google
         Authentication services in the future.<br>
@@ -29,7 +31,7 @@
         store Cookies in your web browser. Those Cookies are necessary for authentication purposes and keeping you
         logged in.<br>
         Without them, refreshing the page or opening it in another tab would result in you being logged out. The Cookies
-        and any other data stored after you log in are removed when you log out. No stored data is sensitive and all of it is strictly limited
+        and any other data stored after you log in are emoved when you log out. No stored data is sensitive and all of it is strictly limited
         to what other users can see.<br>
         This website does not collect any personal information.
       </p>
@@ -42,11 +44,11 @@
         oceans and move mountains. At worst, the sect shall grant your will a worthy image. In either case, it can be
         changed at a later date.<br>
         Of course, your daoist title and divine will shape will be seen and judged by others. Your true name though,
-        that shall remain a secret, lest a demonic expert casts a bloodline or soul curse on you. <br>
+        that shall emain a secret, lest a demonic expert casts a bloodline or soul curse on you. <br>
         After joining, your immortal cave will still be closed. You need to get a jade slip from the Outer Court Elder,
         Zhao Jiang first. If he forgets to give it to you, don't hesitate to remind him. Respectfully of course. He
         tends to spend his days in Troubled pavilion, hidden under the Settings abode.<br>
-        Accepting the rules of the sect is something I hope I don't need to remind you of. You can find a copy of them on
+        Accepting the rules of the sect is something I hope I don't need to emind you of. You can find a copy of them on
         those jade slips: <a href="https://www.privacypolicies.com/blog/sample-terms-service-template/">first jade
         slip</a>, <a href="https://www.privacypolicies.com/blog/sample-terms-service-template/">second jade
         slip</a>. I doubt you'd find them of particular interest though.<br>
@@ -70,7 +72,7 @@
   </div>
   <div id="formDiv">
     @if(!registerSuccess) {
-    <form id="passwordResetForm column" style="border: 3px solid darkgoldenrod; padding: 10px" *ngIf="registerForm" [formGroup]="registerForm"
+    <form id="passwordResetForm column" style="border: 0.2em solid darkgoldenrod; padding: 0.6em" *ngIf="registerForm" [formGroup]="registerForm"
           (ngSubmit)="attemptRegistration()">
       <div class="column">
         <p class="errorBox" style="width: 100%; word-break: break-word" *ngIf="errorMessage">{{ errorMessage }}</p>
@@ -98,8 +100,8 @@
           </div>
         </div>
       </div>
-      <div class="row" style="margin-top: 16px; margin-bottom: 16px">
-        <div class="column" style="margin-right: 20px">
+      <div class="row" style="margin-top:  1em; margin-bottom:  1em">
+        <div class="column" style="margin-right: 1.2em">
           <div>
             <div class="input-container">
               <input placeholder="Enter password" class="input-field" id="passwordInput1"
@@ -114,7 +116,7 @@
               special character.
             </div>
           </div>
-          <div id="repeatPassword" style="margin-bottom: 16px">
+          <div id="repeatPassword" style="margin-bottom:  1em">
             <div class="input-container">
               <input placeholder="Repeat the password" class="input-field" id="passwordInput2"
                      [type]="showPassword ? 'text' : 'password'" maxlength="30" formControlName="repeatPassword">
@@ -126,32 +128,12 @@
             </div>
           </div>
         </div>
-        <button class="sButton" type="button" style="font-size: 14px; margin-top: 10%" (click)="toggleShowPassword()">
+        <button class="sButton" type="button" style="font-size: 0.84em; margin-top: 10%" (click)="toggleShowPassword()">
           {{ showPassword ? 'Hide' : 'Show' }} Password
         </button>
       </div>
-      <div class="column">
-        <div
-          class="drop-zone"
-          (dragover)="onDragOver($event)"
-          (dragleave)="onDragLeave($event)"
-          (drop)="onDrop($event)"
-          [class.active]="isDropZoneActive"
-        >
-          <p *ngIf="!imagePreview">Drag and drop your profile image here, or click to browse.</p>
-          <img *ngIf="imagePreview" [src]="imagePreview" alt="Image preview" width="200" height="200"/>
-          <input
-            type="file"
-            id="fileInput"
-            hidden
-            accept="image/*"
-            (change)="onFileChange($event)"
-            #fileInput
-          />
-        </div>
-        <button type="button" class="sButton" (click)="fileInput.click()">Browse local images</button>
-      </div>
-      <div class="row" style="margin-top: 16px;">
+      <app-image-drop [parentControl]="profileImageControl"></app-image-drop>
+      <div class="row" style="margin-top:  1em;">
         <button class="sButton" type="submit" [disabled]="registerForm.invalid || registerForm.pristine">Register
           account
         </button>
@@ -161,7 +143,7 @@
       </div>
     </form>
     }@else {
-      <div class="column" style="font-size: 1.2rem; width: 40%; margin: auto; text-align: left">
+      <div class="column" style="font-size: 1.2em; width: 40%; margin: auto; text-align: left">
         <p>Registration was successful. Registered account data:</p>
         <ul>
           <li>Username: {{ createdUser?.username }}</li>

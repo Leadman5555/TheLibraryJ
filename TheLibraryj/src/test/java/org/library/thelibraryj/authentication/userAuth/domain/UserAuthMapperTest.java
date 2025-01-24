@@ -3,9 +3,8 @@ package org.library.thelibraryj.authentication.userAuth.domain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationData;
-import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
 
-import java.time.Instant;
 import java.util.UUID;
 
 public class UserAuthMapperTest {
@@ -27,7 +26,8 @@ public class UserAuthMapperTest {
                 userEmail,
                 4,
                 20,
-                Instant.now(),
+                null,
+                (short) 0,
                 null
         );
         UserCreationData mapped = userAuthMapper.userAuthAndUserInfoResponseToUserCreationResponse(userInfo, userAuth);
@@ -35,7 +35,6 @@ public class UserAuthMapperTest {
                 () -> Assertions.assertEquals(userAuth.getId(), mapped.userAuthId()),
                 () -> Assertions.assertEquals(userAuth.getEmail(), mapped.email()),
                 () -> Assertions.assertEquals(userInfo.username(), mapped.username()),
-                () -> Assertions.assertEquals(userInfo.dataUpdatedAt(), mapped.dataUpdatedAt()),
                 () -> Assertions.assertEquals(userAuth.isEnabled(), mapped.isEnabled()),
                 () -> Assertions.assertEquals(userInfo.rank(), mapped.rank()),
                 () -> Assertions.assertEquals(userInfo.currentScore(), mapped.currentScore())

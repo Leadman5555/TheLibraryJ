@@ -16,4 +16,5 @@ interface BookBlazeRepository {
 
     List<BookPreview> getBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state,
                                              BookTag[] tags, Boolean ratingOrder);
+    List<BookPreview> getAuthoredBookPreviews(String byUser);
 }

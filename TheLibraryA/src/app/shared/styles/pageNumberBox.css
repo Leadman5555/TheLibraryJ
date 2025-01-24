@@ -1,11 +1,11 @@
 .pageNumberBox {
-  padding: 10px;
-
+  font-size: 1em;
+  padding: 0.6em;
   cursor: pointer;
-  border: 1px solid #a6a4a4;
-  flex-direction: column;
-  align-items: center;
+  border: 0.08em solid #a6a4a4;
+  display: flex;
   justify-content: center;
+  align-items: center;
   background-color: #ccc;
 }
 

@@ -1,4 +1,4 @@
-package org.library.thelibraryj.userInfo.dto;
+package org.library.thelibraryj.userInfo.dto.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

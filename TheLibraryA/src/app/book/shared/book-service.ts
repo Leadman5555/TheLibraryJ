@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BookPreview} from './models/book-preview';
-import {Observable} from 'rxjs';
+import {catchError, Observable} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {BookDetail} from './models/book-detail';
 import {BookResponse} from './models/book-response';
@@ -9,6 +9,8 @@ import {BookPage} from '../../home/home/paging/book-page';
 import {KeysetPage} from '../../shared/paging/models/keyset-page';
 import {RatingResponse} from './models/rating-response';
 import {ChapterPreviewPage} from '../book/paging/chapterPreview-page';
+import {RatingRequest} from './models/rating-request';
+import {handleError} from '../../shared/errorHandling/handleError';
 
 @Injectable({
   providedIn: 'root'
@@ -44,6 +46,11 @@ export class BookService {
     return this.http.get<BookPreview[]>(`${this.baseUrl}/filtered`, {params});
   }
 
+  public getBookPreviewsByAuthor(author: string): Observable<BookPreview[]> {
+    return this.http.get<BookPreview[]>(`${this.baseUrl}/authored/${author}`);
+  }
+
+
   public getBookDetail(bookId: string): Observable<BookDetail> {
     return this.http.get<BookDetail>(`${this.baseUrl}/${bookId}`);
   }
@@ -59,5 +66,9 @@ export class BookService {
 
   public getRatingsForBook(bookId: string): Observable<RatingResponse[]> {
     return this.http.get<RatingResponse[]>(`${this.baseUrl}/${bookId}/rating`);
+  }
+
+  public upsertRatingForBook(request: RatingRequest): Observable<RatingResponse> {
+    return this.http.put<RatingResponse>(`${this.baseAuthUrl}/rating`, request).pipe(catchError(handleError));
   }
 }

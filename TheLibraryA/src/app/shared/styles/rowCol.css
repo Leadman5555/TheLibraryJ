@@ -1,14 +1,14 @@
 .column {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.5em;
   align-items: center;
   justify-content: center;
 }
 
 .row {
   display: flex;
-  gap: 10px;
+  gap: 0.5em;
   align-items: center;
   justify-content: center;
 }
@@ -17,4 +17,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.noGap{
+  gap: 0;
 }

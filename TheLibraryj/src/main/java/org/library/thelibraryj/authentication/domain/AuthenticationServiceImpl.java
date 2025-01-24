@@ -2,7 +2,6 @@ package org.library.thelibraryj.authentication.domain;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.vavr.control.Either;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import org.library.thelibraryj.authentication.AuthenticationService;
 import org.library.thelibraryj.authentication.PasswordControl;
@@ -61,7 +60,7 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
     }
 
     @Override
-    public Either<GeneralError, UserCreationResponse> register(RegisterRequest registerRequest) throws MessagingException {
+    public Either<GeneralError, UserCreationResponse> register(RegisterRequest registerRequest) {
         Either<GeneralError, UserCreationData> createdUser = createUser(registerRequest);
         if (createdUser.isLeft()) return Either.left(createdUser.getLeft());
         UserCreationData data = createdUser.get();
@@ -79,7 +78,7 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
     }
 
     @Override
-    public Either<GeneralError, Boolean> resendActivationEmail(String email) throws MessagingException {
+    public Either<GeneralError, Boolean> resendActivationEmail(String email) {
         Either<GeneralError, ActivationTokenResponse> createdTokenE = activationService.createActivationToken(email);
         if (createdTokenE.isLeft()) return Either.left(createdTokenE.getLeft());
         sendActivationMail(email, email, createdTokenE.get());

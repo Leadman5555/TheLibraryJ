@@ -1,0 +1,26 @@
+<div class="column">
+  <div
+    class="drop-zone"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+    [class.active]="isDropZoneActive"
+  >
+    <p *ngIf="!imagePreview">Drag and drop your profile image here, or click to browse.</p>
+    <div class="image34Wrapper">
+      <img *ngIf="imagePreview" [src]="imagePreview" alt="Image preview" class="image34"/>
+    </div>
+    <input
+      type="file"
+      id="fileInput"
+      hidden
+      accept="image/*"
+      (change)="onFileChange($event)"
+      #fileInput
+    />
+  </div>
+  <div class="row">
+    <button type="button" class="sButton" (click)="fileInput.click()">Browse local images</button>
+    <button type="button" class="sButton" (click)="resetImage()">Reset image</button>
+  </div>
+</div>

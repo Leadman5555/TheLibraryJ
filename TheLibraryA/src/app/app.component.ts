@@ -1,17 +1,18 @@
 import {afterNextRender, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {RouterLink, RouterOutlet} from '@angular/router';
-import {UserAuthService} from './user/user-auth.service';
-import {FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
+import {UserAuthService} from './user/userAuth/user-auth.service';
+import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgIf, NgOptimizedImage} from '@angular/common';
 import {AuthenticationRequest} from './user/shared/models/authentication-request';
 import {UserMini} from './user/shared/models/user-mini';
-import {EventBusService} from './shared/eventBus/event-bus.service';
+import {EventBusService, LOGIN_EVENT, LOGOUT_EVENT, REFRESH_EVENT} from './shared/eventBus/event-bus.service';
 import {Subscription} from 'rxjs';
 import {StorageService} from './shared/storage/storage.service';
+import {UserSearchComponent} from './user/profile/user-search/user-search.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, FormsModule, NgIf, ReactiveFormsModule, NgOptimizedImage],
+  imports: [RouterOutlet, RouterLink, NgIf, ReactiveFormsModule, NgOptimizedImage, UserSearchComponent],
   templateUrl: './app.component.html',
   standalone: true,
   styleUrl: './app.component.css'
@@ -41,7 +42,8 @@ export class AppComponent implements OnInit {
   }
 
   private eventBusSubscription?: Subscription;
-  showSettings: boolean = false;
+  showMenu: boolean = false;
+  showOptions: boolean = false;
   showLoggedIn: boolean = false;
   showPassword: boolean = false;
   logInForm!: FormGroup;
@@ -61,7 +63,7 @@ export class AppComponent implements OnInit {
         this.errorMessage = error || 'An unknown error occurred!';
       },
       complete: () => {
-        this.showSettings = false;
+        this.hideWindows();
         this.resetForm();
       }
     });
@@ -73,8 +75,19 @@ export class AppComponent implements OnInit {
     this.logInForm.reset();
   }
 
-  toggleSettings() {
-    this.showSettings = !this.showSettings;
+  toggleMenu() {
+    this.showMenu = !this.showMenu;
+    this.showOptions = false;
+  }
+
+  toggleOptions() {
+    this.showOptions = !this.showOptions;
+    this.showMenu = false;
+  }
+
+  hideWindows(){
+    this.showMenu = false;
+    this.showOptions = false;
   }
 
   toggleShowPassword() {
@@ -104,12 +117,16 @@ export class AppComponent implements OnInit {
 
   private subscribeToLogIn(): void {
     this.eventBusSubscription?.unsubscribe();
-    this.eventBusSubscription = this.eventBus.on('login', () => this.logIn());
+    this.eventBusSubscription = this.eventBus.on(LOGIN_EVENT, () => this.logIn());
   }
 
   private subscribeToLogOut(): void {
     this.eventBusSubscription?.unsubscribe();
-    this.eventBusSubscription = this.eventBus.on('logout', () => this.logOut());
+    this.eventBusSubscription = this.eventBus.onMultiple([{eventName: LOGOUT_EVENT, action: () => this.logOut()}, {eventName: REFRESH_EVENT, action: () => this.refreshMini()}]);
+  }
+
+  private refreshMini() {
+    this.userMini = this.storageService.getUserMini();
   }
 
   logInWithGoogle() {

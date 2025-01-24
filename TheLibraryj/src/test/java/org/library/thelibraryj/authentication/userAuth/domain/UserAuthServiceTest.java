@@ -10,9 +10,8 @@ import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
 import org.library.thelibraryj.userInfo.UserInfoService;
-import org.library.thelibraryj.userInfo.dto.UserInfoRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoResponse;
-import org.library.thelibraryj.userInfo.dto.UserInfoWithImageResponse;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoRequest;
+import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -66,7 +65,6 @@ public class UserAuthServiceTest {
     public void testCreateNewUser() {
         UserCreationRequest request = new UserCreationRequest(email, password, username, null);
         UserInfoRequest infoRequest = new UserInfoRequest(username, email, id);
-        UserInfoResponse infoResponse = new UserInfoResponse(username, email, 0, 0, Instant.now());
         UserAuth newAuth = mapper.userAuthRequestToUserAuth(request);
         newAuth.setRole(UserRole.USER);
         when(userAuthRepository.persist(newAuth)).thenReturn(userAuth);
@@ -77,7 +75,8 @@ public class UserAuthServiceTest {
                 email,
                 0,
                 0,
-                Instant.now(),
+                null,
+                (short) 0,
                 null
         ));
         Either<GeneralError, UserCreationData> response = userAuthService.createNewUser(request);

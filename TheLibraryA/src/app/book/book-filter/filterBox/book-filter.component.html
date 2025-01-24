@@ -54,7 +54,7 @@
 
         <div formGroupName="filterByTags" class="tagsDiv">
           <div class="mt-square3d-custom tagSelector" *ngFor="let tag of allTags; let i = index; trackBy: identifyTag"
-               style="font-size:10px;">
+               style="font-size:0.8em;">
             <span class="tagName">{{ tag }}</span>
             <input id="checkMt_{{i}}" type="checkbox" formControlName="{{tag}}"/>
             <label for="checkMt_{{i}}"></label>
@@ -68,6 +68,6 @@
       </div>
     </form>
   </div>
-  <img ngSrc="/teapot.jpg" width="369" height="246" alt="Chinese teapot" priority>
+  <img src="/teapot.jpg" style="width: 100%; height: auto;" alt="Chinese teapot">
 
 </div>

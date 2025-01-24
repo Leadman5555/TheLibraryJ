@@ -1,0 +1,61 @@
+<div class="outerBox">
+  @if (this.userData) {
+    <div class="userProfileGrid">
+      <div class="usernameBar centerVH">
+        {{ findTitle(this.userData.preference).title }}<span
+        style="color: #280049; margin-left: 0.2em">{{ this.userData.username }}</span>
+      </div>
+      <div class="rankDiv row">
+        <span
+          style="font-size: 1.1em; margin-right: 0.4em">Cultivation stage:<br><b
+          style="font-style: italic">{{ rankArray[this.userData.rank] }}</b></span>
+        <span>Accumulation needed:
+          @if (this.userData.rank === 10) {
+            <span style="color: #976c03; font-style: italic"><br>Heaven's Will is merciless,<br>Sea of Bitterness endless,<br>path to Ascension forever blocked...</span>
+          } @else {
+            <app-progress-bar [current]="userData.currentScore"
+                              [goal]="progressArray[userData.rank]"></app-progress-bar>
+          }</span>
+      </div>
+      <div class="profileImgDiv">
+        <div class="image34Wrapper">
+          <img class="image34" src="data:image/jpg;base64,{{this.userData.profileImage}}" alt="Profile image">
+        </div>
+      </div>
+      <div class="statusDiv">
+        <div id="statusBox" class="centerVH">
+          {{ this.userData.status }}
+        </div>
+      </div>
+      <div class="lastUpdateDiv row">
+        <div class="column noGap">
+          <span>Daoist title last updated at:</span> {{ parseDateString(this.userData.dataUpdatedAt) }}
+        </div>
+        <div class="column noGap"><span>Cultivating since: </span>{{ parseDateString(this.userData.createdAt) }}</div>
+      </div>
+      <div class="previewsDiv">
+        @if (!authoredBooks) {
+          <div style="margin-bottom: 1.8em">
+            <button class="fetchBooks sButton" (click)="fetchAuthoredBooks()">Load authored books</button>
+          </div>
+        } @else {
+          @if (authoredBooks.length) {
+            <div class="previewsColumn">
+              @for (bp of authoredBooks; track bp.title) {
+                <app-book-preview-card [bookPreview]="bp"/>
+              }
+            </div>
+          } @else {
+            <p class="infoMsg centerVH">No works written.</p>
+          }
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="column">
+      {{ this.userFetchErrorMsg }}
+      <button class="sButton" routerLink="">Go to homepage</button>
+    </div>
+  }
+
+</div>

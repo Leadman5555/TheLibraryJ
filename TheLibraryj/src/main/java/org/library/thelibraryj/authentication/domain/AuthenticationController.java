@@ -52,12 +52,12 @@ class AuthenticationController implements ErrorHandling {
     public ResponseEntity<String> register(@RequestPart("email") @Email String email,
                                            @RequestPart("password") @NotNull @NotEmpty String password,
                                            @RequestPart("username") @NotNull @Size(min = 5, max = 20) String username,
-                                           @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws MessagingException {
+                                           @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         return handle(authenticationService.register(new RegisterRequest(email, password.toCharArray(), username, profileImage)), HttpStatus.CREATED);
     }
 
     @Operation(
-            summary = "Returns a valid JWT token on successful login attempt.",
+            summary = "Returns a valid JWT token and refresh token as Http-only cookie on successful login attempt.",
             tags = {"authentication", "no auth required"}
     )
     @ApiResponses({
@@ -96,7 +96,7 @@ class AuthenticationController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User account not found."),
     })
     @PostMapping("/na/auth/activation")
-    public ResponseEntity<String> resendActivationEmail(@RequestParam @NotNull @Email String email) throws MessagingException {
+    public ResponseEntity<String> resendActivationEmail(@RequestParam @NotNull @Email String email) {
         return handle(authenticationService.resendActivationEmail(email), HttpStatus.NO_CONTENT);
     }
 
@@ -118,7 +118,7 @@ class AuthenticationController implements ErrorHandling {
             tags = {"authentication", "activation", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "XSRF token cookie refreshed and attached as cookie to response."),
+            @ApiResponse(responseCode = "204", description = "Jwt token cookie refreshed and attached as cookie to response."),
             @ApiResponse(responseCode = "401", description = "Refresh token invalid."),
             @ApiResponse(responseCode = "404", description = "Refresh token missing")
     })

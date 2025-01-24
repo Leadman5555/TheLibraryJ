@@ -1,0 +1,40 @@
+@import "../../../shared/styles/sButton.css";
+@import "../../../shared/styles/sInput.css";
+@import "../../../shared/styles/rowCol.css";
+
+.topBar {
+  grid-area: topBar;
+  border: 0.08em solid rgba(77, 1, 209, 0.7);
+  background-color: rgba(202, 243, 243, 0.65);
+  width: fit-content;
+  padding: 0.6em;
+  margin-bottom: 0.6em;
+}
+
+.errorBox{
+  color: rgba(77, 1, 209, 0.7);
+  font-size: 0.8em;
+  width: 100%;
+}
+
+#searchButton{
+  font-size: 0.8em;
+}
+
+#searchButton:disabled{
+  display: none;
+}
+
+#searchButton::after {
+  background-color: #A4D5D6;
+}
+
+#searchButton::before {
+  background-color: #A4D5D6;
+}
+
+.input-container {
+  position: relative;
+  margin-top: 1.2em;
+  width: 10em;
+}

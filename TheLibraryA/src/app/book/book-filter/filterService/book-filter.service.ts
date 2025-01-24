@@ -13,11 +13,8 @@ export class BookFilterService {
     this.formOutcomeSource.next(form);
   }
 
-  onTagsRedirect(selectedTags: string[]) {
-    const form = new FormOutcome(true);
-    form.setRedirectTags(selectedTags);
-    form.isRedirected = true;
-    this.formOutcomeSource.next(form);
+  refreshSelection(){
+    this.formOutcomeSource.next(this.formOutcomeSource.getValue());
   }
 
   getRedirectData() : FormOutcome | undefined {

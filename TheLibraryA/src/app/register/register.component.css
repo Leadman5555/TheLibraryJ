@@ -5,43 +5,24 @@
 
 #mainBox{
   background-color: cadetblue;
-  border: 3px solid darkgoldenrod;
-  padding: 20px;
+  border: 0.2em solid darkgoldenrod;
+  padding: 1.2em;
   display: flex;
 }
 
 #infoDiv{
-  width: 30%;
+  width: 45%;
 }
 
 .disclaimer{
-  font-size: 1.1rem;
+  font-size: 1.1em;
   word-wrap: break-word;
   text-align: justify;
 }
 
 #formDiv{
-  width: 70%;
+  width: 65%;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.drop-zone {
-  border: 2px dashed rgba(40, 0, 73, 0.7);
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: background-color 0.3s, border-color 0.3s;
-}
-
-.drop-zone.active {
-  background-color: #e8f7ff;
-  border-color: #007bff;
-}
-
-.drop-zone img {
-  margin-top: 10px;
-  max-width: 100%;
 }

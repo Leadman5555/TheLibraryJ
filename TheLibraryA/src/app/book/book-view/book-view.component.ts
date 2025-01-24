@@ -3,10 +3,10 @@ import {NgForOf} from "@angular/common";
 import {BookFilterComponent} from "../book-filter/filterBox/book-filter.component";
 import {BookPreviewCardComponent} from "../book-preview-card/book-preview-card.component";
 import {BookPreview} from '../shared/models/book-preview';
-import {ActivatedRoute} from '@angular/router';
 import {BookService} from '../shared/book-service';
 import {BookFilterService} from '../book-filter/filterService/book-filter.service';
-import {Subscription} from 'rxjs';
+import {catchError, skip, Subscription} from 'rxjs';
+import {handleError} from '../../shared/errorHandling/handleError';
 
 @Component({
   selector: 'app-book-view',
@@ -24,12 +24,10 @@ export class BookViewComponent implements OnInit, OnDestroy {
   private bookService: BookService = inject(BookService);
   private filterSubscription!: Subscription;
 
-  constructor(private activatedRoute: ActivatedRoute, private filterService: BookFilterService) {}
+  constructor(private filterService: BookFilterService) {}
 
   ngOnInit(): void {
-    const tagsFromRedirect = this.activatedRoute.snapshot.paramMap.getAll('hasTags');
-    if(tagsFromRedirect.length > 0) this.filterService.onTagsRedirect(tagsFromRedirect);
-    this.filterSubscription =  this.filterService.currentForm$.subscribe(outcome => {
+    this.filterSubscription =  this.filterService.currentForm$.pipe(skip(1), catchError(handleError)).subscribe(outcome => {
       if(outcome.isValid && !outcome.isRedirected) {
         if(outcome.sortAsc !== undefined){
           let compareF;
@@ -40,8 +38,12 @@ export class BookViewComponent implements OnInit, OnDestroy {
           this.bookPreviews = this.bookPreviews.filter(outcome.predicate);
         }
       }else this.bookService.getBookPreviewsByParams(outcome.params).subscribe({
-        next: (v) => this.bookPreviews = v,
-        error: (_) => console.error("Error fetched data"),
+        next: (v) => {
+          this.bookPreviews = v
+          // for(let i = 0; i < 100; i++){
+          //   this.bookPreviews.push(this.bookPreviews[i]);
+          // }
+        }
       });
     });
   }

@@ -1,0 +1,144 @@
+<div id="rankUpAnimation" [@rankUpAnimation]="animationState" class="centerVH">
+  @if (this.userData.rank === 10) {
+    Heaven's Will is merciless,<br>Sea of Bitterness endless,<br>path to Ascension forever blocked...
+  } @else {
+    Heaven's Will is generous,<br>Sea of Bitterness not without a shore,
+    <br>path to Ascension steep, but not impossible to tread upon.<br><br>
+    Akin to a carp, leaping through the Dragon Gate,<br>so shall I rise, ten thousand li with a single step.
+  }
+</div>
+<div id="outerBox">
+  <div id="userProfileEditGrid" *ngIf="this.userData">
+    <div id="topBarDiv">
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="gradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100%" y2="0">
+            <stop offset="0%" stop-color="#a66c00"/>
+            <stop offset="100%" stop-color="#280049B2"/>
+          </linearGradient>
+        </defs>
+        <text x="50%" y="50%" text-anchor="middle" fill="url(#gradient)">Refine your image</text>
+      </svg>
+    </div>
+    <div id="imageDiv" class="column">
+      <form class="column" [formGroup]="imageUpdateForm" (ngSubmit)="updateProfileImage()">
+        <span>Current profile image</span>
+        <div class="image34Wrapper">
+          <img class="image34" src="data:image/jpg;base64,{{this.userData.profileImage}}" alt="Current profile image">
+        </div>
+        <span>Updated profile image</span>
+        <app-image-drop [parentControl]="imageControl"></app-image-drop>
+        <button class="sButton" type="submit"
+                id="imageChangeButton">@if (this.imageUpdateForm.get('newImage')?.value == null) {
+          Change image to default
+        } @else {
+          Update profile image
+        }</button>
+        <div class="errorBox"
+             *ngIf="profileImageUpdateErrorMessage !== undefined">{{ profileImageUpdateErrorMessage }}
+        </div>
+      </form>
+    </div>
+    <div id="statusDiv">
+      <div class="errorBox alignLeft" *ngIf="statusUpdateErrorMessage !== undefined">{{ statusUpdateErrorMessage }}
+      </div>
+      <form class="column" [formGroup]="statusUpdateForm" (ngSubmit)="updateStatus()">
+        <label for="statusInput">Update Your status:</label>
+        <textarea
+          id="statusInput"
+          class="textArea"
+          formControlName="newStatus"
+          rows="6"
+          cols="50"
+          maxlength="300"
+        ></textarea>
+        <div class="successBox" *ngIf="statusUpdated">Status updated</div>
+        <button type="submit" class="sButton" [disabled]="statusUpdateForm.invalid">Update status</button>
+      </form>
+    </div>
+    <div id="usernameDiv">
+      <form [formGroup]="usernameUpdateForm" (ngSubmit)="updateUsername()" class="column">
+        <div class="errorBox alignLeft"
+             *ngIf="usernameUpdateErrorMessage !== undefined">{{ usernameUpdateErrorMessage }}
+        </div>
+        <span>Update your daoist name:<br>Your current daoist name is: <b>{{ this.userData.username }}</b><br>Last changed: {{ parseDateString(this.userData.dataUpdatedAt) }}</span>
+        <div class="inputColumn">
+          <div class="input-container">
+            <input placeholder="Enter new name here" class="input-field" id="usernameInput" type="text" maxlength="20"
+                   formControlName="newUsername">
+            <label for="usernameInput" class="input-label">I shall be known as: </label>
+            <span class="input-highlight"></span>
+          </div>
+          <div class="errorBox alignLeft"
+               *ngIf="usernameUpdateForm.get('newUsername')?.invalid && (usernameUpdateForm.get('newUsername')?.dirty)">
+            Your name can only contain letters ('a-z' and 'A-Z'), digits ('0-9'), hi-fens ('-') and underscores ('_'),
+            and be between 5 and 20 characters long.
+          </div>
+          <div class="input-container">
+            <input placeholder="Enter username here" class="input-field" id="usernameRepeatInput" type="text"
+                   maxlength="20"
+                   formControlName="repeatUsername">
+            <label for="usernameRepeatInput" class="input-label">Confirm your choice: </label>
+            <span class="input-highlight"></span>
+          </div>
+          <div class="errorBox alignLeft" *ngIf="usernameMismatchError && usernameUpdateForm.touched">
+            Names do not match
+          </div>
+        </div>
+        <button class="sButton" type="submit" [disabled]="usernameUpdateForm.invalid || usernameUpdateForm.pristine">
+          Change username
+        </button>
+      </form>
+    </div>
+    <div id="rankDiv" class="column">
+      <div>
+        <div class="errorBox" *ngIf="preferenceUpdateErrorMessage !== undefined">{{ preferenceUpdateErrorMessage }}
+        </div>
+        <form class="column" [formGroup]="preferenceUpdateForm" (ngSubmit)="updatePreference()">
+          <span>Current title: </span>
+          <div class="column">
+            <select formControlName="chosenPreference" id="dropdownPreferenceList">
+              <option *ngFor="let title of preferenceArray; trackBy identifyByIndex"
+                      [ngValue]="title"
+                      [disabled]="title.requiredRank > this.userData.rank">Rank {{ title.requiredRank }}
+                : {{ title.title }}
+              </option>
+            </select>
+            <button style="font-size: 0.8em" class="sButton disabledHide" type="submit"
+                    [disabled]="preferenceUpdateForm.pristine">Change title
+            </button>
+          </div>
+        </form>
+      </div>
+      <div>
+        <div class="errorBox" *ngIf="rankUpdateErrorMessage !== undefined">{{ rankUpdateErrorMessage }}</div>
+        <div class="rankDiv column">
+        <span
+          style="font-size: 1.1em; margin-right: 0.4em; width: fit-content">Cultivation stage: <b
+          style="font-style: italic;">{{ rankArray[this.userData.rank] }}</b></span>
+          <span>Accumulation needed:
+            @if (this.userData.rank === 10) {
+              <span style="color: #976c03; font-style: italic"><br>Heaven's Will is merciless,<br>Sea of Bitterness endless,<br>path to Ascension forever blocked...</span>
+            } @else {
+              <app-progress-bar [current]="userData.currentScore"
+                                [goal]="progressArray[userData.rank]"></app-progress-bar>
+              <button class="sButton disabledHide" [disabled]="userData.currentScore < progressArray[userData.rank]"
+                      (click)="updateRank()">Breakthrough</button>
+            }</span>
+        </div>
+      </div>
+    </div>
+    <div id="infoDiv">
+      <b>Profile picture</b>: you can change it freely at any time or reset to the default one. It's best to upload
+      images in a 4:3 ratio.<br>
+      <b>Status</b>: you can change it freely at any time. Status length is limited to 300 characters.<br>
+      <b>Title</b>: you can change it freely at any time. Your cultivation rank needs to be greater or equal to the rank
+      of the title.<br>
+      <b>Daoist name</b>: you can change the username every 90 days. It has to be unique, remember that once you change
+      your username, a fellow reader may take your previous one for their own.<br>
+      <b>Cultivation progress</b>: you can accumulate the needed experience by rating and reviewing scriptures - it also
+      allows the author's cultivation to progress. The extent of their progress is heavily determined by the review you
+      have given. You can attempt to breakthrough once your accumulation grows enough.<br>
+    </div>
+  </div>
+</div>

@@ -81,4 +81,11 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
         if(ratingOrder != null) cb.orderBy("averageRating", ratingOrder);
         return cb.getResultList();
     }
+
+    @Override
+    public List<BookPreview> getAuthoredBookPreviews(String byUser){
+        return cbf.create(em, BookPreview.class)
+                .where("bookDetail.author").eq(byUser)
+                .getResultList();
+    }
 }

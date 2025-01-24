@@ -4,18 +4,21 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.userInfo.UserInfoService;
-import org.library.thelibraryj.userInfo.dto.UserInfoImageUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoMiniResponse;
-import org.library.thelibraryj.userInfo.dto.UserInfoRankUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.response.UserInfoMiniResponse;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoStatusUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -45,8 +48,8 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/id/{id}")
-    public ResponseEntity<String> getUserInfoResponseById(@PathVariable("id") UUID id) {
-        return handle(userInfoService.getUserInfoResponseById(id), HttpStatus.OK);
+    public ResponseEntity<String> getUserProfileById(@PathVariable("id") UUID id) {
+        return handle(userInfoService.getUserProfileById(id), HttpStatus.OK);
     }
 
     @Operation(
@@ -58,8 +61,8 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/{username}")
-    public ResponseEntity<String> getUserInfoResponseByUsername(@PathVariable("username") String username) {
-        return handle(userInfoService.getUserInfoResponseByUsername(username), HttpStatus.OK);
+    public ResponseEntity<String> getUserProfileByUsername(@PathVariable("username") String username) {
+        return handle(userInfoService.getUserProfileByUsername(username), HttpStatus.OK);
     }
 
     @Operation(
@@ -71,8 +74,8 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/email/{email}")
-    public ResponseEntity<String> getUserInfoResponseByEmail(@PathVariable("email") String email) {
-        return handle(userInfoService.getUserInfoResponseByEmail(email), HttpStatus.OK);
+    public ResponseEntity<String> getUserProfileByEmail(@PathVariable("email") String email) {
+        return handle(userInfoService.getUserProfileByEmail(email), HttpStatus.OK);
     }
 
     @Operation(
@@ -127,9 +130,9 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "401", description = "Authentication failure")
     })
-    @PatchMapping("/user/profile/rank/{id}")
-    public ResponseEntity<String> updateUserInfoRank(@PathVariable("id") UUID id) {
-        return handle(userInfoService.updateRank(id), HttpStatus.OK);
+    @PatchMapping("/user/profile/rank/{email}")
+    public ResponseEntity<String> updateUserInfoRank(@PathVariable("email") @Email String email) {
+        return handle(userInfoService.updateRank(email), HttpStatus.OK);
     }
 
     @Operation(
@@ -150,7 +153,40 @@ class UserInfoController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Change the user's profile image for a new one",
+            summary = "Change the user's status",
+            tags = "user"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Status updated successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
+    })
+    @PatchMapping("/user/profile/status")
+    @PreAuthorize("hasRole('ADMIN') or #userInfoStatusUpdateRequest.email == authentication.principal.username")
+    public ResponseEntity<String> updateUserInfoStatus(@RequestBody @Valid UserInfoStatusUpdateRequest userInfoStatusUpdateRequest) {
+        return handle(userInfoService.updateUserInfoStatus(userInfoStatusUpdateRequest), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Change the user's preference",
+            tags = "user"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Preference updated successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid preference or rank lacking"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
+    })
+    @PatchMapping("/user/profile/preference")
+    @PreAuthorize("#userInfoPreferenceUpdateRequest.email == authentication.principal.username")
+    public ResponseEntity<String> updateUserInfoPreference(@RequestBody @Valid UserInfoPreferenceUpdateRequest userInfoPreferenceUpdateRequest) {
+        return handle(userInfoService.updateUserInfoPreference(userInfoPreferenceUpdateRequest), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Change the user's profile image for a new one. If none sent, replaces user profile image with the default one.",
             tags = "user"
     )
     @ApiResponses(value = {
@@ -163,7 +199,7 @@ class UserInfoController implements ErrorHandling {
     @PatchMapping(value = "/user/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
     public ResponseEntity<String> updateUserProfileImage(@RequestPart("email") @NotBlank String email,
-                                                         @RequestPart("newImage") @NotNull MultipartFile newImage) throws IOException {
+                                                         @RequestPart(value = "newImage", required = false) @Nullable MultipartFile newImage) throws IOException {
         return handle(userInfoService.updateProfileImage(new UserInfoImageUpdateRequest(email, newImage)), HttpStatus.OK);
     }
 }
