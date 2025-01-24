@@ -29,9 +29,9 @@
       </div>
       <div class="lastUpdateDiv row">
         <div class="column noGap">
-          <span>Daoist title last updated at:</span> {{ parseDate(this.userData.dataUpdatedAt) }}
+          <span>Daoist title last updated at:</span> {{ parseDateString(this.userData.dataUpdatedAt) }}
         </div>
-        <div class="column noGap"><span>Cultivating since: </span>{{ parseDate(this.userData.createdAt) }}</div>
+        <div class="column noGap"><span>Cultivating since: </span>{{ parseDateString(this.userData.createdAt) }}</div>
       </div>
       <div class="previewsDiv">
         @if (!authoredBooks) {

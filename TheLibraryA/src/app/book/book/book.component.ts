@@ -95,6 +95,7 @@ export class BookComponent extends PagingHelper implements OnInit {
     return new Observable<never>((observer) => {
       this.bookService.getRatingsForBook(this.bookPreview.id).subscribe({
         next: (v) => {
+          console.log(v)
           this.ratings = v;
           observer.complete();
         },
@@ -164,7 +165,7 @@ export class BookComponent extends PagingHelper implements OnInit {
   }
 
   upsertRating() {
-    if (this.ratingUpsertForm.pristine || this.ratingUpsertForm.invalid) return;
+    if (this.ratingUpsertForm.invalid) return;
     this.ratingUpsertMessage = undefined;
     const values = this.ratingUpsertForm.value;
     if (this.previousRating !== undefined) {
@@ -178,7 +179,10 @@ export class BookComponent extends PagingHelper implements OnInit {
     })
       .subscribe({
         next: (v) => {
-          this.ratings!.push(v);
+          if(this.previousRating !== undefined) {
+            this.ratings = this.ratings!.filter(rating => rating.username !== this.previousRating!.username);
+            this.ratings.push(v);
+          }else this.ratings!.push(v);
           this.previousRating = undefined
           this.showRatingUpsertForm = false;
         },
@@ -207,5 +211,5 @@ export class BookComponent extends PagingHelper implements OnInit {
     this.componentStore.loadSpecifiedPage(pageNumber);
   }
 
-  protected readonly parseDate = parseDateString;
+  protected readonly parseDateString = parseDateString;
 }

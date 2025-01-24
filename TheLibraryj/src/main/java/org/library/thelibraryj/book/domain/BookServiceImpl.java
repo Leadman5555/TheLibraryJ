@@ -196,9 +196,7 @@ class BookServiceImpl implements BookService {
         Optional<Rating> prevRating = ratingRepository.getRatingForBookAndUser(ratingRequest.bookId(), userId);
         BookPreview preview = ePreview.get();
 
-        final String escapedComment;
-        if (ratingRequest.comment() == null) escapedComment = "";
-        else escapedComment = escapeHtml(ratingRequest.comment());
+        final String escapedComment = ratingRequest.comment() == null ? "" : escapeHtml(ratingRequest.comment());
 
         if (prevRating.isPresent()) {
             Rating rating = prevRating.get();
@@ -213,7 +211,7 @@ class BookServiceImpl implements BookService {
             userInfoService.updateRatingScore(new UserInfoScoreUpdateRequest(
                     userId,
                     detail.getAuthorId(),
-                    ratingRequest.comment() != null
+                    ratingRequest.comment() != null && !ratingRequest.comment().isBlank()
             ));
             preview.setAverageRating(
                     (preview.getAverageRating() * preview.getRatingCount() + ratingRequest.currentRating()) / (preview.getRatingCount() + 1)

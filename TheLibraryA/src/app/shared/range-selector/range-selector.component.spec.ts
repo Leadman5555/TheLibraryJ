@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { RangeSelectorComponent } from './range-selector.component';
+import {RangeSelectorComponent} from './range-selector.component';
 
 describe('RangeSelectorComponent', () => {
   let component: RangeSelectorComponent;

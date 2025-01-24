@@ -18,7 +18,12 @@ import org.springframework.http.ResponseEntity;
  * the statuses and messages defined in ApiErrorWrapper.
  */
 public interface ErrorHandling {
-    ObjectWriter ow = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT).registerModule(new JavaTimeModule()).writerWithDefaultPrettyPrinter();
+    ObjectWriter ow = new ObjectMapper()
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .writerWithDefaultPrettyPrinter();
+
     private static ResponseEntity<String> createSuccessResponse(Object responseBody, HttpStatus successReturn) {
         return ResponseEntity.status(successReturn).body(toJson(responseBody));
     }

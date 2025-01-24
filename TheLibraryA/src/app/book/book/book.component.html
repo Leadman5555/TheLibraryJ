@@ -3,7 +3,7 @@
     <div class="bookCard" *ngIf="bookPreview && bookDetail">
       <div class="titleDiv centerVH">{{ bookPreview.title }}</div>
       <div class="ratingDataDiv row centerVH">
-        Average rating of {{ bookPreview.averageRating }} /10 from {{ bookPreview.ratingCount }} ratings
+        Average rating of {{ bookPreview.averageRating.toFixed(2) }} /10 from {{ bookPreview.ratingCount }} ratings
       </div>
       <div class="descDiv">
         <span id="header">Description:</span>
@@ -52,7 +52,7 @@
                 <span class="bold centerVH" id="chNumber">{{ chPrev.number.toString().padStart(4, '0') }}</span>
                 <div class="column" id="chInfo">
                   <span class="bold">{{ chPrev.title }}</span>
-                  <span>Updated at: {{ parseDate(chPrev.updatedAt) }}</span>
+                  <span>Updated at: {{ parseDateString(chPrev.updatedAt) }}</span>
                 </div>
               </div>
             }
@@ -81,7 +81,7 @@
                 <span>By: <span class="userLink"
                                 [routerLink]="['/profile', review.username]">{{ review.username }}</span></span>
                 <span>Rating: <span style="font-weight:bold">{{ review.currentRating }}/10</span></span>
-                <span>At: {{ parseDate(review.updatedAt) }}</span>
+                <span>At: {{ parseDateString(review.updatedAt) }}</span>
               </div>
               <span id="comment"> {{ review.comment }}</span>
             </div>

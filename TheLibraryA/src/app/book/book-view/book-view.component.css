@@ -35,18 +35,6 @@
   animation-timeline: scroll();
 }
 
-#noPreviews{
-  left: 0;
-  width: 100%;
-  height: auto;
-  background: rgb(0, 8, 30);
-  color: bisque;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: -1;
-}
-
 .previewContainer {
   flex: 0 0 75%;
   display: grid;

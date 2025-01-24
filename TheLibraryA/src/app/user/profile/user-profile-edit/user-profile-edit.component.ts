@@ -20,8 +20,8 @@ import {
   UserUsernameUpdateRequest,
   UserUsernameUpdateResponse
 } from './dto/UserUpdateDtos';
-import {parseDateArray} from '../../../shared/functions/parseData';
 import {animate, state, style, transition, trigger} from '@angular/animations';
+import {parseDateString} from '../../../shared/functions/parseData';
 
 const ANIMATION_IN_MS: number = 500;
 const ANIMATION_OUT_MS: number = 1000;
@@ -248,5 +248,5 @@ export class UserProfileEditComponent implements OnInit {
   protected readonly preferenceArray = preferenceArray;
   protected readonly progressArray = progressArray;
   protected readonly rankArray = rankArray;
-  protected readonly parseDateArray = parseDateArray;
+  protected readonly parseDateString = parseDateString;
 }

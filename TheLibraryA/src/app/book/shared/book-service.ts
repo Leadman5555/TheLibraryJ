@@ -9,7 +9,7 @@ import {BookPage} from '../../home/home/paging/book-page';
 import {KeysetPage} from '../../shared/paging/models/keyset-page';
 import {RatingResponse} from './models/rating-response';
 import {ChapterPreviewPage} from '../book/paging/chapterPreview-page';
-import {RatingRequest} from '../book/dto/rating-request';
+import {RatingRequest} from './models/rating-request';
 import {handleError} from '../../shared/errorHandling/handleError';
 
 @Injectable({

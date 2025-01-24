@@ -2,7 +2,6 @@ package org.library.thelibraryj.authentication.domain;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.vavr.control.Either;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import org.library.thelibraryj.authentication.AuthenticationService;
 import org.library.thelibraryj.authentication.PasswordControl;

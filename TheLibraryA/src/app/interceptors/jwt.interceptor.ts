@@ -67,6 +67,8 @@ export class JwtInterceptor implements HttpInterceptor {
       );
   }
 
+
+// @ts-ignore: Suppress deprecation warnings
   private handleTokenExpired(): Observable<boolean> {
     this.isRefreshing = true;
     if (this.storageService.isLoggedIn()) {

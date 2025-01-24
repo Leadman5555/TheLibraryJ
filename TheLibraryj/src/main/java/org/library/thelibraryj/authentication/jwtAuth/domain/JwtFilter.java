@@ -32,24 +32,27 @@ public class JwtFilter extends OncePerRequestFilter {
      * Valid token -> pass
      * Invalid token -> fail
      * Expired token -> refresh token from Http-only cookie is checked
-     *      Refresh token invalid/not present -> fail
-     *      Refresh token valid -> new JWT token attached as cookie to response, pass
+     * Refresh token invalid/not present -> fail
+     * Refresh token valid -> new JWT token attached as cookie to response, pass
      */
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
-        final String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-        } else {
-            UserDetails validatedDetails = jwtService.validateToken(authHeader.substring(7));
-            if (validatedDetails != null) {
-                if(SecurityContextHolder.getContext().getAuthentication() == null){
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(validatedDetails, null, validatedDetails.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
-                filterChain.doFilter(request, response);
-            }else throw new JWTVerificationException("Invalid JWT claims.");
+        if (request.getRequestURI().contains("/na/")) filterChain.doFilter(request, response);
+        else {
+            final String authHeader = request.getHeader("Authorization");
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                throw new JWTVerificationException("Invalid authorization header.");
+            } else {
+                UserDetails validatedDetails = jwtService.validateToken(authHeader.substring(7));
+                if (validatedDetails != null) {
+                    if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(validatedDetails, null, validatedDetails.getAuthorities());
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
+                    filterChain.doFilter(request, response);
+                } else throw new JWTVerificationException("Invalid JWT claims.");
+            }
         }
     }
 }

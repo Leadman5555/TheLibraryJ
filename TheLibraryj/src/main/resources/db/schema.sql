@@ -5,9 +5,9 @@ CREATE TABLE library.library_book_details
 (
     description VARCHAR(800),
     author      VARCHAR(25) NOT NULL,
-    author_id   UUID         NOT NULL,
-    id          UUID         NOT NULL,
-    version     BIGINT       NOT NULL DEFAULT 0,
+    author_id   UUID        NOT NULL,
+    id          UUID        NOT NULL,
+    version     BIGINT      NOT NULL DEFAULT 0,
     created_at  TIMESTAMP,
     updated_at  TIMESTAMP,
     CONSTRAINT pk_library_book_details PRIMARY KEY (id)
@@ -16,14 +16,14 @@ DROP TABLE IF EXISTS library.library_book_previews;
 CREATE TABLE library.library_book_previews
 (
     title          VARCHAR(40) UNIQUE NOT NULL,
-    book_detail_id UUID                NOT NULL,
-    version        BIGINT              NOT NULL DEFAULT 0,
+    book_detail_id UUID               NOT NULL,
+    version        BIGINT             NOT NULL DEFAULT 0,
     created_at     TIMESTAMP,
     updated_at     TIMESTAMP,
-    chapter_count  INT                 NOT NULL,
-    rating_count   INT                 NOT NULL,
-    average_rating FLOAT               NOT NULL,
-    book_state     SMALLINT            NOT NULL,
+    chapter_count  INT                NOT NULL,
+    rating_count   INT                NOT NULL,
+    average_rating FLOAT              NOT NULL,
+    book_state     SMALLINT           NOT NULL,
     CONSTRAINT pk_library_book_previews PRIMARY KEY (book_detail_id)
 );
 DROP TABLE IF EXISTS library.book_tag;
@@ -58,14 +58,14 @@ DROP TABLE IF EXISTS library.library_ratings;
 CREATE TABLE library.library_ratings
 (
     comment        VARCHAR(252),
-    username        VARCHAR(25) UNIQUE NOT NULL,
-    id             UUID   NOT NULL,
-    user_id        UUID   NOT NULL,
-    book_detail_id UUID   NOT NULL,
-    version        BIGINT NOT NULL DEFAULT 0,
+    username       VARCHAR(25) NOT NULL,
+    id             UUID        NOT NULL,
+    user_id        UUID        NOT NULL,
+    book_detail_id UUID        NOT NULL,
+    version        BIGINT      NOT NULL DEFAULT 0,
     created_at     TIMESTAMP,
     updated_at     TIMESTAMP,
-    current_rating INT    NOT NULL,
+    current_rating INT         NOT NULL,
     CONSTRAINT pk_library_ratings PRIMARY KEY (id)
 );
 DROP TABLE IF EXISTS library.library_user_info;

@@ -52,7 +52,7 @@ class AuthenticationController implements ErrorHandling {
     public ResponseEntity<String> register(@RequestPart("email") @Email String email,
                                            @RequestPart("password") @NotNull @NotEmpty String password,
                                            @RequestPart("username") @NotNull @Size(min = 5, max = 20) String username,
-                                           @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws MessagingException {
+                                           @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         return handle(authenticationService.register(new RegisterRequest(email, password.toCharArray(), username, profileImage)), HttpStatus.CREATED);
     }
 
@@ -96,7 +96,7 @@ class AuthenticationController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User account not found."),
     })
     @PostMapping("/na/auth/activation")
-    public ResponseEntity<String> resendActivationEmail(@RequestParam @NotNull @Email String email) throws MessagingException {
+    public ResponseEntity<String> resendActivationEmail(@RequestParam @NotNull @Email String email) {
         return handle(authenticationService.resendActivationEmail(email), HttpStatus.NO_CONTENT);
     }
 

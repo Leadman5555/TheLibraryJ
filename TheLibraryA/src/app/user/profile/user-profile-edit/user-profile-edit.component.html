@@ -61,7 +61,7 @@
         <div class="errorBox alignLeft"
              *ngIf="usernameUpdateErrorMessage !== undefined">{{ usernameUpdateErrorMessage }}
         </div>
-        <span>Update your daoist name:<br>Your current daoist name is: <b>{{ this.userData.username }}</b><br>Last changed: {{ parseDateArray(this.userData.dataUpdatedAt) }}</span>
+        <span>Update your daoist name:<br>Your current daoist name is: <b>{{ this.userData.username }}</b><br>Last changed: {{ parseDateString(this.userData.dataUpdatedAt) }}</span>
         <div class="inputColumn">
           <div class="input-container">
             <input placeholder="Enter new name here" class="input-field" id="usernameInput" type="text" maxlength="20"

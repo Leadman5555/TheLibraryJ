@@ -1,6 +1,5 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {UserProfileData} from '../shared/user-profile-data';
-import {parseDateArray} from '../../../shared/functions/parseData';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {handleError, logAndExtractMessage, logError} from '../../../shared/errorHandling/handleError';
 import {ActivatedRoute, RouterLink} from '@angular/router';
@@ -11,6 +10,7 @@ import {BookPreviewCardComponent} from '../../../book/book-preview-card/book-pre
 import {ProgressBarComponent} from '../../../shared/progress-bar/progress-bar.component';
 import {findTitle, preferenceArray, progressArray, rankArray} from '../shared/rankTitles';
 import {UserProfileService} from '../user-profile.service';
+import {parseDateString} from '../../../shared/functions/parseData';
 
 @Component({
   selector: 'app-user-profile',
@@ -66,8 +66,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   userData: UserProfileData | null = null;
   userFetchErrorMsg: string | null = null;
 
-  protected readonly parseDate = parseDateArray;
-
   bookService: BookService = inject(BookService);
   authoredBooks?: BookPreview[];
 
@@ -83,8 +81,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected readonly preferenceArray = preferenceArray;
-  protected readonly progressArray = progressArray;
-  protected readonly rankArray = rankArray;
   protected readonly findTitle = findTitle;
+  protected readonly parseDateString = parseDateString;
+  protected readonly rankArray = rankArray;
+  protected readonly progressArray = progressArray;
 }

@@ -4,7 +4,7 @@
   </div>
   <div class="ratingDiv">
     <div class="avgRating" style="font-size: 2em">
-      {{ bookPreview.averageRating }} <span style="font-size: 1em; padding-top: 10%">/10</span>
+      {{ bookPreview.averageRating.toFixed(2) }} <span style="font-size: 1em; padding-top: 10%">/10</span>
     </div>
     <div class="ratingCount">
       from: {{ bookPreview.ratingCount }}

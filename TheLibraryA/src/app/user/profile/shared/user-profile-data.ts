@@ -1,8 +1,8 @@
 export interface UserProfileData {
   preference: number;
   username: string;
-  dataUpdatedAt: number[];
-  createdAt: number[];
+  dataUpdatedAt: string;
+  createdAt: string;
   email: string;
   status: string;
   profileImage: string;

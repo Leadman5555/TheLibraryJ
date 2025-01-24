@@ -2,7 +2,7 @@
   <div *ngFor="let value of values; let i = index"
        class="ratingBox"
        [ngClass]="{ 'selected': i <= selectedIndex }"
-       (click)="selectValue(i)">
+       (click)="selectValue(i+1)">
     <img
       src="/ratingDragon_gold.png"
       alt="{{value}}"

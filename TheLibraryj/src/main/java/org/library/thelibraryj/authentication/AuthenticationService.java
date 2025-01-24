@@ -1,7 +1,6 @@
 package org.library.thelibraryj.authentication;
 
 import io.vavr.control.Either;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
 import org.library.thelibraryj.authentication.dto.AuthenticationResponse;

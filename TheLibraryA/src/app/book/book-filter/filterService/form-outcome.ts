@@ -70,7 +70,7 @@ export class FormOutcome {
 
   constructor(fetchNew : boolean) {
     this._isValid = !fetchNew;
-    this._predicate = bp => true;
+    this._predicate = () => true;
     this._params = new HttpParams();
     this._isRedirected = false;
   }
