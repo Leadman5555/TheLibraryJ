@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -33,14 +32,18 @@ import java.util.List;
 class SecurityConfiguration {
     /** URLs allowed passing without any authentication **/
     private static final String[] AUTH_WHITELIST = {
-            "/h2-console/**", "/swagger-ui/**", "/v3/api-docs/**", "/v0.9/na/**"
+            "/h2-console/**",
+            "/swagger-ui/**",
+            "/webjars/**",
+            "/v3/api-docs/**",
+            "/v0.9/na/**"
     };
     private final UserDetailsService userDetailsService;
     private final FilterChainExceptionHandler filterChainExceptionHandler;
-    private final JwtFilter jwtFilter;
 
     @Value("${library.client.base_url}")
     private String clientBaseUrl;
+
 
 //    /**
 //     * Creates a CookieCsrfTokenRepository bean for managing CSRF tokens through browser cookies.
@@ -70,13 +73,14 @@ class SecurityConfiguration {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers(AUTH_WHITELIST)
-                        .permitAll().anyRequest().authenticated()
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtFilterWithAuthListMatcher(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(filterChainExceptionHandler, JwtFilter.class)
+                .authenticationProvider(daoAuthenticationProvider())
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
         return http.build();
@@ -97,12 +101,16 @@ class SecurityConfiguration {
         return source;
     }
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setUserDetailsService(userDetailsService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthenticationProvider;
+    }
+
+    @Bean
+    JwtFilter jwtFilterWithAuthListMatcher(){
+        return new JwtFilter(AUTH_WHITELIST);
     }
 
     @Bean
@@ -111,7 +119,7 @@ class SecurityConfiguration {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
