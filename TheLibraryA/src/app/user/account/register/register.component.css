@@ -1,7 +1,7 @@
-@import "../shared/styles/sButton.css";
-@import "../shared/styles/rowCol.css";
-@import "../shared/styles/sInput.css";
-@import "../shared/styles/m3Toggle.css";
+@import "../../../shared/styles/sButton.css";
+@import "../../../shared/styles/rowCol.css";
+@import "../../../shared/styles/sInput.css";
+@import "../../../shared/styles/m3Toggle.css";
 
 #mainBox{
   background-color: cadetblue;

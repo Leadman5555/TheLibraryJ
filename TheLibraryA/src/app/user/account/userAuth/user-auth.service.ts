@@ -1,16 +1,16 @@
 import {Injectable} from '@angular/core';
 import {catchError, map, Observable, switchMap} from 'rxjs';
 import {HttpClient, HttpResponse} from '@angular/common/http';
-import {AuthenticationResponse} from '../shared/models/authentication-response';
-import {AuthenticationRequest} from '../shared/models/authentication-request';
-import {GoogleCallbackResponse} from '../../googleOAuth2/auth-callback/google-callback-response';
-import {GoogleLinkResponse} from '../../googleOAuth2/auth-callback/google-link-response';
-import {UserMini} from '../shared/models/user-mini';
-import {FetchedUserMini} from '../shared/models/fetched-user-mini';
-import {StorageService} from '../../shared/storage/storage.service';
-import {EventBusService, LOGIN_EVENT, LOGOUT_EVENT, REFRESH_EVENT} from '../../shared/eventBus/event-bus.service';
-import {EventData} from '../../shared/eventBus/event.class';
-import {handleError, logError} from '../../shared/errorHandling/handleError';
+import {AuthenticationResponse} from '../../shared/models/authentication-response';
+import {AuthenticationRequest} from '../../shared/models/authentication-request';
+import {GoogleCallbackResponse} from '../googleOAuth2/auth-callback/google-callback-response';
+import {GoogleLinkResponse} from '../googleOAuth2/auth-callback/google-link-response';
+import {UserMini} from '../../shared/models/user-mini';
+import {FetchedUserMini} from '../../shared/models/fetched-user-mini';
+import {StorageService} from '../../../shared/storage/storage.service';
+import {EventBusService, LOGIN_EVENT, LOGOUT_EVENT, REFRESH_EVENT} from '../../../shared/eventBus/event-bus.service';
+import {EventData} from '../../../shared/eventBus/event.class';
+import {handleError, logError} from '../../../shared/errorHandling/handleError';
 
 @Injectable({
   providedIn: 'root'
@@ -72,13 +72,13 @@ export class UserAuthService {
     return this.httpClient.get<FetchedUserMini>(`${this.baseUrl}/user/mini/` + email);
   }
 
-  updateUserMiniDataImage(image: string){
-    if(!this.storageService.setUserMiniImage(image)) this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
+  updateUserMiniDataImage(image: string) {
+    if (!this.storageService.setUserMiniImage(image)) this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
     else this.eventBus.emit(new EventData(REFRESH_EVENT, null));
   }
 
-  updateUserMiniDataUsername(username: string){
-    if(!this.storageService.setUserMiniUsername(username)) this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
+  updateUserMiniDataUsername(username: string) {
+    if (!this.storageService.setUserMiniUsername(username)) this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
     else this.eventBus.emit(new EventData(REFRESH_EVENT, null));
   }
 
@@ -104,15 +104,23 @@ export class UserAuthService {
 
   getLoggedInUsername(): string {
     const username = this.storageService.getUserMiniUsername();
-    if(username !== undefined) return username;
+    if (username !== undefined) return username;
     this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
     throw new Error("Invalid session data");
   }
 
   getLoggedInEmail(): string {
     const email = this.storageService.getUserMiniEmail();
-    if(email !== undefined) return email;
+    if (email !== undefined) return email;
     this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
     throw new Error("Invalid session data");
+  }
+
+  canAuthor(): Observable<never> {
+    return new Observable<never>(observer => this.httpClient.get<never>(`${this.baseUrl}/user/verify/${this.getLoggedInEmail()}`)
+      .subscribe({
+        next: () => observer.complete(),
+        error: () => observer.error(),
+      }));
   }
 }

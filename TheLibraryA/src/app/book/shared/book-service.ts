@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BookPreview} from './models/book-preview';
-import {catchError, Observable} from 'rxjs';
+import {catchError, Observable, retry} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {BookDetail} from './models/book-detail';
 import {BookResponse} from './models/book-response';
@@ -47,12 +47,12 @@ export class BookService {
   }
 
   public getBookPreviewsByAuthor(author: string): Observable<BookPreview[]> {
-    return this.http.get<BookPreview[]>(`${this.baseUrl}/authored/${author}`);
+    return this.http.get<BookPreview[]>(`${this.baseUrl}/authored/${author}`).pipe(retry(1), catchError(handleError));
   }
 
 
   public getBookDetail(bookId: string): Observable<BookDetail> {
-    return this.http.get<BookDetail>(`${this.baseUrl}/${bookId}`);
+    return this.http.get<BookDetail>(`${this.baseUrl}/${bookId}`).pipe(catchError(handleError));
   }
 
   public getBook(bookTitle: string): Observable<BookResponse> {
@@ -70,5 +70,12 @@ export class BookService {
 
   public upsertRatingForBook(request: RatingRequest): Observable<RatingResponse> {
     return this.http.put<RatingResponse>(`${this.baseAuthUrl}/rating`, request).pipe(catchError(handleError));
+  }
+
+  public mergePreviewAndDetail(bookPreview: BookPreview, bookDetail: BookDetail): BookResponse {
+    return {
+      ...bookPreview,
+      ...bookDetail
+    }
   }
 }

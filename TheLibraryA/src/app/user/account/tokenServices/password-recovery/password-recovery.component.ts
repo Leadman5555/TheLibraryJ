@@ -4,7 +4,7 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {NgIf} from '@angular/common';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {passwordMatchValidator} from './passwordMatchValidator';
-import {logError} from '../../shared/errorHandling/handleError';
+import {logError} from '../../../../shared/errorHandling/handleError';
 
 @Component({
   selector: 'app-password-recovery',

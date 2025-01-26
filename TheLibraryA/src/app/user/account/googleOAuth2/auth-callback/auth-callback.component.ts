@@ -1,5 +1,5 @@
 import {Component, inject, OnInit} from '@angular/core';
-import {UserAuthService} from '../../user/userAuth/user-auth.service';
+import {UserAuthService} from '../../userAuth/user-auth.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {GoogleCallbackResponse} from './google-callback-response';

@@ -71,7 +71,7 @@ public class UserInfoControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"" + email + "\",\"rankChange\":\"10\"}"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{'rank': 10}"));
+                .andExpect(content().json("{'newRank': 10}"));
         final String invalidEmail = "invalid@gmail.com";
         UserInfoRankUpdateRequest request2 = new UserInfoRankUpdateRequest(invalidEmail, -10);
         when(userInfoService.forceUpdateRank(request2)).thenReturn(Either.left(new UserInfoError.UserInfoEntityNotFound(invalidEmail)));
@@ -93,7 +93,7 @@ public class UserInfoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{'rank': 10}"));
+                .andExpect(content().json("{'newRank': 10}"));
 
         int missingScore = 10;
         when(userInfoService.updateRank(email)).thenReturn(Either.left(new UserInfoError.UserNotEligibleForRankIncrease(email, missingScore)));

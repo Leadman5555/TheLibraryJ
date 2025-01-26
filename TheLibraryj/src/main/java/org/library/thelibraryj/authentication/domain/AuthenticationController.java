@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.vavr.control.Either;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -19,6 +18,8 @@ import org.library.thelibraryj.authentication.dto.AuthenticationResponse;
 import org.library.thelibraryj.authentication.dto.RegisterRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
+import org.library.thelibraryj.infrastructure.validators.passwordCharacters.ValidPasswordCharacters;
+import org.library.thelibraryj.infrastructure.validators.usernameCharacters.ValidUsernameCharacters;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,7 @@ class AuthenticationController implements ErrorHandling {
     private final AuthenticationService authenticationService;
 
     @Operation(
-            summary = "Allows for creation of a new user account. Sends activation email on success.",
+            summary = "Allows for creation of a new user account. Sends activation email on success. Username and password have character constraints. Username: '^[a-zA-Z0-9_-]+$'; Password: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).*$'",
             tags = {"authentication", "no auth required"}
     )
     @ApiResponses({
@@ -50,8 +51,8 @@ class AuthenticationController implements ErrorHandling {
     })
     @PostMapping( value = "/na/auth/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> register(@RequestPart("email") @Email String email,
-                                           @RequestPart("password") @NotNull @NotEmpty String password,
-                                           @RequestPart("username") @NotNull @Size(min = 5, max = 20) String username,
+                                           @RequestPart("password") @NotNull @NotEmpty @ValidPasswordCharacters String password,
+                                           @RequestPart("username") @NotNull @Size(min = 5, max = 20) @ValidUsernameCharacters String username,
                                            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
         return handle(authenticationService.register(new RegisterRequest(email, password.toCharArray(), username, profileImage)), HttpStatus.CREATED);
     }

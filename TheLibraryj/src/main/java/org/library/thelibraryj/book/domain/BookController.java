@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,8 @@ import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
 import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
+import org.library.thelibraryj.infrastructure.validators.batchSize.ValidBatchSize;
+import org.library.thelibraryj.infrastructure.validators.titleCharacters.ValidTitleCharacters;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -159,31 +163,33 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Create a new book entry",
+            summary = "Create a new book entry. Title has character constraints: '^[a-zA-Z\\s']*$'",
             tags = "book"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Book created successfully"),
+            @ApiResponse(responseCode = "400", description = "Request data invalid"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
             @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @PostMapping(value = "books/book", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("#authorEmail == authentication.principal.username")
-    public ResponseEntity<String> createBook(@RequestPart("title") @NotNull @Size(max = 40) String title,
+    public ResponseEntity<String> createBook(@RequestPart("title") @NotNull @Size(max = 40) @ValidTitleCharacters String title,
                                              @RequestPart("description") @Size(max = 700) String description,
                                              @RequestPart("tags") List<BookTag> tags,
                                              @RequestPart(value = "coverImage", required = false) @Nullable MultipartFile coverImage,
-                                             @RequestPart("authorEmail") @NotNull String authorEmail) {
+                                             @RequestPart("authorEmail") @NotNull @Email String authorEmail) {
         return handle(bookService.createBook(new BookCreationRequest(title, description, tags, coverImage, authorEmail)), HttpStatus.CREATED);
     }
 
     @Operation(
-            summary = "Create a new chapter entry",
+            summary = "Create a new chapter entry. Chapter title has character constraints: '^[a-zA-Z\\s']*$'",
             tags = "book"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Chapter created successfully"),
+            @ApiResponse(responseCode = "400", description = "Request data invalid"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
             @ApiResponse(responseCode = "403", description = "Permission lacking")
@@ -194,8 +200,9 @@ class BookController implements ErrorHandling {
         return handle(bookService.createChapter(chapterRequest), HttpStatus.CREATED);
     }
 
+
     @Operation(
-            summary = "Create new chapter entries in batch",
+            summary = "Create new chapter entries in batch. Chapter title has character constraints: '^[a-zA-Z\\s]*$'",
             tags = "book"
     )
     @ApiResponses({
@@ -206,7 +213,7 @@ class BookController implements ErrorHandling {
     })
     @PostMapping("books/book/chapter/batch")
     @PreFilter("#filterObject.authorEmail == authentication.principal.username")
-    public ResponseEntity<String> createChapters(@RequestBody @Valid List<ChapterRequest> chapterRequests) {
+    public ResponseEntity<String> createChapters(@RequestBody @ValidBatchSize @Valid List<ChapterRequest> chapterRequests) {
         return handle(bookService.createChapters(chapterRequests), HttpStatus.CREATED);
     }
 
@@ -252,18 +259,20 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Update an existing book entry",
+            summary = "Update an existing book entry. Title has character constraints: '^[a-zA-Z\\s]*$'",
             tags = "book"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Request data invalid"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
-            @ApiResponse(responseCode = "403", description = "Permission lacking")
+            @ApiResponse(responseCode = "403", description = "Permission lacking"),
+            @ApiResponse(responseCode = "409", description = "Duplicate title"),
     })
     @PatchMapping(value = "books/book", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN') or #authorEmail == authentication.principal.username")
-    public ResponseEntity<String> updateBook(@RequestPart(value = "title", required = false) @Nullable String title,
+    public ResponseEntity<String> updateBook(@RequestPart(value = "title", required = false) @Nullable @ValidTitleCharacters String title,
                                              @RequestPart(value = "description", required = false) @Nullable String description,
                                              @RequestPart(value = "state", required = false) @Nullable BookState state,
                                              @RequestPart(value = "coverImage", required = false) @Nullable MultipartFile coverImage,
@@ -317,7 +326,7 @@ class BookController implements ErrorHandling {
     })
     @DeleteMapping("books/book/chapter/{number}")
     @PreAuthorize("hasRole('ADMIN') or #contentRemovalRequest.userEmail == authentication.principal.username")
-    public ResponseEntity<String> deleteChapter(@PathVariable Integer number, @RequestBody @Valid ContentRemovalRequest contentRemovalRequest) {
+    public ResponseEntity<String> deleteChapter(@PathVariable @Min(1) Integer number, @RequestBody @Valid ContentRemovalRequest contentRemovalRequest) {
         return handle(bookService.deleteChapter(contentRemovalRequest, number), HttpStatus.OK);
     }
 

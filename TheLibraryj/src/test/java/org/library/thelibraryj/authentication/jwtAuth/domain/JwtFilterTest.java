@@ -50,6 +50,7 @@ public class JwtFilterTest {
         filterChain = new MockFilterChain(servlet, jwtFilter);
         user = new User(subject, "pass", List.of(UserRole.USER));
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+        when(request.getRequestURI()).thenReturn("uriWithoutNa");
     }
 
     @AfterEach

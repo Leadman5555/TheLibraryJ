@@ -10,7 +10,7 @@ import {ProgressBarComponent} from '../../../shared/progress-bar/progress-bar.co
 import {catchError} from 'rxjs';
 import {handleError} from '../../../shared/errorHandling/handleError';
 import {UserProfileService} from '../user-profile.service';
-import {UserAuthService} from '../../userAuth/user-auth.service';
+import {UserAuthService} from '../../account/userAuth/user-auth.service';
 import {
   UserPreferenceUpdateRequest,
   UserPreferenceUpdateResponse,

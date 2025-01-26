@@ -63,7 +63,7 @@ public class UserInfoIT {
         Assertions.assertEquals(HttpStatus.OK, usernameChangeResponse.getStatusCode());
         Assertions.assertNotNull(usernameChangeResponse.getBody());
         JSONObject object = new JSONObject(usernameChangeResponse.getBody());
-        Assertions.assertEquals(newUsername, object.getString("username"));
+        Assertions.assertEquals(newUsername, object.getString("newUsername"));
 
         ResponseEntity<String> userBookDetailResponse = restTemplate.getForEntity(
                 VERSION + "/na/books/" + bookId, String.class);

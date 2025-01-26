@@ -34,13 +34,13 @@ record PasswordResetController(PasswordResetServiceImpl passwordResetService) im
     }
 
     @Operation(
-            summary = "Consumes an existing password reset token, changing the user's password to the new one if successful.",
+            summary = "Consumes an existing password reset token, changing the user's password to the new one if successful. Password has characters constraints: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).*$' ",
             tags = {"authentication", "password", "no auth required"}
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Password reset token successfully consumed, password changed."),
-            @ApiResponse(responseCode = "400", description = "Bad Request - Invalid token or other issues."),
-            @ApiResponse(responseCode = "404", description = "Not Found - Token does not exist.")
+            @ApiResponse(responseCode = "400", description = "Invalid token, invalid request data or other issues."),
+            @ApiResponse(responseCode = "404", description = "Token does not exist.")
     })
     @PatchMapping
     public ResponseEntity<String> consumePasswordResetToken(@RequestBody @Valid PasswordResetRequest passwordResetRequest) {

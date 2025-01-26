@@ -7,22 +7,8 @@ import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoScoreUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoStatusUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.response.UserInfoMiniResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserInfoResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserPreferenceUpdateResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserProfileImageUpdateResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserProfileResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserStatusUpdateResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.request.*;
+import org.library.thelibraryj.userInfo.dto.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.Nullable;
@@ -152,6 +138,15 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         return Either.right(fetched);
     }
 
+    @Override
+    public boolean checkWritingEligibility(String forUserEmail) {
+        return userInfoRepository.getCreatedAtByEmail(forUserEmail)
+                .filter(
+                        createdAt -> ChronoUnit.HOURS.between(createdAt, Instant.now()) >= userInfoProperties.getMinimal_age_hours()
+                )
+                .isPresent();
+    }
+
     @Transactional
     @Override
     public UserInfoWithImageResponse createUserInfoWithImage(UserInfoRequest userInfoRequest, @Nullable MultipartFile profileImage) {
@@ -193,7 +188,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         UserInfo fetched = fetchedE.get();
         int newRank = max(min(fetched.getRank() + userInfoRankUpdateRequest.rankChange(), rank_requirements.length), 0);
-        if(newRank < fetched.getRank() && fetched.getPreference() > newRank/10) fetched.setPreference((short) 0);
+        if (newRank < fetched.getRank() && fetched.getPreference() > newRank / 10) fetched.setPreference((short) 0);
         fetched.setRank(newRank);
         userInfoRepository.update(fetched);
         return Either.right(new UserRankUpdateResponse(newRank, fetched.getCurrentScore(), fetched.getPreference()));

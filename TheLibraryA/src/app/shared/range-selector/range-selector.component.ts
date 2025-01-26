@@ -1,12 +1,11 @@
 import {Component, Input} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {NgClass, NgForOf} from '@angular/common';
+import {NgClass} from '@angular/common';
 
 @Component({
   selector: 'app-range-selector',
   imports: [
-    NgClass,
-    NgForOf
+    NgClass
   ],
   templateUrl: './range-selector.component.html',
   styleUrl: './range-selector.component.css'

@@ -1,17 +1,17 @@
 <div id="mainBody">
   <div id="body">
     <div id="header">
-      <div id="home" routerLink="">
+      <a id="home" routerLink="">
         The Library
-      </div>
+      </a>
       <div id="right" class="row">
         @if (this.showLoggedIn) {
-          <div id="userInfo" (click)="hideWindows()" [routerLink]="['/profile', this.userMini?.username]">
+          <a id="userInfo" (click)="hideWindows()" [routerLink]="['/profile', this.userMini?.username]">
             <span id="username">{{ this.userMini?.username }}</span>
             <div class="image34Wrapper" style="height: 4.8em; width: 3.6em">
               <img src="data:image/jpg;base64,{{this.userMini?.profileImage}}" alt="Profile image" class="image34">
             </div>
-          </div>
+          </a>
         }
         <button class="sButton" (click)="toggleMenu()">
           @if (this.showLoggedIn) {

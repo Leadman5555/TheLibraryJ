@@ -30,9 +30,12 @@ import java.util.UUID;
 
 @Service
 public interface UserInfoService {
+    @Async
+    void updateRatingScore(UserInfoScoreUpdateRequest userInfoScoreUpdateRequest);
     boolean existsById(UUID userId);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+    boolean checkWritingEligibility(String forUserEmail);
     Either<GeneralError, UserProfileResponse> getUserProfileById(UUID userId);
     Either<GeneralError, UserProfileResponse> getUserProfileByUsername(String username);
     Either<GeneralError, UserProfileResponse> getUserProfileByEmail(String email);
@@ -49,6 +52,4 @@ public interface UserInfoService {
     Either<GeneralError, UserProfileImageUpdateResponse> updateProfileImage(UserInfoImageUpdateRequest userInfoImageUpdateRequest) throws IOException;
     Either<GeneralError, UserStatusUpdateResponse> updateUserInfoStatus(UserInfoStatusUpdateRequest userInfoStatusUpdateRequest);
     Either<GeneralError, UserPreferenceUpdateResponse> updateUserInfoPreference(UserInfoPreferenceUpdateRequest userInfoPreferenceUpdateRequest);
-    @Async
-    void updateRatingScore(UserInfoScoreUpdateRequest userInfoScoreUpdateRequest);
 }

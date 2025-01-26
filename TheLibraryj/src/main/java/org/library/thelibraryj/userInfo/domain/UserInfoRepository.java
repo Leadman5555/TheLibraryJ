@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,4 +30,10 @@ interface UserInfoRepository extends BaseJpaRepository<UserInfo, UUID>, UserInfo
                 where u.email = :email
             """)
     Optional<String> getUsernameByEmail(@Param("email") String email);
+
+    @Query("""
+                select u.createdAt from userInfo u
+                where u.email = :email
+            """)
+    Optional<Instant> getCreatedAtByEmail(@Param("email") String email);
 }

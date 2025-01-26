@@ -14,7 +14,7 @@ import {PageInfo} from '../../shared/paging/models/page-info';
 import {provideComponentStore} from '@ngrx/component-store';
 import {parseDateString} from '../../shared/functions/parseData';
 import {logError} from '../../shared/errorHandling/handleError';
-import {UserAuthService} from '../../user/userAuth/user-auth.service';
+import {UserAuthService} from '../../user/account/userAuth/user-auth.service';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {RangeSelectorComponent} from '../../shared/range-selector/range-selector.component';
 

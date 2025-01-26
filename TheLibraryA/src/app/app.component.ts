@@ -1,6 +1,6 @@
 import {afterNextRender, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {RouterLink, RouterOutlet} from '@angular/router';
-import {UserAuthService} from './user/userAuth/user-auth.service';
+import {UserAuthService} from './user/account/userAuth/user-auth.service';
 import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgIf, NgOptimizedImage} from '@angular/common';
 import {AuthenticationRequest} from './user/shared/models/authentication-request';

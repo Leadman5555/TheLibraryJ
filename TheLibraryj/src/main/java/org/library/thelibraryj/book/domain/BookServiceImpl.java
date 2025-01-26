@@ -150,12 +150,14 @@ class BookServiceImpl implements BookService {
         if (preview.isLeft()) return Either.left(preview.getLeft());
 
         boolean previewChanged = false;
-        if (bookUpdateRequest.state() != null) {
-            preview.get().setBookState(bookUpdateRequest.state());
+        if (bookUpdateRequest.title() != null) {
+            if (bookPreviewRepository.existsByTitle(bookUpdateRequest.title()))
+                return Either.left(new BookError.DuplicateTitle());
+            preview.get().setTitle(escapeHtml(bookUpdateRequest.title()));
             previewChanged = true;
         }
-        if (bookUpdateRequest.title() != null) {
-            preview.get().setTitle(escapeHtml(bookUpdateRequest.title()));
+        if (bookUpdateRequest.state() != null) {
+            preview.get().setBookState(bookUpdateRequest.state());
             previewChanged = true;
         }
         if (bookUpdateRequest.bookTags() != null) {
@@ -299,6 +301,7 @@ class BookServiceImpl implements BookService {
         bookPreview.get().increaseChapterCount(chapterRequests.size());
         bookPreviewRepository.update(bookPreview.get());
         chapterRepository.flush();
+        chapterPreviewRepository.flush();
         return Either.right(mapper.chapterPreviewsToChapterPreviewResponseList(previewsToSave));
     }
 

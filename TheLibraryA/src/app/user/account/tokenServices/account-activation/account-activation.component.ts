@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {logError} from '../../shared/errorHandling/handleError';
+import {logError} from '../../../../shared/errorHandling/handleError';
 import {NgIf} from '@angular/common';
 
 @Component({
