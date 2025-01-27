@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {catchError, map, Observable, switchMap} from 'rxjs';
+import {catchError, map, Observable, of, switchMap} from 'rxjs';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {AuthenticationResponse} from '../../shared/models/authentication-response';
 import {AuthenticationRequest} from '../../shared/models/authentication-request';
@@ -102,25 +102,26 @@ export class UserAuthService {
     });
   }
 
-  getLoggedInUsername(): string {
+  getLoggedInUsername(): string | null {
     const username = this.storageService.getUserMiniUsername();
     if (username !== undefined) return username;
     this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
-    throw new Error("Invalid session data");
+    return null;
   }
 
-  getLoggedInEmail(): string {
+  getLoggedInEmail(): string | null {
     const email = this.storageService.getUserMiniEmail();
     if (email !== undefined) return email;
     this.eventBus.emit(new EventData(LOGOUT_EVENT, null));
-    throw new Error("Invalid session data");
+    return null;
   }
 
-  canAuthor(): Observable<never> {
-    return new Observable<never>(observer => this.httpClient.get<never>(`${this.baseUrl}/user/verify/${this.getLoggedInEmail()}`)
-      .subscribe({
-        next: () => observer.complete(),
-        error: () => observer.error(),
-      }));
+  canAuthor(): Observable<boolean> {
+    const email = this.getLoggedInEmail();
+    if (!email) return of(false);
+    return this.httpClient.post<never>(`${this.baseUrl}/user/verify/${email}`, null).pipe(
+      map(() => true),
+      catchError(() => of(false))
+    );
   }
 }

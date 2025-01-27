@@ -1,6 +1,7 @@
 package org.library.thelibraryj.infrastructure.configuration;
 
 import lombok.RequiredArgsConstructor;
+import org.library.thelibraryj.authentication.jwtAuth.JwtService;
 import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -69,7 +70,7 @@ class SecurityConfiguration {
      * -> 'Pre' Annotation guards
      * */
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http, JwtService jwtService) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
@@ -78,7 +79,7 @@ class SecurityConfiguration {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtFilterWithAuthListMatcher(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtFilterWithAuthListMatcher(jwtService), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(filterChainExceptionHandler, JwtFilter.class)
                 .authenticationProvider(daoAuthenticationProvider())
                 .headers(headers -> headers
@@ -109,8 +110,8 @@ class SecurityConfiguration {
     }
 
     @Bean
-    JwtFilter jwtFilterWithAuthListMatcher(){
-        return new JwtFilter(AUTH_WHITELIST);
+    JwtFilter jwtFilterWithAuthListMatcher(JwtService jwtService){
+        return new JwtFilter(AUTH_WHITELIST, jwtService);
     }
 
     @Bean

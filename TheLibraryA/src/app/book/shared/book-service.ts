@@ -11,6 +11,7 @@ import {RatingResponse} from './models/rating-response';
 import {ChapterPreviewPage} from '../book/paging/chapterPreview-page';
 import {RatingRequest} from './models/rating-request';
 import {handleError} from '../../shared/errorHandling/handleError';
+import {FormOutcome} from '../book-filter/filterService/form-outcome';
 
 @Injectable({
   providedIn: 'root'
@@ -77,5 +78,19 @@ export class BookService {
       ...bookPreview,
       ...bookDetail
     }
+  }
+
+  public createBook(bookCreationData: FormData): Observable<BookResponse>{
+    // const formData = new FormData();
+    // console.log(bookCreationData.get('title'))
+    // for(let key of bookCreationData.keys()){
+    //   console.log(key)
+    //   formData.set(key, bookCreationData.get(key)!.toString());
+    // }
+    return this.http.post<BookResponse>(`${this.baseAuthUrl}/book`, bookCreationData).pipe(catchError(handleError));
+  }
+
+  public updateBook(bookUpdateData: FormData): Observable<BookResponse>{
+    return this.http.put<BookResponse>(`${this.baseAuthUrl}/book`, bookUpdateData).pipe(catchError(handleError));
   }
 }

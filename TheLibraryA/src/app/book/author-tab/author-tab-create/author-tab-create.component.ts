@@ -1,21 +1,88 @@
 import { Component } from '@angular/core';
 import { BookService } from '../../shared/book-service';
-import {FormGroup, NonNullableFormBuilder, Validators} from '@angular/forms';
+import {
+  FormArray,
+  FormControl,
+  FormGroup,
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+import {UserAuthService} from '../../../user/account/userAuth/user-auth.service';
+import {BookResponse} from '../../shared/models/book-response';
+import {NgForOf, NgIf} from '@angular/common';
+import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
+import {allTags, identifyTag} from '../../shared/models/BookTag';
+import {atLeastOneValidator} from '../../../shared/functions/atLeastOneValidator';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
   selector: 'app-author-tab-create',
-  imports: [],
+  imports: [
+    ReactiveFormsModule,
+    NgIf,
+    ImageDropComponent,
+    NgForOf
+  ],
   templateUrl: './author-tab-create.component.html',
   styleUrl: './author-tab-create.component.css'
 })
 export class AuthorTabCreateComponent {
-  constructor(private bookService: BookService, private fb: NonNullableFormBuilder) {
+  constructor(private bookService: BookService, private fb: NonNullableFormBuilder, private userAuthService: UserAuthService, private http: HttpClient) {
+    const email = this.userAuthService.getLoggedInEmail();
+    if(!email){
+      window.location.replace('');
+      return;
+    }
+    this.authorEmail = email;
     this.bookCreationForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(40), Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s\'_\"!.-]*$')]],
-      description: ['', [Validators.maxLength(700)]],
-    })
+      description: ['', [Validators.required, Validators.minLength(50), Validators.maxLength(700)]],
+      bookTags: this.fb.array(allTags.map(() => false), atLeastOneValidator()),
+      coverImage: [null],
+    });
   }
 
-  bookCreationForm: FormGroup;
+  authorEmail!: string;
+  bookCreationForm!: FormGroup;
 
+  getCoverImageControl() : FormControl {
+    return this.bookCreationForm.get('coverImage') as FormControl;
+  }
+
+  bookCreationErrorMessage: string | null = null;
+  createdBook: BookResponse | null = null;
+
+  attemptBookCreation(){
+    if(this.bookCreationForm.pristine || this.bookCreationForm.invalid) return;
+    const formData = new FormData();
+    const values = this.bookCreationForm.value;
+    formData.set('title', values.title);
+    formData.set('description', values.description);
+    const tagsBlob = new Blob([JSON.stringify(this.getSelectedTags())], { type: 'application/json;charset=UTF-8' });
+    formData.set('tags', tagsBlob);
+    formData.set('coverImage', values.coverImage);
+    formData.set('authorEmail', this.authorEmail);
+    this.bookCreationErrorMessage = null;
+    this.bookService.createBook(formData)
+      .subscribe({
+      next: (bookResponse) => this.createdBook = bookResponse,
+      error: (error) => this.bookCreationErrorMessage = error
+    });
+  }
+
+  private getSelectedTags(): string[] {
+    const selectedTags = this.bookCreationForm.get('bookTags') as FormArray;
+    return allTags.filter(
+      (_, index) => selectedTags.at(index).value
+    );
+  }
+
+  resetForm() {
+    this.bookCreationErrorMessage = null;
+    this.bookCreationForm.reset();
+  }
+
+  protected readonly allTags = allTags;
+  protected readonly identifyTag = identifyTag;
 }

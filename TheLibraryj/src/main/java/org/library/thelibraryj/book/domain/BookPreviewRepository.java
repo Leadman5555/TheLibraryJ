@@ -11,7 +11,12 @@ import java.util.UUID;
 
 @Repository
 interface BookPreviewRepository extends BaseJpaRepository<BookPreview, UUID> {
-    Optional<BookPreview> findByTitle(String title);
+    @Query("""
+            select bp from bookPreview bp
+            join fetch bp.bookTags
+            where bp.title = :title
+            """)
+    Optional<BookPreview> findByTitleEager(@Param("title") String title);
 
     @Query("""
             select bp from bookPreview bp

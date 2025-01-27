@@ -68,7 +68,7 @@ public class AuthenticationIT {
     @Test
     public void testCreateUserAndSendEmail() throws Exception {
         final String email = "sample@email.com";
-        final char[] password = "password".toCharArray();
+        final char[] password = "P@ssword123".toCharArray();
         final String username = "sampleUsername";
         MultiValueMap<String, Object> multipartRequest = new LinkedMultiValueMap<>();
         multipartRequest.add("email", email);

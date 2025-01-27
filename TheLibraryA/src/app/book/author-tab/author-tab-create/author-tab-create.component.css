@@ -1,0 +1,45 @@
+@import "../../../shared/styles/sInput.css";
+@import "../../../shared/styles/sButton.css";
+@import "../../../shared/styles/textArea.css";
+@import "../../../shared/styles/rowCol.css";
+@import "../../../shared/styles/m3Toggle.css";
+@import "../../../shared/styles/horizontalTagSelector.css";
+
+#outerBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1.5fr 1fr 1fr;
+  gap: 0 0;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "titleDiv titleDiv infoDiv infoDiv infoDiv"
+    "dropDiv dropDiv infoDiv infoDiv infoDiv"
+    "dropDiv dropDiv descriptionDiv descriptionDiv descriptionDiv"
+    "dropDiv dropDiv descriptionDiv descriptionDiv descriptionDiv"
+    "buttonDiv buttonDiv tagDiv tagDiv tagDiv";
+}
+
+.titleDiv {
+  grid-area: titleDiv;
+  padding-bottom: 0.5em;
+}
+
+.dropDiv {
+  grid-area: dropDiv;
+}
+
+.buttonDiv {
+  grid-area: buttonDiv;
+}
+
+.descriptionDiv {
+  grid-area: descriptionDiv;
+}
+
+.textArea{
+  max-width: 40em;
+}
+
+.infoDiv {
+  grid-area: infoDiv;
+}

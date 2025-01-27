@@ -28,6 +28,7 @@
   background: rgba(40, 0, 73, 0.7);
   padding: 0.6em;
   border: 0.2em solid cornflowerblue;
+  text-decoration: none;
 }
 
 #home:hover{
@@ -42,6 +43,8 @@
 #userInfo{
   display: flex;
   align-items: center;
+  text-decoration: none;
+  color: black;
 }
 
 #userInfo:hover{

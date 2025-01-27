@@ -71,7 +71,7 @@ public class PasswordResetIT {
         String oldPassword = resultSetPassword.getString("password");
 
 
-        final char[] newPasswordArray = "newPass".toCharArray();
+        final char[] newPasswordArray = "newPass4@".toCharArray();
         ResponseEntity<String> resetStartResponse = restTemplate.exchange(
                 BASE_URL + '/' + user1email, HttpMethod.POST, null, String.class
         );

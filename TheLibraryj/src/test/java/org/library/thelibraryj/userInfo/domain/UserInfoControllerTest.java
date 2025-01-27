@@ -107,12 +107,12 @@ public class UserInfoControllerTest {
 
     @Test
     public void testUpdateUserInfoUsername() throws Exception {
-        UserInfoUsernameUpdateRequest request = new UserInfoUsernameUpdateRequest(email, "new username");
+        UserInfoUsernameUpdateRequest request = new UserInfoUsernameUpdateRequest(email, "newUsername");
         when(userInfoService.updateUserInfoUsername(request)).thenReturn(Either.left(new UserInfoError.UsernameNotUnique()));
         mockMvc.perform(patch(ENDPOINT + "/user/profile/username")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"" + email + "\",\"username\":\"new username\"}"))
+                        .content("{\"email\":\"" + email + "\",\"username\":\"newUsername\"}"))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.errorDetails.message", is("Username not unique")));
     }

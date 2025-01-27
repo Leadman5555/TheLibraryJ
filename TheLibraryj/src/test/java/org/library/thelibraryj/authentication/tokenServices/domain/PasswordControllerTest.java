@@ -38,7 +38,7 @@ public class PasswordControllerTest {
     @Test
     public void testConsumePasswordResetToken() throws Exception {
         UUID tokenId = UUID.randomUUID();
-        char[] newPassword = "pass".toCharArray();
+        char[] newPassword = "P@ssword123".toCharArray();
         when(passwordResetService.consumePasswordResetToken(any(PasswordResetRequest.class))).thenReturn(Either.right(true));
         mockMvc.perform(patch(ENDPOINT)
                         .content("{\"tokenId\":\"" + tokenId + "\",\"newPassword\":\"" + new String(newPassword) + "\"}")

@@ -183,7 +183,7 @@ public class BookServiceTest {
         when(bookImageHandler.fetchCoverImage(anyString())).thenReturn(null);
         bookDetail.setId(bookId);
         bookPreview.setId(bookId);
-        when(bookPreviewRepository.findByTitle(title)).thenReturn(Optional.ofNullable(bookPreview));
+        when(bookPreviewRepository.findByTitleEager(title)).thenReturn(Optional.ofNullable(bookPreview));
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
         BookResponse response = bookService.getBook(title).get();
         Assertions.assertAll(

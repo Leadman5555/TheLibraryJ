@@ -51,7 +51,7 @@ public class UserInfoIT {
 
     @Test
     public void shouldUpdateUserUsernameAndBookDetailAuthor() throws Exception {
-        final String newUsername = "new username";
+        final String newUsername = "newUsername";
         UserInfoUsernameUpdateRequest request = new UserInfoUsernameUpdateRequest(
                 email,
                 newUsername
@@ -79,7 +79,7 @@ public class UserInfoIT {
 
         UserInfoUsernameUpdateRequest request2 = new UserInfoUsernameUpdateRequest(
                 email,
-                "other new username"
+                "otherNew_username"
         );
         HttpEntity<UserInfoUsernameUpdateRequest> requestEntity2 = new HttpEntity<>(request2, TestProperties.headers);
         ResponseEntity<String> usernameOnCooldownChangeResponse = restTemplate.exchange(

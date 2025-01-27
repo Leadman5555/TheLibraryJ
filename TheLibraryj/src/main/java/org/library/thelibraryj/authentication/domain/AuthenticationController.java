@@ -50,7 +50,7 @@ class AuthenticationController implements ErrorHandling {
             @ApiResponse(responseCode = "400", description = "Invalid request parameters."),
             @ApiResponse(responseCode = "409", description = "Parts of user data required to be unique are not."),
     })
-    @PostMapping( value = "/na/auth/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/na/auth/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> register(@RequestPart("email") @Email String email,
                                            @RequestPart("password") @NotNull @NotEmpty @ValidPasswordCharacters String password,
                                            @RequestPart("username") @NotNull @Size(min = 5, max = 20) @ValidUsernameCharacters String username,

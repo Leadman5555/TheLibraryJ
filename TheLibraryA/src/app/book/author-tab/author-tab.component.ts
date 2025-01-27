@@ -22,13 +22,18 @@ export class AuthorTabComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.bookService.getBookPreviewsByAuthor(this.userAuthService.getLoggedInUsername()).subscribe({
+    const username = this.userAuthService.getLoggedInUsername();
+    if(!username){
+      this.router.navigate(['']);
+      return;
+    }
+    this.bookService.getBookPreviewsByAuthor(username).subscribe({
       next: (v) => this.bookPreviews = v,
       error: (_) => this.router.navigate([''])
     })
   }
 
-  protected bookPreviews!: BookPreview[];
+  protected bookPreviews: BookPreview[] = [];
 
   moveToEdit(index: number) {
     this.bookService.getBookDetail(this.bookPreviews[index].id)

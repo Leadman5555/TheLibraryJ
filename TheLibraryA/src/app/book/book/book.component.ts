@@ -126,7 +126,11 @@ export class BookComponent extends PagingHelper implements OnInit {
   }
 
   private createRatingUpsertForm() {
-    const loggedUser: string = this.userAuthService.getLoggedInUsername();
+    const loggedUser = this.userAuthService.getLoggedInUsername();
+    if(!loggedUser){
+      this.router.navigate(['']);
+      return;
+    }
     const foundRating = this.ratings!.find(rating => rating.username === loggedUser);
     if (foundRating !== undefined) {
       this.ratingUpsertForm = new FormGroup({
@@ -166,6 +170,11 @@ export class BookComponent extends PagingHelper implements OnInit {
 
   upsertRating() {
     if (this.ratingUpsertForm.invalid) return;
+    const userEmail = this.userAuthService.getLoggedInUsername();
+    if(!userEmail){
+      this.router.navigate(['']);
+      return;
+    }
     this.ratingUpsertMessage = undefined;
     const values = this.ratingUpsertForm.value;
     if (this.previousRating !== undefined) {
@@ -175,7 +184,7 @@ export class BookComponent extends PagingHelper implements OnInit {
       currentRating: values.currentRating,
       comment: values.comment,
       bookId: this.bookPreview.id,
-      userEmail: this.userAuthService.getLoggedInEmail()
+      userEmail: userEmail
     })
       .subscribe({
         next: (v) => {

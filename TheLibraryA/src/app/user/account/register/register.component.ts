@@ -90,10 +90,11 @@ export class RegisterComponent implements OnInit {
     if (this.registerForm.invalid || this.registerForm.pristine) return;
 
     const formData = new FormData();
-    formData.set('email', this.registerForm.value.email);
-    formData.set('password', this.registerForm.value.newPassword);
-    formData.set('username', this.registerForm.value.username);
-    formData.set('profileImage', this.registerForm.value.profileImage);
+    const values = this.registerForm.value;
+    formData.set('email', values.email);
+    formData.set('password', values.newPassword);
+    formData.set('username', values.username);
+    formData.set('profileImage', values.profileImage);
 
     this.http.post<UserCreationResponse>(this.registerUrl,  formData).pipe(catchError(handleError)).subscribe({
       next: (response) => {

@@ -1,7 +1,14 @@
 import {Component, OnInit} from '@angular/core';
-import {FormGroup, FormsModule, NonNullableFormBuilder, ReactiveFormsModule, Validators} from "@angular/forms";
+import {
+  FormArray,
+  FormGroup,
+  FormsModule,
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  Validators
+} from "@angular/forms";
 import {NgForOf, NgIf} from "@angular/common";
-import {BookTag} from '../../shared/models/BookTag';
+import {allTags, BookTag, identifyTag} from '../../shared/models/BookTag';
 import {FormOutcome} from '../filterService/form-outcome';
 import {BookFilterService} from '../filterService/book-filter.service';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -27,24 +34,12 @@ export class BookFilterComponent implements OnInit {
               private activatedRoute: ActivatedRoute) {
   }
 
-  readonly allTags: BookTag[] = ['TAG1', 'TAG2', 'TAG3', 'TAG4', 'TAG5', 'TAG6', 'TAG7', 'TAG8', 'UNTAGGED'];
-
   private readonly defaultFormValues = {
     titleLike: '',
     minChapters: 0,
     ratingOrder: 'No order',
     minRating: 0,
-    filterByTags: {
-      UNTAGGED: false,
-      TAG1: false,
-      TAG2: false,
-      TAG3: false,
-      TAG4: false,
-      TAG5: false,
-      TAG6: false,
-      TAG7: false,
-      TAG8: false,
-    }
+    filterByTags: Array.from(Array(allTags.length), () => false)
   };
 
   filterForm!: FormGroup;
@@ -91,10 +86,7 @@ export class BookFilterComponent implements OnInit {
     if (values.titleLike !== this.lastSubmittedData.titleLike) return true;
     if (values.minChapters !== this.lastSubmittedData.minChapters) return true;
     if (values.minRating !== this.lastSubmittedData.minRating) return true;
-    const lastTags = this.getSelectedTags(this.lastSubmittedData.filterByTags);
-    const currentTags = this.getSelectedTags(values.filterByTags);
-    if (lastTags.length !== currentTags.length) return true;
-    return !currentTags.every((value, index) => value === lastTags[index]);
+    return !this.areTheSameTagsSelected(this.lastSubmittedData.filterByTags, values.filterByTags);
   }
 
   private amINotDefault(values: any): boolean {
@@ -102,7 +94,7 @@ export class BookFilterComponent implements OnInit {
     if (values.minChapters !== this.defaultFormValues.minChapters) return true;
     if (values.minRating !== this.defaultFormValues.minRating) return true;
     if (values.ratingOrder !== this.defaultFormValues.ratingOrder) return true;
-    return this.getSelectedTags(values.filterByTags).length > 0;
+    return this.areAnyTagsSelected(values.filterByTags);
   }
 
   private wasISubmitted = false;
@@ -132,14 +124,14 @@ export class BookFilterComponent implements OnInit {
       else if (minRating !== lastRating) result.setInvalid();
     }
 
-    const selectedTags: BookTag[] = this.getSelectedTags(currentValues.filterByTags);
+    const selectedTags: boolean[] = currentValues.filterByTags;
     if (result.isValid) {
-      const lastTags: BookTag[] = this.getSelectedTags(this.lastSubmittedData.filterByTags);
-      for (let tag of this.allTags) {
-        const b1: boolean = lastTags.includes(tag);
-        const b2: boolean = selectedTags.includes(tag);
+      const lastTags: boolean[] = this.lastSubmittedData.filterByTags;
+      for (let i = 0; i < allTags.length; i++) {
+        const b1: boolean = lastTags[i];
+        const b2: boolean = selectedTags[i];
         if (b1 !== b2) {
-          if (b2) result.and(bp => bp.bookTags.includes(tag));
+          if (b2) result.and(bp => bp.bookTags.includes(allTags[i]));
           else {
             result.setInvalid();
             break;
@@ -156,7 +148,9 @@ export class BookFilterComponent implements OnInit {
       if (minRating !== this.defaultFormValues.minRating) result.setParam('minRating', minRating);
       if (minChapters !== this.defaultFormValues.minChapters) result.setParam('minChapters', minChapters);
       if (result.sortAsc !== undefined) result.setParam('ratingOrder', result.sortAsc);
-      selectedTags.forEach(tag => result.appendParam('hasTags', tag));
+      selectedTags.forEach((value, index) => {
+        if (value) result.appendParam('hasTags', allTags[index])
+      });
     }
     this.wasISubmitted = true;
     this.lastSubmittedData = currentValues;
@@ -202,14 +196,30 @@ export class BookFilterComponent implements OnInit {
     return result;
   }
 
-  private getSelectedTags(tagsGroup: any): BookTag[] {
-    const result: BookTag[] = [];
-    this.allTags.forEach(tag => {
-      if (tagsGroup[tag]) {
-        result.push(tag);
-      }
+  private getSelectedTags(tagsGroup: FormArray): BookTag[] {
+    return allTags.filter(
+      (_, index) => tagsGroup.at(index).value
+    );
+  }
+
+  private areAnyTagsSelected(tagsGroupValue: boolean[]): boolean {
+    for (let i = 0; i < tagsGroupValue.length; i++) if (tagsGroupValue[i]) return true;
+    return false;
+  }
+
+  private patchTagValues(tagsToPatch: string[], tagsGroup: FormArray) {
+    tagsToPatch.forEach(tag => {
+      const tagIndex = allTags.findIndex(t => t === tag);
+      if (tagIndex !== -1) tagsGroup.at(tagIndex).patchValue(true);
     });
-    return result;
+  }
+
+  private areTheSameTagsSelected(selectedTags1: boolean[], selectedTags2: boolean[]): boolean {
+    return selectedTags1.length === selectedTags2.length && selectedTags1.every((value, index) => value === selectedTags2[index]);
+  }
+
+  get filterByTags(): FormArray {
+    return this.filterForm.get('filterByTags') as FormArray;
   }
 
   ngOnInit(): void {
@@ -220,13 +230,7 @@ export class BookFilterComponent implements OnInit {
       const formOutcome = new FormOutcome(true);
       formOutcome.isRedirected = true;
       formOutcome.setRedirectTags(tagsFromRedirect);
-      tagsFromRedirect.forEach(tag => {
-        this.filterForm.patchValue({
-          filterByTags: {
-            [tag]: true
-          }
-        })
-      });
+      this.patchTagValues(tagsFromRedirect, this.filterByTags);
       this.lastSubmittedData = this.filterForm.value;
       this.wasISubmitted = true;
       this.filterForm.markAsDirty();
@@ -238,13 +242,7 @@ export class BookFilterComponent implements OnInit {
     if (redirectData) {
       this.filterService.refreshSelection(); //don't ask why, it works
       const redirectTags = redirectData.getRedirectTags();
-      if (redirectTags) redirectTags.forEach(tag => {
-        this.filterForm.patchValue({
-          filterByTags: {
-            [tag]: true
-          }
-        })
-      });
+      if (redirectTags) this.patchTagValues(redirectTags, this.filterByTags);
 
       const redirectTitleLike = redirectData.getRedirectTitleLike();
       if (redirectTitleLike) this.filterForm.patchValue({titleLike: [redirectTitleLike]});
@@ -260,7 +258,7 @@ export class BookFilterComponent implements OnInit {
       this.lastSubmittedData = this.filterForm.value;
       this.wasISubmitted = true;
       this.filterForm.markAsDirty();
-    }else this.filterService.refreshSelection();
+    } else this.filterService.refreshSelection();
   }
 
   private createFilterForm() {
@@ -268,26 +266,11 @@ export class BookFilterComponent implements OnInit {
       titleLike: [this.defaultFormValues.titleLike, [Validators.maxLength(20), Validators.minLength(3), Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s\'_\"!.-]*$')]],
       minChapters: [this.defaultFormValues.minChapters, [Validators.min(0), Validators.max(5000), integerValidator()]],
       ratingOrder: this.defaultFormValues.ratingOrder,
-      filterByTags: this.createTagFilter(),
+      filterByTags: this.fb.array(Array.from(Array(allTags.length), (_, index) => this.defaultFormValues.filterByTags[index])),
       minRating: [this.defaultFormValues.minRating, [Validators.min(0), Validators.max(10), stepValidator(3)]],
     });
   }
 
-  private createTagFilter() {
-    return this.fb.group({
-      UNTAGGED: [this.defaultFormValues.filterByTags.UNTAGGED],
-      TAG1: [this.defaultFormValues.filterByTags.TAG1],
-      TAG2: [this.defaultFormValues.filterByTags.TAG2],
-      TAG3: [this.defaultFormValues.filterByTags.TAG3],
-      TAG4: [this.defaultFormValues.filterByTags.TAG4],
-      TAG5: [this.defaultFormValues.filterByTags.TAG5],
-      TAG6: [this.defaultFormValues.filterByTags.TAG6],
-      TAG7: [this.defaultFormValues.filterByTags.TAG7],
-      TAG8: [this.defaultFormValues.filterByTags.TAG8],
-    });
-  }
-
-  identifyTag(_: number, item: BookTag) {
-    return item;
-  }
+  protected readonly allTags = allTags;
+  protected readonly identifyTag = identifyTag;
 }

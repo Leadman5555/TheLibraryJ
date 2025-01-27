@@ -1,20 +1,35 @@
 <div id="outerBox">
-  <div id="routerBox">
-    <button class="sButton" routerLink="create"></button>
+  <div id="topBarDiv">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100%" y2="0">
+          <stop offset="0%" stop-color="#a66c00"/>
+          <stop offset="100%" stop-color="#280049B2"/>
+        </linearGradient>
+      </defs>
+      <text x="50%" y="50%" text-anchor="middle" fill="url(#gradient)">Author works - Enlighten the masses.</text>
+    </svg>
+  </div>
+  <div id="contentDiv">
     <router-outlet></router-outlet>
   </div>
-  <div id="previewsDiv">
-    @if (bookPreviews.length) {
-      <div class="previewsColumn">
-        @for (bp of bookPreviews; track bp.id; let i = $index) {
-          <div id="blocker" (click)="moveToEdit(i)">
-            <app-book-preview-card [bookPreview]="bp"></app-book-preview-card>
-          </div>
-        }
-      </div>
-    } @else {
-      <p class="infoMsg centerVH">No works written.</p>
-    }
+  <div id="previewContainer">
+    <div class="column">
+      <button class="sButton" routerLink="create">Create new works</button>
+      <span class="centerVH" >Or improve the existing ones:</span>
+    </div>
+    <div class="previewsDiv" style="font-size: 0.75em;">
+      @if (bookPreviews.length) {
+        <div class="previewsColumn">
+          @for (bp of bookPreviews; track bp.id; let i = $index) {
+            <div id="blocker" (click)="moveToEdit(i)">
+              <app-book-preview-card [bookPreview]="bp"></app-book-preview-card>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="infoMsg centerVH">No works written.</p>
+      }
+    </div>
   </div>
-
 </div>

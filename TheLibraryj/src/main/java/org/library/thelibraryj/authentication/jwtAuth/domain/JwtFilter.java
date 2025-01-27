@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import org.library.thelibraryj.authentication.jwtAuth.JwtService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,16 +23,17 @@ import java.util.stream.Collectors;
 
 public class JwtFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtService jwtService;
     private final RequestMatcher whileListMatcher;
+    private final JwtService jwtService;
 
-    public JwtFilter(String[] authWhiteList) {
-        this.whileListMatcher = new OrRequestMatcher(
+    public JwtFilter(@Nullable String[] authWhiteList, JwtService jwtService) {
+        if (authWhiteList == null) this.whileListMatcher = _ -> false;
+        else this.whileListMatcher = new OrRequestMatcher(
                 Arrays.stream(authWhiteList)
                         .map(AntPathRequestMatcher::new)
                         .collect(Collectors.toUnmodifiableList())
-        );
+            );
+        this.jwtService = jwtService;
     }
 
     /**

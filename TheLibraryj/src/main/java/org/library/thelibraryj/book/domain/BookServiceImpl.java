@@ -176,7 +176,7 @@ class BookServiceImpl implements BookService {
 
     @Override
     public Either<GeneralError, BookResponse> getBook(String title) {
-        Either<GeneralError, BookPreview> preview = Try.of(() -> bookPreviewRepository.findByTitle(title))
+        Either<GeneralError, BookPreview> preview = Try.of(() -> bookPreviewRepository.findByTitleEager(title))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)

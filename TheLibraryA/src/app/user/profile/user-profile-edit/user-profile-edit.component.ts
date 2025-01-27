@@ -74,7 +74,12 @@ export class UserProfileEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userProfileService.fetchUserProfile(this.userAuthService.getLoggedInUsername()).pipe(catchError(handleError)).subscribe({
+    const username = this.userAuthService.getLoggedInUsername();
+    if(!username){
+      window.location.replace('');
+      return;
+    }
+    this.userProfileService.fetchUserProfile(username).pipe(catchError(handleError)).subscribe({
       next: (fetchedData) => {
         this.userData = fetchedData;
         this.createForms();
