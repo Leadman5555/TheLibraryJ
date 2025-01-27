@@ -163,7 +163,7 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Create a new book entry. Title has character constraints: '^[a-zA-Z\\s']*$'",
+            summary = "Create a new book entry.",
             tags = "book"
     )
     @ApiResponses({
@@ -184,7 +184,7 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Create a new chapter entry. Chapter title has character constraints: '^[a-zA-Z\\s']*$'",
+            summary = "Create a new chapter entry.",
             tags = "book"
     )
     @ApiResponses({
@@ -202,7 +202,7 @@ class BookController implements ErrorHandling {
 
 
     @Operation(
-            summary = "Create new chapter entries in batch. Chapter title has character constraints: '^[a-zA-Z\\s]*$'",
+            summary = "Create new chapter entries in batch.",
             tags = "book"
     )
     @ApiResponses({
@@ -259,7 +259,7 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Update an existing book entry. Title has character constraints: '^[a-zA-Z\\s]*$'",
+            summary = "Update an existing book entry.",
             tags = "book"
     )
     @ApiResponses({

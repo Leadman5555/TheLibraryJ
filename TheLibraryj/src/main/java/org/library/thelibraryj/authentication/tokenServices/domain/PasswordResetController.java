@@ -34,7 +34,7 @@ record PasswordResetController(PasswordResetServiceImpl passwordResetService) im
     }
 
     @Operation(
-            summary = "Consumes an existing password reset token, changing the user's password to the new one if successful. Password has characters constraints: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).*$' ",
+            summary = "Consumes an existing password reset token, changing the user's password to the new one if successful. ",
             tags = {"authentication", "password", "no auth required"}
     )
     @ApiResponses(value = {

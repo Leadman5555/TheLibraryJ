@@ -42,11 +42,12 @@ class AuthenticationController implements ErrorHandling {
     private final AuthenticationService authenticationService;
 
     @Operation(
-            summary = "Allows for creation of a new user account. Sends activation email on success. Username and password have character constraints. Username: '^[a-zA-Z0-9_-]+$'; Password: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).*$'",
+            summary = "Allows for creation of a new user account. Sends activation email on success.'",
             tags = {"authentication", "no auth required"}
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Account created, activation email sent."),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters."),
             @ApiResponse(responseCode = "409", description = "Parts of user data required to be unique are not."),
     })
     @PostMapping( value = "/na/auth/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -11,7 +11,7 @@ import {FormGroup, NonNullableFormBuilder, Validators} from '@angular/forms';
 export class AuthorTabCreateComponent {
   constructor(private bookService: BookService, private fb: NonNullableFormBuilder) {
     this.bookCreationForm = this.fb.group({
-      title: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(40), Validators.pattern('^[a-zA-Z\\s\']*$')]],
+      title: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(40), Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s\'_\"!.-]*$')]],
       description: ['', [Validators.maxLength(700)]],
     })
   }
