@@ -12,6 +12,14 @@
   font-size: var(--imageDropSize);
 }
 
+.sButtonColor::before{
+  background-color: var(--buttonColor);
+}
+
+.sButtonColor::after{
+  background-color: var(--buttonColor);
+}
+
 .drop-zone.active {
   background-color: #969db6;
   border-color: #ac7b03;

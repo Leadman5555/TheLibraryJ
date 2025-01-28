@@ -43,4 +43,5 @@
   grid-area: contentDiv;
   border: 0.2em solid darkgoldenrod;
   padding: 0.5em;
+  background-color: rgba(202, 210, 243, 0.36);
 }

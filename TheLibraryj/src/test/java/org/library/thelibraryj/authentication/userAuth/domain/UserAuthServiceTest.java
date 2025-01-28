@@ -55,7 +55,7 @@ public class UserAuthServiceTest {
                 Instant.now(),
                 password,
                 email,
-                UserRole.USER,
+                UserRole.ROLE_USER,
                 false,
                 false
         );
@@ -66,7 +66,7 @@ public class UserAuthServiceTest {
         UserCreationRequest request = new UserCreationRequest(email, password, username, null);
         UserInfoRequest infoRequest = new UserInfoRequest(username, email, id);
         UserAuth newAuth = mapper.userAuthRequestToUserAuth(request);
-        newAuth.setRole(UserRole.USER);
+        newAuth.setRole(UserRole.ROLE_USER);
         when(userAuthRepository.persist(newAuth)).thenReturn(userAuth);
         when(userAuthRepository.existsByEmail(email)).thenReturn(false);
         when(userInfoService.existsByUsername(username)).thenReturn(false);
@@ -81,7 +81,7 @@ public class UserAuthServiceTest {
         ));
         Either<GeneralError, UserCreationData> response = userAuthService.createNewUser(request);
         Assertions.assertTrue(response.isRight());
-        Assertions.assertEquals(UserRole.USER, response.get().role());
+        Assertions.assertEquals(UserRole.ROLE_USER, response.get().role());
         Assertions.assertEquals(email, response.get().email());
         Assertions.assertFalse(response.get().isEnabled());
 

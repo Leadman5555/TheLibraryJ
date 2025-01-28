@@ -15,6 +15,7 @@ import {ImageDropComponent} from '../../../shared/image-drop/image-drop.componen
 import {allTags, identifyTag} from '../../shared/models/BookTag';
 import {atLeastOneValidator} from '../../../shared/functions/atLeastOneValidator';
 import {HttpClient} from '@angular/common/http';
+import {RouterLink} from '@angular/router';
 
 @Component({
   selector: 'app-author-tab-create',
@@ -28,7 +29,7 @@ import {HttpClient} from '@angular/common/http';
   styleUrl: './author-tab-create.component.css'
 })
 export class AuthorTabCreateComponent {
-  constructor(private bookService: BookService, private fb: NonNullableFormBuilder, private userAuthService: UserAuthService, private http: HttpClient) {
+  constructor(private bookService: BookService, private fb: NonNullableFormBuilder, private userAuthService: UserAuthService) {
     const email = this.userAuthService.getLoggedInEmail();
     if(!email){
       window.location.replace('');
@@ -37,7 +38,7 @@ export class AuthorTabCreateComponent {
     this.authorEmail = email;
     this.bookCreationForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(40), Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s\'_\"!.-]*$')]],
-      description: ['', [Validators.required, Validators.minLength(50), Validators.maxLength(700)]],
+      description: ['', [Validators.required, Validators.minLength(50), Validators.maxLength(700), Validators.pattern(/^[^<>]*(?:[<>][^<>]*){0,9}$/) ]],
       bookTags: this.fb.array(allTags.map(() => false), atLeastOneValidator()),
       coverImage: [null],
     });
@@ -66,7 +67,10 @@ export class AuthorTabCreateComponent {
     this.bookCreationErrorMessage = null;
     this.bookService.createBook(formData)
       .subscribe({
-      next: (bookResponse) => this.createdBook = bookResponse,
+      next: (bookResponse) => {
+        this.createdBook = bookResponse;
+        console.log(this.createdBook);
+      },
       error: (error) => this.bookCreationErrorMessage = error
     });
   }

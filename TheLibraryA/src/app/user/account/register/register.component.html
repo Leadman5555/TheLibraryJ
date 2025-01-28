@@ -150,10 +150,12 @@
           <li>Email: {{ createdUser?.email }}</li>
           <li>Current Score: {{ createdUser?.currentScore }}</li>
           <li>Rank: {{ createdUser?.rank }}</li>
-          <span class="column">
-            <span>Profile Image:</span> <img *ngIf="createdUser?.profileImage" src="data:image/jpg;base64,{{createdUser?.profileImage}}"
-                                alt="Profile Image" width="150" height="150">
-          </span>
+          <div class="column">
+            <span>Profile Image:</span> <div class="image34Wrapper">
+            <img *ngIf="createdUser?.profileImage" src="data:image/jpg;base64,{{createdUser?.profileImage}}"
+                 alt="Profile Image" class="image34">
+          </div>
+          </div>
         </ul>
         <p>Remember that you must activate your account before using it. If you did not receive an activation email, please follow the instructions on listed the left side of the screen.</p>
         <p style="text-align: center">Peaceful journey.</p>

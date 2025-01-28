@@ -1,52 +1,92 @@
-<form id="outerBox" [formGroup]="bookCreationForm" (ngSubmit)="attemptBookCreation()">
-  <div class="titleDiv centerVH">
-    <div class="inputColumn">
-      <div class="input-container">
-        <input placeholder="Enter title here" class="input-field" id="titleInput" type="text" maxlength="40"
-               formControlName="title">
-        <label for="titleInput" class="input-label">The title shall be: </label>
-        <span class="input-highlight"></span>
+<div>
+  @if (this.createdBook) {
+    <div class="bookCreationDiv">
+      <b class="centerVH">Book creation was successful. Created book data:</b>
+      <div class="row">
+        <ul style="overflow-wrap: break-word">
+          <li><b>Title</b>: {{ this.createdBook.title }}</li>
+          <li><b>Penned by</b>: {{ this.createdBook.author }}</li>
+          <li><b>State</b>: {{ this.createdBook.bookState }}</li>
+          <li><b>Tags</b>: {{ this.createdBook.bookTags.join(', ') }}</li>
+          <li><b>Chapter count and rating</b>: 0</li>
+          <div class="column" style="margin-top: 1em">
+            <span><b>Book cover</b>:</span>
+            <div class="image34Wrapper">
+              <img src="data:image/jpg;base64,{{this.createdBook.coverImage}}"
+                   alt="Book cover" class="image34">
+            </div>
+          </div>
+        </ul>
+        <div class="column"><b>Description:</b> <pre class="formatPre" style="width: 70%">{{ this.createdBook.description }}</pre></div>
       </div>
-      <div class="errorBox" *ngIf="bookCreationForm.get('title')?.invalid && (bookCreationForm.get('title')?.dirty)">
-        Enter a valid title, from 5 to 40 characters long. Allowed special characters: '-', ''', '!', '"', '_', and
-        whitespace.
-      </div>
-    </div>
-  </div>
-  <div class="dropDiv">
-    <app-image-drop [parentControl]="getCoverImageControl()"></app-image-drop>
-  </div>
-  <div class="buttonDiv row">
-    <button class="sButton disabledHide" type="submit"
-            [disabled]="bookCreationForm.invalid || bookCreationForm.pristine">Create book
-    </button>
-    <button class="sButton" type="reset" (click)="resetForm()">Reset</button>
-  </div>
-  <div class="tagDiv">
-    <span class="tagsInfoText centerVH">Select at least one tag that applies to your book:</span>
-    <div formGroupName="bookTags" class="tagSelectorDiv row">
-      <div class="mt-square3d-custom tagSelector" *ngFor="let tag of allTags; let i = index; trackBy: identifyTag"
-           style="font-size:0.8em;">
-        <span class="tagName">{{ tag }}</span>
-        <input id="checkMt_{{i}}" type="checkbox" formControlName="{{i}}"/>
-        <label for="checkMt_{{i}}"></label>
+      <div class="column">
+        <p>You can update and add additional information when editing the book.</p>
+        <p style="text-align: center; font-weight: bold; font-style: italic; color: darkgoldenrod; font-size: 2em">May it be a divine scripture.</p>
       </div>
     </div>
+  } @else {
+    <form id="innerBox" [formGroup]="bookCreationForm" (ngSubmit)="attemptBookCreation()">
+      <div class="titleDiv centerVH">
+        <div class="inputColumn">
+          <div class="input-container">
+            <input placeholder="Enter title here" class="input-field" id="titleInput" type="text" maxlength="40"
+                   formControlName="title">
+            <label for="titleInput" class="input-label">The title shall be: </label>
+            <span class="input-highlight"></span>
+          </div>
+          <div class="errorBox"
+               *ngIf="bookCreationForm.get('title')?.invalid && (bookCreationForm.get('title')?.dirty)">
+            Enter a valid title, from 5 to 40 characters long. Allowed special characters: '-', ''', '!', '"', '_', and
+            whitespace.
+          </div>
+        </div>
+      </div>
+      <div class="dropDiv">
+        <app-image-drop [parentControl]="getCoverImageControl()"></app-image-drop>
+      </div>
+      <div class="buttonDiv row">
+        <button class="sButton sButtonColor disabledHide" type="submit"
+                [disabled]="bookCreationForm.invalid || bookCreationForm.pristine">Create book
+        </button>
+        <button class="sButton sButtonColor" type="reset" (click)="resetForm()">Reset</button>
+      </div>
+      <div class="tagDiv">
+        <span class="tagsInfoText centerVH">Select at least one tag that applies to your book:</span>
+        <div formGroupName="bookTags" class="tagSelectorDiv row">
+          <div class="mt-square3d-custom tagSelector" *ngFor="let tag of allTags; let i = index; trackBy: identifyTag"
+               style="font-size:0.8em;">
+            <span class="tagName">{{ tag }}</span>
+            <input id="checkMt_{{i}}" type="checkbox" formControlName="{{i}}"/>
+            <label for="checkMt_{{i}}"></label>
+          </div>
+        </div>
 
-  </div>
-  <div class="descriptionDiv column">
-    <div class="errorBox" *ngIf="bookCreationForm.get('description')?.invalid && (bookCreationForm.get('description')?.dirty)">
-      Enter between 50 and 700 characters.
-    </div>
-    <textarea placeholder="Enter description here"
-              class="textArea"
-              rows="14"
-              cols="50"
-              maxlength="700"
-              formControlName="description"></textarea>
-  </div>
-  <div class="infoDiv">
-    <span class="errorBox" *ngIf="bookCreationErrorMessage">{{ this.bookCreationErrorMessage }}</span>
-    <p>Info div</p>
-  </div>
-</form>
+      </div>
+      <div class="descriptionDiv column">
+        <div class="errorBox"
+             *ngIf="bookCreationForm.get('description')?.invalid && (bookCreationForm.get('description')?.dirty)">
+          Enter between 50 and 700 characters.
+        </div>
+        <textarea placeholder="Enter description here"
+                  class="textArea"
+                  rows="14"
+                  cols="50"
+                  maxlength="700"
+                  formControlName="description"></textarea>
+      </div>
+      <div class="infoDiv column">
+        <div>
+          <b>Create a book</b>
+          <ul style="text-align: left">
+            <li><b>Title</b>: 5-40 characters long. It must be unique, several special characters are allowed. Remember that if your title exceeds a certain length, only a part of it will be shown on the Book preview card.</li>
+            <li><b>Description</b>: 50-700 characters long. Describe your book, outline the plot or maybe share a snippet from a chapter, whatever will draw potential readers.</li>
+            <li><b>Cover image</b>: You are not required, but nevertheless encouraged, to add one. If not, a default cover image will be displayed. Uploading images in 4:3 ratio is the best choice.</li>
+            <li><b>Tags</b>: Choose at least one that applies to your book.</li>
+            <li>The remaining information as well as adding chapters can be done after creating the book from the Book-Edit tab. Simply click the Book preview Card on the left to proceed.</li>
+          </ul>
+        </div>
+        <span class="errorBox" *ngIf="bookCreationErrorMessage">{{ this.bookCreationErrorMessage }}</span>
+      </div>
+    </form>
+  }
+</div>

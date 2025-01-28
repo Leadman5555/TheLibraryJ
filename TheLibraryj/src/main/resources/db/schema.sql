@@ -3,7 +3,7 @@ CREATE SCHEMA library;
 DROP TABLE IF EXISTS library.library_book_details;
 CREATE TABLE library.library_book_details
 (
-    description VARCHAR(800),
+    description VARCHAR(1000),
     author      VARCHAR(25) NOT NULL,
     author_id   UUID        NOT NULL,
     id          UUID        NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE library.library_book_details
 DROP TABLE IF EXISTS library.library_book_previews;
 CREATE TABLE library.library_book_previews
 (
-    title          VARCHAR(40) UNIQUE NOT NULL,
+    title          VARCHAR(50) UNIQUE NOT NULL,
     book_detail_id UUID               NOT NULL,
     version        BIGINT             NOT NULL DEFAULT 0,
     created_at     TIMESTAMP,
@@ -35,7 +35,7 @@ CREATE TABLE library.book_tag
 DROP TABLE IF EXISTS library.library_chapter_previews;
 CREATE TABLE library.library_chapter_previews
 (
-    title          VARCHAR(40),
+    title          VARCHAR(50),
     id             UUID   NOT NULL,
     book_detail_id UUID   NOT NULL,
     version        BIGINT NOT NULL DEFAULT 0,
@@ -58,7 +58,7 @@ DROP TABLE IF EXISTS library.library_ratings;
 CREATE TABLE library.library_ratings
 (
     comment        VARCHAR(252),
-    username       VARCHAR(25) NOT NULL,
+    username       VARCHAR(32) NOT NULL,
     id             UUID        NOT NULL,
     user_id        UUID        NOT NULL,
     book_detail_id UUID        NOT NULL,
@@ -72,7 +72,7 @@ DROP TABLE IF EXISTS library.library_user_info;
 CREATE TABLE library.library_user_info
 (
     status          VARCHAR(300),
-    username        VARCHAR(25) UNIQUE NOT NULL,
+    username        VARCHAR(32) UNIQUE NOT NULL,
     email           VARCHAR(48) UNIQUE NOT NULL,
     id              UUID               NOT NULL,
     user_auth_id    UUID               NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE library.library_user_auth
     version    BIGINT             NOT NULL DEFAULT 0,
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
-    role       VARCHAR(8)         NOT NULL,
+    role       VARCHAR(16)         NOT NULL,
     is_enabled BOOLEAN            NOT NULL DEFAULT false,
     is_google  BOOLEAN            NOT NULL DEFAULT false,
     CONSTRAINT pk_library_user_auth PRIMARY KEY (id)

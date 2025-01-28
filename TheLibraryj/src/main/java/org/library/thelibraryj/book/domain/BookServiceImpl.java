@@ -6,6 +6,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
 import org.library.thelibraryj.book.dto.bookDto.BookDetailResponse;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 class BookServiceImpl implements BookService {
@@ -113,6 +115,8 @@ class BookServiceImpl implements BookService {
                 .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(previewId, null)));
     }
 
+    private static final int DESCRIPTION_MAX_LENGTH = 750;
+
     @Transactional
     @Override
     public Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest) {
@@ -120,11 +124,12 @@ class BookServiceImpl implements BookService {
         if (fetchedAuthorData.isLeft()) return Either.left(fetchedAuthorData.getLeft());
         if (bookPreviewRepository.existsByTitle(bookCreationRequest.title()))
             return Either.left(new BookError.DuplicateTitle());
-
+        String escapedDescription = escapeHtml(bookCreationRequest.description());
+        if(escapedDescription.length() > DESCRIPTION_MAX_LENGTH) escapedDescription = escapedDescription.substring(0, DESCRIPTION_MAX_LENGTH);
         BookDetail detail = BookDetail.builder()
                 .author(fetchedAuthorData.get().getAuthorUsername())
                 .authorId(fetchedAuthorData.get().getAuthorId())
-                .description(escapeHtml(bookCreationRequest.description()))
+                .description(escapedDescription)
                 .build();
         BookPreview preview = BookPreview.builder()
                 .title(escapeHtml(bookCreationRequest.title()))
@@ -137,8 +142,8 @@ class BookServiceImpl implements BookService {
         bookDetailRepository.persist(detail);
         bookPreviewRepository.persist(preview);
         if (bookCreationRequest.coverImage() != null)
-            bookImageHandler.upsertCoverImage(bookCreationRequest.title(), bookCreationRequest.coverImage());
-        return Either.right(getLazyBookResponse(detail, preview));
+                return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.upsertCoverImage(bookCreationRequest.title(), bookCreationRequest.coverImage())));
+        return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.getDefaultImage()));
     }
 
     @Transactional
@@ -146,32 +151,37 @@ class BookServiceImpl implements BookService {
     public Either<GeneralError, BookResponse> updateBook(BookUpdateRequest bookUpdateRequest) {
         Either<GeneralError, BookDetail> detailE = getDetailAndValidateUUIDs(bookUpdateRequest.bookId(), bookUpdateRequest.authorEmail());
 
-        Either<GeneralError, BookPreview> preview = getBookPreviewLazy(bookUpdateRequest.bookId());
-        if (preview.isLeft()) return Either.left(preview.getLeft());
+        Either<GeneralError, BookPreview> previewE = getBookPreviewLazy(bookUpdateRequest.bookId());
+        if (previewE.isLeft()) return Either.left(previewE.getLeft());
 
         boolean previewChanged = false;
+        BookPreview preview = previewE.get();
+        BookDetail detail = detailE.get();
         if (bookUpdateRequest.title() != null) {
             if (bookPreviewRepository.existsByTitle(bookUpdateRequest.title()))
                 return Either.left(new BookError.DuplicateTitle());
-            preview.get().setTitle(escapeHtml(bookUpdateRequest.title()));
+            preview.setTitle(escapeHtml(bookUpdateRequest.title()));
             previewChanged = true;
         }
         if (bookUpdateRequest.state() != null) {
-            preview.get().setBookState(bookUpdateRequest.state());
+            preview.setBookState(bookUpdateRequest.state());
             previewChanged = true;
         }
         if (bookUpdateRequest.bookTags() != null) {
-            preview.get().setBookTags(bookUpdateRequest.bookTags());
+            preview.setBookTags(bookUpdateRequest.bookTags());
             previewChanged = true;
         }
         if (bookUpdateRequest.description() != null) {
-            detailE.get().setDescription(escapeHtml(bookUpdateRequest.description()));
-            bookDetailRepository.update(detailE.get());
+            String escapedDescription = escapeHtml(bookUpdateRequest.description());
+            if(escapedDescription.length() > DESCRIPTION_MAX_LENGTH) escapedDescription = escapedDescription.substring(0, DESCRIPTION_MAX_LENGTH);
+            detail.setDescription(escapedDescription);
+            detail = bookDetailRepository.update(detail);
         }
-        if (previewChanged) bookPreviewRepository.update(preview.get());
+        if (previewChanged) preview = bookPreviewRepository.update(preview);
+
         if (bookUpdateRequest.coverImage() != null)
-            bookImageHandler.upsertCoverImage(bookUpdateRequest.title(), bookUpdateRequest.coverImage());
-        return Either.right(getEagerBookResponse(detailE.get(), preview.get()));
+            return Either.right(getLazyBookResponse(detail, preview,  bookImageHandler.upsertCoverImage(preview.getTitle(), bookUpdateRequest.coverImage())));
+        return Either.right(getEagerBookResponse(detail, preview));
     }
 
     @Override
@@ -339,6 +349,7 @@ class BookServiceImpl implements BookService {
         ratingRepository.deleteBook(removalRequest.bookId());
         bookPreviewRepository.deleteById(removalRequest.bookId());
         bookDetailRepository.deleteById(removalRequest.bookId());
+        log.info("Book {} has been deleted", removalRequest.bookId());
         return Either.right(new ContentRemovalSuccess(removalRequest.bookId(), removalRequest.userEmail()));
     }
 
@@ -374,7 +385,7 @@ class BookServiceImpl implements BookService {
         );
     }
 
-    private static BookResponse getLazyBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager) {
+    private static BookResponse getLazyBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager, byte[] coverImage) {
         return new BookResponse(
                 bookPreviewEager.getId(),
                 bookPreviewEager.getTitle(),
@@ -385,7 +396,7 @@ class BookServiceImpl implements BookService {
                 bookPreviewEager.getRatingCount(),
                 bookPreviewEager.getBookTags(),
                 bookPreviewEager.getBookState(),
-                null
+                coverImage
         );
     }
 
@@ -449,18 +460,20 @@ class BookServiceImpl implements BookService {
 
 
     @Override
-    @CacheEvict(value = {"bookPreviewsOffset", "bookPreviewsKeySet"})
+    @CacheEvict(value = {"bookPreviewsOffset","bookPreviewsKeySet", "chapterPreviewOffset"}, allEntries = true)
     @Scheduled(cron = "0 */${library.caching.bookPreviewTTL} * * * *")
     public void resetBookPreviewsCache() {
         bookPreviewRepository.flush();
         ratingRepository.flush();
         bookDetailRepository.flush();
         chapterPreviewRepository.flush();
+        log.info("Book preview cache and repositories flushed.");
     }
 
     private static String escapeHtml(String toEscape) {
         return HtmlUtils.htmlEscape(toEscape)
-                .replace("&#39;", "'").replace("&quot;", "\"");
+                .replace("&#39;", "'")
+                .replace("&quot;", "\"");
     }
 
     private BookPreviewResponse mapPreviewWithCover(BookPreview bookPreview) {

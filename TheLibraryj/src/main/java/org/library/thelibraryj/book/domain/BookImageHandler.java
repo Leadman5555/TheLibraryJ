@@ -1,5 +1,6 @@
 package org.library.thelibraryj.book.domain;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +12,7 @@ import java.nio.file.StandardCopyOption;
 
 @Component
 class BookImageHandler {
+    @Getter
     private byte[] defaultImage;
     private final Path basePath;
 
@@ -31,10 +33,12 @@ class BookImageHandler {
         }
     }
 
-    public void upsertCoverImage(String forTitle, MultipartFile image) {
+    public byte[] upsertCoverImage(String forTitle, MultipartFile image) {
         try {
             Files.copy(image.getInputStream(), basePath.resolve(forTitle + ".jpg"), StandardCopyOption.REPLACE_EXISTING);
+            return image.getBytes();
         } catch (IOException _) {
+            return defaultImage;
         }
     }
 }

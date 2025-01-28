@@ -6,25 +6,25 @@ import {BookPage} from './book-page';
 import {GenericComponentStore} from '../../../shared/paging/generic.component-store';
 import {BookPreview} from '../../../book/shared/models/book-preview';
 
-const initialState : BookPage = {
-    content: [],
-    pageInfo: {
-      page: 0,
-      totalPages: 0,
-      keysetPage: {
-        firstResult: 0,
-        maxResults: 20,
-        lowest: {
-          number: 0,
-          id: ''
-        },
-        highest: {
-          number: 0,
-          id: ''
-        },
-        keysets: []
-      }
+const initialState: BookPage = {
+  content: [],
+  pageInfo: {
+    page: 0,
+    totalPages: 0,
+    keysetPage: {
+      firstResult: 0,
+      maxResults: 16,
+      lowest: {
+        number: 0,
+        id: ''
+      },
+      highest: {
+        number: 0,
+        id: ''
+      },
+      keysets: []
     }
+  }
 }
 
 @Injectable({
@@ -39,11 +39,11 @@ export class HomeComponentStore extends GenericComponentStore<BookPreview, BookP
 
   protected override readonly updatePage = this.updater(
     (state: BookPage, page: number) => ({
-        ...state,
-        pageInfo: {
-          ...state.pageInfo,
-          page: page
-        }
+      ...state,
+      pageInfo: {
+        ...state.pageInfo,
+        page: page
+      }
     })
   );
 
@@ -71,9 +71,7 @@ export class HomeComponentStore extends GenericComponentStore<BookPreview, BookP
       switchMap((currentState) =>
         this.bookService.getBookPreviewsPageByKeySet(currentState.pageInfo.page, currentState.pageInfo.keysetPage).pipe(
           tapResponse(
-            (newBookPage: BookPage) => {
-              this.updateContent(newBookPage);
-            },
+            (newBookPage: BookPage) => this.updateContent(newBookPage),
             () => this.loadPageByOffset()
           )
         )

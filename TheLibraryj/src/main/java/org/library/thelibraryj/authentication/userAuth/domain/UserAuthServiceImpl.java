@@ -42,7 +42,7 @@ class UserAuthServiceImpl implements UserAuthService {
         if (userInfoService.existsByUsername(userCreationRequest.username()))
             return Either.left(new UserAuthError.UsernameNotUnique(userCreationRequest.username()));
         UserAuth newUserAuth = mapper.userAuthRequestToUserAuth(userCreationRequest);
-        newUserAuth.setRole(UserRole.USER);
+        newUserAuth.setRole(UserRole.ROLE_USER);
         newUserAuth.setGoogle(false);
         UserAuth createdAuth = userAuthRepository.persist(newUserAuth);
         UserInfoWithImageResponse createdInfo = userInfoService.createUserInfoWithImage(new UserInfoRequest(
@@ -58,7 +58,7 @@ class UserAuthServiceImpl implements UserAuthService {
     @Override
     public void createNewGoogleUser(GoogleUserCreationRequest userCreationRequest) {
         UserAuth newUser = UserAuth.builder()
-                .role(UserRole.USER)
+                .role(UserRole.ROLE_USER)
                 .isGoogle(true)
                 .email(userCreationRequest.email())
                 .isEnabled(true)

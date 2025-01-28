@@ -27,6 +27,7 @@ export const logAndExtractMessage = (error: HttpErrorResponse): string => {
       console.error(`Server returned status code ${error.status}, reason: ${subError.errorDetails.message || 'Unknown'}`);
       return subError.errorDetails.message || 'Unknown server error';
     } else {
+      console.log(error)
       console.error(`Request couldn't be completed. Status code: ${error.status}. Code starting with 4xx is client error.`);
       return `Request couldn't be completed. Status code: ${error.status}. Code starting with 4xx is client error.`;
     }

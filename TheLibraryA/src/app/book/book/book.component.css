@@ -4,14 +4,6 @@
 @import '../../shared/styles/image34.css';
 @import '../../shared/styles/textArea.css';
 
-#description {
-  line-height: 1;;
-  white-space: pre-wrap;
-  text-align: left;
-  font-family: inherit;
-  font-size: 1.1em;
-}
-
 
 .fetchRatings {
   display: block;

@@ -4,7 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
@@ -27,7 +31,16 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -40,7 +53,7 @@ class BookController implements ErrorHandling {
     private final BookService bookService;
 
     @Operation(
-            summary = "Retrieve a page of book previews with their tags by keySet navigation. Returns the asked for page and current keySet",
+            summary = "Retrieve a page of book previews with their tags by offset navigation. Returns the asked for page and current keySet",
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
@@ -54,7 +67,7 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Retrieve a page of book previews with their tags by offset navigation. Returns the asked for page and current keySet",
+            summary = "Retrieve a page of book previews with their tags by keySet navigation. Returns the asked for page and current keySet",
             tags = {"book", "no auth required"}
     )
     @ApiResponses({

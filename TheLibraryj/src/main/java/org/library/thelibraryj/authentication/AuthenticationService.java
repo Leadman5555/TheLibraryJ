@@ -7,11 +7,12 @@ import org.library.thelibraryj.authentication.dto.AuthenticationResponse;
 import org.library.thelibraryj.authentication.dto.RegisterRequest;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
+import org.springframework.lang.Nullable;
 
 public interface AuthenticationService {
     Either<GeneralError, AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest);
     Either<GeneralError, UserCreationResponse> register(RegisterRequest registerRequest);
     Either<GeneralError, Boolean> resendActivationEmail(String email);
     Cookie clearRefreshToken();
-    String regenerateAccessToken(Cookie[] cookies);
+    String regenerateAccessToken(@Nullable Cookie[] cookies);
 }

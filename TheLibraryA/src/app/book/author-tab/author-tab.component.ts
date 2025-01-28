@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {BookService} from '../shared/book-service';
-import {Router, RouterLink, RouterOutlet} from '@angular/router';
+import {NavigationEnd, NavigationStart, Router, RouterLink, RouterOutlet} from '@angular/router';
 import {AuthorTabDataService} from './shared/author-tab-data.service';
 import {BookPreview} from '../shared/models/book-preview';
 import {UserAuthService} from '../../user/account/userAuth/user-auth.service';
@@ -19,6 +19,10 @@ import {BookPreviewCardComponent} from '../book-preview-card/book-preview-card.c
 export class AuthorTabComponent implements OnInit {
 
   constructor(private bookService: BookService, private authorTabDataService: AuthorTabDataService, private userAuthService: UserAuthService, private router: Router) {
+    this.router.events.subscribe((event) => {
+      if(event instanceof NavigationStart) this.showImage = false;
+      else if(event instanceof NavigationEnd) this.showImage = this.router.url === '/author-tab';
+    })
   }
 
   ngOnInit(): void {
@@ -30,7 +34,7 @@ export class AuthorTabComponent implements OnInit {
     this.bookService.getBookPreviewsByAuthor(username).subscribe({
       next: (v) => this.bookPreviews = v,
       error: (_) => this.router.navigate([''])
-    })
+    });
   }
 
   protected bookPreviews: BookPreview[] = [];
@@ -51,4 +55,5 @@ export class AuthorTabComponent implements OnInit {
       });
   }
 
+  showImage: boolean = true;
 }
