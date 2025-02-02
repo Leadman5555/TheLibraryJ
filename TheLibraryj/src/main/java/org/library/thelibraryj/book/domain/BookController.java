@@ -6,13 +6,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.book.BookService;
+import org.library.thelibraryj.book.dto.bookDto.BookCreationModel;
 import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
 import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.bookDto.BookUpdateModel;
 import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
@@ -23,7 +23,6 @@ import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.validators.batchSize.ValidBatchSize;
-import org.library.thelibraryj.infrastructure.validators.titleCharacters.ValidTitleCharacters;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +32,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -175,12 +175,10 @@ class BookController implements ErrorHandling {
     })
     @PostMapping(value = "books/book", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("#authorEmail == authentication.principal.username")
-    public ResponseEntity<String> createBook(@RequestPart("title") @NotNull @Size(min = 5, max = 40) @ValidTitleCharacters String title,
-                                             @RequestPart("description") @Size(min = 50, max = 700) String description,
-                                             @RequestPart("tags") @NotEmpty List<BookTag> tags,
+    public ResponseEntity<String> createBook(@ModelAttribute @Valid BookCreationModel bookCreationModel,
                                              @RequestPart(value = "coverImage", required = false) @Nullable MultipartFile coverImage,
-                                             @RequestPart("authorEmail") @NotNull @Email String authorEmail) {
-        return handle(bookService.createBook(new BookCreationRequest(title, description, tags, coverImage, authorEmail)), HttpStatus.CREATED);
+                                             @RequestParam("authorEmail") @NotNull @Email String authorEmail) {
+        return handle(bookService.createBook(new BookCreationRequest(bookCreationModel, coverImage, authorEmail)), HttpStatus.CREATED);
     }
 
     @Operation(
@@ -272,14 +270,13 @@ class BookController implements ErrorHandling {
     })
     @PutMapping(value = "books/book", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN') or #authorEmail == authentication.principal.username")
-    public ResponseEntity<String> updateBook(@RequestPart(value = "title", required = false) @Nullable @Size(min = 5, max = 40) @ValidTitleCharacters String title,
-                                             @RequestPart(value = "description", required = false) @Nullable @Size(max = 700) String description,
-                                             @RequestPart(value = "state", required = false) @Nullable BookState state,
-                                             @RequestPart(value = "coverImage", required = false) @Nullable MultipartFile coverImage,
-                                             @RequestPart(value = "bookTags", required = false) List<BookTag> bookTags,
-                                             @RequestPart("bookId") @NotNull UUID bookId,
-                                             @RequestPart("authorEmail") @NotNull String authorEmail) {
-        return handle(bookService.updateBook(new BookUpdateRequest(title, description, state, coverImage, bookTags, bookId, authorEmail)), HttpStatus.OK);
+    public ResponseEntity<String> updateBook(
+            @ModelAttribute @Valid BookUpdateModel bookUpdateModel,
+            @RequestPart(value = "coverImage", required = false) @Nullable MultipartFile coverImage,
+            @RequestParam("bookId") @NotNull UUID bookId,
+            @RequestParam("authorEmail") @NotNull String authorEmail
+    ) {
+        return handle(bookService.updateBook(new BookUpdateRequest(coverImage, bookUpdateModel, bookId, authorEmail)), HttpStatus.OK);
     }
 
     @Operation(

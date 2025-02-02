@@ -7,8 +7,22 @@ import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
-import org.library.thelibraryj.userInfo.dto.request.*;
-import org.library.thelibraryj.userInfo.dto.response.*;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoScoreUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoStatusUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.response.UserInfoMiniResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserInfoResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserPreferenceUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserProfileImageUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserProfileResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserStatusUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.Nullable;
@@ -151,7 +165,8 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     @Override
     public UserInfoWithImageResponse createUserInfoWithImage(UserInfoRequest userInfoRequest, @Nullable MultipartFile profileImage) {
         UserInfo created = createUserInfoInternal(userInfoRequest);
-        if (profileImage != null) userInfoImageHandler.upsertProfileImageImage(created.getId(), profileImage);
+        boolean customProfileImage = false;
+        if (profileImage != null) customProfileImage = userInfoImageHandler.upsertProfileImageImage(created.getId(), profileImage);
         return new UserInfoWithImageResponse(
                 created.getUsername(),
                 created.getEmail(),
@@ -159,7 +174,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 created.getCurrentScore(),
                 created.getStatus(),
                 created.getPreference(),
-                userInfoImageHandler.fetchProfileImage(created.getId())
+                customProfileImage ? userInfoImageHandler.fetchProfileImage(created.getId()) : userInfoImageHandler.getDefaultImage()
         );
     }
 
@@ -176,9 +191,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         mapped.setCurrentScore(0);
         mapped.setPreference((short) 0);
         mapped.setDataUpdatedAt(Instant.now());
-        UserInfo saved = userInfoRepository.persist(mapped);
-        userInfoRepository.flush();
-        return saved;
+        return userInfoRepository.persist(mapped);
     }
 
     @Transactional

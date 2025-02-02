@@ -13,7 +13,12 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
@@ -53,7 +58,6 @@ public class BookIT {
         scriptExecutor.setSeparator("@@");
         scriptExecutor.execute(this.dataSource);
         TestProperties.fillHeadersForUser1();
-        TestProperties.addCSRFToken();
     }
 
     @Test
@@ -99,7 +103,6 @@ public class BookIT {
                 "sample"
         );
         TestProperties.fillHeadersForUser2();
-        TestProperties.addCSRFToken();
         HttpEntity<RatingRequest> requestEntity3 = new HttpEntity<>(createRatingRequest2, TestProperties.headers);
         ResponseEntity<String> ratingResponse3 = restTemplate.exchange(
                 BASE_AUTH_URL + "/rating", HttpMethod.PUT, requestEntity3, String.class

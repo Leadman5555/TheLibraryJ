@@ -9,6 +9,7 @@ import {EventBusService, LOGIN_EVENT, LOGOUT_EVENT, REFRESH_EVENT} from './share
 import {Subscription} from 'rxjs';
 import {StorageService} from './shared/storage/storage.service';
 import {UserSearchComponent} from './user/profile/user-search/user-search.component';
+import {logError} from './shared/errorHandling/handleError';
 
 @Component({
   selector: 'app-root',
@@ -103,7 +104,7 @@ export class AppComponent implements OnInit {
           this.errorMessage = undefined;
           window.location.reload();
         },
-        error: err => console.log(err),
+        error: err => logError(err),
       }
     );
   }

@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { AuthorTabEditComponent } from './author-tab-edit.component';
+import {AuthorTabEditComponent} from './author-tab-edit.component';
 
 describe('AuthorTabEditComponent', () => {
   let component: AuthorTabEditComponent;

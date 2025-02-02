@@ -1,5 +1,6 @@
 package org.library.thelibraryj.book.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -26,7 +27,7 @@ class Chapter extends AbstractEntity {
     private String text;
 
     @MapsId
-    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    @OneToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "chapter_preview_id")
     private ChapterPreview chapterPreview;
 

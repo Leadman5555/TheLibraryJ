@@ -1,1 +1,98 @@
-<p>author-tab-edit works!</p>
+<div id="outerBox">
+  <form *ngIf="updateBookFrom" id="innerBox" [formGroup]="updateBookFrom" (ngSubmit)="attemptBookUpdate()">
+    <div class="titleDiv column">
+      <div class="column" style="margin-bottom: 1em">
+        <span><b>Current title</b>: {{this.currentlyEditingBook.title}}</span>
+        <div class="inputColumn">
+          <div class="input-container">
+            <input placeholder="Update the title" class="input-field" id="titleInput" type="text" maxlength="40"
+                   formControlName="title">
+            <label for="titleInput" class="input-label">The new title shall be: </label>
+            <span class="input-highlight"></span>
+          </div>
+          <div class="errorBox"
+               *ngIf="updateBookFrom.get('title')?.invalid && (updateBookFrom.get('title')?.dirty)">
+            Enter a valid title, from 5 to 40 characters long. Allowed special characters: '-', ''', '!', '"', '_', and
+            whitespace.
+          </div>
+        </div>
+      </div>
+      <div class="column">
+        <span><b>Current state</b>: {{this.currentlyEditingBook.bookState}}</span>
+        <div class="column">
+          <select formControlName="state" id="dropdownPreferenceList">
+            <option *ngFor="let bookState of stateArray; trackBy identifyByIndex"
+                    [ngValue]="bookState"
+                    >
+              {{bookState}}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="dropDiv column">
+      <b>Current cover image</b>
+      <div class="image34Wrapper">
+        <img class="image34" src="data:image/jpg;base64,{{this.currentlyEditingBook.coverImage}}" alt="Current cover image">
+      </div>
+      <div class="mt-square3d-custom tagSelector"
+           style="font-size:0.8em; margin: 0.5em">
+        <span class="tagName">Change cover image</span>
+        <input #editCoverImage  id="checkMt_cover" type="checkbox" formControlName="editCoverImage"/>
+        <label for="checkMt_cover"></label>
+      </div>
+      @if (editCoverImage.checked){
+          <span>If no image is selected, the cover will be reset to default.<br>To cancel, flip the switch above again.</span>
+          <app-image-drop style="font-size: 0.8em" [parentControl]="getCoverImageControl()"></app-image-drop>
+      }
+    </div>
+    <div class="buttonDiv column">
+      <div>
+        <span class="errorBox" *ngIf="bookUpdateErrorMessage">{{ this.bookUpdateErrorMessage }}</span>
+        <span class="successBox" *ngIf="bookUpdatedSuccessfully">Book updated successfully. Changes will be reflected on the website at latest after the next 10 minute mark.</span>
+      </div>
+      <div class="row">
+        <button class="sButton sButtonColor disabledHide" type="submit"
+                [disabled]="updateBookFrom.invalid">Update book
+        </button>
+        <button class="sButton sButtonColor" type="button" (click)="resetForm()">Reset</button>
+      </div>
+
+    </div>
+    <div class="tagDiv">
+      <span class="tagsInfoText centerVH">Update tags that apply to your book:</span>
+      <div formGroupName="bookTags" class="tagSelectorDiv row">
+        <div class="mt-square3d-custom tagSelector" *ngFor="let tag of allTags; let i = index; trackBy: identifyTag"
+             style="font-size:0.8em;">
+          <span class="tagName">{{ tag }}</span>
+          <input id="checkMt_{{i}}" type="checkbox" formControlName="{{i}}"/>
+          <label for="checkMt_{{i}}"></label>
+        </div>
+      </div>
+    </div>
+    <div class="descriptionDiv column">
+      <div class="errorBox"
+           *ngIf="updateBookFrom.get('description')?.invalid">
+        Enter between 50 and 700 characters.
+      </div>
+      <textarea
+                class="textArea"
+                rows="14"
+                cols="50"
+                maxlength="700"
+                formControlName="description"></textarea>
+    </div>
+    <div class="infoDiv column">
+      <div>
+        <b>Update the book</b>
+        <ul style="text-align: left">
+          <li><b>Title</b>: 5-40 characters long. It must be unique, several special characters are allowed. Remember that if your title exceeds a certain length, only a part of it will be shown on the Book preview card.</li>
+          <li><b>Description</b>: 50-700 characters long.</li>
+          <li><b>Cover image</b>: To change the cover flip the switch. If not, no changes to cover will be done. Uploading images in 4:3 ratio is the best choice.</li>
+          <li><b>Tags</b>: Choose at least one that applies to your book.</li>
+          <li><b>State</b>: Choose the current state of the book. It may help the readers to know the authors future plans.</li>
+        </ul>
+      </div>
+    </div>
+  </form>
+</div>

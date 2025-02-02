@@ -41,4 +41,13 @@ class BookImageHandler {
             return defaultImage;
         }
     }
+
+    public boolean removeExistingCoverImage(String forTitle) {
+        try {
+            Files.deleteIfExists(basePath.resolve(forTitle + ".jpg"));
+            return true;
+        } catch (IOException _) {
+            return false;
+        }
+    }
 }

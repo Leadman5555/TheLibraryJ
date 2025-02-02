@@ -25,9 +25,12 @@
       @if (bookPreviews.length) {
         <div class="previewsColumn">
           @for (bp of bookPreviews; track bp.id; let i = $index) {
-            <div id="blocker" (click)="moveToEdit(i)">
-              <app-book-preview-card [bookPreview]="bp"></app-book-preview-card>
-            </div>
+              <app-book-preview-card
+                routerLink="edit"
+                (click)="moveToEdit(i)"
+                [disableRouterLink]="true"
+                [bookPreview]="bp">
+              </app-book-preview-card>
           }
         </div>
       } @else {

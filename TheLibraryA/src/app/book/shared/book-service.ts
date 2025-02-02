@@ -11,7 +11,6 @@ import {RatingResponse} from './models/rating-response';
 import {ChapterPreviewPage} from '../book/paging/chapterPreview-page';
 import {RatingRequest} from './models/rating-request';
 import {handleError} from '../../shared/errorHandling/handleError';
-import {FormOutcome} from '../book-filter/filterService/form-outcome';
 
 @Injectable({
   providedIn: 'root'

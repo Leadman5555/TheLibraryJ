@@ -11,6 +11,6 @@ class TitleCharactersValidator implements ConstraintValidator<ValidTitleCharacte
 
     @Override
     public boolean isValid(String requestString, ConstraintValidatorContext constraintValidatorContext) {
-        return requestString != null && ALLOWED_CHARS.matcher(requestString).matches();
+        return requestString == null || ALLOWED_CHARS.matcher(requestString).matches();
     }
 }

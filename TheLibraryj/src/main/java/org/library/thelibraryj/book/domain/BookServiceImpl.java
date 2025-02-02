@@ -8,10 +8,12 @@ import io.vavr.control.Try;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.book.BookService;
+import org.library.thelibraryj.book.dto.bookDto.BookCreationModel;
 import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
 import org.library.thelibraryj.book.dto.bookDto.BookDetailResponse;
 import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
 import org.library.thelibraryj.book.dto.bookDto.BookResponse;
+import org.library.thelibraryj.book.dto.bookDto.BookUpdateModel;
 import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
@@ -45,6 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -122,27 +125,29 @@ class BookServiceImpl implements BookService {
     public Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest) {
         Either<GeneralError, BookCreationUserView> fetchedAuthorData = userInfoService.getAndValidateAuthorData(bookCreationRequest.authorEmail());
         if (fetchedAuthorData.isLeft()) return Either.left(fetchedAuthorData.getLeft());
-        if (bookPreviewRepository.existsByTitle(bookCreationRequest.title()))
+        BookCreationModel model = bookCreationRequest.bookCreationModel();
+        if (bookPreviewRepository.existsByTitle(model.title()))
             return Either.left(new BookError.DuplicateTitle());
-        String escapedDescription = escapeHtml(bookCreationRequest.description());
-        if(escapedDescription.length() > DESCRIPTION_MAX_LENGTH) escapedDescription = escapedDescription.substring(0, DESCRIPTION_MAX_LENGTH);
+        String escapedDescription = escapeHtml(model.description());
+        if (escapedDescription.length() > DESCRIPTION_MAX_LENGTH)
+            escapedDescription = escapedDescription.substring(0, DESCRIPTION_MAX_LENGTH);
         BookDetail detail = BookDetail.builder()
                 .author(fetchedAuthorData.get().getAuthorUsername())
                 .authorId(fetchedAuthorData.get().getAuthorId())
                 .description(escapedDescription)
                 .build();
         BookPreview preview = BookPreview.builder()
-                .title(escapeHtml(bookCreationRequest.title()))
+                .title(escapeHtml(model.title()))
                 .ratingCount(0)
                 .averageRating(0)
                 .bookState(BookState.UNKNOWN)
-                .bookTags(bookCreationRequest.tags().isEmpty() ? List.of(BookTag.UNTAGGED) : bookCreationRequest.tags())
+                .bookTags(model.tags().isEmpty() ? List.of(BookTag.UNTAGGED) : model.tags())
                 .build();
         preview.setBookDetail(detail);
         bookDetailRepository.persist(detail);
         bookPreviewRepository.persist(preview);
         if (bookCreationRequest.coverImage() != null)
-                return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.upsertCoverImage(bookCreationRequest.title(), bookCreationRequest.coverImage())));
+            return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.upsertCoverImage(model.title(), bookCreationRequest.coverImage())));
         return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.getDefaultImage()));
     }
 
@@ -150,37 +155,48 @@ class BookServiceImpl implements BookService {
     @Override
     public Either<GeneralError, BookResponse> updateBook(BookUpdateRequest bookUpdateRequest) {
         Either<GeneralError, BookDetail> detailE = getDetailAndValidateUUIDs(bookUpdateRequest.bookId(), bookUpdateRequest.authorEmail());
-
-        Either<GeneralError, BookPreview> previewE = getBookPreviewLazy(bookUpdateRequest.bookId());
-        if (previewE.isLeft()) return Either.left(previewE.getLeft());
-
+        if (detailE.isLeft()) return Either.left(detailE.getLeft());
         boolean previewChanged = false;
-        BookPreview preview = previewE.get();
+        BookUpdateModel model = bookUpdateRequest.bookUpdateModel();
+
+        Either<GeneralError, BookPreview> previewE;
+        BookPreview preview;
+        if (model.bookTags() != null) {
+            previewE = getBookPreviewLazy(bookUpdateRequest.bookId());
+            if (previewE.isLeft()) return Either.left(previewE.getLeft());
+            preview = previewE.get();
+            preview.setBookTags(model.bookTags());
+            previewChanged = true;
+        } else {
+            previewE = getBookPreviewEager(bookUpdateRequest.bookId());
+            if (previewE.isLeft()) return Either.left(previewE.getLeft());
+            preview = previewE.get();
+        }
         BookDetail detail = detailE.get();
-        if (bookUpdateRequest.title() != null) {
-            if (bookPreviewRepository.existsByTitle(bookUpdateRequest.title()))
+        if (model.title() != null) {
+            if (bookPreviewRepository.existsByTitle(model.title()))
                 return Either.left(new BookError.DuplicateTitle());
-            preview.setTitle(escapeHtml(bookUpdateRequest.title()));
+            preview.setTitle(escapeHtml(model.title()));
             previewChanged = true;
         }
-        if (bookUpdateRequest.state() != null) {
-            preview.setBookState(bookUpdateRequest.state());
+        if (model.state() != null) {
+            preview.setBookState(model.state());
             previewChanged = true;
         }
-        if (bookUpdateRequest.bookTags() != null) {
-            preview.setBookTags(bookUpdateRequest.bookTags());
-            previewChanged = true;
-        }
-        if (bookUpdateRequest.description() != null) {
-            String escapedDescription = escapeHtml(bookUpdateRequest.description());
-            if(escapedDescription.length() > DESCRIPTION_MAX_LENGTH) escapedDescription = escapedDescription.substring(0, DESCRIPTION_MAX_LENGTH);
+        if (model.description() != null) {
+            String escapedDescription = escapeHtml(model.description());
+            if (escapedDescription.length() > DESCRIPTION_MAX_LENGTH)
+                escapedDescription = escapedDescription.substring(0, DESCRIPTION_MAX_LENGTH);
             detail.setDescription(escapedDescription);
             detail = bookDetailRepository.update(detail);
         }
         if (previewChanged) preview = bookPreviewRepository.update(preview);
 
-        if (bookUpdateRequest.coverImage() != null)
-            return Either.right(getLazyBookResponse(detail, preview,  bookImageHandler.upsertCoverImage(preview.getTitle(), bookUpdateRequest.coverImage())));
+        if (model.resetCoverImage()) {
+            bookImageHandler.removeExistingCoverImage(preview.getTitle());
+            return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.getDefaultImage()));
+        } else if (bookUpdateRequest.coverImage() != null)
+            return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.upsertCoverImage(preview.getTitle(), bookUpdateRequest.coverImage())));
         return Either.right(getEagerBookResponse(detail, preview));
     }
 
@@ -269,21 +285,45 @@ class BookServiceImpl implements BookService {
         if (bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
         Either<GeneralError, BookPreview> bookPreview = getBookPreviewLazy(chapterRequest.bookId());
         if (bookPreview.isLeft()) return Either.left(bookPreview.getLeft());
-        if (chapterPreviewRepository.existsByBookIdAndNumber(bookPreview.get().getId(), chapterRequest.number()))
-            return Either.left(new BookError.DuplicateChapter(bookPreview.get().getId(), chapterRequest.number()));
-        Chapter chapterToSave = Chapter.builder()
-                .text(chapterRequest.chapterText())
-                .build();
-        ChapterPreview previewToSave = ChapterPreview.builder()
-                .title(chapterRequest.title() == null ? "No title" : escapeHtml(chapterRequest.title()))
-                .number(chapterRequest.number())
-                .bookDetail(bookDetail.get())
-                .build();
-        chapterToSave.setChapterPreview(previewToSave);
-        bookPreview.get().increaseChapterCount(1);
-        bookPreviewRepository.update(bookPreview.get());
-        previewToSave = chapterPreviewRepository.persist(previewToSave);
-        chapterRepository.persistAndFlush(chapterToSave);
+        Optional<ChapterPreview> fetched = chapterPreviewRepository.findChapterPreview(chapterRequest.bookId(), chapterRequest.number());
+        ChapterPreview previewToSave;
+        String escapedText = escapeHtml(chapterRequest.chapterText());
+        String escapedTitle = chapterRequest.title() == null ? "No title" : escapeHtml(chapterRequest.title());
+        if (fetched.isPresent()) {
+            previewToSave = fetched.get();
+            if (!previewToSave.getTitle().equals(escapedTitle)) {
+                previewToSave.setTitle(escapedTitle);
+                chapterPreviewRepository.update(previewToSave);
+            }
+            Optional<Chapter> fetchedChapter = chapterRepository.findById(previewToSave.getId());
+            if (fetchedChapter.isPresent()) {
+                Chapter chapter = fetchedChapter.get();
+                if (!chapter.getText().equals(escapedText)) {
+                    chapter.setText(escapedText);
+                    chapterRepository.update(chapter);
+                }
+            } else {
+                Chapter chapterToSave = Chapter.builder()
+                        .text(escapedText)
+                        .build();
+                chapterToSave.setChapterPreview(previewToSave);
+                chapterRepository.persist(chapterToSave);
+            }
+        } else {
+            Chapter chapterToSave = Chapter.builder()
+                    .text(escapedText)
+                    .build();
+            previewToSave = ChapterPreview.builder()
+                    .title(escapedTitle)
+                    .number(chapterRequest.number())
+                    .bookDetail(bookDetail.get())
+                    .build();
+            chapterToSave.setChapterPreview(previewToSave);
+            bookPreview.get().increaseChapterCount(1);
+            bookPreviewRepository.update(bookPreview.get());
+            previewToSave = chapterPreviewRepository.persist(previewToSave);
+            chapterRepository.persist(chapterToSave);
+        }
         return Either.right(mapper.chapterPreviewToChapterPreviewResponse(previewToSave));
     }
 
@@ -295,9 +335,11 @@ class BookServiceImpl implements BookService {
         Either<GeneralError, BookPreview> bookPreview = getBookPreviewLazy(chapterRequests.getFirst().bookId());
         if (bookPreview.isLeft()) return Either.left(bookPreview.getLeft());
         List<ChapterPreview> previewsToSave = new ArrayList<>();
+        chapterPreviewRepository.deleteChapters(bookPreview.get().getId(), chapterRequests.stream().map(ChapterRequest::number).collect(Collectors.toSet()));
+        chapterPreviewRepository.flush();
         for (ChapterRequest chapterRequest : chapterRequests) {
             Chapter chapterToSave = Chapter.builder()
-                    .text(chapterRequest.chapterText())
+                    .text(escapeHtml(chapterRequest.chapterText()))
                     .build();
             ChapterPreview previewToSave = ChapterPreview.builder()
                     .title(chapterRequest.title() == null ? "No title" : escapeHtml(chapterRequest.title()))
@@ -310,8 +352,6 @@ class BookServiceImpl implements BookService {
         }
         bookPreview.get().increaseChapterCount(chapterRequests.size());
         bookPreviewRepository.update(bookPreview.get());
-        chapterRepository.flush();
-        chapterPreviewRepository.flush();
         return Either.right(mapper.chapterPreviewsToChapterPreviewResponseList(previewsToSave));
     }
 
@@ -335,7 +375,6 @@ class BookServiceImpl implements BookService {
                 .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.ChapterNotFound(removalRequest.bookId(), chapterNumber)));
         if (fetchedChapterId.isLeft()) return Either.left(fetchedChapterId.getLeft());
         chapterPreviewRepository.deleteById(fetchedChapterId.get());
-        chapterRepository.deleteById(fetchedChapterId.get());
         return Either.right(new ContentRemovalSuccess(removalRequest.bookId(), removalRequest.userEmail()));
     }
 
@@ -344,10 +383,8 @@ class BookServiceImpl implements BookService {
     public Either<GeneralError, ContentRemovalSuccess> deleteBook(ContentRemovalRequest removalRequest) {
         Either<GeneralError, UUID> validated = validateUUIDs(removalRequest.userEmail(), removalRequest.bookId());
         if (validated.isLeft()) return Either.left(validated.getLeft());
-        chapterRepository.deleteBook(removalRequest.bookId());
         chapterPreviewRepository.deleteBook(removalRequest.bookId());
         ratingRepository.deleteBook(removalRequest.bookId());
-        bookPreviewRepository.deleteById(removalRequest.bookId());
         bookDetailRepository.deleteById(removalRequest.bookId());
         log.info("Book {} has been deleted", removalRequest.bookId());
         return Either.right(new ContentRemovalSuccess(removalRequest.bookId(), removalRequest.userEmail()));
@@ -460,7 +497,7 @@ class BookServiceImpl implements BookService {
 
 
     @Override
-    @CacheEvict(value = {"bookPreviewsOffset","bookPreviewsKeySet", "chapterPreviewOffset"}, allEntries = true)
+    @CacheEvict(value = {"bookPreviewsOffset", "bookPreviewsKeySet", "chapterPreviewOffset"}, allEntries = true)
     @Scheduled(cron = "0 */${library.caching.bookPreviewTTL} * * * *")
     public void resetBookPreviewsCache() {
         bookPreviewRepository.flush();

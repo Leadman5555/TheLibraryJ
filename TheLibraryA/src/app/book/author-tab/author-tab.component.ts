@@ -27,10 +27,12 @@ export class AuthorTabComponent implements OnInit {
 
   ngOnInit(): void {
     const username = this.userAuthService.getLoggedInUsername();
-    if(!username){
+    const email = this.userAuthService.getLoggedInEmail();
+    if(!username || !email){
       this.router.navigate(['']);
       return;
     }
+    this.authorEmail = email;
     this.bookService.getBookPreviewsByAuthor(username).subscribe({
       next: (v) => this.bookPreviews = v,
       error: (_) => this.router.navigate([''])
@@ -38,18 +40,19 @@ export class AuthorTabComponent implements OnInit {
   }
 
   protected bookPreviews: BookPreview[] = [];
+  private authorEmail!: string;
 
   moveToEdit(index: number) {
     this.bookService.getBookDetail(this.bookPreviews[index].id)
       .subscribe({
         next: (detail) => {
+          this.authorTabDataService.setAuthorEmail(this.authorEmail)
           this.authorTabDataService.setCurrentBook(
             this.bookService.mergePreviewAndDetail(
               this.bookPreviews[index],
               detail
             )
           );
-          this.router.navigate(['edit']);
         },
         error: (_) => this.router.navigate(['/author-tab'])
       });

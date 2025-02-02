@@ -46,7 +46,6 @@ public class UserInfoIT {
         scriptExecutor.setSeparator("@@");
         scriptExecutor.execute(this.dataSource);
         TestProperties.fillHeadersForUser1();
-        TestProperties.addCSRFToken();
     }
 
     @Test

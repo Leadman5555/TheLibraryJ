@@ -22,6 +22,7 @@ import {
 } from './dto/UserUpdateDtos';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {parseDateString} from '../../../shared/functions/parseData';
+import {carriageReturnLengthValidator} from '../../../shared/functions/CarriageReturnLengthValidator';
 
 const ANIMATION_IN_MS: number = 500;
 const ANIMATION_OUT_MS: number = 1000;
@@ -95,7 +96,7 @@ export class UserProfileEditComponent implements OnInit {
       newImage: null
     });
     this.statusUpdateForm = this.fb.group({
-      newStatus: [this.userData.status, Validators.maxLength(300)]
+      newStatus: [this.userData.status, carriageReturnLengthValidator(0, 300)]
     });
     this.preferenceUpdateForm = this.fb.group({
       chosenPreference: [findTitle(this.userData.preference), [Validators.required, Validators.min(0), Validators.max(preferenceArray.length - 1)]]

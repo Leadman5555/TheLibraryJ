@@ -198,7 +198,7 @@ export class BookFilterComponent implements OnInit {
 
   private getSelectedTags(tagsGroup: FormArray): BookTag[] {
     return allTags.filter(
-      (_, index) => tagsGroup.at(index).value
+      (_, index) => tagsGroup.at(index)
     );
   }
 

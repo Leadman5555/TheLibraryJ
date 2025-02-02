@@ -6,10 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.bookDto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.bookDto.*;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
@@ -136,9 +133,7 @@ public class BookServiceTest {
     public void testCreateAndUpdateBook() {
         when(bookImageHandler.fetchCoverImage(anyString())).thenReturn(null);
         BookCreationRequest bookCreationRequest = new BookCreationRequest(
-                title,
-                description,
-                List.of(),
+                new BookCreationModel(title, description, List.of()),
                 null,
                 authorEmail
         );
@@ -168,9 +163,10 @@ public class BookServiceTest {
 
         UUID bookId = UUID.randomUUID();
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
-        when(bookPreviewRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookPreview));
         when(userInfoService.getUserInfoIdByEmail(authorEmail)).thenReturn(Either.right(authorId));
-        BookUpdateRequest bookUpdateRequest = new BookUpdateRequest(null, null, BookState.IN_PROGRESS, null, null, bookId, authorEmail);
+        when(bookPreviewRepository.getBookPreviewEager(bookId)).thenReturn(Optional.of(bookPreview));
+        when(bookPreviewRepository.update(bookPreview)).thenReturn(bookPreview);
+        BookUpdateRequest bookUpdateRequest = new BookUpdateRequest(null, new BookUpdateModel(title, null, BookState.IN_PROGRESS, null, false), bookId, authorEmail);
         BookResponse updated = bookService.updateBook(bookUpdateRequest).get();
         verify(bookDetailRepository, never()).update(bookDetail);
         verify(bookPreviewRepository).update(bookPreview);
@@ -228,7 +224,7 @@ public class BookServiceTest {
         bookService.createChapter(request);
         verify(bookPreviewRepository).update(bookPreview);
         verify(chapterPreviewRepository).persist(any());
-        verify(chapterRepository).persistAndFlush(any());
+        verify(chapterRepository).persist(any());
     }
 
 }

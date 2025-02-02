@@ -45,12 +45,12 @@ class UserAuthServiceImpl implements UserAuthService {
         newUserAuth.setRole(UserRole.ROLE_USER);
         newUserAuth.setGoogle(false);
         UserAuth createdAuth = userAuthRepository.persist(newUserAuth);
+        userAuthRepository.flush();
         UserInfoWithImageResponse createdInfo = userInfoService.createUserInfoWithImage(new UserInfoRequest(
                 userCreationRequest.username(),
                 userCreationRequest.email(),
                 createdAuth.getId()
         ), userCreationRequest.profileImage());
-        userAuthRepository.flush();
         return Either.right(mapper.userAuthAndUserInfoResponseToUserCreationResponse(createdInfo, createdAuth));
     }
 
@@ -64,12 +64,12 @@ class UserAuthServiceImpl implements UserAuthService {
                 .isEnabled(true)
                 .build();
         UserAuth createdAuth = userAuthRepository.persist(newUser);
+        userAuthRepository.flush();
         userInfoService.createUserInfo(new UserInfoRequest(
                 userCreationRequest.username(),
                 userCreationRequest.email(),
                 createdAuth.getId()
         ));
-        userAuthRepository.flush();
     }
 
     @Override
