@@ -24,7 +24,7 @@
       </div>
     </div>
     @if (this.showMenu) {
-      <div class="window">
+      <div class="window borderBox">
         @if (this.showLoggedIn) {
           <div class="column">
             <button class="sButton" (click)="hideWindows()" [routerLink]="['/profile', this.userMini?.username]">
@@ -78,7 +78,7 @@
               <button class="sButton" (click)="this.showMenu=false" routerLink="/register">Register</button>
               <div class="menu-container">
                 <button class="menu-button sButton">Trouble logging in?</button>
-                <div class="dropdown">
+                <div class="dropdown borderBox">
                   <button class="sButton dropButton" (click)="this.showMenu=false" routerLink="/password-recovery">Reset
                     password
                   </button>

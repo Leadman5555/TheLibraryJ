@@ -17,8 +17,9 @@ import {NgForOf, NgIf} from '@angular/common';
 import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
 import {identifyByIndex} from '../../../shared/functions/indentify';
 import {stateArray} from '../../shared/models/BookState';
-import {carriageReturnLengthValidator} from '../../../shared/functions/CarriageReturnLengthValidator';
-import {repeatValidator} from '../../../shared/functions/RepeatValidator';
+import {carriageReturnLengthValidator} from '../../../shared/functions/carriageReturnLengthValidator';
+import {repeatValidator} from '../../../shared/functions/repeatValidator';
+import {ChapterEditComponent} from './chapter-edit/chapter-edit.component';
 
 export const currentBookKey = 'currentlyEditingBook';
 export const emailKey = 'authorEmail';
@@ -30,7 +31,8 @@ export const emailKey = 'authorEmail';
     ReactiveFormsModule,
     NgForOf,
     ImageDropComponent,
-    FormsModule
+    FormsModule,
+    ChapterEditComponent
   ],
   templateUrl: './author-tab-edit.component.html',
   styleUrl: './author-tab-edit.component.css'

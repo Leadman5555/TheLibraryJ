@@ -18,6 +18,7 @@ import org.library.thelibraryj.authentication.dto.AuthenticationResponse;
 import org.library.thelibraryj.authentication.dto.RegisterRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
+import org.library.thelibraryj.infrastructure.validators.fileValidators.imageFile.ValidImageFormat;
 import org.library.thelibraryj.infrastructure.validators.passwordCharacters.ValidPasswordCharacters;
 import org.library.thelibraryj.infrastructure.validators.usernameCharacters.ValidUsernameCharacters;
 import org.springframework.http.HttpStatus;
@@ -54,7 +55,7 @@ class AuthenticationController implements ErrorHandling {
     public ResponseEntity<String> register(@RequestPart("email") @Email String email,
                                            @RequestPart("password") @NotNull @NotEmpty @ValidPasswordCharacters String password,
                                            @RequestPart("username") @NotNull @Size(min = 5, max = 20) @ValidUsernameCharacters String username,
-                                           @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+                                           @RequestPart(value = "profileImage", required = false) @ValidImageFormat MultipartFile profileImage) {
         return handle(authenticationService.register(new RegisterRequest(email, password.toCharArray(), username, profileImage)), HttpStatus.CREATED);
     }
 

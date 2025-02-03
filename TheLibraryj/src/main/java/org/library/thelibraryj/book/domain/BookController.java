@@ -9,12 +9,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.book.BookService;
-import org.library.thelibraryj.book.dto.bookDto.BookCreationModel;
-import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookUpdateModel;
-import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
+import org.library.thelibraryj.book.dto.bookDto.*;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterBatchRequest;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PreviewKeySetPage;
@@ -23,6 +19,8 @@ import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.validators.batchSize.ValidBatchSize;
+import org.library.thelibraryj.infrastructure.validators.fileValidators.imageFile.ValidImageFormat;
+import org.library.thelibraryj.infrastructure.validators.fileValidators.textFile.ValidTextFileFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,17 +28,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.access.prepost.PreFilter;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -163,6 +151,27 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
+            summary = "Create new chapter entries in batch. Batch size is limited to 50, distinct number entries. " +
+                    "Chapters must be files in .doc, .docx, .txt or .odt format." +
+                    " File name must be: 'CHAPTER_NUMBER - CHAPTER_TITLE.EXTENSION' or 'CHAPTER_NUMBER.EXTENSION'. Chapter title must meet required character constraints. Chapter length is limited.",
+            tags = "book"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Chapters created successfully"),
+            @ApiResponse(responseCode = "400", description = "Request data invalid. More information in the return error."),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
+    })
+    @PutMapping(value = "books/book/{bookId}/chapter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreFilter("#authorEmail == authentication.principal.username")
+    public ResponseEntity<String> upsertChapters(@RequestPart @ValidBatchSize @ValidTextFileFormat List<MultipartFile> chapterBatch,
+                                                 @PathVariable("bookId") UUID bookId,
+                                                 @RequestParam("authorEmail") @Email String authorEmail) {
+        return handle(bookService.upsertChapters(new ChapterBatchRequest(chapterBatch, bookId, authorEmail)), HttpStatus.CREATED);
+    }
+
+    @Operation(
             summary = "Create a new book entry.",
             tags = "book"
     )
@@ -176,43 +185,9 @@ class BookController implements ErrorHandling {
     @PostMapping(value = "books/book", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("#authorEmail == authentication.principal.username")
     public ResponseEntity<String> createBook(@ModelAttribute @Valid BookCreationModel bookCreationModel,
-                                             @RequestPart(value = "coverImage", required = false) @Nullable MultipartFile coverImage,
+                                             @RequestPart(value = "coverImage", required = false) @ValidImageFormat MultipartFile coverImage,
                                              @RequestParam("authorEmail") @NotNull @Email String authorEmail) {
         return handle(bookService.createBook(new BookCreationRequest(bookCreationModel, coverImage, authorEmail)), HttpStatus.CREATED);
-    }
-
-    @Operation(
-            summary = "Create a new chapter entry.",
-            tags = "book"
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Chapter created successfully"),
-            @ApiResponse(responseCode = "400", description = "Request data invalid"),
-            @ApiResponse(responseCode = "401", description = "Authentication failure"),
-            @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
-            @ApiResponse(responseCode = "403", description = "Permission lacking")
-    })
-    @PostMapping("books/book/chapter")
-    @PreAuthorize("#chapterRequest.authorEmail == authentication.principal.username")
-    public ResponseEntity<String> createChapter(@RequestBody @Valid ChapterRequest chapterRequest) {
-        return handle(bookService.createChapter(chapterRequest), HttpStatus.CREATED);
-    }
-
-
-    @Operation(
-            summary = "Create new chapter entries in batch.",
-            tags = "book"
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Chapters created successfully"),
-            @ApiResponse(responseCode = "401", description = "Authentication failure"),
-            @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
-            @ApiResponse(responseCode = "403", description = "Permission lacking")
-    })
-    @PostMapping("books/book/chapter/batch")
-    @PreFilter("#filterObject.authorEmail == authentication.principal.username")
-    public ResponseEntity<String> createChapters(@RequestBody @ValidBatchSize @Valid List<ChapterRequest> chapterRequests) {
-        return handle(bookService.createChapters(chapterRequests), HttpStatus.CREATED);
     }
 
     @Operation(

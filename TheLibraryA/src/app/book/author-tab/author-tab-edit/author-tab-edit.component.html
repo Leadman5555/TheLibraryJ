@@ -57,10 +57,11 @@
                   [disabled]="updateBookFrom.invalid">Update book
           </button>
           <button class="sButton sButtonColor" type="button" (click)="resetForm()">Reset</button>
+          <button class="sButton sButtonColor" type="button" (click)="toggleChapterEdit()">Edit chapters</button>
           <button class="sButton sButtonColor" type="button" (click)="showDeleteBookForm()">Delete book</button>
           @if (this.deleteBookForm) {
-            <div id="deleteBookFormDiv">
-              <form id="deleteBookForm" [formGroup]="deleteBookForm" class="column" (ngSubmit)="attemptBookDeletion()">
+            <div class="floatBox" style="left: 40%">
+              <form id="deleteBookForm" [formGroup]="deleteBookForm" class="column borderBox" (ngSubmit)="attemptBookDeletion()">
                 <span>Enter the confirmation message to proceed:</span>
                 <b style="text-align: center; word-break: break-word; overflow-wrap: break-word;">{{this.deleteBookConfirmation}}</b>
                 <div class="input-container">
@@ -125,4 +126,7 @@
   } @else {
     <img src="/dr-sun-yat-sen-classical-chinese-garden.jpg" style="width: 100%; height: auto;" alt="Calm pond">
   }
+  <div *ngIf="showChapterEdit">
+    <app-chapter-edit [currentBook]="currentlyEditingBook"></app-chapter-edit>
+  </div>
 </div>

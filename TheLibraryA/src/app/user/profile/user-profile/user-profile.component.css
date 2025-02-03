@@ -2,6 +2,7 @@
 @import "../../../shared/styles/rowCol.css";
 @import "../../../shared/styles/image34.css";
 @import "../../../shared/styles/previewsColumn.css";
+@import "../../../shared/styles/borderBox.css";
 
 .outerBox {
   display: flex;
@@ -10,9 +11,6 @@
   text-align: center;
   justify-content: center;
   min-height: 80vh;
-  background-color: cadetblue;
-  border: 0.2em solid darkgoldenrod;
-  padding: 1em;
 }
 
 .userProfileGrid {

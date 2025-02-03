@@ -3,6 +3,7 @@
 @import "../../../shared/styles/sButton.css";
 @import "../../../shared/styles/image34.css";
 @import "../../../shared/styles/textArea.css";
+@import "../../../shared/styles/borderBox.css";
 
 #rankUpAnimation {
   position: absolute;
@@ -22,8 +23,6 @@
 
 #outerBox {
   text-align: center;
-  background-color: cadetblue;
-  border: 0.2em solid darkgoldenrod;
   padding: 2em;
 }
 

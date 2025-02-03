@@ -5,7 +5,6 @@ import com.blazebit.persistence.PagedList;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.bookDto.BookCreationModel;
@@ -15,8 +14,8 @@ import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
 import org.library.thelibraryj.book.dto.bookDto.BookResponse;
 import org.library.thelibraryj.book.dto.bookDto.BookUpdateModel;
 import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterBatchRequest;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
-import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedChapterPreviewResponse;
@@ -40,14 +39,14 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.HtmlUtils;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -61,14 +60,16 @@ class BookServiceImpl implements BookService {
     private final BookMapper mapper;
     private final BookImageHandler bookImageHandler;
     private final BookBlazeRepository bookBlazeRepository;
+    private final BookProperties bookProperties;
     private UserInfoService userInfoService;
+    private final Pattern chapterTitleMatcher = Pattern.compile("^([0-9])+(\\s-\\s(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s'_\"!.-]*)?$");
 
     @Autowired
     public void setUserInfoService(@Lazy UserInfoService userInfoService) {
         this.userInfoService = userInfoService;
     }
 
-    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, @Qualifier("bookMapperImpl") BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository, BookImageHandler bookImageHandler, BookBlazeRepository bookBlazeRepository) {
+    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, @Qualifier("bookMapperImpl") BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository, BookImageHandler bookImageHandler, BookBlazeRepository bookBlazeRepository, BookProperties bookProperties) {
         this.bookDetailRepository = bookDetailRepository;
         this.bookPreviewRepository = bookPreviewRepository;
         this.mapper = mapper;
@@ -77,6 +78,7 @@ class BookServiceImpl implements BookService {
         this.chapterRepository = chapterRepository;
         this.bookImageHandler = bookImageHandler;
         this.bookBlazeRepository = bookBlazeRepository;
+        this.bookProperties = bookProperties;
     }
 
     @Override
@@ -118,8 +120,6 @@ class BookServiceImpl implements BookService {
                 .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(previewId, null)));
     }
 
-    private static final int DESCRIPTION_MAX_LENGTH = 750;
-
     @Transactional
     @Override
     public Either<GeneralError, BookResponse> createBook(BookCreationRequest bookCreationRequest) {
@@ -129,8 +129,8 @@ class BookServiceImpl implements BookService {
         if (bookPreviewRepository.existsByTitle(model.title()))
             return Either.left(new BookError.DuplicateTitle());
         String escapedDescription = escapeHtml(model.description());
-        if (escapedDescription.length() > DESCRIPTION_MAX_LENGTH)
-            escapedDescription = escapedDescription.substring(0, DESCRIPTION_MAX_LENGTH);
+        if (escapedDescription.length() > bookProperties.getDescription_max_length())
+            escapedDescription = escapedDescription.substring(0, bookProperties.getDescription_max_length());
         BookDetail detail = BookDetail.builder()
                 .author(fetchedAuthorData.get().getAuthorUsername())
                 .authorId(fetchedAuthorData.get().getAuthorId())
@@ -185,8 +185,8 @@ class BookServiceImpl implements BookService {
         }
         if (model.description() != null) {
             String escapedDescription = escapeHtml(model.description());
-            if (escapedDescription.length() > DESCRIPTION_MAX_LENGTH)
-                escapedDescription = escapedDescription.substring(0, DESCRIPTION_MAX_LENGTH);
+            if (escapedDescription.length() > bookProperties.getDescription_max_length())
+                escapedDescription = escapedDescription.substring(0, bookProperties.getDescription_max_length());
             detail.setDescription(escapedDescription);
             detail = bookDetailRepository.update(detail);
         }
@@ -217,7 +217,7 @@ class BookServiceImpl implements BookService {
     @Override
     public Either<GeneralError, RatingResponse> upsertRating(RatingRequest ratingRequest) {
         Either<GeneralError, RatingUpsertView> fetchedE = userInfoService.getUsernameAndIdByEmail(ratingRequest.userEmail());
-        if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
+        if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         RatingUpsertView fetched = fetchedE.get();
         UUID userId = fetched.getUserId();
         Either<GeneralError, BookPreview> ePreview = getBookPreviewLazy(ratingRequest.bookId());
@@ -280,17 +280,11 @@ class BookServiceImpl implements BookService {
         return bookDetailE;
     }
 
-    @Override
     @Transactional
-    public Either<GeneralError, ChapterPreviewResponse> createChapter(ChapterRequest chapterRequest) {
-        Either<GeneralError, BookDetail> bookDetail = getDetailAndValidateUUIDs(chapterRequest.bookId(), chapterRequest.authorEmail());
-        if (bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
-        Either<GeneralError, BookPreview> bookPreview = getBookPreviewLazy(chapterRequest.bookId());
-        if (bookPreview.isLeft()) return Either.left(bookPreview.getLeft());
-        Optional<ChapterPreview> fetched = chapterPreviewRepository.findChapterPreview(chapterRequest.bookId(), chapterRequest.number());
+    int upsertChapter(UUID bookId, String escapedText, ChapterEntry entry, List<ChapterPreviewResponse> resultList, BookDetail bookDetailReference) {
+        Optional<ChapterPreview> fetched = chapterPreviewRepository.findChapterPreview(bookId, entry.number());
         ChapterPreview previewToSave;
-        String escapedText = escapeHtml(chapterRequest.chapterText());
-        String escapedTitle = chapterRequest.title() == null ? "No title" : escapeHtml(chapterRequest.title());
+        String escapedTitle = entry.title() == null ? "No title" : escapeHtml(entry.title());
         if (fetched.isPresent()) {
             previewToSave = fetched.get();
             if (!previewToSave.getTitle().equals(escapedTitle)) {
@@ -311,50 +305,93 @@ class BookServiceImpl implements BookService {
                 chapterToSave.setChapterPreview(previewToSave);
                 chapterRepository.persist(chapterToSave);
             }
-        } else {
-            Chapter chapterToSave = Chapter.builder()
-                    .text(escapedText)
-                    .build();
-            previewToSave = ChapterPreview.builder()
-                    .title(escapedTitle)
-                    .number(chapterRequest.number())
-                    .bookDetail(bookDetail.get())
-                    .build();
-            chapterToSave.setChapterPreview(previewToSave);
-            bookPreview.get().increaseChapterCount(1);
-            bookPreviewRepository.update(bookPreview.get());
-            previewToSave = chapterPreviewRepository.persist(previewToSave);
-            chapterRepository.persist(chapterToSave);
+            resultList.add(mapper.chapterPreviewToChapterPreviewResponse(previewToSave));
+            return 0;
         }
-        return Either.right(mapper.chapterPreviewToChapterPreviewResponse(previewToSave));
+        Chapter chapterToSave = Chapter.builder()
+                .text(escapedText)
+                .build();
+        previewToSave = ChapterPreview.builder()
+                .title(escapedTitle)
+                .number(entry.number())
+                .bookDetail(bookDetailReference)
+                .build();
+        chapterToSave.setChapterPreview(previewToSave);
+        previewToSave = chapterPreviewRepository.persist(previewToSave);
+        chapterRepository.persist(chapterToSave);
+        resultList.add(mapper.chapterPreviewToChapterPreviewResponse(previewToSave));
+        return 1;
     }
 
     @Override
     @Transactional
-    public Either<GeneralError, List<ChapterPreviewResponse>> createChapters(@NotEmpty List<ChapterRequest> chapterRequests) {
-        Either<GeneralError, BookDetail> bookDetail = getDetailAndValidateUUIDs(chapterRequests.getFirst().bookId(), chapterRequests.getFirst().authorEmail());
+    public Either<GeneralError, List<ChapterPreviewResponse>> upsertChapters(ChapterBatchRequest chapterBatchRequest) {
+        Either<GeneralError, List<ChapterEntry>> parsedFiles = validateAndParseChapterRequests(
+                chapterBatchRequest.chapterFiles(),
+                chapterBatchRequest.bookId()
+        );
+        if (parsedFiles.isLeft()) return Either.left(parsedFiles.getLeft());
+        Either<GeneralError, BookDetail> bookDetail = getDetailAndValidateUUIDs(chapterBatchRequest.bookId(), chapterBatchRequest.authorEmail());
         if (bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
-        Either<GeneralError, BookPreview> bookPreview = getBookPreviewLazy(chapterRequests.getFirst().bookId());
+        Either<GeneralError, BookPreview> bookPreview = getBookPreviewLazy(chapterBatchRequest.bookId());
         if (bookPreview.isLeft()) return Either.left(bookPreview.getLeft());
-        List<ChapterPreview> previewsToSave = new ArrayList<>();
-        chapterPreviewRepository.deleteChapters(bookPreview.get().getId(), chapterRequests.stream().map(ChapterRequest::number).collect(Collectors.toSet()));
-        chapterPreviewRepository.flush();
-        for (ChapterRequest chapterRequest : chapterRequests) {
-            Chapter chapterToSave = Chapter.builder()
-                    .text(escapeHtml(chapterRequest.chapterText()))
-                    .build();
-            ChapterPreview previewToSave = ChapterPreview.builder()
-                    .title(chapterRequest.title() == null ? "No title" : escapeHtml(chapterRequest.title()))
-                    .number(chapterRequest.number())
-                    .bookDetail(bookDetail.get())
-                    .build();
-            chapterToSave.setChapterPreview(previewToSave);
-            previewsToSave.add(chapterPreviewRepository.persist(previewToSave));
-            chapterRepository.persist(chapterToSave);
+
+        List<ChapterEntry> chapterEntries = parsedFiles.get();
+        List<String> textList = new ArrayList<>();
+        List<MultipartFile> chapterFiles = chapterBatchRequest.chapterFiles();
+        UUID bookId = chapterBatchRequest.bookId();
+        for (int i = 0; i < chapterFiles.size(); i++) {
+            String text;
+            try {
+                text = new String(chapterFiles.get(i).getBytes());
+            } catch (IOException e) {
+                return Either.left(new BookError.MalformedChapterText(bookId, chapterEntries.get(i).number()));
+            }
+            String escapedText = escapeHtml(text);
+            if (escapedText.length() > bookProperties.getChapter_max_length())
+                return Either.left(new BookError.InvalidChapterTextLength(bookId, chapterEntries.get(i).number()));
+            textList.add(escapedText);
         }
-        bookPreview.get().increaseChapterCount(chapterRequests.size());
+        List<ChapterPreviewResponse> resultList = new ArrayList<>();
+        int counter = 0;
+        for (int i = 0; i < chapterFiles.size(); i++)
+            counter += upsertChapter(bookId, textList.get(i), chapterEntries.get(i), resultList, bookDetail.get());
+        bookPreview.get().increaseChapterCount(counter);
         bookPreviewRepository.update(bookPreview.get());
-        return Either.right(mapper.chapterPreviewsToChapterPreviewResponseList(previewsToSave));
+        return Either.right(resultList);
+    }
+
+    private record ChapterEntry(int number, String title) {
+    }
+
+    private Either<GeneralError, List<ChapterEntry>> validateAndParseChapterRequests(List<MultipartFile> chapterFiles, UUID forBookId) {
+        Set<Integer> numbers = new HashSet<>();
+        List<ChapterEntry> chapterEntries = new ArrayList<>();
+        for (MultipartFile file : chapterFiles) {
+            String name = file.getOriginalFilename();
+            if (name == null || name.isBlank())
+                return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, ""));
+            String fileName = Paths.get(file.getOriginalFilename()).getFileName().toString();
+            fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+            if (!chapterTitleMatcher.matcher(fileName).matches())
+                return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, fileName));
+            int numberEnd = fileName.indexOf(' ');
+            if (numberEnd > bookProperties.getChapter_max_number())
+                return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, fileName));
+            String chapterTitle = null;
+            if (numberEnd != -1) chapterTitle = fileName.substring(numberEnd + 4);
+            int chapterNumber;
+            try {
+                chapterNumber = Integer.parseInt(fileName.substring(0, numberEnd));
+            } catch (NumberFormatException e) {
+                return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, fileName));
+            }
+            if (numbers.contains(chapterNumber))
+                return Either.left(new BookError.DuplicateChapter(forBookId, chapterNumber));
+            numbers.add(chapterNumber);
+            chapterEntries.add(new ChapterEntry(chapterNumber, chapterTitle));
+        }
+        return Either.right(chapterEntries);
     }
 
     Either<GeneralError, UUID> getAuthorId(UUID bookId) {

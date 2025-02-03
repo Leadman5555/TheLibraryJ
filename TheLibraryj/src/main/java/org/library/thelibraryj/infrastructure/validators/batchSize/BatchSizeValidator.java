@@ -15,6 +15,6 @@ class BatchSizeValidator implements ConstraintValidator<ValidBatchSize, List<?>>
 
     @Override
     public boolean isValid(List<?> requestList, ConstraintValidatorContext constraintValidatorContext) {
-        return requestList != null && requestList.size() <= maxBatchSize;
+        return requestList != null && !requestList.isEmpty() && requestList.size() <= maxBatchSize;
     }
 }

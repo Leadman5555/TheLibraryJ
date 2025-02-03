@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS library.library_chapter_previews
 );
 CREATE TABLE IF NOT EXISTS library.library_chapters
 (
-    text               VARCHAR(18050),
+    text               VARCHAR(19000),
     chapter_preview_id UUID   NOT NULL,
     version            BIGINT NOT NULL DEFAULT 0,
     created_at         TIMESTAMP,

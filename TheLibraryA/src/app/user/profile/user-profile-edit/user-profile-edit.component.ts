@@ -22,7 +22,7 @@ import {
 } from './dto/UserUpdateDtos';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {parseDateString} from '../../../shared/functions/parseData';
-import {carriageReturnLengthValidator} from '../../../shared/functions/CarriageReturnLengthValidator';
+import {carriageReturnLengthValidator} from '../../../shared/functions/carriageReturnLengthValidator';
 
 const ANIMATION_IN_MS: number = 500;
 const ANIMATION_OUT_MS: number = 1000;

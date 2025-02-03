@@ -32,6 +32,12 @@ interface ChapterPreviewRepository extends BaseJpaRepository<ChapterPreview, UUI
             """)
     Optional<ChapterPreview> findChapterPreview(@Param("bookId") UUID bookId, @Param("number") int number);
 
+    @Query("""
+                select chapterPreview from chapterPreview
+                where bookDetail.id = :bookId and number in :chapterNumbers
+            """)
+    List<ChapterPreview> fetchPreviewsByBookIdAndNumber(@Param("bookId") UUID bookId, @Param("chapterNumbers") Set<Integer> chapterNumbers);
+
     @Modifying
     @Query("""
                 delete from chapterPreview

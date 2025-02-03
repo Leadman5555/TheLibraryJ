@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
+import org.library.thelibraryj.infrastructure.validators.fileValidators.imageFile.ValidImageFormat;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.request.*;
 import org.springframework.http.HttpStatus;
@@ -190,7 +191,7 @@ class UserInfoController implements ErrorHandling {
     @PatchMapping(value = "/user/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
     public ResponseEntity<String> updateUserProfileImage(@RequestParam("email") @NotBlank @Email String email,
-                                                         @RequestPart(value = "newImage", required = false) @Nullable MultipartFile newImage) throws IOException {
+                                                         @RequestPart(value = "newImage", required = false) @Nullable @ValidImageFormat MultipartFile newImage) throws IOException {
         return handle(userInfoService.updateProfileImage(new UserInfoImageUpdateRequest(email, newImage)), HttpStatus.OK);
     }
 

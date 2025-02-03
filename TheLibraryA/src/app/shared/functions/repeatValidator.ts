@@ -1,4 +1,4 @@
-import {AbstractControl, FormArray, ValidationErrors, ValidatorFn} from '@angular/forms';
+import {AbstractControl, ValidationErrors, ValidatorFn} from '@angular/forms';
 
 export function repeatValidator(shouldMatch: string): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {

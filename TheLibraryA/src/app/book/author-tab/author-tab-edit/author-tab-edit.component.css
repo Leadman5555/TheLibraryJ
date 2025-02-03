@@ -5,6 +5,8 @@
 @import "../../../shared/styles/m3Toggle.css";
 @import "../../../shared/styles/horizontalTagSelector.css";
 @import "../../../shared/styles/image34.css";
+@import "../../../shared/styles/floatBox.css";
+@import "../../../shared/styles/borderBox.css";
 
 #outerBox {
   width: 100%;
@@ -57,10 +59,6 @@
   grid-area: infoDiv;
 }
 
-.chapterEditButtonDiv {
-  grid-area: chapterEditButtonDiv;
-}
-
 .sButtonColor::before, .sButtonColor::after {
   background-color: #86B1BE;
 }
@@ -69,17 +67,7 @@
   --buttonColor: #86B1BE;
 }
 
-#deleteBookFormDiv {
-  position: fixed;
-  top: 50%;
-  left: 40%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-}
-
 #deleteBookForm {
-  border: 0.2em solid darkgoldenrod;
-  background-color: cadetblue;
   padding: 0.6em;
   box-shadow: 0 0 0.2em 0;
 }

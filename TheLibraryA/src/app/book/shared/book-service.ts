@@ -11,6 +11,7 @@ import {RatingResponse} from './models/rating-response';
 import {ChapterPreviewPage} from '../book/paging/chapterPreview-page';
 import {RatingRequest} from './models/rating-request';
 import {handleError} from '../../shared/errorHandling/handleError';
+import {ChapterPreview} from './models/chapter-preview';
 
 @Injectable({
   providedIn: 'root'
@@ -90,5 +91,15 @@ export class BookService {
   public deleteBook(bookId: string, userEmail: string): Observable<void>{
     const body = {bookId: bookId, userEmail: userEmail};
     return this.http.delete<void>(`${this.baseAuthUrl}/book`, {body: body}).pipe(catchError(handleError));
+  }
+
+  public uploadChapter(bookId: string, authorEmail: string, chapter: File): Observable<ChapterPreview>{
+
+    return this.http.post<ChapterPreview>(`${this.baseAuthUrl}/book/chapter`, null).pipe(catchError(handleError));
+  }
+
+  public uploadChaptersInBatch(bookId: string, authorEmail: string, chapters: File[]): Observable<ChapterPreview[]>{
+
+    return this.http.post<ChapterPreview[]>(`${this.baseAuthUrl}/book/chapter/batch`, null).pipe(catchError(handleError));
   }
 }

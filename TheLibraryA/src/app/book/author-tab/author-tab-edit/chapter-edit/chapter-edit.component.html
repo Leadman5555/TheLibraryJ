@@ -1,0 +1,39 @@
+<form class="outerBox borderBox" [formGroup]="chapterUploadForm" (ngSubmit)="attemptChapterUpload()">
+  <p class="infoBox">
+    Info here
+  </p>
+  <div class="ChapterUploadBox column">
+    <input
+      type="file"
+      id="fileInput"
+      hidden
+      multiple
+      (change)="onFileChange($event)"
+      #fileInput
+    />
+    <div *ngIf="getFilesControl().value?.length">
+      <p>Selected Files:</p>
+      <ul>
+        <li *ngFor="let file of getFilesControl().value">{{ file.name }}</li>
+      </ul>
+    </div>
+    <div class="errorBox" *ngIf="getFilesControl().errors?.['invalidFileType']">
+      Invalid file type. Only .txt, .docx, .doc, or .odt files are allowed.
+    </div>
+    <div class="errorBox" *ngIf="getFilesControl().errors?.['invalidFormat']">
+      One or more of uploaded file names is not in the required format.
+    </div>
+    <button type="button" class="sButton" (click)="fileInput.click()">Browse local files</button>
+  </div>
+  <div class="messageDiv column">
+    <span class="emptyInfoBox">{{uploadMessage}}</span>
+    @if (this.uploadErrorMessage) {
+      <span class="errorBox">{{uploadErrorMessage}}</span>
+    }
+  </div>
+  <div class="buttonDiv row">
+    <button class="sButton" type="submit">Edit chapters</button>
+    <button class="sButton" type="reset" (click)="resetForm()">Clear form</button>
+    <button class="sButton" type="button" (click)="onCloseFunction()">Close</button>
+  </div>
+</form>

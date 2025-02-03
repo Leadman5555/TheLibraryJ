@@ -47,6 +47,12 @@ public class ApiErrorWrapper {
                     getErrorResponseAndLog(error, HttpStatus.NOT_FOUND, "Chapter not found. BookId: " + e.bookId() + "; Chapter number: " + e.chapterNumber());
             case BookError.DuplicateChapter e ->
                     getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Duplicate chapter. BookId: " + e.bookId() + "; Chapter number: " + e.chapterNumber());
+            case BookError.InvalidChapterTitleFormat e ->
+                    getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Invalid chapter title format. BookId: " + e.bookId() + " Title: " + e.title());
+            case BookError.InvalidChapterTextLength e ->
+                    getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Invalid chapter text length. BookId: " + e.bookId() + " Chapter number: " + e.chapterNumber());
+            case BookError.MalformedChapterText e ->
+                    getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Malformed chapter text. BookId: " + e.bookId() + " Chapter number: " + e.chapterNumber());
             case UserInfoError.UserInfoEntityNotFound e -> getErrorResponseAndLog(error, HttpStatus.NOT_FOUND,
                     "User data (details) missing. Email: " + e.missingEntityEmail());
             case UserInfoError.UserInfoEntityNotFoundById e -> getErrorResponseAndLog(error, HttpStatus.NOT_FOUND,

@@ -4,13 +4,9 @@ import com.blazebit.persistence.KeysetPage;
 import io.vavr.control.Either;
 import org.library.thelibraryj.book.domain.BookState;
 import org.library.thelibraryj.book.domain.BookTag;
-import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.bookDto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.bookDto.*;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterBatchRequest;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
-import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedChapterPreviewResponse;
@@ -54,9 +50,7 @@ public interface BookService {
 
     Either<GeneralError, ChapterResponse> getChapterByBookIdAndNumber(UUID bookId, int chapterNumber);
 
-    Either<GeneralError, ChapterPreviewResponse> createChapter(ChapterRequest chapterRequest);
-
-    Either<GeneralError, List<ChapterPreviewResponse>> createChapters(List<ChapterRequest> chapterRequests);
+    Either<GeneralError, List<ChapterPreviewResponse>> upsertChapters(ChapterBatchRequest createChapterBatchRequest);
 
     Either<GeneralError, ContentRemovalSuccess> deleteChapter(ContentRemovalRequest contentRemovalRequest, int chapterNumber);
 

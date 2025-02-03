@@ -14,7 +14,7 @@ import {NgForOf, NgIf} from '@angular/common';
 import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
 import {allTags, identifyTag} from '../../shared/models/BookTag';
 import {atLeastOneValidator} from '../../../shared/functions/atLeastOneValidator';
-import {carriageReturnLengthValidator} from '../../../shared/functions/CarriageReturnLengthValidator';
+import {carriageReturnLengthValidator} from '../../../shared/functions/carriageReturnLengthValidator';
 
 @Component({
   selector: 'app-author-tab-create',
