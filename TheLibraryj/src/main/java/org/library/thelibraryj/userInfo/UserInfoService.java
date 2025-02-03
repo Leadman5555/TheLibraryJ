@@ -39,10 +39,10 @@ public interface UserInfoService {
     Either<GeneralError, UserProfileResponse> getUserProfileById(UUID userId);
     Either<GeneralError, UserProfileResponse> getUserProfileByUsername(String username);
     Either<GeneralError, UserProfileResponse> getUserProfileByEmail(String email);
-    UserInfoMiniResponse getUserInfoMiniResponseByEmail(String email);
-    UserInfoDetailsView getUserInfoDetailsByUsername(String username);
+    Either<GeneralError, UserInfoMiniResponse> getUserInfoMiniResponseByEmail(String email);
+    Either<GeneralError, UserInfoDetailsView> getUserInfoDetailsByUsername(String username);
     Either<GeneralError, UUID> getUserInfoIdByEmail(String email);
-    RatingUpsertView getUsernameAndIdByEmail(String email);
+    Either<GeneralError, RatingUpsertView>  getUsernameAndIdByEmail(String email);
     Either<GeneralError, BookCreationUserView> getAndValidateAuthorData(String authorEmail);
     UserInfoWithImageResponse createUserInfoWithImage(UserInfoRequest userInfoRequest, MultipartFile imageFile);
     UserInfoResponse createUserInfo(UserInfoRequest userInfoRequest);

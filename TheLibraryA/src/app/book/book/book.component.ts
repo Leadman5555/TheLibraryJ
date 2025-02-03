@@ -170,7 +170,7 @@ export class BookComponent extends PagingHelper implements OnInit {
 
   upsertRating() {
     if (this.ratingUpsertForm.invalid) return;
-    const userEmail = this.userAuthService.getLoggedInUsername();
+    const userEmail = this.userAuthService.getLoggedInEmail();
     if(!userEmail){
       this.router.navigate(['']);
       return;

@@ -7,6 +7,9 @@ import jakarta.persistence.EntityManager;
 import org.library.thelibraryj.infrastructure.model.ViewRepositoryBase;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 class UserInfoViewRepositoryImpl extends ViewRepositoryBase implements UserInfoViewRepository {
 
@@ -15,34 +18,38 @@ class UserInfoViewRepositoryImpl extends ViewRepositoryBase implements UserInfoV
     }
 
     @Override
-    public RatingUpsertView getRatingUpsertView(String email) {
-        return evm.applySetting(EntityViewSetting.create(RatingUpsertView.class),
+    public Optional<RatingUpsertView> getRatingUpsertView(String email) {
+        List<RatingUpsertView> resultList = evm.applySetting(EntityViewSetting.create(RatingUpsertView.class),
                         cbf.create(em, UserInfo.class, "u")
                                 .where("u.email").eq(email))
-                .getSingleResult();
+                .getResultList();
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }
 
     @Override
-    public BookCreationUserView getBookCreationUserView(String email) {
-        return evm.applySetting(EntityViewSetting.create(BookCreationUserView.class),
+    public Optional<BookCreationUserView> getBookCreationUserView(String email) {
+        List<BookCreationUserView> resultList = evm.applySetting(EntityViewSetting.create(BookCreationUserView.class),
                         cbf.create(em, UserInfo.class, "u")
                                 .where("u.email").eq(email))
-                .getSingleResult();
+                .getResultList();
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }
 
     @Override
-    public UserInfoDetailsView getUserInfoDetailsView(String username) {
-        return evm.applySetting(EntityViewSetting.create(UserInfoDetailsView.class),
+    public Optional<UserInfoDetailsView> getUserInfoDetailsView(String username) {
+        List<UserInfoDetailsView> resultList = evm.applySetting(EntityViewSetting.create(UserInfoDetailsView.class),
                 cbf.create(em, UserInfo.class, "u")
                         .where("u.username").eq(username))
-                .getSingleResult();
+                .getResultList();
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }
 
     @Override
-    public UserInfoMiniView getUserInfoMiniView(String email) {
-        return evm.applySetting(EntityViewSetting.create(UserInfoMiniView.class),
+    public Optional<UserInfoMiniView> getUserInfoMiniView(String email) {
+        List<UserInfoMiniView> resultList = evm.applySetting(EntityViewSetting.create(UserInfoMiniView.class),
                         cbf.create(em, UserInfo.class, "u")
                                 .where("u.email").eq(email))
-                .getSingleResult();
+                .getResultList();
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }
 }

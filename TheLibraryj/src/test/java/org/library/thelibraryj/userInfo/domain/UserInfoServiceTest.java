@@ -69,7 +69,7 @@ public class UserInfoServiceTest {
 
     @Test
     public void testGetAndValidateAuthorData(){
-        when(userInfoRepository.getBookCreationUserView(userEmail)).thenReturn(new BookCreationUserView() {
+        when(userInfoRepository.getBookCreationUserView(userEmail)).thenReturn(Optional.of(new BookCreationUserView() {
             @Override
             public UUID getAuthorId() {
                 return userId;
@@ -84,12 +84,12 @@ public class UserInfoServiceTest {
             public Instant getCreatedAt() {
                 return Instant.now().minusSeconds(10000000);
             }
-        });
+        }));
         Either<GeneralError, BookCreationUserView> response = userInfoService.getAndValidateAuthorData(userEmail);
         Assertions.assertTrue(response.isRight());
         Assertions.assertEquals(username, response.get().getAuthorUsername());
 
-        when(userInfoRepository.getBookCreationUserView(userEmail)).thenReturn(new BookCreationUserView() {
+        when(userInfoRepository.getBookCreationUserView(userEmail)).thenReturn(Optional.of(new BookCreationUserView() {
             @Override
             public UUID getAuthorId() {
                 return userId;
@@ -104,7 +104,7 @@ public class UserInfoServiceTest {
             public Instant getCreatedAt() {
                 return Instant.now();
             }
-        });
+        }));
         Either<GeneralError, BookCreationUserView> response2 = userInfoService.getAndValidateAuthorData(userEmail);
         Assertions.assertTrue(response2.isLeft());
     }

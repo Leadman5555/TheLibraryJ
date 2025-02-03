@@ -216,7 +216,9 @@ class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public Either<GeneralError, RatingResponse> upsertRating(RatingRequest ratingRequest) {
-        RatingUpsertView fetched = userInfoService.getUsernameAndIdByEmail(ratingRequest.userEmail());
+        Either<GeneralError, RatingUpsertView> fetchedE = userInfoService.getUsernameAndIdByEmail(ratingRequest.userEmail());
+        if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
+        RatingUpsertView fetched = fetchedE.get();
         UUID userId = fetched.getUserId();
         Either<GeneralError, BookPreview> ePreview = getBookPreviewLazy(ratingRequest.bookId());
         if (ePreview.isLeft()) return Either.left(ePreview.getLeft());

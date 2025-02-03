@@ -18,6 +18,10 @@ import {ImageDropComponent} from '../../../shared/image-drop/image-drop.componen
 import {identifyByIndex} from '../../../shared/functions/indentify';
 import {stateArray} from '../../shared/models/BookState';
 import {carriageReturnLengthValidator} from '../../../shared/functions/CarriageReturnLengthValidator';
+import {repeatValidator} from '../../../shared/functions/RepeatValidator';
+
+export const currentBookKey = 'currentlyEditingBook';
+export const emailKey = 'authorEmail';
 
 @Component({
   selector: 'app-author-tab-edit',
@@ -37,22 +41,23 @@ export class AuthorTabEditComponent implements OnInit {
   }
 
   currentlyEditingBook!: BookResponse;
-  updateBookFrom!: FormGroup;
+  updateBookFrom?: FormGroup;
 
   ngOnInit(): void {
     this.authorTabDataService.currentlyEditing$.subscribe(book => {
+      this.closeDeleteBookForm();
       this.changeCurrentlyEditingBook(book);
-      sessionStorage.setItem('authorEmail', this.authorTabDataService.authorEmail);
+      sessionStorage.setItem(emailKey, this.authorTabDataService.authorEmail);
       this.createForm();
     });
     if (this.currentlyEditingBook === undefined) {
-      const storedBook = sessionStorage.getItem('currentlyEditingBook');
-      const storedEmail = sessionStorage.getItem('authorEmail');
+      const storedBook = sessionStorage.getItem(currentBookKey);
+      const storedEmail = sessionStorage.getItem(emailKey);
       if (storedBook !== null && storedEmail !== null) {
         this.currentlyEditingBook = JSON.parse(storedBook);
         this.authorTabDataService.authorEmail = storedEmail;
         this.createForm();
-      } else window.location.replace('/author-tab');
+      }
     }
   }
 
@@ -90,9 +95,9 @@ export class AuthorTabEditComponent implements OnInit {
   bookUpdatedSuccessfully: boolean = false;
 
   attemptBookUpdate() {
-    if ((this.updateBookFrom.pristine && !this.updateBookFrom.get('editCoverImage')!.value) || this.updateBookFrom.invalid) return;
+    if ((this.updateBookFrom!.pristine && !this.updateBookFrom!.get('editCoverImage')!.value) || this.updateBookFrom!.invalid) return;
     const formData = new FormData();
-    const values = this.updateBookFrom.value;
+    const values = this.updateBookFrom!.value;
     let anyChange: boolean = false;
 
     const newTitle: string = values.title;
@@ -134,7 +139,7 @@ export class AuthorTabEditComponent implements OnInit {
     this.bookUpdatedSuccessfully = false;
     if (anyChange) {
       console.log('sending')
-      formData.set('authorEmail', this.authorTabDataService.authorEmail);
+      formData.set(emailKey, this.authorTabDataService.authorEmail);
       formData.set('bookId', this.currentlyEditingBook.id);
       this.bookService.updateBook(formData)
         .subscribe({
@@ -148,7 +153,7 @@ export class AuthorTabEditComponent implements OnInit {
   }
 
   private getSelectedTags(): string[] {
-    const selectedTags = this.updateBookFrom.get('bookTags') as FormArray;
+    const selectedTags = this.updateBookFrom!.get('bookTags') as FormArray;
     return allTags.filter(
       (_, index) => selectedTags.at(index).value
     );
@@ -156,22 +161,55 @@ export class AuthorTabEditComponent implements OnInit {
 
   private changeCurrentlyEditingBook(book: BookResponse) {
     this.currentlyEditingBook = book;
-    sessionStorage.setItem('currentlyEditingBook', JSON.stringify(this.currentlyEditingBook));
+    sessionStorage.setItem(currentBookKey, JSON.stringify(this.currentlyEditingBook));
     this.createForm();
   }
 
+  private clearCurrentEditingBook() {
+    this.updateBookFrom = undefined;
+    sessionStorage.removeItem(currentBookKey);
+    sessionStorage.removeItem(emailKey);
+  }
+
+  deleteBookForm?: FormGroup;
+
+  deleteBookSuccess: boolean = true;
+  deleteBookConfirmation!: string;
+
+  attemptBookDeletion(){
+    if(this.deleteBookForm!.pristine || this.deleteBookForm!.invalid) return;
+    const value: string = this.deleteBookForm!.value.confirmDelete;
+    if(value != this.deleteBookConfirmation ) return;
+    this.deleteBookSuccess = true;
+    this.bookService.deleteBook(this.currentlyEditingBook.id, this.authorTabDataService.authorEmail).subscribe({
+      next: () => {this.clearCurrentEditingBook();},
+      error: () => this.deleteBookSuccess = false
+      }
+    );
+  }
+
+  showDeleteBookForm(){
+    this.deleteBookConfirmation = `I want to delete book titled \"${this.currentlyEditingBook.title}\". I acknowledge that this action is irreversible.`;
+    this.deleteBookForm = this.fb.group({
+      confirmDelete: ['', repeatValidator(this.deleteBookConfirmation)],
+    });
+  }
+
+  closeDeleteBookForm(){
+    this.deleteBookForm = undefined;
+  }
 
   resetForm() {
     this.bookUpdateErrorMessage = null;
     this.bookUpdatedSuccessfully = false;
-    this.updateBookFrom.reset();
+    this.updateBookFrom!.reset();
   }
 
   protected readonly allTags = allTags;
   protected readonly identifyTag = identifyTag;
 
   getCoverImageControl() {
-    return this.updateBookFrom.get('coverImage') as FormControl;
+    return this.updateBookFrom!.get('coverImage') as FormControl;
   }
 
   protected readonly identifyByIndex = identifyByIndex;

@@ -27,7 +27,11 @@
 
 .titleDiv {
   grid-area: titleDiv;
+  overflow-wrap: break-word;
   padding-bottom: 0.5em;
+  white-space: normal;
+  word-wrap: anywhere;
+  word-break: break-word;
 }
 
 .dropDiv {
@@ -42,7 +46,7 @@
   grid-area: descriptionDiv;
 }
 
-.textArea{
+.textArea {
   margin-right: 0.5em;
   margin-left: 0.5em;
   max-width: min(40em, 100%);
@@ -57,10 +61,25 @@
   grid-area: chapterEditButtonDiv;
 }
 
-.sButtonColor::before, .sButtonColor::after{
+.sButtonColor::before, .sButtonColor::after {
   background-color: #86B1BE;
 }
 
 :host {
   --buttonColor: #86B1BE;
+}
+
+#deleteBookFormDiv {
+  position: fixed;
+  top: 50%;
+  left: 40%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+#deleteBookForm {
+  border: 0.2em solid darkgoldenrod;
+  background-color: cadetblue;
+  padding: 0.6em;
+  box-shadow: 0 0 0.2em 0;
 }

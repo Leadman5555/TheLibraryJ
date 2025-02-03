@@ -27,7 +27,7 @@ class BookImageHandler {
 
     public byte[] fetchCoverImage(String forTitle) {
         try {
-            return Files.readAllBytes(basePath.resolve(forTitle));
+            return Files.readAllBytes(basePath.resolve(forTitle + ".jpg"));
         } catch (IOException e) {
             return defaultImage;
         }

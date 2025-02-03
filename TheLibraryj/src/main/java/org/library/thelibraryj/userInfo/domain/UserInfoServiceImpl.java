@@ -111,14 +111,21 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     }
 
     @Override
-    public UserInfoMiniResponse getUserInfoMiniResponseByEmail(String email) {
-        UserInfoMiniView fetched = userInfoRepository.getUserInfoMiniView(email);
-        return new UserInfoMiniResponse(fetched.getUsername(), userInfoImageHandler.fetchProfileImage(fetched.getId()));
+    public Either<GeneralError, UserInfoMiniResponse> getUserInfoMiniResponseByEmail(String email) {
+        return userInfoRepository.getUserInfoMiniView(email)
+                .map(view ->
+                        Either.<GeneralError, UserInfoMiniResponse>right(
+                                new UserInfoMiniResponse(view.getUsername(),
+                                        userInfoImageHandler.fetchProfileImage(view.getId())))
+                )
+                .orElse(Either.left(new UserInfoError.UserInfoEntityNotFound(email)));
+
     }
 
     @Override
-    public UserInfoDetailsView getUserInfoDetailsByUsername(String username) {
-        return userInfoRepository.getUserInfoDetailsView(username);
+    public Either<GeneralError, UserInfoDetailsView> getUserInfoDetailsByUsername(String username) {
+        return userInfoRepository.getUserInfoDetailsView(username).map(Either::<GeneralError, UserInfoDetailsView>right)
+                .orElse(Either.left(new UserInfoError.UserInfoEntityNotFoundUsername(username)));
     }
 
     @Override
@@ -139,17 +146,19 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     }
 
     @Override
-    public RatingUpsertView getUsernameAndIdByEmail(String email) {
-        return userInfoRepository.getRatingUpsertView(email);
+    public Either<GeneralError, RatingUpsertView> getUsernameAndIdByEmail(String email) {
+        return userInfoRepository.getRatingUpsertView(email).map(Either::<GeneralError, RatingUpsertView>right)
+                .orElse(Either.left(new UserInfoError.UserInfoEntityNotFound(email)));
     }
 
     @Override
     public Either<GeneralError, BookCreationUserView> getAndValidateAuthorData(String authorEmail) {
-        BookCreationUserView fetched = userInfoRepository.getBookCreationUserView(authorEmail);
-        long ageDiff = ChronoUnit.HOURS.between(fetched.getCreatedAt(), Instant.now());
-        if (ageDiff < userInfoProperties.getMinimal_age_hours())
-            return Either.left(new UserInfoError.UserAccountTooYoung(authorEmail, ageDiff));
-        return Either.right(fetched);
+        return userInfoRepository.getBookCreationUserView(authorEmail).map(bookCreationUserView -> {
+            long ageDiff = ChronoUnit.HOURS.between(bookCreationUserView.getCreatedAt(), Instant.now());
+            if (ageDiff < userInfoProperties.getMinimal_age_hours())
+                return Either.<GeneralError, BookCreationUserView>left(new UserInfoError.UserAccountTooYoung(authorEmail, ageDiff));
+            return Either.<GeneralError, BookCreationUserView>right(bookCreationUserView);
+        }).orElse(Either.left(new UserInfoError.UserInfoEntityNotFound(authorEmail)));
     }
 
     @Override
@@ -166,7 +175,8 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     public UserInfoWithImageResponse createUserInfoWithImage(UserInfoRequest userInfoRequest, @Nullable MultipartFile profileImage) {
         UserInfo created = createUserInfoInternal(userInfoRequest);
         boolean customProfileImage = false;
-        if (profileImage != null) customProfileImage = userInfoImageHandler.upsertProfileImageImage(created.getId(), profileImage);
+        if (profileImage != null)
+            customProfileImage = userInfoImageHandler.upsertProfileImageImage(created.getId(), profileImage);
         return new UserInfoWithImageResponse(
                 created.getUsername(),
                 created.getEmail(),

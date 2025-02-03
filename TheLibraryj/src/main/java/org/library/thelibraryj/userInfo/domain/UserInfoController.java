@@ -10,26 +10,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.userInfo.UserInfoService;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoStatusUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.response.UserInfoMiniResponse;
+import org.library.thelibraryj.userInfo.dto.request.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -90,8 +77,8 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/details/{username}")
-    public ResponseEntity<UserInfoDetailsView> getUserInfoDetailsByUsername(@PathVariable("username") String username) {
-        return ResponseEntity.ok(userInfoService.getUserInfoDetailsByUsername(username));
+    public ResponseEntity<String> getUserInfoDetailsByUsername(@PathVariable("username") String username) {
+        return handle(userInfoService.getUserInfoDetailsByUsername(username), HttpStatus.OK);
     }
 
     @Operation(
@@ -103,8 +90,8 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/mini/{email}")
-    public ResponseEntity<UserInfoMiniResponse> getUserInfoMiniByEmail(@PathVariable("email") String email) {
-        return ResponseEntity.ok(userInfoService.getUserInfoMiniResponseByEmail(email));
+    public ResponseEntity<String> getUserInfoMiniByEmail(@PathVariable("email") String email) {
+        return handle(userInfoService.getUserInfoMiniResponseByEmail(email), HttpStatus.OK);
     }
 
     @Operation(

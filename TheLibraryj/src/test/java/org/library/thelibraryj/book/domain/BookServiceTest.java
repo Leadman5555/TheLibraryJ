@@ -193,7 +193,7 @@ public class BookServiceTest {
         when(bookPreviewRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookPreview));
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
         when(ratingRepository.getRatingForBookAndUser(bookId, authorId)).thenReturn(Optional.empty());
-        when(userInfoService.getUsernameAndIdByEmail(authorEmail)).thenReturn(new RatingUpsertView() {
+        when(userInfoService.getUsernameAndIdByEmail(authorEmail)).thenReturn(Either.right(new RatingUpsertView() {
 
             @Override
             public UUID getUserId() {
@@ -204,7 +204,7 @@ public class BookServiceTest {
             public String getUsername() {
                 return author;
             }
-        });
+        }));
         RatingRequest request = new RatingRequest(authorEmail, rating.getCurrentRating(), bookId, rating.getComment());
         bookService.upsertRating(request);
         when(ratingRepository.getRatingForBookAndUser(bookId, authorId)).thenReturn(Optional.ofNullable(rating));
