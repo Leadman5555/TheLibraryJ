@@ -26,14 +26,28 @@ interface BookPreviewRepository extends BaseJpaRepository<BookPreview, UUID> {
     Optional<BookPreview> getBookPreviewEager(@Param("id") UUID id);
 
     @Query("""
-    select (count(b) > 0) from bookPreview b where b.title = :title
-    """)
+            select (count(b) > 0) from bookPreview b where b.title = :title
+            """)
     boolean existsByTitle(@Param("title") String title);
 
     @Modifying
     @Query("""
-    delete from bookPreview
-    where id = :bookId
-    """)
+            delete from bookPreview
+            where id = :bookId
+            """)
     void deleteBook(@Param("bookId") UUID bookId);
+
+    @Modifying
+    @Query("""
+                    update bookPreview  bp SET bp.chapterCount = (bp.chapterCount -1)
+                    where bp.id = :bookId
+            """)
+    void decrementChapterCount(@Param("bookId") UUID bookId);
+
+    @Modifying
+    @Query("""
+                    update bookPreview  bp SET bp.chapterCount = (bp.chapterCount + :change)
+                    where bp.id = :bookId
+            """)
+    void changeChapterCount(@Param("bookId") UUID bookId, @Param("change") int change);
 }

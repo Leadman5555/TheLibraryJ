@@ -14,14 +14,15 @@ import java.util.UUID;
 @Repository
 interface ChapterRepository extends BaseJpaRepository<Chapter, UUID> {
     @Query("""
-    select c.text from chapter c
-    where c.id = :id
-""")
+                select text from chapter
+                where id = :id
+            """)
     Optional<String> getChapterContentById(@Param("id") UUID id);
 
     @Query("""
                 select chapter from chapter
-                where chapterPreview.id in :previewIds
+                where id in :previewIds
+                order by id asc
             """)
     List<Chapter> fetchChaptersByPreviewIds(@Param("previewIds") Set<UUID> previewIds);
 
@@ -29,7 +30,7 @@ interface ChapterRepository extends BaseJpaRepository<Chapter, UUID> {
     @Modifying
     @Query("""
     delete from chapter
-    where chapterPreview.id in (
+    where id in (
     select id from chapterPreview
     where bookDetail.id = :bookId
     )

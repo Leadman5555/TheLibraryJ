@@ -17,6 +17,7 @@ import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterBatchRequest;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterResponse;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterUpsertResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
@@ -36,6 +37,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,8 +47,16 @@ import org.springframework.web.util.HtmlUtils;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.PriorityQueue;
+import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -280,93 +290,81 @@ class BookServiceImpl implements BookService {
         return bookDetailE;
     }
 
-    @Transactional
-    int upsertChapter(UUID bookId, String escapedText, ChapterEntry entry, List<ChapterPreviewResponse> resultList, BookDetail bookDetailReference) {
-        Optional<ChapterPreview> fetched = chapterPreviewRepository.findChapterPreview(bookId, entry.number());
-        ChapterPreview previewToSave;
-        String escapedTitle = entry.title() == null ? "No title" : escapeHtml(entry.title());
-        if (fetched.isPresent()) {
-            previewToSave = fetched.get();
-            if (!previewToSave.getTitle().equals(escapedTitle)) {
-                previewToSave.setTitle(escapedTitle);
-                chapterPreviewRepository.update(previewToSave);
-            }
-            Optional<Chapter> fetchedChapter = chapterRepository.findById(previewToSave.getId());
-            if (fetchedChapter.isPresent()) {
-                Chapter chapter = fetchedChapter.get();
-                if (!chapter.getText().equals(escapedText)) {
-                    chapter.setText(escapedText);
-                    chapterRepository.update(chapter);
-                }
-            } else {
-                Chapter chapterToSave = Chapter.builder()
-                        .text(escapedText)
-                        .build();
-                chapterToSave.setChapterPreview(previewToSave);
-                chapterRepository.persist(chapterToSave);
-            }
-            resultList.add(mapper.chapterPreviewToChapterPreviewResponse(previewToSave));
-            return 0;
+    private record ChapterDraft(String escapedTitle, int number, String escapedText) {
+        ChapterDraft(String escapedText, ChapterUpsertResponse draft) {
+            this((draft.title() == null ? "No title" : escapeHtml(draft.title())), draft.number(), escapedText);
         }
+    }
+
+    private record FetchedChapterData(ChapterPreview chapterPreview, Chapter chapter) { }
+
+    @Async
+    @Transactional
+    void createChapter(ChapterDraft chapterDraft, BookDetail bookDetailReference) {
         Chapter chapterToSave = Chapter.builder()
-                .text(escapedText)
+                .text(chapterDraft.escapedText)
                 .build();
-        previewToSave = ChapterPreview.builder()
-                .title(escapedTitle)
-                .number(entry.number())
+        ChapterPreview previewToSave = ChapterPreview.builder()
+                .title(chapterDraft.escapedTitle)
+                .number(chapterDraft.number)
                 .bookDetail(bookDetailReference)
                 .build();
         chapterToSave.setChapterPreview(previewToSave);
-        previewToSave = chapterPreviewRepository.persist(previewToSave);
+        chapterPreviewRepository.persist(previewToSave);
         chapterRepository.persist(chapterToSave);
-        resultList.add(mapper.chapterPreviewToChapterPreviewResponse(previewToSave));
-        return 1;
     }
 
-    @Override
+    @Async
     @Transactional
-    public Either<GeneralError, List<ChapterPreviewResponse>> upsertChapters(ChapterBatchRequest chapterBatchRequest) {
-        Either<GeneralError, List<ChapterEntry>> parsedFiles = validateAndParseChapterRequests(
-                chapterBatchRequest.chapterFiles(),
-                chapterBatchRequest.bookId()
-        );
-        if (parsedFiles.isLeft()) return Either.left(parsedFiles.getLeft());
-        Either<GeneralError, BookDetail> bookDetail = getDetailAndValidateUUIDs(chapterBatchRequest.bookId(), chapterBatchRequest.authorEmail());
-        if (bookDetail.isLeft()) return Either.left(bookDetail.getLeft());
-        Either<GeneralError, BookPreview> bookPreview = getBookPreviewLazy(chapterBatchRequest.bookId());
-        if (bookPreview.isLeft()) return Either.left(bookPreview.getLeft());
-
-        List<ChapterEntry> chapterEntries = parsedFiles.get();
-        List<String> textList = new ArrayList<>();
-        List<MultipartFile> chapterFiles = chapterBatchRequest.chapterFiles();
-        UUID bookId = chapterBatchRequest.bookId();
-        for (int i = 0; i < chapterFiles.size(); i++) {
-            String text;
-            try {
-                text = new String(chapterFiles.get(i).getBytes());
-            } catch (IOException e) {
-                return Either.left(new BookError.MalformedChapterText(bookId, chapterEntries.get(i).number()));
-            }
-            String escapedText = escapeHtml(text);
-            if (escapedText.length() > bookProperties.getChapter_max_length())
-                return Either.left(new BookError.InvalidChapterTextLength(bookId, chapterEntries.get(i).number()));
-            textList.add(escapedText);
+    void updateChapter(ChapterDraft chapterDraft, FetchedChapterData fetchedChapterData) {
+        if (!fetchedChapterData.chapterPreview.getTitle().equals(chapterDraft.escapedTitle)) {
+            fetchedChapterData.chapterPreview.setTitle(chapterDraft.escapedTitle);
+            chapterPreviewRepository.update(fetchedChapterData.chapterPreview);
         }
-        List<ChapterPreviewResponse> resultList = new ArrayList<>();
-        int counter = 0;
-        for (int i = 0; i < chapterFiles.size(); i++)
-            counter += upsertChapter(bookId, textList.get(i), chapterEntries.get(i), resultList, bookDetail.get());
-        bookPreview.get().increaseChapterCount(counter);
-        bookPreviewRepository.update(bookPreview.get());
-        return Either.right(resultList);
+        if (fetchedChapterData.chapter != null) {
+            if (!fetchedChapterData.chapter.getText().equals(chapterDraft.escapedText)) {
+                fetchedChapterData.chapter.setText(chapterDraft.escapedText);
+                chapterRepository.update(fetchedChapterData.chapter);
+            }
+        } else {
+            Chapter chapterToSave = Chapter.builder()
+                    .text(chapterDraft.escapedText)
+                    .build();
+            chapterToSave.setChapterPreview(fetchedChapterData.chapterPreview);
+            chapterRepository.persist(chapterToSave);
+        }
     }
 
-    private record ChapterEntry(int number, String title) {
+    private static PriorityQueue<FetchedChapterData> mergeChapterData(List<ChapterPreview> existingChapterPreviews, List<Chapter> existingChapters) {
+        PriorityQueue<FetchedChapterData> fetchedChapterData = new PriorityQueue<>(Comparator.comparingInt(data -> data.chapterPreview.getNumber()));
+        if (existingChapterPreviews.size() != existingChapters.size()) {
+            for (int i = 0; i < existingChapterPreviews.size(); i++)
+                if (!existingChapterPreviews.get(i).getId().equals(existingChapters.get(i).getId()))
+                    fetchedChapterData.add(new FetchedChapterData(existingChapterPreviews.get(i), null));
+                else
+                    fetchedChapterData.add(new FetchedChapterData(existingChapterPreviews.get(i), existingChapters.get(i)));
+        } else for (int i = 0; i < existingChapterPreviews.size(); i++)
+            fetchedChapterData.add(new FetchedChapterData(existingChapterPreviews.get(i), existingChapters.get(i)));
+        return fetchedChapterData;
     }
 
-    private Either<GeneralError, List<ChapterEntry>> validateAndParseChapterRequests(List<MultipartFile> chapterFiles, UUID forBookId) {
-        Set<Integer> numbers = new HashSet<>();
-        List<ChapterEntry> chapterEntries = new ArrayList<>();
+    @Async
+    @Transactional
+    void updateAndCreate(List<ChapterPreview> existingChapterPreviews, List<ChapterDraft> mergedList, BookDetail bookDetailRef) {
+        List<Chapter> existingChapters = chapterRepository.fetchChaptersByPreviewIds(existingChapterPreviews.stream().map(ChapterPreview::getId).collect(Collectors.toSet()));
+        PriorityQueue<FetchedChapterData> fetchedChapterData = mergeChapterData(existingChapterPreviews, existingChapters);
+        int currentIndex = 0;
+        while (!fetchedChapterData.isEmpty()) {
+            FetchedChapterData fetched = fetchedChapterData.poll();
+            while (fetched.chapterPreview.getNumber() != mergedList.get(currentIndex).number())
+                createChapter(mergedList.get(currentIndex++), bookDetailRef);
+            updateChapter(mergedList.get(currentIndex++), fetched);
+        }
+        for (; currentIndex < mergedList.size(); currentIndex++) createChapter(mergedList.get(currentIndex), bookDetailRef);
+    }
+
+    private Either<GeneralError, List<ChapterUpsertResponse>> validateAndParseChapterRequests(List<MultipartFile> chapterFiles, UUID forBookId, Set<Integer> numbers) {
+        List<ChapterUpsertResponse> chapterEntries = new ArrayList<>();
         for (MultipartFile file : chapterFiles) {
             String name = file.getOriginalFilename();
             if (name == null || name.isBlank())
@@ -389,8 +387,49 @@ class BookServiceImpl implements BookService {
             if (numbers.contains(chapterNumber))
                 return Either.left(new BookError.DuplicateChapter(forBookId, chapterNumber));
             numbers.add(chapterNumber);
-            chapterEntries.add(new ChapterEntry(chapterNumber, chapterTitle));
+            chapterEntries.add(new ChapterUpsertResponse(chapterNumber, chapterTitle));
         }
+        return Either.right(chapterEntries);
+    }
+
+    @Override
+    @Transactional
+    public Either<GeneralError, List<ChapterUpsertResponse>> upsertChapters(ChapterBatchRequest chapterBatchRequest) {
+        Set<Integer> chapterNumbers = new HashSet<>();
+        Either<GeneralError, List<ChapterUpsertResponse>> parsedFiles = validateAndParseChapterRequests(
+                chapterBatchRequest.chapterFiles(),
+                chapterBatchRequest.bookId(),
+                chapterNumbers
+        );
+        if (parsedFiles.isLeft()) return Either.left(parsedFiles.getLeft());
+        Either<GeneralError, BookDetail> bookDetailE = getDetailAndValidateUUIDs(chapterBatchRequest.bookId(), chapterBatchRequest.authorEmail());
+        if (bookDetailE.isLeft()) return Either.left(bookDetailE.getLeft());
+        BookDetail bookDetail = bookDetailE.get();
+
+        List<ChapterDraft> mergedList = new ArrayList<>();
+        List<ChapterUpsertResponse> chapterEntries = parsedFiles.get();
+        List<MultipartFile> chapterFiles = chapterBatchRequest.chapterFiles();
+        UUID bookId = chapterBatchRequest.bookId();
+        for (int i = 0; i < chapterFiles.size(); i++) {
+            String text;
+            try {
+                text = new String(chapterFiles.get(i).getBytes());
+            } catch (IOException e) {
+                return Either.left(new BookError.MalformedChapterText(bookId, chapterEntries.get(i).number()));
+            }
+            String escapedText = escapeHtml(text);
+            if (escapedText.length() > bookProperties.getChapter_max_length())
+                return Either.left(new BookError.InvalidChapterTextLength(bookId, chapterEntries.get(i).number()));
+            mergedList.add(new ChapterDraft(escapedText, chapterEntries.get(i)));
+        }
+        mergedList.sort(Comparator.comparingInt(ChapterDraft::number));
+
+
+        List<ChapterPreview> existingChapterPreviews = chapterPreviewRepository.fetchSortedPreviewsByBookIdAndNumber(bookId, chapterNumbers);
+        if (!existingChapterPreviews.isEmpty()) updateAndCreate(existingChapterPreviews, mergedList, bookDetail);
+        else for (ChapterDraft draft : mergedList) createChapter(draft, bookDetail);
+        bookPreviewRepository.changeChapterCount(bookId, mergedList.size() - existingChapterPreviews.size());
+
         return Either.right(chapterEntries);
     }
 
@@ -414,6 +453,7 @@ class BookServiceImpl implements BookService {
                 .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.ChapterNotFound(removalRequest.bookId(), chapterNumber)));
         if (fetchedChapterId.isLeft()) return Either.left(fetchedChapterId.getLeft());
         chapterPreviewRepository.deleteById(fetchedChapterId.get());
+        bookPreviewRepository.decrementChapterCount(removalRequest.bookId());
         return Either.right(new ContentRemovalSuccess(removalRequest.bookId(), removalRequest.userEmail()));
     }
 

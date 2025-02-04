@@ -6,8 +6,8 @@ import org.library.thelibraryj.book.domain.BookState;
 import org.library.thelibraryj.book.domain.BookTag;
 import org.library.thelibraryj.book.dto.bookDto.*;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterBatchRequest;
-import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterResponse;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterUpsertResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
@@ -50,7 +50,7 @@ public interface BookService {
 
     Either<GeneralError, ChapterResponse> getChapterByBookIdAndNumber(UUID bookId, int chapterNumber);
 
-    Either<GeneralError, List<ChapterPreviewResponse>> upsertChapters(ChapterBatchRequest createChapterBatchRequest);
+    Either<GeneralError, List<ChapterUpsertResponse>> upsertChapters(ChapterBatchRequest createChapterBatchRequest);
 
     Either<GeneralError, ContentRemovalSuccess> deleteChapter(ContentRemovalRequest contentRemovalRequest, int chapterNumber);
 

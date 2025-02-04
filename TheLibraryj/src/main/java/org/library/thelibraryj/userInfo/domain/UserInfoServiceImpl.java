@@ -50,11 +50,6 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     private final UserInfoImageHandler userInfoImageHandler;
     private BookService bookService;
 
-    private final static int points_for_comment = 1;
-    private final static int points_for_review = 1;
-    private final static int points_for_author = 3;
-    private final static int[] rank_requirements = {3, 5, 10, 20, 40, 60, 100, 200, 500, 1000};
-
     @Autowired
     void setBookService(@Lazy BookService bookService) {
         this.bookService = bookService;
@@ -210,7 +205,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         Either<GeneralError, UserInfo> fetchedE = getUserInfoByEmail(userInfoRankUpdateRequest.email());
         if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         UserInfo fetched = fetchedE.get();
-        int newRank = max(min(fetched.getRank() + userInfoRankUpdateRequest.rankChange(), rank_requirements.length), 0);
+        int newRank = max(min(fetched.getRank() + userInfoRankUpdateRequest.rankChange(), userInfoProperties.getRank_count()), 0);
         if (newRank < fetched.getRank() && fetched.getPreference() > newRank / 10) fetched.setPreference((short) 0);
         fetched.setRank(newRank);
         userInfoRepository.update(fetched);
@@ -226,12 +221,12 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         int newRank = fetched.getRank();
         int currentPoints = fetched.getCurrentScore();
 
-        while (newRank < rank_requirements.length && currentPoints - rank_requirements[newRank] >= 0) {
-            currentPoints -= rank_requirements[newRank];
+        while (newRank < userInfoProperties.getRank_count() && currentPoints - userInfoProperties.getRank_requirements_array()[newRank] >= 0) {
+            currentPoints -= userInfoProperties.getRank_requirements_array()[newRank];
             newRank++;
         }
         if (newRank == fetched.getRank())
-            return Either.left(new UserInfoError.UserNotEligibleForRankIncrease(fetched.getEmail(), currentPoints - rank_requirements[newRank]));
+            return Either.left(new UserInfoError.UserNotEligibleForRankIncrease(fetched.getEmail(), currentPoints - userInfoProperties.getRank_requirements_array()[newRank]));
         fetched.setRank(newRank);
         fetched.setCurrentScore(currentPoints);
         userInfoRepository.update(fetched);
@@ -303,18 +298,10 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     @Transactional
     @Override
     public void updateRatingScore(UserInfoScoreUpdateRequest userInfoScoreUpdateRequest) {
-        Either<GeneralError, UserInfo> user = getUserInfoById(userInfoScoreUpdateRequest.forUser());
-        if (user.isRight()) {
-            if (userInfoScoreUpdateRequest.hadComment())
-                user.get().incrementScore(points_for_comment + points_for_review);
-            else user.get().incrementScore(points_for_review);
-            userInfoRepository.update(user.get());
-        }
-        Either<GeneralError, UserInfo> author = getUserInfoById(userInfoScoreUpdateRequest.forAuthor());
-        if (author.isRight()) {
-            author.get().incrementScore(points_for_author);
-            userInfoRepository.update(author.get());
-        }
+        if (userInfoScoreUpdateRequest.hadComment())
+            userInfoRepository.updateCurrentScore(userInfoScoreUpdateRequest.forUser(), userInfoProperties.getPoints_for_comment() + userInfoProperties.getPoints_for_review());
+        else userInfoRepository.updateCurrentScore(userInfoScoreUpdateRequest.forUser(), userInfoProperties.getPoints_for_review());
+        userInfoRepository.updateCurrentScore(userInfoScoreUpdateRequest.forAuthor(), userInfoProperties.getPoints_for_author());
     }
 
     @Override

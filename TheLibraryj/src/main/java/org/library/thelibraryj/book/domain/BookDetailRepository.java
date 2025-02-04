@@ -13,8 +13,8 @@ import java.util.UUID;
 interface BookDetailRepository extends BaseJpaRepository<BookDetail, UUID> {
 
     @Query("""
-        select bd.authorId from bookDetail bd
-        where bd.id = :bookId
+        select authorId from bookDetail
+        where id = :bookId
     """)
     Optional<UUID> getAuthorId(@Param("bookId") UUID bookId);
 
