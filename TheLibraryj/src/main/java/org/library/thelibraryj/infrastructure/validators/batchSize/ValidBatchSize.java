@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidBatchSize {
-    String message() default "Up to 50 elements allowed per request.";
+    String message() default "From 1 to 50 elements allowed per request.";
 
     Class<?>[] groups() default {};
 

@@ -49,7 +49,7 @@ public class ValidatorsTest {
         List<Integer> list2 = new ArrayList<>();
         for(int i = 0; i < 30; i++) list2.add(i);
         assertDoesNotThrow(() -> toValidate.checkBatchSize(list2));
-        assertDoesNotThrow(() -> toValidate.checkBatchSize(List.of()));
+        assertThrows(ConstraintViolationException.class, () -> toValidate.checkBatchSize(list));
     }
 
     @Test

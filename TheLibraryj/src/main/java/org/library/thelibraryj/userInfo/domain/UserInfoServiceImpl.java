@@ -7,22 +7,8 @@ import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoScoreUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoStatusUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.response.UserInfoMiniResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserInfoResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserPreferenceUpdateResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserProfileImageUpdateResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserProfileResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserStatusUpdateResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.request.*;
+import org.library.thelibraryj.userInfo.dto.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.Nullable;
@@ -35,6 +21,7 @@ import org.springframework.web.util.HtmlUtils;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.UUID;
 
 import static java.lang.Integer.max;
@@ -49,6 +36,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     private final UserInfoProperties userInfoProperties;
     private final UserInfoImageHandler userInfoImageHandler;
     private BookService bookService;
+    private final int[] rankRequirementsArray;
 
     @Autowired
     void setBookService(@Lazy BookService bookService) {
@@ -60,6 +48,8 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         this.userInfoMapper = userInfoMapper;
         userInfoProperties = properties;
         this.userInfoImageHandler = userInfoImageHandler;
+        rankRequirementsArray = Arrays.stream(properties.getRank_requirements().split(","))
+                .map(String::trim).mapToInt(Integer::parseInt).toArray();
     }
 
     @Override
@@ -183,9 +173,11 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         );
     }
 
+    @Async
     @Override
-    public UserInfoResponse createUserInfo(UserInfoRequest userInfoRequest) {
-        return userInfoMapper.userInfoToUserInfoResponse(createUserInfoInternal(userInfoRequest));
+    @Transactional
+    public void createUserInfo(UserInfoRequest userInfoRequest) {
+        createUserInfoInternal(userInfoRequest);
     }
 
     @Transactional
@@ -205,7 +197,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         Either<GeneralError, UserInfo> fetchedE = getUserInfoByEmail(userInfoRankUpdateRequest.email());
         if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         UserInfo fetched = fetchedE.get();
-        int newRank = max(min(fetched.getRank() + userInfoRankUpdateRequest.rankChange(), userInfoProperties.getRank_count()), 0);
+        int newRank = max(min(fetched.getRank() + userInfoRankUpdateRequest.rankChange(), rankRequirementsArray.length), 0);
         if (newRank < fetched.getRank() && fetched.getPreference() > newRank / 10) fetched.setPreference((short) 0);
         fetched.setRank(newRank);
         userInfoRepository.update(fetched);
@@ -221,12 +213,12 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         int newRank = fetched.getRank();
         int currentPoints = fetched.getCurrentScore();
 
-        while (newRank < userInfoProperties.getRank_count() && currentPoints - userInfoProperties.getRank_requirements_array()[newRank] >= 0) {
-            currentPoints -= userInfoProperties.getRank_requirements_array()[newRank];
+        while (newRank < rankRequirementsArray.length && currentPoints - rankRequirementsArray[newRank] >= 0) {
+            currentPoints -= rankRequirementsArray[newRank];
             newRank++;
         }
         if (newRank == fetched.getRank())
-            return Either.left(new UserInfoError.UserNotEligibleForRankIncrease(fetched.getEmail(), currentPoints - userInfoProperties.getRank_requirements_array()[newRank]));
+            return Either.left(new UserInfoError.UserNotEligibleForRankIncrease(fetched.getEmail(), currentPoints - rankRequirementsArray[newRank]));
         fetched.setRank(newRank);
         fetched.setCurrentScore(currentPoints);
         userInfoRepository.update(fetched);

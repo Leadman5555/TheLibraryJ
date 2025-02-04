@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 class TitleCharactersValidator implements ConstraintValidator<ValidTitleCharacters, String> {
 
-    private static final Pattern ALLOWED_CHARS = Pattern.compile("^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s'_\"!.-]*$");
+    private static final Pattern ALLOWED_CHARS = Pattern.compile("^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s'_!.-]*$");
 
     @Override
     public boolean isValid(String requestString, ConstraintValidatorContext constraintValidatorContext) {

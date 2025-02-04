@@ -4,11 +4,13 @@ import com.blazebit.persistence.CriteriaBuilder;
 import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.KeysetPage;
 import com.blazebit.persistence.PagedList;
+import com.blazebit.persistence.UpdateCriteriaBuilder;
 import jakarta.persistence.EntityManager;
 import org.library.thelibraryj.infrastructure.model.BlazeRepositoryBase;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -17,21 +19,27 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
         super(em, cbf);
     }
 
+    private final UpdateCriteriaBuilder<BookDetail> bookDetailUsernameUpdateCriteria = cbf.update(em, BookDetail.class)
+            .where("authorId").eqExpression(":userId")
+            .setExpression("author", ":username");
+
+    private final UpdateCriteriaBuilder<Rating> ratingUsernameUpdateCriteria = cbf.update(em, Rating.class)
+            .where("userId").eqExpression(":userId")
+            .setExpression("username", ":username");
+
     @Override
     public void updateAllForNewUsername(UUID forUserId, String newUsername) {
-        cbf.update(em, BookDetail.class)
-                .set("author", newUsername)
-                .where("authorId").eq(forUserId).executeUpdate();
-        cbf.update(em, Rating.class)
-                .set("username", newUsername)
-                .where("userId").eq(forUserId).executeUpdate();
+        bookDetailUsernameUpdateCriteria.setParameter("userId", forUserId).setParameter("username", newUsername).executeUpdate();
+        ratingUsernameUpdateCriteria.setParameter("userId", forUserId).setParameter("username", newUsername).executeUpdate();
     }
+
+    private final CriteriaBuilder<BookPreview> pagedSetupBookPreviewPagedCriteria = cbf.create(em, BookPreview.class)
+            .orderByDesc("chapterCount")
+            .orderByDesc("id");
 
     @Override
     public PagedList<BookPreview> getKeySetPagedBookPreviewNext(KeysetPage page, int pageNumber) {
-        return cbf.create(em, BookPreview.class)
-                .orderByDesc("chapterCount")
-                .orderByDesc("id")
+        return pagedSetupBookPreviewPagedCriteria
                 .page(page, page.getMaxResults() * pageNumber, page.getMaxResults())
                 .withKeysetExtraction(true)
                 .getResultList();
@@ -39,9 +47,7 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
 
     @Override
     public PagedList<BookPreview> getOffsetBookPreviewPaged(int pageSize, int pageNumber) {
-        return cbf.create(em, BookPreview.class)
-                .orderByDesc("chapterCount")
-                .orderByDesc("id")
+        return pagedSetupBookPreviewPagedCriteria
                 .page(pageNumber * pageSize, pageSize)
                 .withKeysetExtraction(true)
                 .getResultList();
@@ -49,21 +55,20 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
 
     @Override
     public PagedList<ChapterPreview> getKeySetPagedChapterPreviewNext(KeysetPage page, int pageNumber, UUID bookId) {
-        return cbf.create(em, ChapterPreview.class)
-                .orderByAsc("number")
-                .orderByDesc("id")
-                .where("bookDetail.id").eq(bookId)
+        return pagedSetupChapterPreviewPagedCriteria.setParameter("bookId", bookId)
                 .page(page, page.getMaxResults() * pageNumber, page.getMaxResults())
                 .withKeysetExtraction(true)
                 .getResultList();
     }
 
+    private final CriteriaBuilder<ChapterPreview> pagedSetupChapterPreviewPagedCriteria = cbf.create(em, ChapterPreview.class)
+            .orderByAsc("number")
+            .orderByDesc("id")
+            .where("bookDetail.id").eqExpression(":bookId");
+
     @Override
     public PagedList<ChapterPreview> getOffsetChapterPreviewPaged(int pageSize, int pageNumber, UUID bookId) {
-        return cbf.create(em, ChapterPreview.class)
-                .orderByAsc("number")
-                .orderByDesc("id")
-                .where("bookDetail.id").eq(bookId)
+        return pagedSetupChapterPreviewPagedCriteria.setParameter("bookId", bookId)
                 .page(pageNumber * pageSize, pageSize)
                 .withKeysetExtraction(true)
                 .getResultList();
@@ -78,14 +83,37 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
         if (state != null) cb.where("bookState").eq(state);
         if (tags != null)
             for (BookTag tag : tags) cb.where(":tag").isMemberOf("bookTags").setParameter("tag", tag);
-        if(ratingOrder != null) cb.orderBy("averageRating", ratingOrder);
+        if (ratingOrder != null) cb.orderBy("averageRating", ratingOrder);
         return cb.getResultList();
     }
 
+    private final CriteriaBuilder<BookPreview> authoredBookPreviewsCriteria = cbf.create(em, BookPreview.class)
+            .where("bookDetail.author").eqExpression(":byUser");
+
     @Override
-    public List<BookPreview> getAuthoredBookPreviews(String byUser){
-        return cbf.create(em, BookPreview.class)
-                .where("bookDetail.author").eq(byUser)
+    public List<BookPreview> getAuthoredBookPreviews(String byUser) {
+        return authoredBookPreviewsCriteria.setParameter("byUser", byUser).getResultList();
+    }
+
+    private final CriteriaBuilder<ChapterPreview> sortedChapterPreviewsCriteria = cbf.create(em, ChapterPreview.class)
+            .orderByAsc("id")
+            .where("bookDetail.id").eqExpression(":bookId")
+            .where("number").inExpressions(":chapterNumbers");
+
+    @Override
+    public List<ChapterPreview> getSortedChapterPreviews(UUID bookId, Set<Integer> chapterNumbers) {
+        return sortedChapterPreviewsCriteria.setParameter("bookId", bookId)
+                .setParameter("chapterNumbers", chapterNumbers)
+                .getResultList();
+    }
+
+    private final CriteriaBuilder<Chapter> sortedChapterCriteria = cbf.create(em, Chapter.class)
+            .orderByAsc("id")
+            .where("id").inExpressions(":chapterPreviewIds");
+
+    @Override
+    public List<Chapter> getSortedChapters(Set<UUID> chapterPreviewIds) {
+        return sortedChapterCriteria.setParameter("chapterPreviewIds", chapterPreviewIds)
                 .getResultList();
     }
 }

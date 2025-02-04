@@ -45,6 +45,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.HtmlUtils;
 
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -292,7 +293,7 @@ class BookServiceImpl implements BookService {
 
     private record ChapterDraft(String escapedTitle, int number, String escapedText) {
         ChapterDraft(String escapedText, ChapterUpsertResponse draft) {
-            this((draft.title() == null ? "No title" : escapeHtml(draft.title())), draft.number(), escapedText);
+            this(draft.title(), draft.number(), escapedText);
         }
     }
 
@@ -309,8 +310,7 @@ class BookServiceImpl implements BookService {
                 .number(chapterDraft.number)
                 .bookDetail(bookDetailReference)
                 .build();
-        chapterToSave.setChapterPreview(previewToSave);
-        chapterPreviewRepository.persist(previewToSave);
+        chapterToSave.setChapterPreview(chapterPreviewRepository.persist(previewToSave));
         chapterRepository.persist(chapterToSave);
     }
 
@@ -351,7 +351,7 @@ class BookServiceImpl implements BookService {
     @Async
     @Transactional
     void updateAndCreate(List<ChapterPreview> existingChapterPreviews, List<ChapterDraft> mergedList, BookDetail bookDetailRef) {
-        List<Chapter> existingChapters = chapterRepository.fetchChaptersByPreviewIds(existingChapterPreviews.stream().map(ChapterPreview::getId).collect(Collectors.toSet()));
+        List<Chapter> existingChapters = bookBlazeRepository.getSortedChapters(existingChapterPreviews.stream().map(ChapterPreview::getId).collect(Collectors.toSet()));
         PriorityQueue<FetchedChapterData> fetchedChapterData = mergeChapterData(existingChapterPreviews, existingChapters);
         int currentIndex = 0;
         while (!fetchedChapterData.isEmpty()) {
@@ -369,20 +369,34 @@ class BookServiceImpl implements BookService {
             String name = file.getOriginalFilename();
             if (name == null || name.isBlank())
                 return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, ""));
-            String fileName = Paths.get(file.getOriginalFilename()).getFileName().toString();
+            String fileName;
+            try{
+                fileName = Paths.get(file.getOriginalFilename()).getFileName().toString();
+            }catch (InvalidPathException _){
+                return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, file.getOriginalFilename()));
+            }
             fileName = fileName.substring(0, fileName.lastIndexOf('.'));
             if (!chapterTitleMatcher.matcher(fileName).matches())
                 return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, fileName));
             int numberEnd = fileName.indexOf(' ');
             if (numberEnd > bookProperties.getChapter_max_number())
                 return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, fileName));
-            String chapterTitle = null;
-            if (numberEnd != -1) chapterTitle = fileName.substring(numberEnd + 4);
+            String chapterTitle;
             int chapterNumber;
-            try {
-                chapterNumber = Integer.parseInt(fileName.substring(0, numberEnd));
-            } catch (NumberFormatException e) {
-                return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, fileName));
+            if (numberEnd != -1){
+                chapterTitle = fileName.substring(numberEnd + 3);
+                try {
+                    chapterNumber = Integer.parseInt(fileName.substring(0, numberEnd));
+                } catch (NumberFormatException _) {
+                    return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, fileName));
+                }
+            }else{
+                try {
+                    chapterNumber = Integer.parseInt(fileName);
+                } catch (NumberFormatException _) {
+                    return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, fileName));
+                }
+                chapterTitle = "No title";
             }
             if (numbers.contains(chapterNumber))
                 return Either.left(new BookError.DuplicateChapter(forBookId, chapterNumber));
@@ -414,7 +428,7 @@ class BookServiceImpl implements BookService {
             String text;
             try {
                 text = new String(chapterFiles.get(i).getBytes());
-            } catch (IOException e) {
+            } catch (IOException _) {
                 return Either.left(new BookError.MalformedChapterText(bookId, chapterEntries.get(i).number()));
             }
             String escapedText = escapeHtml(text);
@@ -425,7 +439,7 @@ class BookServiceImpl implements BookService {
         mergedList.sort(Comparator.comparingInt(ChapterDraft::number));
 
 
-        List<ChapterPreview> existingChapterPreviews = chapterPreviewRepository.fetchSortedPreviewsByBookIdAndNumber(bookId, chapterNumbers);
+        List<ChapterPreview> existingChapterPreviews = bookBlazeRepository.getSortedChapterPreviews(bookId, chapterNumbers);
         if (!existingChapterPreviews.isEmpty()) updateAndCreate(existingChapterPreviews, mergedList, bookDetail);
         else for (ChapterDraft draft : mergedList) createChapter(draft, bookDetail);
         bookPreviewRepository.changeChapterCount(bookId, mergedList.size() - existingChapterPreviews.size());

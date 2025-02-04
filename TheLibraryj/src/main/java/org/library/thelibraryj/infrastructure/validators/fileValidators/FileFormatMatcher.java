@@ -53,7 +53,7 @@ public enum FileFormatMatcher {
     private boolean isValidByTika(MultipartFile file, Tika tika) {
         try {
             return ALLOWED_MIME_TYPES.contains(tika.detect(file.getInputStream()));
-        } catch (IOException e) {
+        } catch (IOException _) {
             return false;
         }
     }

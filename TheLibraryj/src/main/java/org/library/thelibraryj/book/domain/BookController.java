@@ -9,7 +9,11 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.book.BookService;
-import org.library.thelibraryj.book.dto.bookDto.*;
+import org.library.thelibraryj.book.dto.bookDto.BookCreationModel;
+import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
+import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.bookDto.BookUpdateModel;
+import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.chapterDto.ChapterBatchRequest;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedChapterPreviewResponse;
@@ -27,8 +31,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.access.prepost.PreFilter;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -164,7 +177,7 @@ class BookController implements ErrorHandling {
             @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @PutMapping(value = "books/book/{bookId}/chapter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreFilter("#authorEmail == authentication.principal.username")
+    @PreAuthorize("#authorEmail == authentication.principal.username")
     public ResponseEntity<String> upsertChapters(@RequestPart @ValidBatchSize @ValidTextFileFormat List<MultipartFile> chapterBatch,
                                                  @PathVariable("bookId") UUID bookId,
                                                  @RequestParam("authorEmail") @Email String authorEmail) {

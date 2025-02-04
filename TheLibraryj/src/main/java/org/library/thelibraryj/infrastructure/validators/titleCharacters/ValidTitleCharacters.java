@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidTitleCharacters {
-    String message() default "Title contains invalid characters. Required: '^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s'_\"!.-]*$";
+    String message() default "Title contains invalid characters. Required: '^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s'_!.-]*$";
 
     Class<?>[] groups() default {};
 

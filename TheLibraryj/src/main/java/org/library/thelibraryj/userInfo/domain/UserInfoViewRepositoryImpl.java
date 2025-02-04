@@ -20,8 +20,8 @@ class UserInfoViewRepositoryImpl extends ViewRepositoryBase implements UserInfoV
     @Override
     public Optional<RatingUpsertView> getRatingUpsertView(String email) {
         List<RatingUpsertView> resultList = evm.applySetting(EntityViewSetting.create(RatingUpsertView.class),
-                        cbf.create(em, UserInfo.class, "u")
-                                .where("u.email").eq(email))
+                        cbf.create(em, UserInfo.class)
+                                .where("email").eq(email))
                 .getResultList();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }
@@ -29,8 +29,8 @@ class UserInfoViewRepositoryImpl extends ViewRepositoryBase implements UserInfoV
     @Override
     public Optional<BookCreationUserView> getBookCreationUserView(String email) {
         List<BookCreationUserView> resultList = evm.applySetting(EntityViewSetting.create(BookCreationUserView.class),
-                        cbf.create(em, UserInfo.class, "u")
-                                .where("u.email").eq(email))
+                        cbf.create(em, UserInfo.class)
+                                .where("email").eq(email))
                 .getResultList();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }
@@ -38,8 +38,8 @@ class UserInfoViewRepositoryImpl extends ViewRepositoryBase implements UserInfoV
     @Override
     public Optional<UserInfoDetailsView> getUserInfoDetailsView(String username) {
         List<UserInfoDetailsView> resultList = evm.applySetting(EntityViewSetting.create(UserInfoDetailsView.class),
-                cbf.create(em, UserInfo.class, "u")
-                        .where("u.username").eq(username))
+                cbf.create(em, UserInfo.class)
+                        .where("username").eq(username))
                 .getResultList();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }
@@ -47,8 +47,8 @@ class UserInfoViewRepositoryImpl extends ViewRepositoryBase implements UserInfoV
     @Override
     public Optional<UserInfoMiniView> getUserInfoMiniView(String email) {
         List<UserInfoMiniView> resultList = evm.applySetting(EntityViewSetting.create(UserInfoMiniView.class),
-                        cbf.create(em, UserInfo.class, "u")
-                                .where("u.email").eq(email))
+                        cbf.create(em, UserInfo.class)
+                                .where("email").eq(email))
                 .getResultList();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }

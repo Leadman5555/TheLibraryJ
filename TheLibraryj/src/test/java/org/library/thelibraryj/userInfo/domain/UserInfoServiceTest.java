@@ -12,7 +12,6 @@ import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -35,10 +34,9 @@ public class UserInfoServiceTest {
     @Mock
     private BookService bookService;
     @Spy
-    private UserInfoProperties userInfoProperties = new UserInfoProperties();
-    @Spy
     private UserInfoMapper userInfoMapper = new UserInfoMapperImpl();
-    @InjectMocks
+    @Spy
+    private UserInfoProperties userInfoProperties = new UserInfoProperties();
     private UserInfoServiceImpl userInfoService;
 
     private UUID userId;
@@ -48,9 +46,12 @@ public class UserInfoServiceTest {
 
     @BeforeEach
     public void setUp() {
-        userInfoService.setBookService(bookService);
+//        when(userInfoProperties.getMinimal_age_hours()).thenReturn(24);
+//        when(userInfoProperties.getUsername_change_cooldown_days()).thenReturn(90);
+//        when(userInfoProperties.getRank_requirements()).thenReturn("3, 5, 10, 20, 40, 60, 100, 200, 500, 1000");
         userInfoProperties.setMinimal_age_hours(24);
         userInfoProperties.setUsername_change_cooldown_days(90);
+        userInfoProperties.setRank_requirements("3, 5, 10, 20, 40, 60, 100, 200, 500, 1000");
         userId = UUID.randomUUID();
         username = "sample username";
         userEmail = "sample@example.com";
@@ -64,6 +65,8 @@ public class UserInfoServiceTest {
                 .updatedAt(oldTime)
                 .dataUpdatedAt(oldTime)
                 .build();
+        userInfoService = new UserInfoServiceImpl(userInfoRepository, userInfoMapper, userInfoProperties, null);
+        userInfoService.setBookService(bookService);
     }
 
 
