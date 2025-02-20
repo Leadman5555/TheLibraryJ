@@ -127,6 +127,6 @@
     <img src="/dr-sun-yat-sen-classical-chinese-garden.jpg" style="width: 100%; height: auto;" alt="Calm pond">
   }
   <div *ngIf="showChapterEdit">
-    <app-chapter-edit [currentBook]="currentlyEditingBook"></app-chapter-edit>
+    <app-chapter-edit class="floatBox" style="left: 40%" [currentBook]="currentlyEditingBook" (windowClosed)="showChapterEdit=false"></app-chapter-edit>
   </div>
 </div>

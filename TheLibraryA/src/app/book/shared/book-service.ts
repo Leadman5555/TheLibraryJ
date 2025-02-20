@@ -93,13 +93,12 @@ export class BookService {
     return this.http.delete<void>(`${this.baseAuthUrl}/book`, {body: body}).pipe(catchError(handleError));
   }
 
-  public uploadChapter(bookId: string, authorEmail: string, chapter: File): Observable<ChapterPreview>{
-
-    return this.http.post<ChapterPreview>(`${this.baseAuthUrl}/book/chapter`, null).pipe(catchError(handleError));
-  }
-
   public uploadChaptersInBatch(bookId: string, authorEmail: string, chapters: File[]): Observable<ChapterPreview[]>{
-
-    return this.http.post<ChapterPreview[]>(`${this.baseAuthUrl}/book/chapter/batch`, null).pipe(catchError(handleError));
+    const formData = new FormData();
+    chapters.forEach(chapter => {
+      formData.append('chapterBatch', chapter);
+    });
+    const params = new HttpParams().set('authorEmail', authorEmail);
+    return this.http.put<ChapterPreview[]>(`${this.baseAuthUrl}/book/${bookId}/chapter`, formData, {params}).pipe(catchError(handleError));
   }
 }

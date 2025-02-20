@@ -87,7 +87,7 @@ export class AuthorTabEditComponent implements OnInit {
     };
   }
 
-  showChapterEdit: boolean = false;
+  showChapterEdit: boolean = true;
 
   toggleChapterEdit() {
     this.showChapterEdit = !this.showChapterEdit;

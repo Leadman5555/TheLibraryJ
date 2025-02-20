@@ -205,7 +205,7 @@ class BookController implements ErrorHandling {
 
     @Operation(
             summary = "Fetch the content (text) of a single chapter by it's number and bookId",
-            tags = {"book", "no auth required"}
+            tags = {"book", "no auth required"} 
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successfully retrieved chapter content"),
