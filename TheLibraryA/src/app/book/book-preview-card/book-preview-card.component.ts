@@ -15,4 +15,5 @@ import {NgIf} from '@angular/common';
 })
 export class BookPreviewCardComponent {
   @Input() bookPreview! : BookPreview;
+  @Input() disableRouterLink = false;
 }

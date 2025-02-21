@@ -48,7 +48,7 @@ public class JwtFilterTest {
         request = mock(HttpServletRequest.class);
         response = new MockHttpServletResponse();
         filterChain = new MockFilterChain(servlet, jwtFilter);
-        user = new User(subject, "pass", List.of(UserRole.USER));
+        user = new User(subject, "pass", List.of(UserRole.ROLE_USER));
         when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
     }
 
@@ -66,7 +66,7 @@ public class JwtFilterTest {
         jwtFilter.doFilterInternal(request, response, filterChain);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Assertions.assertEquals(List.of(UserRole.USER), authentication.getAuthorities());
+        Assertions.assertEquals(List.of(UserRole.ROLE_USER), authentication.getAuthorities());
         Assertions.assertEquals(user, authentication.getPrincipal());
         Assertions.assertEquals(new WebAuthenticationDetailsSource().buildDetails(request), authentication.getDetails());
     }

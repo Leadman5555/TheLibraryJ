@@ -21,16 +21,8 @@
   font-size: 0.8em;
 }
 
-#searchButton:disabled{
-  display: none;
-}
-
-#searchButton::after {
-  background-color: #A4D5D6;
-}
-
-#searchButton::before {
-  background-color: #A4D5D6;
+.sButtonColor::before, .sButtonColor::after {
+  background-color: #D0F4F4;
 }
 
 .input-container {

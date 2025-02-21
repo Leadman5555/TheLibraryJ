@@ -1,4 +1,4 @@
-<div class="outerBox">
+<div class="outerBox borderBox">
   @if (this.userData) {
     <div class="userProfileGrid">
       <div class="usernameBar centerVH">
@@ -35,7 +35,7 @@
       </div>
       <div class="previewsDiv">
         @if (!authoredBooks) {
-          <div style="margin-bottom: 1.8em">
+          <div class="centerVH" style="margin-bottom: 1.8em">
             <button class="fetchBooks sButton" (click)="fetchAuthoredBooks()">Load authored books</button>
           </div>
         } @else {

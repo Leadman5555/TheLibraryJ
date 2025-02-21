@@ -6,16 +6,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.bookDto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
+import org.library.thelibraryj.book.dto.bookDto.*;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterUpsertResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
 import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
+import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.model.PageInfo;
+import org.library.thelibraryj.infrastructure.textParsers.inputParsers.HtmlEscaper;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
@@ -23,13 +22,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.lang.reflect.Method;
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,8 +49,12 @@ public class BookServiceTest {
     private UserInfoService userInfoService;
     @Mock
     private BookImageHandler bookImageHandler;
+    @Mock
+    private BookProperties bookProperties;
     @Spy
     private BookMapper bookMapper = new BookMapperImpl();
+    @Spy
+    private HtmlEscaper htmlEscaper = new HtmlEscaper(false);
     @InjectMocks
     private BookServiceImpl bookService;
     private UUID bookId;
@@ -135,10 +138,9 @@ public class BookServiceTest {
     @Test
     public void testCreateAndUpdateBook() {
         when(bookImageHandler.fetchCoverImage(anyString())).thenReturn(null);
+        when(bookProperties.getDescription_max_length()).thenReturn(750);
         BookCreationRequest bookCreationRequest = new BookCreationRequest(
-                title,
-                description,
-                List.of(),
+                new BookCreationModel(title, description, List.of()),
                 null,
                 authorEmail
         );
@@ -168,9 +170,10 @@ public class BookServiceTest {
 
         UUID bookId = UUID.randomUUID();
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
-        when(bookPreviewRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookPreview));
         when(userInfoService.getUserInfoIdByEmail(authorEmail)).thenReturn(Either.right(authorId));
-        BookUpdateRequest bookUpdateRequest = new BookUpdateRequest(null, null, BookState.IN_PROGRESS, null, null, bookId, authorEmail);
+        when(bookPreviewRepository.getBookPreviewEager(bookId)).thenReturn(Optional.of(bookPreview));
+        when(bookPreviewRepository.update(bookPreview)).thenReturn(bookPreview);
+        BookUpdateRequest bookUpdateRequest = new BookUpdateRequest(null, new BookUpdateModel(title, null, BookState.IN_PROGRESS, null, false), bookId, authorEmail);
         BookResponse updated = bookService.updateBook(bookUpdateRequest).get();
         verify(bookDetailRepository, never()).update(bookDetail);
         verify(bookPreviewRepository).update(bookPreview);
@@ -183,7 +186,7 @@ public class BookServiceTest {
         when(bookImageHandler.fetchCoverImage(anyString())).thenReturn(null);
         bookDetail.setId(bookId);
         bookPreview.setId(bookId);
-        when(bookPreviewRepository.findByTitle(title)).thenReturn(Optional.ofNullable(bookPreview));
+        when(bookPreviewRepository.findByTitleEager(title)).thenReturn(Optional.ofNullable(bookPreview));
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
         BookResponse response = bookService.getBook(title).get();
         Assertions.assertAll(
@@ -197,7 +200,7 @@ public class BookServiceTest {
         when(bookPreviewRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookPreview));
         when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
         when(ratingRepository.getRatingForBookAndUser(bookId, authorId)).thenReturn(Optional.empty());
-        when(userInfoService.getUsernameAndIdByEmail(authorEmail)).thenReturn(new RatingUpsertView() {
+        when(userInfoService.getUsernameAndIdByEmail(authorEmail)).thenReturn(Either.right(new RatingUpsertView() {
 
             @Override
             public UUID getUserId() {
@@ -208,7 +211,7 @@ public class BookServiceTest {
             public String getUsername() {
                 return author;
             }
-        });
+        }));
         RatingRequest request = new RatingRequest(authorEmail, rating.getCurrentRating(), bookId, rating.getComment());
         bookService.upsertRating(request);
         when(ratingRepository.getRatingForBookAndUser(bookId, authorId)).thenReturn(Optional.ofNullable(rating));
@@ -218,17 +221,128 @@ public class BookServiceTest {
     }
 
     @Test
-    public void testCreateChapter() {
-        when(bookDetailRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookDetail));
-        when(bookPreviewRepository.findById(bookId)).thenReturn(Optional.ofNullable(bookPreview));
-        when(userInfoService.getUserInfoIdByEmail(authorEmail)).thenReturn(Either.right(authorId));
-        ChapterRequest request = new ChapterRequest(chapterPreview.getNumber(), chapterPreview.getTitle(), "text", bookId, authorEmail);
-        Chapter chapter = Chapter.builder().text("text").build();
-        chapter.setChapterPreview(chapterPreview);
-        bookService.createChapter(request);
-        verify(bookPreviewRepository).update(bookPreview);
-        verify(chapterPreviewRepository).persist(any());
-        verify(chapterRepository).persistAndFlush(any());
+    void testValidateAndParseChapterRequests() {
+        when(bookProperties.getChapter_max_number()).thenReturn(4);
+        MultipartFile file1 = createMockFile("1 - Introduction.txt");
+        MultipartFile file2 = createMockFile("2 - Chapter Two.txt");
+        MultipartFile file3 = createMockFile("3.docx");
+        List<MultipartFile> chapterFiles = List.of(file1, file2, file3);
+        Set<Integer> chapterNumbers = new HashSet<>();
+
+        var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
+
+        assertTrue(result.isRight());
+        var responses = result.get();
+        assertEquals(3, responses.size());
+        assertEquals(1, responses.get(0).number());
+        assertEquals("Introduction", responses.get(0).title());
+        assertEquals(2, responses.get(1).number());
+        assertEquals("Chapter Two", responses.get(1).title());
+        assertEquals(3, responses.get(2).number());
+        assertEquals("No title", responses.get(2).title());
+    }
+
+    @Test
+    void testValidateAndParseChapterRequests_shouldReturnErrorWhenChapterFileNameIsNull() {
+        MultipartFile file = createMockFile(null);
+        List<MultipartFile> chapterFiles = List.of(file);
+        Set<Integer> chapterNumbers = new HashSet<>();
+
+        var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
+
+        assertTrue(result.isLeft());
+        var error = result.getLeft();
+        assertInstanceOf(BookError.InvalidChapterTitleFormat.class, error);
+        assertEquals(bookId, ((BookError.InvalidChapterTitleFormat) error).bookId());
+    }
+
+    @Test
+    void testValidateAndParseChapterRequests_shouldReturnErrorForBlankChapterFileName() {
+        MultipartFile file = createMockFile("   ");
+        List<MultipartFile> chapterFiles = List.of(file);
+        Set<Integer> chapterNumbers = new HashSet<>();
+
+        var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
+
+        assertTrue(result.isLeft());
+        var error = result.getLeft();
+        assertInstanceOf(BookError.InvalidChapterTitleFormat.class, error);
+    }
+
+    @Test
+    void testValidateAndParseChapterRequests_shouldReturnErrorWhenChapterTitleDoesNotMatchPattern() {
+        MultipartFile file = createMockFile("InvalidFilename.txt");
+        List<MultipartFile> chapterFiles = List.of(file);
+        Set<Integer> chapterNumbers = new HashSet<>();
+
+        var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
+
+        assertTrue(result.isLeft());
+        var error = result.getLeft();
+        assertTrue(error instanceof BookError.InvalidChapterTitleFormat);
+        assertEquals(bookId, ((BookError.InvalidChapterTitleFormat) error).bookId());
+        assertEquals("InvalidFilename", ((BookError.InvalidChapterTitleFormat) error).title());
+    }
+
+    @Test
+    void testValidateAndParseChapterRequests_shouldReturnErrorForChapterNumberGreaterThanMax() {
+        when(bookProperties.getChapter_max_number()).thenReturn(4);
+        MultipartFile file = createMockFile("999999 - ExceedsMax.txt");
+        List<MultipartFile> chapterFiles = List.of(file);
+        Set<Integer> chapterNumbers = new HashSet<>();
+
+        var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
+
+        assertTrue(result.isLeft());
+        var error = result.getLeft();
+        assertInstanceOf(BookError.InvalidChapterTitleFormat.class, error);
+    }
+
+    @Test
+    void testValidateAndParseChapterRequests_shouldReturnErrorWhenChapterNumberFormatIsInvalid() {
+        MultipartFile file = createMockFile("InvalidNumber - Chapter.txt");
+        List<MultipartFile> chapterFiles = List.of(file);
+        Set<Integer> chapterNumbers = new HashSet<>();
+
+        var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
+
+        assertTrue(result.isLeft());
+        var error = result.getLeft();
+        assertInstanceOf(BookError.InvalidChapterTitleFormat.class, error);
+    }
+
+    @Test
+    void testValidateAndParseChapterRequests_shouldReturnErrorForDuplicateChapterNumbers() {
+        when(bookProperties.getChapter_max_number()).thenReturn(4);
+        MultipartFile file1 = createMockFile("1 - Duplicate.txt");
+        MultipartFile file2 = createMockFile("1 - Another Name.txt");
+        List<MultipartFile> chapterFiles = List.of(file1, file2);
+        Set<Integer> chapterNumbers = new HashSet<>();
+
+        var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
+        
+        assertTrue(result.isLeft());
+        var error = result.getLeft();
+        assertInstanceOf(BookError.DuplicateChapter.class, error);
+        assertEquals(bookId, ((BookError.DuplicateChapter) error).bookId());
+        assertEquals(1, ((BookError.DuplicateChapter) error).chapterNumber());
+    }
+    
+    private static MultipartFile createMockFile(String name) {
+        MultipartFile mockFile = org.mockito.Mockito.mock(MultipartFile.class);
+        when(mockFile.getOriginalFilename()).thenReturn(name);
+        return mockFile;
+    }
+
+    @SuppressWarnings({"unchecked", "ReturnOfNull"})
+    private Either<GeneralError, List<ChapterUpsertResponse>> validateAndParseChapterRequests(List<MultipartFile> chapterFiles, UUID bookId, Set<Integer> chapterNumbers){
+        try {
+            Method method = BookServiceImpl.class.getDeclaredMethod("validateAndParseChapterRequests", List.class, UUID.class, Set.class);
+            method.setAccessible(true);
+            return (Either<GeneralError, List<ChapterUpsertResponse>>) method.invoke(bookService, chapterFiles, bookId, chapterNumbers);
+        }catch (Exception e){
+            return null;
+        }
     }
 
 }

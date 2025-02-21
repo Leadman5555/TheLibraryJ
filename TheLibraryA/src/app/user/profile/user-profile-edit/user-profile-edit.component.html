@@ -1,5 +1,5 @@
 <div id="rankUpAnimation" [@rankUpAnimation]="animationState" class="centerVH">
-  @if (this.userData.rank === 10) {
+  @if (this.userData?.rank === 10) {
     Heaven's Will is merciless,<br>Sea of Bitterness endless,<br>path to Ascension forever blocked...
   } @else {
     Heaven's Will is generous,<br>Sea of Bitterness not without a shore,
@@ -7,7 +7,7 @@
     Akin to a carp, leaping through the Dragon Gate,<br>so shall I rise, ten thousand li with a single step.
   }
 </div>
-<div id="outerBox">
+<div class="borderBox" id="outerBox">
   <div id="userProfileEditGrid" *ngIf="this.userData">
     <div id="topBarDiv">
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -28,12 +28,14 @@
         </div>
         <span>Updated profile image</span>
         <app-image-drop [parentControl]="imageControl"></app-image-drop>
-        <button class="sButton" type="submit"
-                id="imageChangeButton">@if (this.imageUpdateForm.get('newImage')?.value == null) {
-          Change image to default
-        } @else {
-          Update profile image
-        }</button>
+        <button class="sButton disabledHide" type="submit"
+                id="imageChangeButton"
+                [disabled]="imageUpdateForm.invalid">
+          @if (this.imageUpdateForm.get('newImage')?.value == null) {
+            Change image to default
+          } @else {
+            Update profile image
+          }</button>
         <div class="errorBox"
              *ngIf="profileImageUpdateErrorMessage !== undefined">{{ profileImageUpdateErrorMessage }}
         </div>
@@ -98,9 +100,10 @@
           <span>Current title: </span>
           <div class="column">
             <select formControlName="chosenPreference" id="dropdownPreferenceList">
-              <option *ngFor="let title of preferenceArray; trackBy identifyByIndex"
+              <option style="text-align: center"
+                      *ngFor="let title of preferenceArray; trackBy identifyByIndex"
                       [ngValue]="title"
-                      [disabled]="title.requiredRank > this.userData.rank">Rank {{ title.requiredRank }}
+                      [disabled]="title.requiredRank > this.userData.rank">{{ rankArray[title.requiredRank] }}
                 : {{ title.title }}
               </option>
             </select>
@@ -130,7 +133,7 @@
     </div>
     <div id="infoDiv">
       <b>Profile picture</b>: you can change it freely at any time or reset to the default one. It's best to upload
-      images in a 4:3 ratio.<br>
+      images in a 4:3 ratio. Allowed picture formats are: .png, .jpg, .jpeg and .webp, all up to 2MB in size.<br>
       <b>Status</b>: you can change it freely at any time. Status length is limited to 300 characters.<br>
       <b>Title</b>: you can change it freely at any time. Your cultivation rank needs to be greater or equal to the rank
       of the title.<br>

@@ -1,17 +1,17 @@
 <div id="mainBody">
   <div id="body">
     <div id="header">
-      <div id="home" routerLink="">
+      <a id="home" routerLink="">
         The Library
-      </div>
+      </a>
       <div id="right" class="row">
         @if (this.showLoggedIn) {
-          <div id="userInfo" (click)="hideWindows()" [routerLink]="['/profile', this.userMini?.username]">
+          <a id="userInfo" (click)="hideWindows()" [routerLink]="['/profile', this.userMini?.username]">
             <span id="username">{{ this.userMini?.username }}</span>
             <div class="image34Wrapper" style="height: 4.8em; width: 3.6em">
               <img src="data:image/jpg;base64,{{this.userMini?.profileImage}}" alt="Profile image" class="image34">
             </div>
-          </div>
+          </a>
         }
         <button class="sButton" (click)="toggleMenu()">
           @if (this.showLoggedIn) {
@@ -24,13 +24,14 @@
       </div>
     </div>
     @if (this.showMenu) {
-      <div class="window">
+      <div class="window borderBox">
         @if (this.showLoggedIn) {
           <div class="column">
             <button class="sButton" (click)="hideWindows()" [routerLink]="['/profile', this.userMini?.username]">
               See profile
             </button>
             <button class="sButton" (click)="hideWindows()" [routerLink]="['/profile-edit']">Edit profile</button>
+            <button class="sButton" (click)="hideWindows()" routerLink="/author-tab">Author Tab</button>
             <button class="sButton" (click)="logOut()">Log out</button>
           </div>
         } @else {
@@ -77,7 +78,7 @@
               <button class="sButton" (click)="this.showMenu=false" routerLink="/register">Register</button>
               <div class="menu-container">
                 <button class="menu-button sButton">Trouble logging in?</button>
-                <div class="dropdown">
+                <div class="dropdown borderBox">
                   <button class="sButton dropButton" (click)="this.showMenu=false" routerLink="/password-recovery">Reset
                     password
                   </button>

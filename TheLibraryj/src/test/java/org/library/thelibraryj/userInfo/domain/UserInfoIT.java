@@ -46,12 +46,11 @@ public class UserInfoIT {
         scriptExecutor.setSeparator("@@");
         scriptExecutor.execute(this.dataSource);
         TestProperties.fillHeadersForUser1();
-        TestProperties.addCSRFToken();
     }
 
     @Test
     public void shouldUpdateUserUsernameAndBookDetailAuthor() throws Exception {
-        final String newUsername = "new username";
+        final String newUsername = "newUsername";
         UserInfoUsernameUpdateRequest request = new UserInfoUsernameUpdateRequest(
                 email,
                 newUsername
@@ -63,7 +62,7 @@ public class UserInfoIT {
         Assertions.assertEquals(HttpStatus.OK, usernameChangeResponse.getStatusCode());
         Assertions.assertNotNull(usernameChangeResponse.getBody());
         JSONObject object = new JSONObject(usernameChangeResponse.getBody());
-        Assertions.assertEquals(newUsername, object.getString("username"));
+        Assertions.assertEquals(newUsername, object.getString("newUsername"));
 
         ResponseEntity<String> userBookDetailResponse = restTemplate.getForEntity(
                 VERSION + "/na/books/" + bookId, String.class);
@@ -79,7 +78,7 @@ public class UserInfoIT {
 
         UserInfoUsernameUpdateRequest request2 = new UserInfoUsernameUpdateRequest(
                 email,
-                "other new username"
+                "otherNew_username"
         );
         HttpEntity<UserInfoUsernameUpdateRequest> requestEntity2 = new HttpEntity<>(request2, TestProperties.headers);
         ResponseEntity<String> usernameOnCooldownChangeResponse = restTemplate.exchange(

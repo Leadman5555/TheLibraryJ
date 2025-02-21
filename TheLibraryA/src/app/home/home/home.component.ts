@@ -31,8 +31,6 @@ export class HomeComponent extends PagingHelper {
   }
 
   onNextPage(): void {
-    console.log(window.innerWidth);
-    console.log(window.devicePixelRatio);
     this.componentStore.loadNextPage();
   }
 

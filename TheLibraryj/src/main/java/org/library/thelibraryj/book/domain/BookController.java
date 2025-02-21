@@ -4,14 +4,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.book.BookService;
+import org.library.thelibraryj.book.dto.bookDto.BookCreationModel;
 import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
 import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.bookDto.BookUpdateModel;
 import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.chapterDto.ChapterRequest;
+import org.library.thelibraryj.book.dto.chapterDto.ChapterBatchRequest;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PreviewKeySetPage;
@@ -19,16 +23,18 @@ import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
 import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
+import org.library.thelibraryj.infrastructure.validators.batchSize.ValidBatchSize;
+import org.library.thelibraryj.infrastructure.validators.fileValidators.imageFile.ValidImageFormat;
+import org.library.thelibraryj.infrastructure.validators.fileValidators.textFile.ValidTextFileFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -49,7 +55,7 @@ class BookController implements ErrorHandling {
     private final BookService bookService;
 
     @Operation(
-            summary = "Retrieve a page of book previews with their tags by keySet navigation. Returns the asked for page and current keySet",
+            summary = "Retrieve a page of book previews with their tags by offset navigation. Returns the asked for page and current keySet",
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
@@ -63,7 +69,7 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Retrieve a page of book previews with their tags by offset navigation. Returns the asked for page and current keySet",
+            summary = "Retrieve a page of book previews with their tags by keySet navigation. Returns the asked for page and current keySet",
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
@@ -159,60 +165,48 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Create a new book entry",
+            summary = "Create new chapter entries in batch. Batch size is limited to 50, distinct number entries. " +
+                    "Chapters must be files in .doc, .docx, .txt or .odt format." +
+                    " File name must be: 'CHAPTER_NUMBER - CHAPTER_TITLE.EXTENSION' or 'CHAPTER_NUMBER.EXTENSION'. Chapter title must meet required character constraints. Chapter length is limited.",
+            tags = "book"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Chapters created successfully"),
+            @ApiResponse(responseCode = "400", description = "Request data invalid. More information in the return error."),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking")
+    })
+    @PutMapping(value = "books/book/{bookId}/chapter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("#authorEmail == authentication.principal.username")
+    public ResponseEntity<String> upsertChapters(@RequestPart @ValidBatchSize @ValidTextFileFormat List<MultipartFile> chapterBatch,
+                                                 @PathVariable("bookId") UUID bookId,
+                                                 @RequestParam("authorEmail") @Email String authorEmail) {
+        return handle(bookService.upsertChapters(new ChapterBatchRequest(chapterBatch, bookId, authorEmail)), HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "Create a new book entry.",
             tags = "book"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Book created successfully"),
+            @ApiResponse(responseCode = "400", description = "Request data invalid"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
             @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @PostMapping(value = "books/book", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("#authorEmail == authentication.principal.username")
-    public ResponseEntity<String> createBook(@RequestPart("title") @NotNull @Size(max = 40) String title,
-                                             @RequestPart("description") @Size(max = 700) String description,
-                                             @RequestPart("tags") List<BookTag> tags,
-                                             @RequestPart(value = "coverImage", required = false) @Nullable MultipartFile coverImage,
-                                             @RequestPart("authorEmail") @NotNull String authorEmail) {
-        return handle(bookService.createBook(new BookCreationRequest(title, description, tags, coverImage, authorEmail)), HttpStatus.CREATED);
-    }
-
-    @Operation(
-            summary = "Create a new chapter entry",
-            tags = "book"
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Chapter created successfully"),
-            @ApiResponse(responseCode = "401", description = "Authentication failure"),
-            @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
-            @ApiResponse(responseCode = "403", description = "Permission lacking")
-    })
-    @PostMapping("books/book/chapter")
-    @PreAuthorize("#chapterRequest.authorEmail == authentication.principal.username")
-    public ResponseEntity<String> createChapter(@RequestBody @Valid ChapterRequest chapterRequest) {
-        return handle(bookService.createChapter(chapterRequest), HttpStatus.CREATED);
-    }
-
-    @Operation(
-            summary = "Create new chapter entries in batch",
-            tags = "book"
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Chapters created successfully"),
-            @ApiResponse(responseCode = "401", description = "Authentication failure"),
-            @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
-            @ApiResponse(responseCode = "403", description = "Permission lacking")
-    })
-    @PostMapping("books/book/chapter/batch")
-    @PreFilter("#filterObject.authorEmail == authentication.principal.username")
-    public ResponseEntity<String> createChapters(@RequestBody @Valid List<ChapterRequest> chapterRequests) {
-        return handle(bookService.createChapters(chapterRequests), HttpStatus.CREATED);
+    public ResponseEntity<String> createBook(@ModelAttribute @Valid BookCreationModel bookCreationModel,
+                                             @RequestPart(value = "coverImage", required = false) @ValidImageFormat MultipartFile coverImage,
+                                             @RequestParam("authorEmail") @NotNull @Email String authorEmail) {
+        return handle(bookService.createBook(new BookCreationRequest(bookCreationModel, coverImage, authorEmail)), HttpStatus.CREATED);
     }
 
     @Operation(
             summary = "Fetch the content (text) of a single chapter by it's number and bookId",
-            tags = {"book", "no auth required"}
+            tags = {"book", "no auth required"} 
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successfully retrieved chapter content"),
@@ -252,25 +246,26 @@ class BookController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Update an existing book entry",
+            summary = "Update an existing book entry.",
             tags = "book"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Request data invalid"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
-            @ApiResponse(responseCode = "403", description = "Permission lacking")
+            @ApiResponse(responseCode = "403", description = "Permission lacking"),
+            @ApiResponse(responseCode = "409", description = "Duplicate title"),
     })
-    @PatchMapping(value = "books/book", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "books/book", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN') or #authorEmail == authentication.principal.username")
-    public ResponseEntity<String> updateBook(@RequestPart(value = "title", required = false) @Nullable String title,
-                                             @RequestPart(value = "description", required = false) @Nullable String description,
-                                             @RequestPart(value = "state", required = false) @Nullable BookState state,
-                                             @RequestPart(value = "coverImage", required = false) @Nullable MultipartFile coverImage,
-                                             @RequestPart(value = "bookTags", required = false) List<BookTag> bookTags,
-                                             @RequestPart("bookId") @NotNull UUID bookId,
-                                             @RequestPart("authorEmail") @NotNull String authorEmail) {
-        return handle(bookService.updateBook(new BookUpdateRequest(title, description, state, coverImage, bookTags, bookId, authorEmail)), HttpStatus.OK);
+    public ResponseEntity<String> updateBook(
+            @ModelAttribute @Valid BookUpdateModel bookUpdateModel,
+            @RequestPart(value = "coverImage", required = false) @Nullable @ValidImageFormat MultipartFile coverImage,
+            @RequestParam("bookId") @NotNull UUID bookId,
+            @RequestParam("authorEmail") @NotNull String authorEmail
+    ) {
+        return handle(bookService.updateBook(new BookUpdateRequest(coverImage, bookUpdateModel, bookId, authorEmail)), HttpStatus.OK);
     }
 
     @Operation(
@@ -317,7 +312,7 @@ class BookController implements ErrorHandling {
     })
     @DeleteMapping("books/book/chapter/{number}")
     @PreAuthorize("hasRole('ADMIN') or #contentRemovalRequest.userEmail == authentication.principal.username")
-    public ResponseEntity<String> deleteChapter(@PathVariable Integer number, @RequestBody @Valid ContentRemovalRequest contentRemovalRequest) {
+    public ResponseEntity<String> deleteChapter(@PathVariable @Min(1) @Max(10000) Integer number, @RequestBody @Valid ContentRemovalRequest contentRemovalRequest) {
         return handle(bookService.deleteChapter(contentRemovalRequest, number), HttpStatus.OK);
     }
 

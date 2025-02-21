@@ -1,8 +1,13 @@
 package org.library.thelibraryj.userInfo.domain;
 
+import java.util.Optional;
+
 interface UserInfoViewRepository {
-    RatingUpsertView getRatingUpsertView(String email);
-    BookCreationUserView getBookCreationUserView(String email);
-    UserInfoDetailsView getUserInfoDetailsView(String username);
-    UserInfoMiniView getUserInfoMiniView(String email);
+    Optional<RatingUpsertView> getRatingUpsertView(String email);
+
+    Optional<BookCreationUserView> getBookCreationUserView(String email);
+
+    Optional<UserInfoDetailsView> getUserInfoDetailsView(String username);
+
+    Optional<UserInfoMiniView> getUserInfoMiniView(String email);
 }

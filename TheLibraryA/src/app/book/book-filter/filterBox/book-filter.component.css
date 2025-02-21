@@ -2,11 +2,10 @@
 @import '../../../shared/styles/m3Toggle.css';
 @import '../../../shared/styles/sInput.css';
 @import '../../../shared/styles/rowCol.css';
+@import "../../../shared/styles/borderBox.css";
 
 .filterBox {
-  border: 0.2em solid darkgoldenrod;
   padding: 0.6em 0.6em 0.9em;
-  background-color: cadetblue;
   font-family: "Bell MT", serif;
 }
 

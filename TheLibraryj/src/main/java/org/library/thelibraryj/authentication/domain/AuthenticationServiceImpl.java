@@ -92,6 +92,7 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
 
     @Override
     public String regenerateAccessToken(Cookie[] cookies) {
+        if(cookies == null) throw new RefreshTokenMissingException("Refresh token not found");
         Cookie refreshToken = Arrays.stream(cookies)
                 .filter(cookie -> cookie.getName().equals("refresh-token"))
                 .findFirst().orElseThrow(() -> new RefreshTokenMissingException("Refresh token not found"));

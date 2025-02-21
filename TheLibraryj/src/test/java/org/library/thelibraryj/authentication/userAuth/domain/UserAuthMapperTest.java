@@ -17,7 +17,7 @@ public class UserAuthMapperTest {
         UserAuth userAuth = UserAuth.builder()
                 .id(userAuthId)
                 .email(userEmail)
-                .role(UserRole.USER)
+                .role(UserRole.ROLE_USER)
                 .password(("password").toCharArray())
                 .isEnabled(true)
                 .build();

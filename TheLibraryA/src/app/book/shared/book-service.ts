@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BookPreview} from './models/book-preview';
-import {catchError, Observable} from 'rxjs';
+import {catchError, Observable, retry} from 'rxjs';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {BookDetail} from './models/book-detail';
 import {BookResponse} from './models/book-response';
@@ -11,6 +11,7 @@ import {RatingResponse} from './models/rating-response';
 import {ChapterPreviewPage} from '../book/paging/chapterPreview-page';
 import {RatingRequest} from './models/rating-request';
 import {handleError} from '../../shared/errorHandling/handleError';
+import {ChapterPreview} from './models/chapter-preview';
 
 @Injectable({
   providedIn: 'root'
@@ -47,12 +48,12 @@ export class BookService {
   }
 
   public getBookPreviewsByAuthor(author: string): Observable<BookPreview[]> {
-    return this.http.get<BookPreview[]>(`${this.baseUrl}/authored/${author}`);
+    return this.http.get<BookPreview[]>(`${this.baseUrl}/authored/${author}`).pipe(retry(1), catchError(handleError));
   }
 
 
   public getBookDetail(bookId: string): Observable<BookDetail> {
-    return this.http.get<BookDetail>(`${this.baseUrl}/${bookId}`);
+    return this.http.get<BookDetail>(`${this.baseUrl}/${bookId}`).pipe(catchError(handleError));
   }
 
   public getBook(bookTitle: string): Observable<BookResponse> {
@@ -70,5 +71,39 @@ export class BookService {
 
   public upsertRatingForBook(request: RatingRequest): Observable<RatingResponse> {
     return this.http.put<RatingResponse>(`${this.baseAuthUrl}/rating`, request).pipe(catchError(handleError));
+  }
+
+  public mergePreviewAndDetail(bookPreview: BookPreview, bookDetail: BookDetail): BookResponse {
+    return {
+      ...bookPreview,
+      ...bookDetail
+    }
+  }
+
+  public createBook(bookCreationData: FormData): Observable<BookResponse>{
+    return this.http.post<BookResponse>(`${this.baseAuthUrl}/book`, bookCreationData).pipe(catchError(handleError));
+  }
+
+  public updateBook(bookUpdateData: FormData): Observable<BookResponse>{
+    return this.http.put<BookResponse>(`${this.baseAuthUrl}/book`, bookUpdateData).pipe(catchError(handleError));
+  }
+
+  public deleteBook(bookId: string, userEmail: string): Observable<void>{
+    const body = {bookId: bookId, userEmail: userEmail};
+    return this.http.delete<void>(`${this.baseAuthUrl}/book`, {body: body}).pipe(catchError(handleError));
+  }
+
+  public uploadChaptersInBatch(bookId: string, authorEmail: string, chapters: File[]): Observable<ChapterPreview[]>{
+    const formData = new FormData();
+    chapters.forEach(chapter => {
+      formData.append('chapterBatch', chapter);
+    });
+    const params = new HttpParams().set('authorEmail', authorEmail);
+    return this.http.put<ChapterPreview[]>(`${this.baseAuthUrl}/book/${bookId}/chapter`, formData, {params}).pipe(catchError(handleError));
+  }
+
+  public deleteChapters(bookId: string, authorEmail:string, chapterNumber: number): Observable<void>{
+    const body = {bookId: bookId, userEmail: authorEmail};
+    return this.http.delete<void>(`${this.baseAuthUrl}/book/chapter/${chapterNumber}`, {body: body}).pipe(catchError(handleError));
   }
 }

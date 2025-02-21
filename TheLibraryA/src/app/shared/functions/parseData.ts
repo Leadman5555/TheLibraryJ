@@ -4,6 +4,7 @@ export function parseDateString(date: string): string {
   return `${calendarParts[0]}-${calendarParts[1].padStart(2, '0')}-${calendarParts[2].padStart(2, '0')} | ${date.substring(splitIndex + 1, splitIndex + 6)}`;
 }
 
+// noinspection JSUnusedGlobalSymbols
 /**
  * @deprecated Use the parseDateString instead
  */

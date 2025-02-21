@@ -10,7 +10,7 @@ import {ProgressBarComponent} from '../../../shared/progress-bar/progress-bar.co
 import {catchError} from 'rxjs';
 import {handleError} from '../../../shared/errorHandling/handleError';
 import {UserProfileService} from '../user-profile.service';
-import {UserAuthService} from '../../userAuth/user-auth.service';
+import {UserAuthService} from '../../account/userAuth/user-auth.service';
 import {
   UserPreferenceUpdateRequest,
   UserPreferenceUpdateResponse,
@@ -22,6 +22,8 @@ import {
 } from './dto/UserUpdateDtos';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {parseDateString} from '../../../shared/functions/parseData';
+import {carriageReturnLengthValidator} from '../../../shared/functions/carriageReturnLengthValidator';
+import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidator';
 
 const ANIMATION_IN_MS: number = 500;
 const ANIMATION_OUT_MS: number = 1000;
@@ -64,7 +66,7 @@ export class UserProfileEditComponent implements OnInit {
             Validators.required,
             Validators.minLength(5),
             Validators.maxLength(20),
-            Validators.pattern('^[a-zA-Z0-9_-]+$')
+            Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9_-]+$')
           ]
         ],
         repeatUsername: ['', [Validators.required]]
@@ -74,7 +76,12 @@ export class UserProfileEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userProfileService.fetchUserProfile(this.userAuthService.getLoggedInUsername()).pipe(catchError(handleError)).subscribe({
+    const username = this.userAuthService.getLoggedInUsername();
+    if(!username){
+      window.location.replace('');
+      return;
+    }
+    this.userProfileService.fetchUserProfile(username).pipe(catchError(handleError)).subscribe({
       next: (fetchedData) => {
         this.userData = fetchedData;
         this.createForms();
@@ -87,10 +94,10 @@ export class UserProfileEditComponent implements OnInit {
 
   createForms() {
     this.imageUpdateForm = this.fb.group({
-      newImage: null
+      newImage: [null, imageFileTypeValidator()],
     });
     this.statusUpdateForm = this.fb.group({
-      newStatus: [this.userData.status, Validators.maxLength(300)]
+      newStatus: [this.userData.status, carriageReturnLengthValidator(0, 300)]
     });
     this.preferenceUpdateForm = this.fb.group({
       chosenPreference: [findTitle(this.userData.preference), [Validators.required, Validators.min(0), Validators.max(preferenceArray.length - 1)]]
@@ -143,8 +150,8 @@ export class UserProfileEditComponent implements OnInit {
         this.imageUpdateForm.reset();
         this.userAuthService.updateUserMiniDataImage(response.newProfileImage);
       },
-      error: (error: string) => {
-        this.profileImageUpdateErrorMessage = error;
+      error: (_) => {
+        this.profileImageUpdateErrorMessage = 'Profile image update failed. Make sure you are sending a file in an an allowed format.';
       }
     });
   }

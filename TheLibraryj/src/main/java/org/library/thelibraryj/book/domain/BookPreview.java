@@ -1,6 +1,7 @@
 package org.library.thelibraryj.book.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -44,7 +45,7 @@ class BookPreview extends AbstractEntity {
     private List<BookTag> bookTags;
 
     @MapsId
-    @OneToOne(optional = false, fetch = FetchType.LAZY)
+    @OneToOne(optional = false, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "book_detail_id")
     private BookDetail bookDetail;
 

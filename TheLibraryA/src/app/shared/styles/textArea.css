@@ -9,6 +9,18 @@
   resize: none;
   font-family: inherit;
   overflow-wrap: break-word;
+  word-break: break-word;
   line-height: 1.5;
   background-color: rgba(202, 243, 243, 0.65);
+}
+
+.formatPre {
+  line-height: 1;;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  text-align: left;
+  font-family: inherit;
+  font-size: 1.1em;
+  padding: 0.6em;
 }

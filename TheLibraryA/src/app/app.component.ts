@@ -1,6 +1,6 @@
 import {afterNextRender, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {RouterLink, RouterOutlet} from '@angular/router';
-import {UserAuthService} from './user/userAuth/user-auth.service';
+import {UserAuthService} from './user/account/userAuth/user-auth.service';
 import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {NgIf, NgOptimizedImage} from '@angular/common';
 import {AuthenticationRequest} from './user/shared/models/authentication-request';
@@ -9,6 +9,7 @@ import {EventBusService, LOGIN_EVENT, LOGOUT_EVENT, REFRESH_EVENT} from './share
 import {Subscription} from 'rxjs';
 import {StorageService} from './shared/storage/storage.service';
 import {UserSearchComponent} from './user/profile/user-search/user-search.component';
+import {logError} from './shared/errorHandling/handleError';
 
 @Component({
   selector: 'app-root',
@@ -59,7 +60,6 @@ export class AppComponent implements OnInit {
     };
     this.userAuthService.logIn(request).subscribe({
       error: (error) => {
-        console.log(error)
         this.errorMessage = error || 'An unknown error occurred!';
       },
       complete: () => {
@@ -97,13 +97,13 @@ export class AppComponent implements OnInit {
   logOut() {
     this.userAuthService.logOut().subscribe({
         next: () => {
-          console.log('Logged out.');
+          console.log('User logged out.');
           this.subscribeToLogIn();
           this.showLoggedIn = false;
           this.errorMessage = undefined;
           window.location.reload();
         },
-        error: err => console.log(err),
+        error: err => logError(err),
       }
     );
   }

@@ -71,7 +71,7 @@ public class UserInfoControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"" + email + "\",\"rankChange\":\"10\"}"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{'rank': 10}"));
+                .andExpect(content().json("{'newRank': 10}"));
         final String invalidEmail = "invalid@gmail.com";
         UserInfoRankUpdateRequest request2 = new UserInfoRankUpdateRequest(invalidEmail, -10);
         when(userInfoService.forceUpdateRank(request2)).thenReturn(Either.left(new UserInfoError.UserInfoEntityNotFound(invalidEmail)));
@@ -93,7 +93,7 @@ public class UserInfoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{'rank': 10}"));
+                .andExpect(content().json("{'newRank': 10}"));
 
         int missingScore = 10;
         when(userInfoService.updateRank(email)).thenReturn(Either.left(new UserInfoError.UserNotEligibleForRankIncrease(email, missingScore)));
@@ -102,18 +102,18 @@ public class UserInfoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorDetails.message", is("User not eligible for rank increase. Missing score: " + missingScore + " Email: " + email)));
+                .andExpect(jsonPath("$.errorDetails.message", is("User not eligible for rank increase. Missing score: " + missingScore)));
     }
 
     @Test
     public void testUpdateUserInfoUsername() throws Exception {
-        UserInfoUsernameUpdateRequest request = new UserInfoUsernameUpdateRequest(email, "new username");
-        when(userInfoService.updateUserInfoUsername(request)).thenReturn(Either.left(new UserInfoError.UsernameNotUnique()));
+        UserInfoUsernameUpdateRequest request = new UserInfoUsernameUpdateRequest(email, "newUsername");
+        when(userInfoService.updateUserInfoUsername(request)).thenReturn(Either.left(new UserInfoError.UsernameNotUnique(email)));
         mockMvc.perform(patch(ENDPOINT + "/user/profile/username")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"" + email + "\",\"username\":\"new username\"}"))
+                        .content("{\"email\":\"" + email + "\",\"username\":\"newUsername\"}"))
                 .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.errorDetails.message", is("Username not unique")));
+                .andExpect(jsonPath("$.errorDetails.message", is("The chosen username is not unique.")));
     }
 }

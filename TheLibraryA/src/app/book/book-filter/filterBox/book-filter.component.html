@@ -1,5 +1,5 @@
 <div class="column">
-  <div class="filterBox">
+  <div class="borderBox filterBox">
     <form *ngIf="filterForm" [formGroup]="filterForm" (ngSubmit)="handleFilterSubmit()" class="column filterForm">
       <div class="column">
 
@@ -10,7 +10,7 @@
             <span class="input-highlight"></span>
           </div>
           <div class="errorBox"  *ngIf="filterForm.get('titleLike')?.invalid && (filterForm.get('titleLike')?.dirty)">
-            Enter from 3 to 20 letters
+            Enter from 3 to 20 allowed characters.
           </div>
         </div>
 
@@ -56,7 +56,7 @@
           <div class="mt-square3d-custom tagSelector" *ngFor="let tag of allTags; let i = index; trackBy: identifyTag"
                style="font-size:0.8em;">
             <span class="tagName">{{ tag }}</span>
-            <input id="checkMt_{{i}}" type="checkbox" formControlName="{{tag}}"/>
+            <input id="checkMt_{{i}}" type="checkbox" formControlName="{{i}}"/>
             <label for="checkMt_{{i}}"></label>
           </div>
         </div>

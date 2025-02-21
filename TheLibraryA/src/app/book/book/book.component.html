@@ -7,7 +7,7 @@
       </div>
       <div class="descDiv">
         <span id="header">Description:</span>
-        <pre id="description"> {{ bookDetail.description }}</pre>
+        <pre class="formatPre"> {{ bookDetail.description }}</pre>
       </div>
       <div class="infoDiv column">
         <div class="authorDiv"> Penned by: <span class="userLink"
@@ -109,6 +109,7 @@
         ></textarea>
         <b>Choose rating:</b>
         <app-range-selector [parentControl]="rangeSelectorControl" [values]="ratingValues" [selectedIndex]="rangeSelectorControl.value-1"></app-range-selector>
+        <span class="errorBox" *ngIf="this.ratingUpsertMessage">{{ this.ratingUpsertMessage }}</span>
         <div class="row">
           <button type="submit" class="sButton">@if (this.previousRating) {Edit rating} @else {Add rating}</button>
           <button class="sButton" (click)="closeRatingUpsertForm()">Cancel</button>

@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.vavr.control.Either;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -19,6 +18,9 @@ import org.library.thelibraryj.authentication.dto.AuthenticationResponse;
 import org.library.thelibraryj.authentication.dto.RegisterRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
+import org.library.thelibraryj.infrastructure.validators.fileValidators.imageFile.ValidImageFormat;
+import org.library.thelibraryj.infrastructure.validators.passwordCharacters.ValidPasswordCharacters;
+import org.library.thelibraryj.infrastructure.validators.usernameCharacters.ValidUsernameCharacters;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,18 +43,19 @@ class AuthenticationController implements ErrorHandling {
     private final AuthenticationService authenticationService;
 
     @Operation(
-            summary = "Allows for creation of a new user account. Sends activation email on success.",
+            summary = "Allows for creation of a new user account. Sends activation email on success.'",
             tags = {"authentication", "no auth required"}
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Account created, activation email sent."),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters."),
             @ApiResponse(responseCode = "409", description = "Parts of user data required to be unique are not."),
     })
-    @PostMapping( value = "/na/auth/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/na/auth/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> register(@RequestPart("email") @Email String email,
-                                           @RequestPart("password") @NotNull @NotEmpty String password,
-                                           @RequestPart("username") @NotNull @Size(min = 5, max = 20) String username,
-                                           @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) {
+                                           @RequestPart("password") @NotNull @NotEmpty @ValidPasswordCharacters String password,
+                                           @RequestPart("username") @NotNull @Size(min = 5, max = 20) @ValidUsernameCharacters String username,
+                                           @RequestPart(value = "profileImage", required = false) @ValidImageFormat MultipartFile profileImage) {
         return handle(authenticationService.register(new RegisterRequest(email, password.toCharArray(), username, profileImage)), HttpStatus.CREATED);
     }
 

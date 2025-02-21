@@ -4,6 +4,7 @@ import com.blazebit.persistence.KeysetPage;
 import com.blazebit.persistence.PagedList;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 interface BookBlazeRepository {
@@ -17,4 +18,6 @@ interface BookBlazeRepository {
     List<BookPreview> getBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state,
                                              BookTag[] tags, Boolean ratingOrder);
     List<BookPreview> getAuthoredBookPreviews(String byUser);
+    List<ChapterPreview> getSortedChapterPreviews(UUID bookId, Set<Integer> chapterNumbers);
+    List<Chapter> getSortedChapters(Set<UUID> chapterPreviewIds);
 }

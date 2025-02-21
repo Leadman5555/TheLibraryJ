@@ -137,7 +137,7 @@ class JwtServiceTest {
         return new UserDetails() {
             @Override
             public Collection<? extends GrantedAuthority> getAuthorities() {
-                return List.of(UserRole.USER);
+                return List.of(UserRole.ROLE_USER);
             }
 
             @Override

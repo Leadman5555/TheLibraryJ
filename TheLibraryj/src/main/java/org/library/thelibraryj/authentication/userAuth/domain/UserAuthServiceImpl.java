@@ -40,17 +40,17 @@ class UserAuthServiceImpl implements UserAuthService {
         if (existsByEmail(userCreationRequest.email()))
             return Either.left(new UserAuthError.EmailNotUnique(userCreationRequest.email()));
         if (userInfoService.existsByUsername(userCreationRequest.username()))
-            return Either.left(new UserAuthError.UsernameNotUnique(userCreationRequest.username()));
+            return Either.left(new UserAuthError.UsernameNotUnique(userCreationRequest.email()));
         UserAuth newUserAuth = mapper.userAuthRequestToUserAuth(userCreationRequest);
-        newUserAuth.setRole(UserRole.USER);
+        newUserAuth.setRole(UserRole.ROLE_USER);
         newUserAuth.setGoogle(false);
         UserAuth createdAuth = userAuthRepository.persist(newUserAuth);
+        userAuthRepository.flush();
         UserInfoWithImageResponse createdInfo = userInfoService.createUserInfoWithImage(new UserInfoRequest(
                 userCreationRequest.username(),
                 userCreationRequest.email(),
                 createdAuth.getId()
         ), userCreationRequest.profileImage());
-        userAuthRepository.flush();
         return Either.right(mapper.userAuthAndUserInfoResponseToUserCreationResponse(createdInfo, createdAuth));
     }
 
@@ -58,18 +58,18 @@ class UserAuthServiceImpl implements UserAuthService {
     @Override
     public void createNewGoogleUser(GoogleUserCreationRequest userCreationRequest) {
         UserAuth newUser = UserAuth.builder()
-                .role(UserRole.USER)
+                .role(UserRole.ROLE_USER)
                 .isGoogle(true)
                 .email(userCreationRequest.email())
                 .isEnabled(true)
                 .build();
         UserAuth createdAuth = userAuthRepository.persist(newUser);
+        userAuthRepository.flush();
         userInfoService.createUserInfo(new UserInfoRequest(
                 userCreationRequest.username(),
                 userCreationRequest.email(),
                 createdAuth.getId()
         ));
-        userAuthRepository.flush();
     }
 
     @Override
@@ -143,6 +143,6 @@ class UserAuthServiceImpl implements UserAuthService {
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new UserAuthError.UserAuthNotFoundId()));
+                .flatMap(optionalEntity -> optionalEntity.toEither(new UserAuthError.UserAuthNotFoundId(id)));
     }
 }

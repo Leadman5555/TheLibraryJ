@@ -1,0 +1,47 @@
+@import "../../shared/styles/sButton.css";
+@import "../../shared/styles/rowCol.css";
+@import "../../shared/styles/previewsColumn.css";
+
+#outerBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 0.5fr 1fr;
+  grid-template-rows: 0.75fr 1fr 1fr 1fr 1fr;
+  gap: 0 0.3em;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "topBarDiv topBarDiv topBarDiv topBarDiv previewContainer previewContainer"
+    "contentDiv contentDiv contentDiv contentDiv previewContainer previewContainer"
+    "contentDiv contentDiv contentDiv contentDiv previewContainer previewContainer"
+    "contentDiv contentDiv contentDiv contentDiv previewContainer previewContainer"
+    "contentDiv contentDiv contentDiv contentDiv previewContainer previewContainer";
+  background-color: cadetblue;
+  border: 0.2em solid goldenrod;
+  padding: 0.5em;
+}
+
+#topBarDiv {
+  grid-area: topBarDiv;
+  font-size: 4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.5em;
+  font-weight: bold;
+  font-style: italic;
+}
+
+#previewContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2em;
+  grid-area: previewContainer;
+}
+
+#contentDiv {
+  grid-area: contentDiv;
+  border: 0.2em solid darkgoldenrod;
+  padding: 0.5em;
+  background-color: rgba(202, 210, 243, 0.36);
+}

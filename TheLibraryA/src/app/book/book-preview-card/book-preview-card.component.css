@@ -18,6 +18,8 @@
   text-align: center;
   font-weight: 700;
   font-family: "Bell MT", serif;
+  text-decoration: none;
+  color: black;
 }
 
 .bookPreviewCard:hover {
@@ -32,7 +34,7 @@
 .stateDiv {
   grid-area: stateDiv;
   background-color: lightblue;
-  font-size: 0.9em;
+  font-size: 0.85em;
   border-bottom: 0.3em solid goldenrod;
   border-left: 0.3em solid goldenrod;
   display: flex;
@@ -67,4 +69,11 @@
   align-items: center;
   border-top: 0.3em solid goldenrod;
   font-size: 1.1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  word-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.5em;
+  max-height: 3em;
 }

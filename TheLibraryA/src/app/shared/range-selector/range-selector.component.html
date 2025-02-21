@@ -1,12 +1,14 @@
 <div class="value-row">
-  <div *ngFor="let value of values; let i = index"
-       class="ratingBox"
-       [ngClass]="{ 'selected': i <= selectedIndex }"
-       (click)="selectValue(i+1)">
-    <img
-      src="/ratingDragon_gold.png"
-      alt="{{value}}"
-      class="fillBox"
+  @for (value of values; track value; let i = $index){
+    <div
+      class="ratingBox"
+      [ngClass]="{ 'selected': i <= selectedIndex }"
+      (click)="selectValue(i+1)">
+      <img
+        src="/ratingDragon_gold.png"
+        alt="{{value}}"
+        class="fillBox"
       >
-  </div>
+    </div>
+  }
 </div>

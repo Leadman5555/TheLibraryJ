@@ -6,11 +6,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
+import org.library.thelibraryj.infrastructure.validators.fileValidators.imageFile.ValidImageFormat;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.response.UserInfoMiniResponse;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoStatusUpdateRequest;
@@ -23,8 +24,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -87,8 +90,8 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/details/{username}")
-    public ResponseEntity<UserInfoDetailsView> getUserInfoDetailsByUsername(@PathVariable("username") String username) {
-        return ResponseEntity.ok(userInfoService.getUserInfoDetailsByUsername(username));
+    public ResponseEntity<String> getUserInfoDetailsByUsername(@PathVariable("username") String username) {
+        return handle(userInfoService.getUserInfoDetailsByUsername(username), HttpStatus.OK);
     }
 
     @Operation(
@@ -100,8 +103,8 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/mini/{email}")
-    public ResponseEntity<UserInfoMiniResponse> getUserInfoMiniByEmail(@PathVariable("email") String email) {
-        return ResponseEntity.ok(userInfoService.getUserInfoMiniResponseByEmail(email));
+    public ResponseEntity<String> getUserInfoMiniByEmail(@PathVariable("email") String email) {
+        return handle(userInfoService.getUserInfoMiniResponseByEmail(email), HttpStatus.OK);
     }
 
     @Operation(
@@ -136,15 +139,16 @@ class UserInfoController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Change the user's username and reflect the change on all his books",
+            summary = "Change the user's username and reflect the change on all his books. Username has characters constraints: '^[a-zA-Z0-9_-]+$'",
             tags = "user"
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Username updated successfully"),
-            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "400", description = "Request data invalid"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
-            @ApiResponse(responseCode = "409", description = "Username not unique"),
-            @ApiResponse(responseCode = "403", description = "Permission lacking")
+            @ApiResponse(responseCode = "403", description = "Permission lacking"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "409", description = "Username not unique")
     })
     @PatchMapping("/user/profile/username")
     @PreAuthorize("hasRole('ADMIN') or #userInfoUsernameUpdateRequest.email == authentication.principal.username")
@@ -158,9 +162,9 @@ class UserInfoController implements ErrorHandling {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Status updated successfully"),
-            @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
-            @ApiResponse(responseCode = "403", description = "Permission lacking")
+            @ApiResponse(responseCode = "403", description = "Permission lacking"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @PatchMapping("/user/profile/status")
     @PreAuthorize("hasRole('ADMIN') or #userInfoStatusUpdateRequest.email == authentication.principal.username")
@@ -174,10 +178,10 @@ class UserInfoController implements ErrorHandling {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Preference updated successfully"),
-            @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "400", description = "Invalid preference or rank lacking"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
-            @ApiResponse(responseCode = "403", description = "Permission lacking")
+            @ApiResponse(responseCode = "403", description = "Permission lacking"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
     @PatchMapping("/user/profile/preference")
     @PreAuthorize("#userInfoPreferenceUpdateRequest.email == authentication.principal.username")
@@ -191,15 +195,29 @@ class UserInfoController implements ErrorHandling {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Profile image updated successfully"),
-            @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "403", description = "Permission lacking"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Failed to save the update image on server"),
-            @ApiResponse(responseCode = "403", description = "Permission lacking")
     })
     @PatchMapping(value = "/user/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
-    public ResponseEntity<String> updateUserProfileImage(@RequestPart("email") @NotBlank String email,
-                                                         @RequestPart(value = "newImage", required = false) @Nullable MultipartFile newImage) throws IOException {
+    public ResponseEntity<String> updateUserProfileImage(@RequestParam("email") @NotBlank @Email String email,
+                                                         @RequestPart(value = "newImage", required = false) @Nullable @ValidImageFormat MultipartFile newImage) throws IOException {
         return handle(userInfoService.updateProfileImage(new UserInfoImageUpdateRequest(email, newImage)), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Verify is the user can author books.",
+            tags = {"user", "book"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "User is eligible to author books."),
+            @ApiResponse(responseCode = "403", description = "User is not eligible to author books")
+    })
+    @PostMapping("/na/user/verify/{email}")
+    public ResponseEntity<String> verifyWritingEligibility(@PathVariable @NotNull @Email String email) {
+        if(userInfoService.checkWritingEligibility(email)) return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 }

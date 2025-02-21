@@ -10,4 +10,8 @@ import org.springframework.context.annotation.Configuration;
 class UserInfoProperties {
     private int username_change_cooldown_days;
     private int minimal_age_hours;
+    private int points_for_comment;
+    private int points_for_review;
+    private int points_for_author;
+    private String rank_requirements;
 }

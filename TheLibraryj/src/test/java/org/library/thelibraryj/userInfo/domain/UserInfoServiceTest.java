@@ -8,11 +8,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
+import org.library.thelibraryj.infrastructure.textParsers.inputParsers.HtmlEscaper;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -35,10 +35,9 @@ public class UserInfoServiceTest {
     @Mock
     private BookService bookService;
     @Spy
-    private UserInfoProperties userInfoProperties = new UserInfoProperties();
-    @Spy
     private UserInfoMapper userInfoMapper = new UserInfoMapperImpl();
-    @InjectMocks
+    @Spy
+    private UserInfoProperties userInfoProperties = new UserInfoProperties();
     private UserInfoServiceImpl userInfoService;
 
     private UUID userId;
@@ -48,9 +47,12 @@ public class UserInfoServiceTest {
 
     @BeforeEach
     public void setUp() {
-        userInfoService.setBookService(bookService);
+//        when(userInfoProperties.getMinimal_age_hours()).thenReturn(24);
+//        when(userInfoProperties.getUsername_change_cooldown_days()).thenReturn(90);
+//        when(userInfoProperties.getRank_requirements()).thenReturn("3, 5, 10, 20, 40, 60, 100, 200, 500, 1000");
         userInfoProperties.setMinimal_age_hours(24);
         userInfoProperties.setUsername_change_cooldown_days(90);
+        userInfoProperties.setRank_requirements("3, 5, 10, 20, 40, 60, 100, 200, 500, 1000");
         userId = UUID.randomUUID();
         username = "sample username";
         userEmail = "sample@example.com";
@@ -64,12 +66,14 @@ public class UserInfoServiceTest {
                 .updatedAt(oldTime)
                 .dataUpdatedAt(oldTime)
                 .build();
+        userInfoService = new UserInfoServiceImpl(userInfoRepository, userInfoMapper, userInfoProperties, null, new HtmlEscaper(false));
+        userInfoService.setBookService(bookService);
     }
 
 
     @Test
     public void testGetAndValidateAuthorData(){
-        when(userInfoRepository.getBookCreationUserView(userEmail)).thenReturn(new BookCreationUserView() {
+        when(userInfoRepository.getBookCreationUserView(userEmail)).thenReturn(Optional.of(new BookCreationUserView() {
             @Override
             public UUID getAuthorId() {
                 return userId;
@@ -84,12 +88,12 @@ public class UserInfoServiceTest {
             public Instant getCreatedAt() {
                 return Instant.now().minusSeconds(10000000);
             }
-        });
+        }));
         Either<GeneralError, BookCreationUserView> response = userInfoService.getAndValidateAuthorData(userEmail);
         Assertions.assertTrue(response.isRight());
         Assertions.assertEquals(username, response.get().getAuthorUsername());
 
-        when(userInfoRepository.getBookCreationUserView(userEmail)).thenReturn(new BookCreationUserView() {
+        when(userInfoRepository.getBookCreationUserView(userEmail)).thenReturn(Optional.of(new BookCreationUserView() {
             @Override
             public UUID getAuthorId() {
                 return userId;
@@ -104,7 +108,7 @@ public class UserInfoServiceTest {
             public Instant getCreatedAt() {
                 return Instant.now();
             }
-        });
+        }));
         Either<GeneralError, BookCreationUserView> response2 = userInfoService.getAndValidateAuthorData(userEmail);
         Assertions.assertTrue(response2.isLeft());
     }
@@ -148,7 +152,7 @@ public class UserInfoServiceTest {
         when(userInfoRepository.existsByUsername(newUsername)).thenReturn(true);
         Either<GeneralError, UserUsernameUpdateResponse> response3 = userInfoService.updateUserInfoUsername(request);
         Assertions.assertFalse(response3.isRight());
-        Assertions.assertEquals(new UserInfoError.UsernameNotUnique(), response3.getLeft());
+        Assertions.assertEquals(new UserInfoError.UsernameNotUnique(userEmail), response3.getLeft());
 
         verify(userInfoRepository, times(1)).update(userInfo);
     }

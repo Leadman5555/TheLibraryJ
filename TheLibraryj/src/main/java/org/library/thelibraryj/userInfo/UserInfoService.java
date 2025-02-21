@@ -13,7 +13,6 @@ import org.library.thelibraryj.userInfo.dto.request.UserInfoScoreUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoStatusUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.response.UserInfoMiniResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserInfoResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserPreferenceUpdateResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserProfileImageUpdateResponse;
@@ -30,25 +29,27 @@ import java.util.UUID;
 
 @Service
 public interface UserInfoService {
+    @Async
+    void updateRatingScore(UserInfoScoreUpdateRequest userInfoScoreUpdateRequest);
     boolean existsById(UUID userId);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
+    boolean checkWritingEligibility(String forUserEmail);
     Either<GeneralError, UserProfileResponse> getUserProfileById(UUID userId);
     Either<GeneralError, UserProfileResponse> getUserProfileByUsername(String username);
     Either<GeneralError, UserProfileResponse> getUserProfileByEmail(String email);
-    UserInfoMiniResponse getUserInfoMiniResponseByEmail(String email);
-    UserInfoDetailsView getUserInfoDetailsByUsername(String username);
+    Either<GeneralError, UserInfoMiniResponse> getUserInfoMiniResponseByEmail(String email);
+    Either<GeneralError, UserInfoDetailsView> getUserInfoDetailsByUsername(String username);
     Either<GeneralError, UUID> getUserInfoIdByEmail(String email);
-    RatingUpsertView getUsernameAndIdByEmail(String email);
+    Either<GeneralError, RatingUpsertView>  getUsernameAndIdByEmail(String email);
     Either<GeneralError, BookCreationUserView> getAndValidateAuthorData(String authorEmail);
     UserInfoWithImageResponse createUserInfoWithImage(UserInfoRequest userInfoRequest, MultipartFile imageFile);
-    UserInfoResponse createUserInfo(UserInfoRequest userInfoRequest);
+    @Async
+    void createUserInfo(UserInfoRequest userInfoRequest);
     Either<GeneralError, UserRankUpdateResponse> forceUpdateRank(UserInfoRankUpdateRequest userInfoRankUpdateRequest);
     Either<GeneralError, UserRankUpdateResponse> updateRank(String forUserEmail);
     Either<GeneralError, UserUsernameUpdateResponse> updateUserInfoUsername(UserInfoUsernameUpdateRequest userInfoUsernameUpdateRequest);
     Either<GeneralError, UserProfileImageUpdateResponse> updateProfileImage(UserInfoImageUpdateRequest userInfoImageUpdateRequest) throws IOException;
     Either<GeneralError, UserStatusUpdateResponse> updateUserInfoStatus(UserInfoStatusUpdateRequest userInfoStatusUpdateRequest);
     Either<GeneralError, UserPreferenceUpdateResponse> updateUserInfoPreference(UserInfoPreferenceUpdateRequest userInfoPreferenceUpdateRequest);
-    @Async
-    void updateRatingScore(UserInfoScoreUpdateRequest userInfoScoreUpdateRequest);
 }

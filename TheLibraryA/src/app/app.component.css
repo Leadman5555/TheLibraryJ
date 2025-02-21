@@ -2,6 +2,7 @@
 @import 'shared/styles/sInput.css';
 @import 'shared/styles/rowCol.css';
 @import 'shared/styles/image34.css';
+@import 'shared/styles/borderBox.css';
 
 #body{
   z-index: 9;
@@ -28,6 +29,7 @@
   background: rgba(40, 0, 73, 0.7);
   padding: 0.6em;
   border: 0.2em solid cornflowerblue;
+  text-decoration: none;
 }
 
 #home:hover{
@@ -42,6 +44,8 @@
 #userInfo{
   display: flex;
   align-items: center;
+  text-decoration: none;
+  color: black;
 }
 
 #userInfo:hover{
@@ -73,11 +77,9 @@
   animation: expand 0.3s ease-in;
   position: relative;
   margin-left: auto;
-  border: 0.2em solid darkgoldenrod;
   padding: 0.3em;
   width: fit-content;
   height: fit-content;
-  background: cadetblue;
   z-index: 9;
 }
 
@@ -95,9 +97,8 @@
   position: absolute;
   top: 100%;
   left: 50%; transform: translateX(-50%);
-  background-color: cadetblue;
+  padding: 0;
   z-index: 9;
-  border: 0.2em solid darkgoldenrod;
   border-top: none;
   margin-top: 0.2em;
 }

@@ -23,7 +23,7 @@ export class UserSearchComponent {
           Validators.required,
           Validators.minLength(5),
           Validators.maxLength(20),
-          Validators.pattern('^[a-zA-Z0-9_-]+$')
+          Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9_-]+$')
         ])
     });
   }

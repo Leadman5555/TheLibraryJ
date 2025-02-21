@@ -14,7 +14,7 @@ import {PageInfo} from '../../shared/paging/models/page-info';
 import {provideComponentStore} from '@ngrx/component-store';
 import {parseDateString} from '../../shared/functions/parseData';
 import {logError} from '../../shared/errorHandling/handleError';
-import {UserAuthService} from '../../user/userAuth/user-auth.service';
+import {UserAuthService} from '../../user/account/userAuth/user-auth.service';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {RangeSelectorComponent} from '../../shared/range-selector/range-selector.component';
 
@@ -126,7 +126,11 @@ export class BookComponent extends PagingHelper implements OnInit {
   }
 
   private createRatingUpsertForm() {
-    const loggedUser: string = this.userAuthService.getLoggedInUsername();
+    const loggedUser = this.userAuthService.getLoggedInUsername();
+    if(!loggedUser){
+      this.router.navigate(['']);
+      return;
+    }
     const foundRating = this.ratings!.find(rating => rating.username === loggedUser);
     if (foundRating !== undefined) {
       this.ratingUpsertForm = new FormGroup({
@@ -166,6 +170,11 @@ export class BookComponent extends PagingHelper implements OnInit {
 
   upsertRating() {
     if (this.ratingUpsertForm.invalid) return;
+    const userEmail = this.userAuthService.getLoggedInEmail();
+    if(!userEmail){
+      this.router.navigate(['']);
+      return;
+    }
     this.ratingUpsertMessage = undefined;
     const values = this.ratingUpsertForm.value;
     if (this.previousRating !== undefined) {
@@ -175,7 +184,7 @@ export class BookComponent extends PagingHelper implements OnInit {
       currentRating: values.currentRating,
       comment: values.comment,
       bookId: this.bookPreview.id,
-      userEmail: this.userAuthService.getLoggedInEmail()
+      userEmail: userEmail
     })
       .subscribe({
         next: (v) => {
