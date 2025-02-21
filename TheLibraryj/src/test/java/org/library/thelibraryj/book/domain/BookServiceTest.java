@@ -14,6 +14,7 @@ import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.model.PageInfo;
+import org.library.thelibraryj.infrastructure.textParsers.inputParsers.HtmlEscaper;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
@@ -52,6 +53,8 @@ public class BookServiceTest {
     private BookProperties bookProperties;
     @Spy
     private BookMapper bookMapper = new BookMapperImpl();
+    @Spy
+    private HtmlEscaper htmlEscaper = new HtmlEscaper(false);
     @InjectMocks
     private BookServiceImpl bookService;
     private UUID bookId;

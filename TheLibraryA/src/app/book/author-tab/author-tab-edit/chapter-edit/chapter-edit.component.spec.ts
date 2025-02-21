@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { ChapterEditComponent } from './chapter-edit.component';
+import {ChapterEditComponent} from './chapter-edit.component';
 
 describe('ChapterEditComponent', () => {
   let component: ChapterEditComponent;

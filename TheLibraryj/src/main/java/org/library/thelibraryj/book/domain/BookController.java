@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -260,7 +261,7 @@ class BookController implements ErrorHandling {
     @PreAuthorize("hasRole('ADMIN') or #authorEmail == authentication.principal.username")
     public ResponseEntity<String> updateBook(
             @ModelAttribute @Valid BookUpdateModel bookUpdateModel,
-            @RequestPart(value = "coverImage", required = false) @Nullable MultipartFile coverImage,
+            @RequestPart(value = "coverImage", required = false) @Nullable @ValidImageFormat MultipartFile coverImage,
             @RequestParam("bookId") @NotNull UUID bookId,
             @RequestParam("authorEmail") @NotNull String authorEmail
     ) {
@@ -311,7 +312,7 @@ class BookController implements ErrorHandling {
     })
     @DeleteMapping("books/book/chapter/{number}")
     @PreAuthorize("hasRole('ADMIN') or #contentRemovalRequest.userEmail == authentication.principal.username")
-    public ResponseEntity<String> deleteChapter(@PathVariable @Min(1) Integer number, @RequestBody @Valid ContentRemovalRequest contentRemovalRequest) {
+    public ResponseEntity<String> deleteChapter(@PathVariable @Min(1) @Max(10000) Integer number, @RequestBody @Valid ContentRemovalRequest contentRemovalRequest) {
         return handle(bookService.deleteChapter(contentRemovalRequest, number), HttpStatus.OK);
     }
 

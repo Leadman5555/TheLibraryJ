@@ -32,3 +32,11 @@
 .image34Wrapper{
   border: none;
 }
+
+.errorBox{
+  margin-top: 0.6em;
+  width: 12em;
+  font-style: italic;
+  text-align: center;
+  color: bisque;
+}

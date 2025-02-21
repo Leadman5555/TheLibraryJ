@@ -15,6 +15,7 @@ import {ImageDropComponent} from '../../../shared/image-drop/image-drop.componen
 import {allTags, identifyTag} from '../../shared/models/BookTag';
 import {atLeastOneValidator} from '../../../shared/functions/atLeastOneValidator';
 import {carriageReturnLengthValidator} from '../../../shared/functions/carriageReturnLengthValidator';
+import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidator';
 
 @Component({
   selector: 'app-author-tab-create',
@@ -36,10 +37,10 @@ export class AuthorTabCreateComponent {
     }
     this.authorEmail = email;
     this.bookCreationForm = this.fb.group({
-      title: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(40), Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s\'_\"!.-]*$')]],
+      title: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(40), Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s\'_!.-]*$')]],
       description: ['', [Validators.required, carriageReturnLengthValidator(50, 800), Validators.pattern(/^[^<>]*(?:[<>][^<>]*){0,9}$/)]],
       bookTags: this.fb.array(allTags.map(() => false), atLeastOneValidator()),
-      coverImage: [null],
+      coverImage: [null, imageFileTypeValidator()],
     });
   }
 

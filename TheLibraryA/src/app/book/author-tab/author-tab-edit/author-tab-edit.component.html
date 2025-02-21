@@ -39,18 +39,18 @@
         <div class="mt-square3d-custom tagSelector"
              style="font-size:0.8em; margin: 0.5em">
           <span class="tagName">Change cover image</span>
-          <input #editCoverImage  id="checkMt_cover" type="checkbox" formControlName="editCoverImage"/>
+          <input #editCoverImage (change)="resetImageForm()"  id="checkMt_cover" type="checkbox" formControlName="editCoverImage"/>
           <label for="checkMt_cover"></label>
         </div>
         @if (editCoverImage.checked){
-          <span>If no image is selected, the cover will be reset to default.<br>To cancel, flip the switch above again.</span>
+          <span>If no image is selected, the cover will be reset to a default one.<br>To cancel, flip the switch above again.</span>
           <app-image-drop style="font-size: 0.8em" [parentControl]="getCoverImageControl()"></app-image-drop>
         }
       </div>
       <div class="buttonDiv column">
         <div>
           <span class="errorBox" *ngIf="bookUpdateErrorMessage">{{ this.bookUpdateErrorMessage }}</span>
-          <span class="successBox" *ngIf="bookUpdatedSuccessfully">Book updated successfully. Changes will be reflected on the website at latest after the next 10 minute mark.</span>
+          <span class="successBox" *ngIf="bookUpdatedSuccessfully">Book updated successfully. Changes will be reflected on the website after the next 10 minute mark at latest.</span>
         </div>
         <div class="row">
           <button class="sButton sButtonColor disabledHide" type="submit"
@@ -116,7 +116,7 @@
           <ul style="text-align: left">
             <li><b>Title</b>: 5-40 characters long. It must be unique, several special characters are allowed. Remember that if your title exceeds a certain length, only a part of it will be shown on the Book preview card.</li>
             <li><b>Description</b>: 50-700 characters long.</li>
-            <li><b>Cover image</b>: To change the cover flip the switch. If not, no changes to cover will be done. Uploading images in 4:3 ratio is the best choice.</li>
+            <li><b>Cover image</b>: To change the cover flip the switch. If not, no changes to cover will be done. Uploading images in 4:3 ratio is the best choice. Allowed picture formats are: .png, .jpg, .jpeg and .webp, all up to 2MB in size.</li>
             <li><b>Tags</b>: Choose at least one that applies to your book.</li>
             <li><b>State</b>: Choose the current state of the book. It may help the readers to know the authors future plans.</li>
           </ul>

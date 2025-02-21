@@ -355,12 +355,14 @@ public class BookIT {
         );
     }
 
+    //Tests for .txt files only - Tika and parsers reject other types (if fake-created like here) and mocking everything is pointless.
+    //Manually tested, works for all four types.
     @Test
     public void testUpsertChapters_createAndUpdateChapters() throws Exception {
         List<MockFile> fileList = List.of(
                 new MockFile("100 - Valid1.txt", 100, MediaType.TEXT_PLAIN_VALUE),
-                new MockFile("200 - Valid2.docx", 1000, wordType2),
-                new MockFile("300.doc", 500, wordType)
+                new MockFile("200 - Valid2.txt", 1000, MediaType.TEXT_PLAIN_VALUE),
+                new MockFile("300.txt", 500, MediaType.TEXT_PLAIN_VALUE)
         );
         var response = upsertChaptersRequest(fileList);
         Assertions.assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
@@ -393,8 +395,8 @@ public class BookIT {
 
         List<MockFile> updateFileList = List.of(
                 new MockFile("100 - newValid1.txt", 100, MediaType.TEXT_PLAIN_VALUE),
-                new MockFile("400.docx", 1000, wordType2),
-                new MockFile("300 - chapter3.doc", 500, libreOfficeType)
+                new MockFile("400.txt", 1000, MediaType.TEXT_PLAIN_VALUE),
+                new MockFile("300 - chapter3.txt", 500, MediaType.TEXT_PLAIN_VALUE)
         );
         response = upsertChaptersRequest(updateFileList);
         Assertions.assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());

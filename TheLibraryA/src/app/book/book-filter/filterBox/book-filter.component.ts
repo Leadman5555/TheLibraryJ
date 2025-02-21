@@ -263,7 +263,7 @@ export class BookFilterComponent implements OnInit {
 
   private createFilterForm() {
     this.filterForm = this.fb.group({
-      titleLike: [this.defaultFormValues.titleLike, [Validators.maxLength(20), Validators.minLength(3), Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s\'_\"!.-]*$')]],
+      titleLike: [this.defaultFormValues.titleLike, [Validators.maxLength(20), Validators.minLength(3), Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s\'_!.-]*$')]],
       minChapters: [this.defaultFormValues.minChapters, [Validators.min(0), Validators.max(5000), integerValidator()]],
       ratingOrder: this.defaultFormValues.ratingOrder,
       filterByTags: this.fb.array(Array.from(Array(allTags.length), (_, index) => this.defaultFormValues.filterByTags[index])),

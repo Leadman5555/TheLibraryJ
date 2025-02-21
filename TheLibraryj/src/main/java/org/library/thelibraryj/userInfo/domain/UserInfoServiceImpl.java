@@ -7,8 +7,22 @@ import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
-import org.library.thelibraryj.userInfo.dto.request.*;
-import org.library.thelibraryj.userInfo.dto.response.*;
+import org.library.thelibraryj.infrastructure.textParsers.inputParsers.HtmlEscaper;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoScoreUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoStatusUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.response.UserInfoMiniResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserPreferenceUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserProfileImageUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserProfileResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserStatusUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.Nullable;
@@ -16,7 +30,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.HtmlUtils;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -37,16 +50,18 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     private final UserInfoImageHandler userInfoImageHandler;
     private BookService bookService;
     private final int[] rankRequirementsArray;
+    private final HtmlEscaper htmlEscaper;
 
     @Autowired
     void setBookService(@Lazy BookService bookService) {
         this.bookService = bookService;
     }
 
-    public UserInfoServiceImpl(UserInfoRepository userInfoRepository, UserInfoMapper userInfoMapper, UserInfoProperties properties, UserInfoImageHandler userInfoImageHandler) {
+    public UserInfoServiceImpl(UserInfoRepository userInfoRepository, UserInfoMapper userInfoMapper, UserInfoProperties properties, UserInfoImageHandler userInfoImageHandler, HtmlEscaper htmlEscaper) {
         this.userInfoRepository = userInfoRepository;
         this.userInfoMapper = userInfoMapper;
         userInfoProperties = properties;
+        this.htmlEscaper = htmlEscaper;
         this.userInfoImageHandler = userInfoImageHandler;
         rankRequirementsArray = Arrays.stream(properties.getRank_requirements().split(","))
                 .map(String::trim).mapToInt(Integer::parseInt).toArray();
@@ -62,7 +77,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundById()));
+                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundById(userId)));
     }
 
     @Override
@@ -183,7 +198,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     @Transactional
     UserInfo createUserInfoInternal(UserInfoRequest userInfoRequest) {
         UserInfo mapped = userInfoMapper.userInfoRequestToUserInfo(userInfoRequest);
-        mapped.setUsername(escapeHtml(mapped.getUsername()));
+        mapped.setUsername(htmlEscaper.escapeHtml(mapped.getUsername()));
         mapped.setRank(0);
         mapped.setCurrentScore(0);
         mapped.setPreference((short) 0);
@@ -229,14 +244,14 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     @Override
     public Either<GeneralError, UserUsernameUpdateResponse> updateUserInfoUsername(UserInfoUsernameUpdateRequest userInfoUsernameUpdateRequest) {
         if (existsByUsername(userInfoUsernameUpdateRequest.username()))
-            return Either.left(new UserInfoError.UsernameNotUnique());
+            return Either.left(new UserInfoError.UsernameNotUnique(userInfoUsernameUpdateRequest.email()));
         Either<GeneralError, UserInfo> fetchedE = getUserInfoByEmail(userInfoUsernameUpdateRequest.email());
         if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         UserInfo fetched = fetchedE.get();
         long cooldownDiff = ChronoUnit.DAYS.between(fetched.getDataUpdatedAt(), Instant.now());
         if (cooldownDiff < userInfoProperties.getUsername_change_cooldown_days())
             return Either.left(new UserInfoError.UsernameUpdateCooldown(userInfoProperties.getUsername_change_cooldown_days() - cooldownDiff, fetched.getEmail()));
-        final String escapedUsername = escapeHtml(userInfoUsernameUpdateRequest.username());
+        final String escapedUsername = htmlEscaper.escapeHtml(userInfoUsernameUpdateRequest.username());
         fetched.setUsername(escapedUsername);
         fetched.setDataUpdatedAt(Instant.now());
         userInfoRepository.update(fetched);
@@ -251,11 +266,11 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         if (userInfoImageUpdateRequest.newImage() == null) {
             if (!userInfoImageHandler.removeExistingProfileImage(fetchedE.get()))
-                return Either.left(new UserInfoError.ProfileImageUpdateFailed());
+                return Either.left(new UserInfoError.ProfileImageUpdateFailed(userInfoImageUpdateRequest.email()));
             return Either.right(new UserProfileImageUpdateResponse(userInfoImageHandler.getDefaultImage()));
         } else {
             if (!userInfoImageHandler.upsertProfileImageImage(fetchedE.get(), userInfoImageUpdateRequest.newImage()))
-                return Either.left(new UserInfoError.ProfileImageUpdateFailed());
+                return Either.left(new UserInfoError.ProfileImageUpdateFailed(userInfoImageUpdateRequest.email()));
             return Either.right(new UserProfileImageUpdateResponse(userInfoImageUpdateRequest.newImage().getBytes()));
         }
     }
@@ -266,7 +281,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         Either<GeneralError, UserInfo> fetchedE = getUserInfoByEmail(userInfoStatusUpdateRequest.email());
         if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         UserInfo fetched = fetchedE.get();
-        String escapedStatus = escapeHtml(userInfoStatusUpdateRequest.status());
+        String escapedStatus = htmlEscaper.escapeHtml(userInfoStatusUpdateRequest.status());
         fetched.setStatus(escapedStatus);
         userInfoRepository.update(fetched);
         return Either.right(new UserStatusUpdateResponse(escapedStatus));
@@ -304,10 +319,5 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     @Override
     public boolean existsByEmail(String email) {
         return userInfoRepository.existsByEmail(email);
-    }
-
-    private static String escapeHtml(String toEscape) {
-        return HtmlUtils.htmlEscape(toEscape)
-                .replace("&#39;", "'").replace("&quot;", "\"");
     }
 }

@@ -34,7 +34,7 @@ export class AuthorTabComponent implements OnInit {
     }
     this.authorEmail = email;
     this.bookService.getBookPreviewsByAuthor(username).subscribe({
-      next: (v) => this.bookPreviews = v,
+      next: (v) => this.bookPreviews = v.sort((a, b) => b.chapterCount - a.chapterCount),
       error: (_) => this.router.navigate([''])
     });
   }

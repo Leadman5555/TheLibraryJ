@@ -66,7 +66,7 @@ export const preferenceArray: PreferenceTitle[] = [
   {requiredRank: 7, index: 72, title: 'Famed'},
   {requiredRank: 7, index: 73, title: 'Fabled'},
   {requiredRank: 7, index: 74, title: 'Hidden'},
-  {requiredRank: 7, index: 75, title: 'Mount Tai'},
+  {requiredRank: 7, index: 75, title: 'Living Mount Tai'},
 
   {requiredRank: 8, index: 80, title: 'Immortal'},
   {requiredRank: 8, index: 81, title: 'Exalted elder'},

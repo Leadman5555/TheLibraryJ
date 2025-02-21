@@ -40,7 +40,7 @@ class UserAuthServiceImpl implements UserAuthService {
         if (existsByEmail(userCreationRequest.email()))
             return Either.left(new UserAuthError.EmailNotUnique(userCreationRequest.email()));
         if (userInfoService.existsByUsername(userCreationRequest.username()))
-            return Either.left(new UserAuthError.UsernameNotUnique(userCreationRequest.username()));
+            return Either.left(new UserAuthError.UsernameNotUnique(userCreationRequest.email()));
         UserAuth newUserAuth = mapper.userAuthRequestToUserAuth(userCreationRequest);
         newUserAuth.setRole(UserRole.ROLE_USER);
         newUserAuth.setGoogle(false);
@@ -143,6 +143,6 @@ class UserAuthServiceImpl implements UserAuthService {
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new UserAuthError.UserAuthNotFoundId()));
+                .flatMap(optionalEntity -> optionalEntity.toEither(new UserAuthError.UserAuthNotFoundId(id)));
     }
 }

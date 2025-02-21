@@ -23,16 +23,18 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Slf4j
 public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
 
+    private final static String NO_SERVER_DETAILS = "none";
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorWrapper> handleDefault(Exception ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message(ex.getMessage())
+                .message("Something went wrong while processing the request on server.")
                 .status(errorStatus.getReasonPhrase())
                 .path(extractRequest(request))
                 .build();
-        logServerError(errorResponse);
+        logMajorError(errorResponse, ex.getMessage());
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
@@ -41,16 +43,16 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus errorStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message("Something on external layer went wrong. Request was nevertheless accepted and processed on server. Additional info: " + ex.getMessage())
+                .message("Something went wrong while parsing the response. Request was nevertheless accepted and processed on server.")
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + extractRequest(request) + " For entity: " + ex.getEntityName())
                 .build();
-        logServerError(errorResponse);
+        logMajorError(errorResponse, ex.getMessage());
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
     @ExceptionHandler(value = {MessagingException.class, MailException.class})
-    public ResponseEntity<ApiErrorWrapper> handleMessagingException(MessagingException ex, WebRequest request) {
+    public ResponseEntity<ApiErrorWrapper> handleMessagingException(Exception ex, WebRequest request) {
         HttpStatus errorStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
@@ -58,7 +60,7 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + extractRequest(request))
                 .build();
-        logServerError(errorResponse);
+        logMajorError(errorResponse, ex.getMessage());
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
@@ -71,7 +73,7 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + extractRequest(request))
                 .build();
-        logError(errorResponse);
+        logError(errorResponse, NO_SERVER_DETAILS);
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
@@ -81,11 +83,11 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus errorStatus = HttpStatus.UNAUTHORIZED;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message(uri.contains("/login") ? "Incorrect password" : ex.getMessage())
+                .message(uri.contains("/login") ? "Incorrect password" : "Invalid credentials. Please log in again.")
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + uri)
                 .build();
-        logError(errorResponse);
+        logError(errorResponse, NO_SERVER_DETAILS);
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
@@ -94,11 +96,11 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus errorStatus = HttpStatus.SERVICE_UNAVAILABLE;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message("Google api not responding. Message from Google api: " + ex.getMessage())
+                .message("Google API not responding. Please try again later.")
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + extractRequest(request))
                 .build();
-        logError(errorResponse);
+        logMajorError(errorResponse, ex.getMessage());
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
@@ -107,11 +109,11 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus errorStatus = HttpStatus.UNAUTHORIZED;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message("Google token invalid. Authorization failed: " + ex.getMessage())
+                .message("Google token invalid. Authorization failed.")
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + extractRequest(request))
                 .build();
-        logError(errorResponse);
+        logError(errorResponse, ex.getMessage());
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
@@ -129,7 +131,7 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + extractRequest(request))
                 .build();
-        logError(errorResponse);
+        logError(errorResponse, ex.getMessage());
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
@@ -138,11 +140,11 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus errorStatus = HttpStatus.BAD_REQUEST;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message("Refresh token missing, cannot grant new access token: " + ex.getMessage())
+                .message("Refresh token missing, cannot grant new access token. Please log in again.")
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + extractRequest(request))
                 .build();
-        logError(errorResponse);
+        logError(errorResponse, NO_SERVER_DETAILS);
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
@@ -151,11 +153,11 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus errorStatus = HttpStatus.FORBIDDEN;
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message("Authorization failed: Permission lacking. Reason: " + ex.getMessage())
+                .message("Authorization failed: user permission lacking.")
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + extractRequest(request))
                 .build();
-        logError(errorResponse);
+        logError(errorResponse, NO_SERVER_DETAILS);
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
@@ -165,20 +167,34 @@ public class LibraryExceptionHandler extends ResponseEntityExceptionHandler {
         final String uri = extractRequest(request);
         final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
                 .code(errorStatus.value())
-                .message(uri.contains("/login") ? "Account doesn't exist" : "Entity not found: " + ex.getMessage())
+                .message(uri.contains("/login") ? "Account doesn't exist." : "Requested resource not found.")
                 .status(errorStatus.getReasonPhrase())
                 .path("Path: " + uri)
                 .build();
-        logError(errorResponse);
+        logError(errorResponse, NO_SERVER_DETAILS);
         return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
-    private static void logError(ApiErrorResponse error) {
-        log.info("{} at {}", error.message(), error.path());
+    @ExceptionHandler(ChapterTextParsingException.class)
+    public ResponseEntity<ApiErrorWrapper> handleChapterTextParsingException(ChapterTextParsingException ex, WebRequest request) {
+        HttpStatus errorStatus = HttpStatus.BAD_REQUEST;
+        final String uri = extractRequest(request);
+        final ApiErrorResponse errorResponse = ApiErrorResponse.builder()
+                .code(errorStatus.value())
+                .message("Chapter text parsing failed. Make sure the files are not corrupted and in valid encoding.")
+                .status(errorStatus.getReasonPhrase())
+                .path("Path: " + uri)
+                .build();
+        logError(errorResponse, ex.getMessage());
+        return ResponseEntity.status(errorStatus).body(new ApiErrorWrapper(errorResponse));
     }
 
-    private static void logServerError(ApiErrorResponse error) {
-        log.error("{} at {}", error.message(), error.path());
+    private static void logError(ApiErrorResponse error, String serverDetails) {
+        log.info("{} at {}. Server details: {}", error.message(), error.path(), serverDetails);
+    }
+
+    private static void logMajorError(ApiErrorResponse error, String serverDetails) {
+        log.error("{} at {}. Server details: {}", error.message(), error.path(), serverDetails);
     }
 
     private static String extractRequest(WebRequest request) {

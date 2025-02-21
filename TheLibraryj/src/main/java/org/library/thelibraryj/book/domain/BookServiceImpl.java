@@ -28,6 +28,8 @@ import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.model.PageInfo;
+import org.library.thelibraryj.infrastructure.textParsers.fileParsers.TextParser;
+import org.library.thelibraryj.infrastructure.textParsers.inputParsers.HtmlEscaper;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
@@ -42,9 +44,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.HtmlUtils;
 
-import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -74,13 +74,15 @@ class BookServiceImpl implements BookService {
     private final BookProperties bookProperties;
     private UserInfoService userInfoService;
     private final Pattern chapterTitleMatcher = Pattern.compile("^([0-9])+(\\s-\\s(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s'_\"!.-]*)?$");
+    private final TextParser textParser;
+    private final HtmlEscaper htmlEscaper;
 
     @Autowired
     public void setUserInfoService(@Lazy UserInfoService userInfoService) {
         this.userInfoService = userInfoService;
     }
 
-    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, @Qualifier("bookMapperImpl") BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository, BookImageHandler bookImageHandler, BookBlazeRepository bookBlazeRepository, BookProperties bookProperties) {
+    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, @Qualifier("bookMapperImpl") BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository, BookImageHandler bookImageHandler, BookBlazeRepository bookBlazeRepository, BookProperties bookProperties, TextParser textParser, HtmlEscaper htmlEscaper) {
         this.bookDetailRepository = bookDetailRepository;
         this.bookPreviewRepository = bookPreviewRepository;
         this.mapper = mapper;
@@ -90,6 +92,8 @@ class BookServiceImpl implements BookService {
         this.bookImageHandler = bookImageHandler;
         this.bookBlazeRepository = bookBlazeRepository;
         this.bookProperties = bookProperties;
+        this.textParser = textParser;
+        this.htmlEscaper = htmlEscaper;
     }
 
     @Override
@@ -138,8 +142,8 @@ class BookServiceImpl implements BookService {
         if (fetchedAuthorData.isLeft()) return Either.left(fetchedAuthorData.getLeft());
         BookCreationModel model = bookCreationRequest.bookCreationModel();
         if (bookPreviewRepository.existsByTitle(model.title()))
-            return Either.left(new BookError.DuplicateTitle());
-        String escapedDescription = escapeHtml(model.description());
+            return Either.left(new BookError.DuplicateTitle("New entry"));
+        String escapedDescription = htmlEscaper.escapeHtml(model.description());
         if (escapedDescription.length() > bookProperties.getDescription_max_length())
             escapedDescription = escapedDescription.substring(0, bookProperties.getDescription_max_length());
         BookDetail detail = BookDetail.builder()
@@ -148,7 +152,7 @@ class BookServiceImpl implements BookService {
                 .description(escapedDescription)
                 .build();
         BookPreview preview = BookPreview.builder()
-                .title(escapeHtml(model.title()))
+                .title(htmlEscaper.escapeHtml(model.title()))
                 .ratingCount(0)
                 .averageRating(0)
                 .bookState(BookState.UNKNOWN)
@@ -186,8 +190,8 @@ class BookServiceImpl implements BookService {
         BookDetail detail = detailE.get();
         if (model.title() != null) {
             if (bookPreviewRepository.existsByTitle(model.title()))
-                return Either.left(new BookError.DuplicateTitle());
-            preview.setTitle(escapeHtml(model.title()));
+                return Either.left(new BookError.DuplicateTitle(preview.getId().toString()));
+            preview.setTitle(htmlEscaper.escapeHtml(model.title()));
             previewChanged = true;
         }
         if (model.state() != null) {
@@ -195,7 +199,7 @@ class BookServiceImpl implements BookService {
             previewChanged = true;
         }
         if (model.description() != null) {
-            String escapedDescription = escapeHtml(model.description());
+            String escapedDescription = htmlEscaper.escapeHtml(model.description());
             if (escapedDescription.length() > bookProperties.getDescription_max_length())
                 escapedDescription = escapedDescription.substring(0, bookProperties.getDescription_max_length());
             detail.setDescription(escapedDescription);
@@ -237,7 +241,7 @@ class BookServiceImpl implements BookService {
         Optional<Rating> prevRating = ratingRepository.getRatingForBookAndUser(ratingRequest.bookId(), userId);
         BookPreview preview = ePreview.get();
 
-        final String escapedComment = ratingRequest.comment() == null ? "" : escapeHtml(ratingRequest.comment());
+        final String escapedComment = ratingRequest.comment() == null ? "" : htmlEscaper.escapeHtml(ratingRequest.comment());
 
         if (prevRating.isPresent()) {
             Rating rating = prevRating.get();
@@ -287,7 +291,7 @@ class BookServiceImpl implements BookService {
         Either<GeneralError, UUID> fetchedAuthIdFromEmail = userInfoService.getUserInfoIdByEmail(authorEmail);
         if (fetchedAuthIdFromEmail.isLeft()) return Either.left(fetchedAuthIdFromEmail.getLeft());
         if (!bookDetailE.get().getAuthorId().equals(fetchedAuthIdFromEmail.get()))
-            return Either.left(new BookError.UserNotAuthor(authorEmail));
+            return Either.left(new BookError.UserNotAuthor(authorEmail, bookId));
         return bookDetailE;
     }
 
@@ -425,19 +429,14 @@ class BookServiceImpl implements BookService {
         List<MultipartFile> chapterFiles = chapterBatchRequest.chapterFiles();
         UUID bookId = chapterBatchRequest.bookId();
         for (int i = 0; i < chapterFiles.size(); i++) {
-            String text;
-            try {
-                text = new String(chapterFiles.get(i).getBytes());
-            } catch (IOException _) {
-                return Either.left(new BookError.MalformedChapterText(bookId, chapterEntries.get(i).number()));
-            }
-            String escapedText = escapeHtml(text);
+            String parsedText = textParser.parseTextFile(chapterFiles.get(i));
+            if(parsedText == null) return Either.left(new BookError.MalformedChapterText(bookId, chapterEntries.get(i).number()));
+            String escapedText = htmlEscaper.escapeHtml(parsedText);
             if (escapedText.length() > bookProperties.getChapter_max_length())
                 return Either.left(new BookError.InvalidChapterTextLength(bookId, chapterEntries.get(i).number()));
             mergedList.add(new ChapterDraft(escapedText, chapterEntries.get(i)));
         }
         mergedList.sort(Comparator.comparingInt(ChapterDraft::number));
-
 
         List<ChapterPreview> existingChapterPreviews = bookBlazeRepository.getSortedChapterPreviews(bookId, chapterNumbers);
         if (!existingChapterPreviews.isEmpty()) updateAndCreate(existingChapterPreviews, mergedList, bookDetail);
@@ -496,7 +495,7 @@ class BookServiceImpl implements BookService {
         Either<GeneralError, UUID> fetchedAuthorId = getAuthorId(bookId);
         if (fetchedAuthorId.isLeft()) return Either.left(fetchedAuthorId.getLeft());
         if (!fetchedAuthorId.get().equals(userId))
-            return Either.left(new BookError.UserNotAuthor(forEmail));
+            return Either.left(new BookError.UserNotAuthor(forEmail, bookId));
         return Either.right(userId);
     }
 
@@ -598,12 +597,6 @@ class BookServiceImpl implements BookService {
         bookDetailRepository.flush();
         chapterPreviewRepository.flush();
         log.info("Book preview cache and repositories flushed.");
-    }
-
-    private static String escapeHtml(String toEscape) {
-        return HtmlUtils.htmlEscape(toEscape)
-                .replace("&#39;", "'")
-                .replace("&quot;", "\"");
     }
 
     private BookPreviewResponse mapPreviewWithCover(BookPreview bookPreview) {

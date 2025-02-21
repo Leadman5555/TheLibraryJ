@@ -35,7 +35,7 @@
       <div class="column">
         <p>Account activation email could not be sent. Please make sure the account for the given email address exists,
           the account isn't a Google account and
-          the account isn't already activated.</p>
+          the account isn't already activated. Failure details: {{sendErrorMessage}}</p>
       </div>
     }
   </ng-container>
@@ -49,7 +49,7 @@
       <div class="column">
         <p>Account activation failed. Please make sure the sent email is no older than 24 hours, the token in the email
           has
-          not been used, the account isn't a Google account and isn't already activated..</p>
+          not been used, the account isn't a Google account and isn't already activated. Failure details: {{activationErrorMessage}}</p>
         <button class="sButton" routerLink="/account-activation" (click)="reload()">Try again</button>
       </div>
     }

@@ -23,4 +23,5 @@
     <button type="button" class="sButton sButtonColor" (click)="fileInput.click()">Browse local images</button>
     <button type="button" class="sButton sButtonColor" (click)="resetImage()">Reset image</button>
   </div>
+  <span class="errorBox" *ngIf="parentControl.invalid">Invalid file type of picture uploaded.</span>
 </div>

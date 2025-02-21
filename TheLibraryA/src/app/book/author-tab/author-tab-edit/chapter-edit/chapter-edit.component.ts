@@ -1,20 +1,20 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {
-  AbstractControl, FormBuilder,
+  AbstractControl,
   FormControl,
-  FormGroup, NonNullableFormBuilder,
-  ReactiveFormsModule, ValidationErrors,
+  FormGroup,
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
   ValidatorFn,
   Validators
 } from '@angular/forms';
 import {BookService} from '../../../shared/book-service';
-import {NgForOf, NgIf} from '@angular/common';
-import {fileTypeValidator} from '../../../../shared/functions/fileTypeValidator';
+import {NgIf} from '@angular/common';
+import {textFileTypesValidator} from '../../../../shared/functions/fileTypeValidator';
 import {AuthorTabDataService} from '../../shared/author-tab-data.service';
 import {BookResponse} from '../../../shared/models/book-response';
-import {identifyByIndex} from '../../../../shared/functions/indentify';
-
-export const allowedFileTypes =['text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.oasis.opendocument.text'];
+import {integerValidator} from '../../../book-filter/filterBox/filterValidators';
 
 export function fileNameValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -47,7 +47,7 @@ export class ChapterEditComponent {
 
   constructor(private bookService: BookService, private fb: NonNullableFormBuilder, private authorTabDataService: AuthorTabDataService) {
     this.chapterUploadForm = this.fb.group({
-      uploadedFiles: [[], [Validators.required, fileTypeValidator(allowedFileTypes), fileNameValidator(), Validators.minLength(1), Validators.maxLength(50)]],
+      uploadedFiles: [[], [Validators.required, textFileTypesValidator(), fileNameValidator(), Validators.minLength(1), Validators.maxLength(50)]],
     })
   }
 
@@ -75,8 +75,6 @@ export class ChapterEditComponent {
       event.dataTransfer.clearData();
     }
   }
-
-
 
   onFileChange(event: any) {
     const files: FileList = event.target.files;
@@ -108,7 +106,6 @@ export class ChapterEditComponent {
     }).join(', ')
   }
 
-
   attemptChapterUpload(){
     if(this.chapterUploadForm.invalid) return;
     const files: File[] = this.chapterUploadForm.value.uploadedFiles;
@@ -126,7 +123,6 @@ export class ChapterEditComponent {
     this.chapterUploadForm.reset();
     this.uploadErrorMessage = null;
     this.updateUploadMessage([]);
-
   }
 
   readonly getFilesControl = () => this.chapterUploadForm.get('uploadedFiles')! as FormControl;
@@ -137,7 +133,34 @@ export class ChapterEditComponent {
     })
   }
 
-  protected readonly identifyByIndex = identifyByIndex;
+  deleteChapterForm?: FormGroup;
+  deleteChapterMessage: string | null = null;
+
+  showDeleteChapterForm() {
+    this.deleteChapterForm = this.fb.group({
+      chapterNumber: [0, [Validators.required, Validators.min(1), Validators.max(10000), integerValidator()]],
+    });
+    console.log(this.deleteChapterForm.errors)
+  }
+
+  closeDeleteChapterForm() {
+    this.deleteChapterForm = undefined;
+  }
+
+  attemptChapterDeletion(){
+    if(this.deleteChapterForm!.pristine || this.deleteChapterForm!.invalid) return;
+    const chapterNumber = this.deleteChapterForm!.get('chapterNumber')!.value;
+    this.bookService.deleteChapters(this.currentBook.id, this.authorTabDataService.authorEmail, chapterNumber).subscribe({
+      next: (_) => {
+        this.deleteChapterMessage = `Chapter ${chapterNumber} deleted successfully`;
+        this.deleteChapterForm!.reset();
+      },
+      error: (error: string) => {
+        this.deleteChapterMessage = error;
+      }
+    })
+  }
+
 
   identifyFile(file: File) {
     return file.name;

@@ -4,7 +4,8 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {NgIf} from '@angular/common';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {passwordMatchValidator} from './passwordMatchValidator';
-import {logError} from '../../../../shared/errorHandling/handleError';
+import {handleError} from '../../../../shared/errorHandling/handleError';
+import {catchError} from 'rxjs';
 
 @Component({
   selector: 'app-password-recovery',
@@ -25,7 +26,9 @@ export class PasswordRecoveryComponent implements OnInit {
 
   tokenValue?: string;
   successReset?: boolean = undefined;
+  resetErrorMessage? : string = undefined;
   successSend?: boolean = undefined;
+  sendErrorMessage? : string = undefined;
   passwordResetForm?: FormGroup;
   emailInputForm?: FormGroup;
   showPassword: boolean = false;
@@ -55,24 +58,28 @@ export class PasswordRecoveryComponent implements OnInit {
   }
 
   sendPasswordResetEmail() {
+    this.successSend = undefined;
+    this.sendErrorMessage = undefined;
     if (!this.emailInputForm || this.emailInputForm.pristine) return;
-    this.http.post(this.BASE_URL + '/' + this.emailInputForm.value.email, null).subscribe({
+    this.http.post(this.BASE_URL + '/' + this.emailInputForm.value.email, null).pipe(catchError(handleError)).subscribe({
       next: () => {
         this.emailInputForm = undefined;
         this.successSend = true;
       },
       error: (error) => {
         this.successSend = false;
-        logError(error);
+        this.sendErrorMessage = error;
       }
     });
     this.emailInputForm.reset();
   }
 
   attemptPasswordReset() {
+    this.successReset = undefined;
+    this.resetErrorMessage = undefined;
     if (!this.passwordResetForm || this.passwordResetForm.pristine || this.passwordResetForm.value.newPassword !== this.passwordResetForm.value.repeatPassword) return;
     const body = {tokenId: this.tokenValue!, newPassword: this.passwordResetForm.value.newPassword};
-    this.http.patch(this.BASE_URL, body).subscribe({
+    this.http.patch(this.BASE_URL, body).pipe(catchError(handleError)).subscribe({
       next: () => {
         this.successReset = true;
         this.passwordResetForm = undefined;
@@ -80,7 +87,7 @@ export class PasswordRecoveryComponent implements OnInit {
       },
       error: (error) => {
         this.successReset = false;
-        logError(error);
+        this.resetErrorMessage = error;
       }
     });
     this.passwordResetForm.reset();
@@ -91,6 +98,8 @@ export class PasswordRecoveryComponent implements OnInit {
     this.successSend = undefined;
     this.tokenValue = undefined;
     this.passwordResetForm = undefined;
+    this.resetErrorMessage = undefined;
+    this.sendErrorMessage = undefined;
     this.emailInputForm = new FormGroup({
       email: new FormControl('', {validators: [Validators.required, Validators.email]})
     });

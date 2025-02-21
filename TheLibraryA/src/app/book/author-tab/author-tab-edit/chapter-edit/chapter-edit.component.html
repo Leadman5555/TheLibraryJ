@@ -3,7 +3,7 @@
     <b>Upload chapters</b>
     <span>Choose up to 50 files at once. Allowed file formats are: .txt; .doc, .docx (MS Word); .odt (Libre Office).<br>
       The name of the file should be according to one of the following formats (without quote marks): "CHAPTER_NUMBER.EXTENSION" or "CHAPTER_NUMBER - CHAPTER_TITLE.EXTENSION".<br>
-      All text inside the file will be treated as chapter text - it is limited to 18000 characters per chapter, with line breaks counting as 4 characters.<br>
+      All text inside the file will be treated as chapter text - it is limited to 0.5MB in size and 18000 characters per chapter, with line breaks counting as 4 characters.<br>
       To update a previously uploaded chapter, upload a chapter with the same number, title and chapter text will be replaced accordingly.</span>
   </p>
   <div class="chapterUploadBox column">
@@ -42,15 +42,43 @@
     <div class="errorBox" *ngIf="getFilesControl().errors?.['invalidFileName']">
       One or more of uploaded file names is not in the required format.
     </div>
-    <div class="errorBox" *ngIf="getFilesControl().errors?.['maxLength']">
+    <div class="errorBox" *ngIf="getFilesControl().errors?.['maxlength']">
       Upload limit reached. Maximum number of files per upload is 50.
     </div>
     <span *ngIf="!getFilesControl().errors" class="centerVH">{{ uploadMessage }}</span>
     <span *ngIf="this.uploadErrorMessage" class="errorBox">{{ uploadErrorMessage }}</span>
   </div>
   <div class="buttonDiv row">
-    <button class="sButton" type="submit">Upload chapters</button>
+    <button class="sButton disabledHide" type="submit" [disabled]="this.chapterUploadForm.invalid">Upload chapters</button>
     <button class="sButton" type="reset" (click)="resetForm()">Clear form</button>
+    <button class="sButton" type="button" (click)="showDeleteChapterForm()">Delete chapters</button>
     <button class="sButton" type="button" (click)="windowClosed.emit()">Close</button>
   </div>
 </form>
+@if (this.deleteChapterForm) {
+  <div class="deleteChapterBox">
+    <form id="deleteChapterForm" [formGroup]="deleteChapterForm" class="column borderBox"
+          (ngSubmit)="attemptChapterDeletion()">
+      <span>Enter the number of the chapter you wish to remove:</span>
+      <div class="input-container">
+        <input placeholder="Enter chapter number" class="input-field" id="chapterNumberInput" type="number"
+               maxlength="5"
+               formControlName="chapterNumber">
+        <label for="chapterNumberInput" class="input-label">Chapter number: </label>
+        <span class="input-highlight"></span>
+      </div>
+      <div class="errorBox"
+           *ngIf="this.deleteChapterForm.invalid">
+        Enter a valid integer between 1 and 10000, both ends inclusive.
+      </div>
+      @if (this.deleteChapterMessage) {
+        <span class="centerVH">{{ deleteChapterMessage }}</span>
+      }
+      <div class="row" style="margin-top: 1em">
+        <button class="sButton disabledHide" type="submit" [disabled]="this.deleteChapterForm.invalid">Delete chapter
+        </button>
+        <button class="sButton" type="button" (click)="closeDeleteChapterForm()">Cancel</button>
+      </div>
+    </form>
+  </div>
+}

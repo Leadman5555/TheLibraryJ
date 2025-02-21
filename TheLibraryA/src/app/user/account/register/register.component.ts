@@ -9,6 +9,7 @@ import {NgIf, NgOptimizedImage} from '@angular/common';
 import {UserAuthService} from '../userAuth/user-auth.service';
 import {RouterLink} from '@angular/router';
 import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
+import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidator';
 
 @Component({
   selector: 'app-register',
@@ -75,7 +76,7 @@ export class RegisterComponent implements OnInit {
             Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9_-]+$')
           ]
         ],
-        profileImage: [null]
+        profileImage: [null, imageFileTypeValidator()]
       },
       {validators: passwordMatchValidator()}
     );
@@ -87,6 +88,7 @@ export class RegisterComponent implements OnInit {
   }
 
   attemptRegistration(): void {
+    console.log(this.registerForm.errors)
     if (this.registerForm.invalid || this.registerForm.pristine) return;
 
     const formData = new FormData();

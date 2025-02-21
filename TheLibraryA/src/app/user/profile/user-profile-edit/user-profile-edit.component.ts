@@ -23,6 +23,7 @@ import {
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {parseDateString} from '../../../shared/functions/parseData';
 import {carriageReturnLengthValidator} from '../../../shared/functions/carriageReturnLengthValidator';
+import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidator';
 
 const ANIMATION_IN_MS: number = 500;
 const ANIMATION_OUT_MS: number = 1000;
@@ -93,7 +94,7 @@ export class UserProfileEditComponent implements OnInit {
 
   createForms() {
     this.imageUpdateForm = this.fb.group({
-      newImage: null
+      newImage: [null, imageFileTypeValidator()],
     });
     this.statusUpdateForm = this.fb.group({
       newStatus: [this.userData.status, carriageReturnLengthValidator(0, 300)]
@@ -149,8 +150,8 @@ export class UserProfileEditComponent implements OnInit {
         this.imageUpdateForm.reset();
         this.userAuthService.updateUserMiniDataImage(response.newProfileImage);
       },
-      error: (error: string) => {
-        this.profileImageUpdateErrorMessage = error;
+      error: (_) => {
+        this.profileImageUpdateErrorMessage = 'Profile image update failed. Make sure you are sending a file in an an allowed format.';
       }
     });
   }

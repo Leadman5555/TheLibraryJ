@@ -73,7 +73,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     if (!this.userData) return;
     this.bookService.getBookPreviewsByAuthor(this.userData.username).subscribe({
       next: (previews) => {
-        this.authoredBooks = previews;
+        this.authoredBooks = previews.sort((a, b) => b.chapterCount - a.chapterCount);
       }
     });
   }

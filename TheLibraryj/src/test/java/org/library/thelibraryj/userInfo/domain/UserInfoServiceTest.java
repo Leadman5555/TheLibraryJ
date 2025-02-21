@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
+import org.library.thelibraryj.infrastructure.textParsers.inputParsers.HtmlEscaper;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
@@ -65,7 +66,7 @@ public class UserInfoServiceTest {
                 .updatedAt(oldTime)
                 .dataUpdatedAt(oldTime)
                 .build();
-        userInfoService = new UserInfoServiceImpl(userInfoRepository, userInfoMapper, userInfoProperties, null);
+        userInfoService = new UserInfoServiceImpl(userInfoRepository, userInfoMapper, userInfoProperties, null, new HtmlEscaper(false));
         userInfoService.setBookService(bookService);
     }
 
@@ -151,7 +152,7 @@ public class UserInfoServiceTest {
         when(userInfoRepository.existsByUsername(newUsername)).thenReturn(true);
         Either<GeneralError, UserUsernameUpdateResponse> response3 = userInfoService.updateUserInfoUsername(request);
         Assertions.assertFalse(response3.isRight());
-        Assertions.assertEquals(new UserInfoError.UsernameNotUnique(), response3.getLeft());
+        Assertions.assertEquals(new UserInfoError.UsernameNotUnique(userEmail), response3.getLeft());
 
         verify(userInfoRepository, times(1)).update(userInfo);
     }

@@ -60,7 +60,6 @@ export class AppComponent implements OnInit {
     };
     this.userAuthService.logIn(request).subscribe({
       error: (error) => {
-        console.log(error)
         this.errorMessage = error || 'An unknown error occurred!';
       },
       complete: () => {
@@ -98,7 +97,7 @@ export class AppComponent implements OnInit {
   logOut() {
     this.userAuthService.logOut().subscribe({
         next: () => {
-          console.log('Logged out.');
+          console.log('User logged out.');
           this.subscribeToLogIn();
           this.showLoggedIn = false;
           this.errorMessage = undefined;

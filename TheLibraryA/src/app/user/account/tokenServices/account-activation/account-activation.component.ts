@@ -2,8 +2,9 @@ import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {logError} from '../../../../shared/errorHandling/handleError';
+import {handleError} from '../../../../shared/errorHandling/handleError';
 import {NgIf} from '@angular/common';
+import {catchError} from 'rxjs';
 
 @Component({
   selector: 'app-account-activation',
@@ -23,7 +24,9 @@ export class AccountActivationComponent implements OnInit {
   private readonly BASE_URL = 'http://localhost:8082/v0.9/na/auth/activation';
 
   successActivation?: boolean = undefined;
+  activationErrorMessage? : string = undefined;
   successSend?: boolean = undefined;
+  sendErrorMessage? : string = undefined;
   emailInputForm?: FormGroup;
   tokenValue?: string = undefined;
 
@@ -42,6 +45,8 @@ export class AccountActivationComponent implements OnInit {
   }
 
   attemptAccountActivation() {
+    this.successActivation = undefined;
+    this.activationErrorMessage = undefined;
     if (this.tokenValue)
       this.http.patch(this.BASE_URL, null, {params: {tokenId: this.tokenValue}}).subscribe({
         next: () => {
@@ -49,22 +54,24 @@ export class AccountActivationComponent implements OnInit {
         },
         error: (error) => {
           this.successActivation = false;
-          logError(error);
+          this.sendErrorMessage = error;
         }
       });
     this.tokenValue = undefined;
   }
 
   sendAccountActivationEmail() {
+    this.successSend = undefined;
+    this.sendErrorMessage = undefined;
     if (!this.emailInputForm || this.emailInputForm.pristine) return;
-    this.http.post(this.BASE_URL, null, {params: {email: this.emailInputForm.value.email}}).subscribe({
+    this.http.post(this.BASE_URL, null, {params: {email: this.emailInputForm.value.email}}).pipe(catchError(handleError)).subscribe({
       next: () => {
         this.emailInputForm = undefined;
         this.successSend = true;
       },
       error: (error) => {
         this.successSend = false;
-        logError(error);
+        this.sendErrorMessage = error;
       }
     });
     this.emailInputForm.reset();
@@ -74,6 +81,8 @@ export class AccountActivationComponent implements OnInit {
     this.successActivation = undefined;
     this.successSend = undefined;
     this.tokenValue = undefined;
+    this.activationErrorMessage = undefined;
+    this.sendErrorMessage = undefined;
     this.emailInputForm = new FormGroup({
       email: new FormControl('', {validators: [Validators.required, Validators.email]})
     });

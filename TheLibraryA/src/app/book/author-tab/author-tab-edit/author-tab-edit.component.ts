@@ -20,6 +20,7 @@ import {stateArray} from '../../shared/models/BookState';
 import {carriageReturnLengthValidator} from '../../../shared/functions/carriageReturnLengthValidator';
 import {repeatValidator} from '../../../shared/functions/repeatValidator';
 import {ChapterEditComponent} from './chapter-edit/chapter-edit.component';
+import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidator';
 
 export const currentBookKey = 'currentlyEditingBook';
 export const emailKey = 'authorEmail';
@@ -72,7 +73,7 @@ export class AuthorTabEditComponent implements OnInit {
       description: [this.defaultFormValues.description, [carriageReturnLengthValidator(50, 800), Validators.pattern(/^[^<>]*(?:[<>][^<>]*){0,9}$/)]],
       bookTags: this.fb.array(this.defaultFormValues.bookTags, atLeastOneValidator()),
       editCoverImage: [false],
-      coverImage: [this.defaultFormValues.coverImage],
+      coverImage: [this.defaultFormValues.coverImage, imageFileTypeValidator()],
       state: [this.defaultFormValues.state, Validators.required]
     });
   }
@@ -87,7 +88,7 @@ export class AuthorTabEditComponent implements OnInit {
     };
   }
 
-  showChapterEdit: boolean = true;
+  showChapterEdit: boolean = false;
 
   toggleChapterEdit() {
     this.showChapterEdit = !this.showChapterEdit;
@@ -140,7 +141,6 @@ export class AuthorTabEditComponent implements OnInit {
     this.bookUpdateErrorMessage = null;
     this.bookUpdatedSuccessfully = false;
     if (anyChange) {
-      console.log('sending')
       formData.set(emailKey, this.authorTabDataService.authorEmail);
       formData.set('bookId', this.currentlyEditingBook.id);
       this.bookService.updateBook(formData)
@@ -205,6 +205,10 @@ export class AuthorTabEditComponent implements OnInit {
     this.bookUpdateErrorMessage = null;
     this.bookUpdatedSuccessfully = false;
     this.updateBookFrom!.reset();
+  }
+
+  resetImageForm(){
+    this.updateBookFrom!.get('coverImage')!.setValue(null);
   }
 
   protected readonly allTags = allTags;

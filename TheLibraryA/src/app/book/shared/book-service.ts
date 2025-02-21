@@ -101,4 +101,9 @@ export class BookService {
     const params = new HttpParams().set('authorEmail', authorEmail);
     return this.http.put<ChapterPreview[]>(`${this.baseAuthUrl}/book/${bookId}/chapter`, formData, {params}).pipe(catchError(handleError));
   }
+
+  public deleteChapters(bookId: string, authorEmail:string, chapterNumber: number): Observable<void>{
+    const body = {bookId: bookId, userEmail: authorEmail};
+    return this.http.delete<void>(`${this.baseAuthUrl}/book/chapter/${chapterNumber}`, {body: body}).pipe(catchError(handleError));
+  }
 }

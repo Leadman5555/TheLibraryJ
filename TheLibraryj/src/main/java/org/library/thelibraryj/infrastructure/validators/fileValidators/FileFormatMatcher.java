@@ -7,6 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Allowed file formats are:
+ *  - for text files: .txt; .doc (old MS Word); .docx (new MS Word); .odt (OpenOffice)
+ *  - for pictures: .png; .jpg; .jpeg; .webp
+ * **/
 public enum FileFormatMatcher {
     TEXT_FILE_FORMAT_MATCHER(
             List.of(
@@ -57,7 +62,7 @@ public enum FileFormatMatcher {
         if (filename == null || filename.isEmpty()) return false;
         int lastIndex = filename.lastIndexOf('.');
         if(lastIndex < 1) return false;
-        return ALLOWED_EXTENSIONS.contains(filename.substring(lastIndex + 1).toLowerCase());
+        return ALLOWED_EXTENSIONS.contains(filename.substring(lastIndex + 1));
     }
 
     private boolean isValidMimeType(MultipartFile file) {
