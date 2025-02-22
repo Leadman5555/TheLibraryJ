@@ -561,11 +561,16 @@ class BookServiceImpl implements BookService {
         return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()));
     }
 
+    @Override
+    public PagedBookPreviewsResponse getByParamsOffsetPaged(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags, Boolean ratingOrder, int pageSize, int page) {
+        PagedList<BookPreview> pagedList = bookBlazeRepository.getOffsetBookPreviewByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder, pageSize, page);
+        return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()));
+    }
 
     @Override
-    public List<BookPreviewResponse> getByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags, Boolean ratingOrder) {
-        return bookBlazeRepository.getBookPreviewByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder)
-                .stream().map(this::mapPreviewWithCover).toList();
+    public PagedBookPreviewsResponse getByParamsKeySetPaged(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags, Boolean ratingOrder, KeysetPage lastPage, int page) {
+        PagedList<BookPreview> pagedList = bookBlazeRepository.getKeySetPagedBookPreviewByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder, lastPage, page);
+        return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()));
     }
 
     @Override

@@ -29,13 +29,19 @@ public interface BookService {
 
     Either<GeneralError, BookPreviewResponse> getBookPreviewResponse(UUID previewId);
 
-    PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(@Nullable KeysetPage lastPage, int page);
+    PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(KeysetPage lastPage, int page);
 
     PagedBookPreviewsResponse getOffsetPagedBookPreviewResponses(int pageSize, int page);
 
-    List<BookPreviewResponse> getByParams(@Nullable String titleLike, @Nullable Integer minChapters,
+    PagedBookPreviewsResponse getByParamsOffsetPaged(@Nullable String titleLike, @Nullable Integer minChapters,
                                           @Nullable Float minRating, @Nullable BookState state,
-                                          @Nullable BookTag[] hasTags, @Nullable Boolean ratingOrder);
+                                          @Nullable BookTag[] hasTags, @Nullable Boolean ratingOrder,
+                                          int pageSize, int page);
+
+    PagedBookPreviewsResponse getByParamsKeySetPaged(@Nullable String titleLike, @Nullable Integer minChapters,
+                                                     @Nullable Float minRating, @Nullable BookState state,
+                                                     @Nullable BookTag[] hasTags, @Nullable Boolean ratingOrder,
+                                                     KeysetPage lastPage, int page);
 
     List<BookPreviewResponse> getBookPreviewsByAuthor(String byUser);
     PagedChapterPreviewResponse getOffsetPagedChapterPreviewResponses(int pageSize, int page, UUID bookId);

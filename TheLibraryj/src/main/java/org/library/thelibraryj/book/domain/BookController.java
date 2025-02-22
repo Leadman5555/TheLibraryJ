@@ -64,7 +64,8 @@ class BookController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "Requested page not found")
     })
     @GetMapping("/na/books")
-    public ResponseEntity<PagedBookPreviewsResponse> getBookPreviewsPageByOffset(@RequestParam(name = "page") int page, @RequestParam(name = "pageSize") int pageSize) {
+    public ResponseEntity<PagedBookPreviewsResponse> getBookPreviewsPageByOffset(@RequestParam(name = "pageSize") @Min(1) int pageSize,
+                                                                                 @RequestParam(name = "page") @Min(0) int page) {
         return ResponseEntity.ok(bookService.getOffsetPagedBookPreviewResponses(pageSize, page));
     }
 
@@ -78,25 +79,47 @@ class BookController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "Requested page not found")
     })
     @PostMapping("/na/books")
-    public ResponseEntity<PagedBookPreviewsResponse> getBookPreviewsPageByKeySet(@RequestParam(name = "page") int page, @NonNull @RequestBody PreviewKeySetPage keySetPage) {
+    public ResponseEntity<PagedBookPreviewsResponse> getBookPreviewsPageByKeySet(@RequestParam(name = "page") @Min(0) int page,
+                                                                                 @NonNull @RequestBody PreviewKeySetPage keySetPage) {
         return ResponseEntity.ok(bookService.getKeySetPagedBookPreviewResponses(keySetPage, page));
     }
 
     @Operation(
-            summary = "Retrieve all book previews with their tags that meet the given criteria",
+            summary = "Retrieve all book previews with their tags that meet the given criteria paged by offset",
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successfully retrieved the book previews"),
     })
     @GetMapping("/na/books/filtered")
-    public ResponseEntity<List<BookPreviewResponse>> getBookPreviewsByParams(@RequestParam(name = "titleLike", required = false) String titleLike,
-                                                                             @RequestParam(name = "minChapters", required = false) Integer minChapters,
-                                                                             @RequestParam(name = "minRating", required = false) Float minRating,
-                                                                             @RequestParam(value = "state", required = false) BookState state,
-                                                                             @RequestParam(value = "hasTags", required = false) BookTag[] hasTags,
-                                                                             @RequestParam(value = "ratingOrder", required = false) Boolean ratingOrder) {
-        return ResponseEntity.ok(bookService.getByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder));
+    public ResponseEntity<PagedBookPreviewsResponse> getBookPreviewsByParamsPageByOffset(@RequestParam(name = "titleLike", required = false) String titleLike,
+                                                                                         @RequestParam(name = "minChapters", required = false) Integer minChapters,
+                                                                                         @RequestParam(name = "minRating", required = false) Float minRating,
+                                                                                         @RequestParam(value = "state", required = false) BookState state,
+                                                                                         @RequestParam(value = "hasTags", required = false) BookTag[] hasTags,
+                                                                                         @RequestParam(value = "ratingOrder", required = false) Boolean ratingOrder,
+                                                                                         @RequestParam(name = "pageSize") @Min(1) int pageSize,
+                                                                                         @RequestParam(name = "page") @Min(0) int page) {
+        return ResponseEntity.ok(bookService.getByParamsOffsetPaged(titleLike, minChapters, minRating, state, hasTags, ratingOrder, pageSize, page));
+    }
+
+    @Operation(
+            summary = "Retrieve all book previews with their tags that meet the given criteria paged by keyset",
+            tags = {"book", "no auth required"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the book previews"),
+    })
+    @PostMapping("/na/books/filtered")
+    public ResponseEntity<PagedBookPreviewsResponse> getBookPreviewsByParamsPageByKeySet(@RequestParam(name = "titleLike", required = false) String titleLike,
+                                                                                         @RequestParam(name = "minChapters", required = false) Integer minChapters,
+                                                                                         @RequestParam(name = "minRating", required = false) Float minRating,
+                                                                                         @RequestParam(value = "state", required = false) BookState state,
+                                                                                         @RequestParam(value = "hasTags", required = false) BookTag[] hasTags,
+                                                                                         @RequestParam(value = "ratingOrder", required = false) Boolean ratingOrder,
+                                                                                         @RequestParam(name = "page") @Min(0) int page,
+                                                                                         @NonNull @RequestBody PreviewKeySetPage keySetPage) {
+        return ResponseEntity.ok(bookService.getByParamsKeySetPaged(titleLike, minChapters, minRating, state, hasTags, ratingOrder, keySetPage, page));
     }
 
     @Operation(
@@ -206,7 +229,7 @@ class BookController implements ErrorHandling {
 
     @Operation(
             summary = "Fetch the content (text) of a single chapter by it's number and bookId",
-            tags = {"book", "no auth required"} 
+            tags = {"book", "no auth required"}
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successfully retrieved chapter content"),

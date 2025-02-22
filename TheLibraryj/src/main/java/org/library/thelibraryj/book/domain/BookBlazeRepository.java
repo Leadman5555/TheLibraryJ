@@ -15,8 +15,10 @@ interface BookBlazeRepository {
     PagedList<ChapterPreview> getKeySetPagedChapterPreviewNext(KeysetPage page, int pageNumber, UUID bookId);
     PagedList<ChapterPreview> getOffsetChapterPreviewPaged(int pageSize, int pageNumber, UUID bookId);
 
-    List<BookPreview> getBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state,
-                                             BookTag[] tags, Boolean ratingOrder);
+    PagedList<BookPreview> getKeySetPagedBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state,
+                                             BookTag[] tags, Boolean ratingOrder, KeysetPage page, int pageNumber);
+    PagedList<BookPreview> getOffsetBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state,
+                                             BookTag[] tags, Boolean ratingOrder, int pageSize, int pageNumber);
     List<BookPreview> getAuthoredBookPreviews(String byUser);
     List<ChapterPreview> getSortedChapterPreviews(UUID bookId, Set<Integer> chapterNumbers);
     List<Chapter> getSortedChapters(Set<UUID> chapterPreviewIds);

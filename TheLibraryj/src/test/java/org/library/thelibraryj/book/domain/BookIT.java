@@ -1,6 +1,5 @@
 package org.library.thelibraryj.book.domain;
 
-import lombok.Getter;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.junit.jupiter.api.Assertions;
@@ -19,12 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.PathResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
@@ -174,6 +168,8 @@ public class BookIT {
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.add("titleLike", "Book");
         params.add("minChapters", 100);
+        params.add("page", 0);
+        params.add("pageSize", 100);
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(params, headers);
         ResponseEntity<String> response = restTemplate.exchange(
                 BASE_URL + "/filtered",
@@ -183,11 +179,13 @@ public class BookIT {
         );
         Assertions.assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
         Assertions.assertNotNull(response.getBody());
-        JSONArray body = new JSONArray(response.getBody());
+        JSONArray body = new JSONObject(response.getBody()).getJSONArray("content");
         Assertions.assertEquals(1, body.length());
 
         MultiValueMap<String, Object> params2 = new LinkedMultiValueMap<>();
         params2.add("minRating", 4.67);
+        params2.add("page", 0);
+        params2.add("pageSize", 100);
         HttpEntity<MultiValueMap<String, Object>> request2 = new HttpEntity<>(params2, headers);
         ResponseEntity<String> response2 = restTemplate.exchange(
                 BASE_URL + "/filtered",
@@ -197,41 +195,41 @@ public class BookIT {
         );
         Assertions.assertEquals(HttpStatus.OK.value(), response2.getStatusCode().value());
         Assertions.assertNotNull(response2.getBody());
-        JSONArray body2 = new JSONArray(response2.getBody());
+        JSONArray body2 = new JSONObject(response2.getBody()).getJSONArray("content");
         Assertions.assertEquals(2, body2.length());
 
         HttpEntity<MultiValueMap<String, Object>> request3 = new HttpEntity<>(null, headers);
         ResponseEntity<String> response3 = restTemplate.exchange(
-                BASE_URL + "/filtered",
+                BASE_URL + "/filtered?page=0&pageSize=100",
                 HttpMethod.GET,
                 request3,
                 String.class
         );
         Assertions.assertEquals(HttpStatus.OK.value(), response3.getStatusCode().value());
         Assertions.assertNotNull(response3.getBody());
-        JSONArray body3 = new JSONArray(response3.getBody());
+        JSONArray body3 = new JSONObject(response3.getBody()).getJSONArray("content");
         Assertions.assertEquals(3, body3.length());
         HttpEntity<MultiValueMap<String, String>> request4 = new HttpEntity<>(null, headers);
         ResponseEntity<String> response4 = restTemplate.exchange(
-                BASE_URL + "/filtered?state=HIATUS",
+                BASE_URL + "/filtered?state=HIATUS&page=0&pageSize=100",
                 HttpMethod.GET,
                 request4,
                 String.class
         );
         Assertions.assertEquals(HttpStatus.OK.value(), response4.getStatusCode().value());
         Assertions.assertNotNull(response4.getBody());
-        JSONArray body4 = new JSONArray(response4.getBody());
+        JSONArray body4 = new JSONObject(response4.getBody()).getJSONArray("content");
         Assertions.assertEquals(2, body4.length());
         HttpEntity<MultiValueMap<String, Object>> request5 = new HttpEntity<>(null, headers);
         ResponseEntity<String> response5 = restTemplate.exchange(
-                BASE_URL + "/filtered?hasTags=TAG1&hasTags=TAG2",
+                BASE_URL + "/filtered?hasTags=TAG1&hasTags=TAG2&page=0&pageSize=100",
                 HttpMethod.GET,
                 request5,
                 String.class
         );
         Assertions.assertEquals(HttpStatus.OK.value(), response5.getStatusCode().value());
         Assertions.assertNotNull(response5.getBody());
-        JSONArray body5 = new JSONArray(response5.getBody());
+        JSONArray body5 = new JSONObject(response5.getBody()).getJSONArray("content");
         Assertions.assertEquals(1, body5.length());
     }
 
@@ -314,7 +312,7 @@ public class BookIT {
     private final class MockFile {
 
         private final Path path;
-        @Getter
+
         private final String content;
 
         MockFile(String filename, int length, String mediaType) throws IOException {
@@ -323,14 +321,13 @@ public class BookIT {
             String data = getMockData(length);
             this.content = data;
             switch (mediaType) {
-                case MediaType.TEXT_PLAIN_VALUE -> createTxtFile(data, this.path);
                 case wordType2 -> createDocxFile(data, tempFile);
                 case libreOfficeType -> createOdfFile(data, tempFile);
-                default -> throw new IllegalArgumentException("Unsupported media type: " + mediaType);
+                default -> createTxtFile(data, this.path);
             }
         }
 
-        private static void createOdfFile(String data, File saveToFile){
+        private static void createOdfFile(String data, File saveToFile) {
             try (OdfTextDocument document = OdfTextDocument.newTextDocument()) {
                 document.addText(data);
                 document.save(saveToFile);
@@ -339,7 +336,7 @@ public class BookIT {
             }
         }
 
-        private static void createTxtFile(String data, Path saveToFile){
+        private static void createTxtFile(String data, Path saveToFile) {
             try {
                 Files.writeString(saveToFile, data);
             } catch (IOException e) {
@@ -347,14 +344,17 @@ public class BookIT {
             }
         }
 
-        private static void createDocxFile(String data, File saveToFile){
-            try (XWPFDocument document = new XWPFDocument()) {
+        private static void createDocxFile(String data, File saveToFile) {
+            try (XWPFDocument document = new XWPFDocument();
+                 FileOutputStream outputStream = new FileOutputStream(saveToFile)
+            ) {
                 XWPFParagraph paragraph = document.createParagraph();
                 paragraph.createRun().setText(data);
-                document.write(new FileOutputStream(saveToFile));
+                document.write(outputStream);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         private static String getMockData(int length) {
@@ -373,7 +373,6 @@ public class BookIT {
     private static final String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 
-
     private ResponseEntity<String> upsertChaptersRequest(List<MockFile> fileList) {
         HttpHeaders headers = new HttpHeaders(TestProperties.headers);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -385,7 +384,7 @@ public class BookIT {
                 BASE_AUTH_URL + "/book/" + chapterBookId + "/chapter", HttpMethod.PUT, requestEntity, String.class
         );
     }
-    
+
     @Test
     public void testUpsertChapters_createAndUpdateChapters() throws Exception {
         List<MockFile> fileList = List.of(
@@ -411,15 +410,15 @@ public class BookIT {
         resultSet.next();
         Assertions.assertEquals(100, resultSet.getInt("number"));
         Assertions.assertEquals("Valid1", resultSet.getString("title"));
-        Assertions.assertEquals(fileList.getFirst().getContent(), resultSet.getString("text"));
+        Assertions.assertEquals(fileList.getFirst().content, resultSet.getString("text"));
         resultSet.next();
         Assertions.assertEquals(200, resultSet.getInt("number"));
         Assertions.assertEquals("Valid2", resultSet.getString("title"));
-        Assertions.assertEquals(fileList.get(1).getContent(), resultSet.getString("text"));
+        Assertions.assertEquals(fileList.get(1).content, resultSet.getString("text"));
         resultSet.next();
         Assertions.assertEquals(300, resultSet.getInt("number"));
         Assertions.assertEquals("No title", resultSet.getString("title"));
-        Assertions.assertEquals(fileList.get(2).getContent(), resultSet.getString("text"));
+        Assertions.assertEquals(fileList.get(2).content, resultSet.getString("text"));
         connection.close();
 
         List<MockFile> updateFileList = List.of(
@@ -437,16 +436,16 @@ public class BookIT {
         resultSet.next();
         Assertions.assertEquals(100, resultSet.getInt("number"));
         Assertions.assertEquals("newValid1", resultSet.getString("title"));
-        Assertions.assertEquals(updateFileList.getFirst().getContent(), resultSet.getString("text"));
+        Assertions.assertEquals(updateFileList.getFirst().content, resultSet.getString("text"));
         resultSet.next();
         resultSet.next();
         Assertions.assertEquals(300, resultSet.getInt("number"));
         Assertions.assertEquals("chapter3", resultSet.getString("title"));
-        Assertions.assertEquals(updateFileList.get(2).getContent(), resultSet.getString("text"));
+        Assertions.assertEquals(updateFileList.get(2).content, resultSet.getString("text"));
         resultSet.next();
         Assertions.assertEquals(400, resultSet.getInt("number"));
         Assertions.assertEquals("No title", resultSet.getString("title"));
-        Assertions.assertEquals(updateFileList.get(1).getContent(), resultSet.getString("text"));
+        Assertions.assertEquals(updateFileList.get(1).content, resultSet.getString("text"));
         connection.close();
     }
 
@@ -458,17 +457,17 @@ public class BookIT {
         var response = upsertChaptersRequest(fileList);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
         fileList = List.of(
-                new MockFile("100 : invalid.txt", 100, MediaType.TEXT_PLAIN_VALUE)
+                new MockFile("100_invalid.txt", 100, MediaType.TEXT_PLAIN_VALUE)
         );
         response = upsertChaptersRequest(fileList);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
         fileList = List.of(
-                new MockFile("C:\\Users\\John\\Documents\\1.2 - invalid.txt", 100, MediaType.TEXT_PLAIN_VALUE)
+                new MockFile("1.2 - invalid.txt", 100, MediaType.TEXT_PLAIN_VALUE)
         );
         response = upsertChaptersRequest(fileList);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
         fileList = List.of(
-                new MockFile("invalid.doc", 100, wordType)
+                new MockFile("invalid.docx", 100, wordType2)
         );
         response = upsertChaptersRequest(fileList);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
@@ -483,7 +482,7 @@ public class BookIT {
         response = upsertChaptersRequest(fileList);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
         fileList = List.of(
-                new MockFile("100 -  valid.png", 100, libreOfficeType)
+                new MockFile("100 -  valid.png", 100, "image/png")
         );
         response = upsertChaptersRequest(fileList);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
@@ -501,7 +500,8 @@ public class BookIT {
 
 
         List<MockFile> duplicateFileNumberList = new ArrayList<>();
-        for (int i = 0; i < 3; i++) tooLongFileList.add(new MockFile("1 - valid.txt", 1, MediaType.TEXT_PLAIN_VALUE));
+        for (int i = 0; i < 3; i++)
+            duplicateFileNumberList.add(new MockFile("1 - valid_name_same_number_" + i + ".txt", 1, MediaType.TEXT_PLAIN_VALUE));
         response = upsertChaptersRequest(duplicateFileNumberList);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
 

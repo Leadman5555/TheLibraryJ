@@ -75,8 +75,23 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
     }
 
     @Override
-    public List<BookPreview> getBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags, Boolean ratingOrder) {
-        CriteriaBuilder<BookPreview> cb = cbf.create(em, BookPreview.class).from(BookPreview.class);
+    public PagedList<BookPreview> getKeySetPagedBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags, Boolean ratingOrder, KeysetPage page, int pageNumber) {
+        return createBookPreviewParamCB(titleLike, minChapters, minRating, state, tags, ratingOrder)
+                .page(page, page.getMaxResults() * pageNumber, page.getMaxResults())
+                .withKeysetExtraction(true)
+                .getResultList();
+    }
+
+    @Override
+    public PagedList<BookPreview> getOffsetBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags, Boolean ratingOrder, int pageSize, int pageNumber) {
+        return createBookPreviewParamCB(titleLike, minChapters, minRating, state, tags, ratingOrder)
+                .page(pageNumber * pageSize, pageSize)
+                .withKeysetExtraction(true)
+                .getResultList();
+    }
+
+    private CriteriaBuilder<BookPreview> createBookPreviewParamCB(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags, Boolean ratingOrder) {
+        CriteriaBuilder<BookPreview> cb = cbf.create(em, BookPreview.class).orderByDesc("chapterCount").orderByDesc("id");
         if (titleLike != null) cb.whereExpression("title LIKE :titleLike").setParameter("titleLike", titleLike + '%');
         if (minChapters != null) cb.where("chapterCount").ge(minChapters);
         if (minRating != null) cb.where("averageRating").ge(minRating);
@@ -84,7 +99,7 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
         if (tags != null)
             for (BookTag tag : tags) cb.where(":tag").isMemberOf("bookTags").setParameter("tag", tag);
         if (ratingOrder != null) cb.orderBy("averageRating", ratingOrder);
-        return cb.getResultList();
+        return cb;
     }
 
     private final CriteriaBuilder<BookPreview> authoredBookPreviewsCriteria = cbf.create(em, BookPreview.class)

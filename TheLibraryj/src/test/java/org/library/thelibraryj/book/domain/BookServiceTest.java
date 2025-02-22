@@ -231,6 +231,7 @@ public class BookServiceTest {
 
         var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
 
+        assert result != null;
         assertTrue(result.isRight());
         var responses = result.get();
         assertEquals(3, responses.size());
@@ -279,7 +280,7 @@ public class BookServiceTest {
 
         assertTrue(result.isLeft());
         var error = result.getLeft();
-        assertTrue(error instanceof BookError.InvalidChapterTitleFormat);
+        assertInstanceOf(BookError.InvalidChapterTitleFormat.class, error);
         assertEquals(bookId, ((BookError.InvalidChapterTitleFormat) error).bookId());
         assertEquals("InvalidFilename", ((BookError.InvalidChapterTitleFormat) error).title());
     }
@@ -292,7 +293,7 @@ public class BookServiceTest {
         Set<Integer> chapterNumbers = new HashSet<>();
 
         var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
-
+        assert result != null;
         assertTrue(result.isLeft());
         var error = result.getLeft();
         assertInstanceOf(BookError.InvalidChapterTitleFormat.class, error);
@@ -306,6 +307,7 @@ public class BookServiceTest {
 
         var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
 
+        assert result != null;
         assertTrue(result.isLeft());
         var error = result.getLeft();
         assertInstanceOf(BookError.InvalidChapterTitleFormat.class, error);
@@ -320,7 +322,8 @@ public class BookServiceTest {
         Set<Integer> chapterNumbers = new HashSet<>();
 
         var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
-        
+
+        assert result != null;
         assertTrue(result.isLeft());
         var error = result.getLeft();
         assertInstanceOf(BookError.DuplicateChapter.class, error);
