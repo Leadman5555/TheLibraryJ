@@ -1,21 +1,24 @@
 package org.library.thelibraryj.infrastructure.textParsers.fileParsers.domain;
 
-import org.apache.tika.Tika;
-import org.apache.tika.exception.TikaException;
+import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.springframework.lang.Nullable;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.io.InputStream;
+import org.w3c.dom.NodeList;
 
 class OdtParser {
-    private final Tika tika = new Tika();
 
     @Nullable
-    public String parseOdtTextFile(MultipartFile textFile) {
-        try (InputStream inputStream = textFile.getInputStream()) {
-            return tika.parseToString(inputStream);
-        } catch (IOException | TikaException _) {
+    public static String parseOdtTextFile(MultipartFile textFile) {
+        try(OdfTextDocument document = OdfTextDocument.loadDocument(textFile.getInputStream())) {
+            StringBuilder stringBuilder = new StringBuilder();
+            NodeList paragraphs = document.getContentRoot().getElementsByTagName("text:p");
+            int paragraphCount = paragraphs.getLength()-1;
+            for (int i = 0; i < paragraphCount; i++) {
+                stringBuilder.append(paragraphs.item(i).getTextContent());
+                stringBuilder.append('\n');
+            }
+            return stringBuilder.append(paragraphs.item(paragraphCount).getTextContent()).toString();
+        } catch (Exception e) {
             return null;
         }
     }

@@ -1,29 +1,43 @@
 package org.library.thelibraryj.book.domain;
 
+import lombok.Getter;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
 import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
+import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.*;
+import org.springframework.core.io.PathResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.sql.DataSource;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -41,6 +55,9 @@ public class BookIT {
 
     @Autowired
     private DataSource dataSource;
+
+    @TempDir
+    private Path temporaryDir;
 
     private static final String BASE_URL = TestProperties.BASE_URL + "/na/books";
     private static final String BASE_AUTH_URL = TestProperties.BASE_URL + "/books";
@@ -294,29 +311,59 @@ public class BookIT {
         Assertions.assertEquals(0, content3.length());
     }
 
-    private static final class MockFile {
-        final String filename;
-        final ByteArrayInputStream fileContent;
-        final String mediaType;
-        final String content;
+    private final class MockFile {
+
+        private final Path path;
+        @Getter
+        private final String content;
 
         MockFile(String filename, int length, String mediaType) throws IOException {
-            int lastDot = filename.lastIndexOf('.');
-            File tempFile = File.createTempFile(filename.substring(0, lastDot), filename.substring(lastDot + 1));
+            this.path = temporaryDir.resolve(filename);
+            File tempFile = Files.createFile(path).toFile();
             String data = getMockData(length);
-            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
-                fos.write(data.getBytes());
-            }
-            byte[] readData;
-            try (FileInputStream fis = new FileInputStream(tempFile)) {
-                readData = fis.readAllBytes();
-            }
-            tempFile.delete();
-            this.fileContent = new ByteArrayInputStream(readData);
-            this.filename = filename;
-            this.mediaType = mediaType;
             this.content = data;
+            switch (mediaType) {
+                case MediaType.TEXT_PLAIN_VALUE -> createTxtFile(data, this.path);
+                case wordType2 -> createDocxFile(data, tempFile);
+                case libreOfficeType -> createOdfFile(data, tempFile);
+                default -> throw new IllegalArgumentException("Unsupported media type: " + mediaType);
+            }
         }
+
+        private static void createOdfFile(String data, File saveToFile){
+            try (OdfTextDocument document = OdfTextDocument.newTextDocument()) {
+                document.addText(data);
+                document.save(saveToFile);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private static void createTxtFile(String data, Path saveToFile){
+            try {
+                Files.writeString(saveToFile, data);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private static void createDocxFile(String data, File saveToFile){
+            try (XWPFDocument document = new XWPFDocument()) {
+                XWPFParagraph paragraph = document.createParagraph();
+                paragraph.createRun().setText(data);
+                document.write(new FileOutputStream(saveToFile));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private static String getMockData(int length) {
+            Random random = new Random();
+            StringBuilder result = new StringBuilder(length);
+            for (int i = 0; i < length; i++) result.append(characters.charAt(random.nextInt(characters.length())));
+            return result.toString();
+        }
+
     }
 
     private static final String libreOfficeType = "application/vnd.oasis.opendocument.text";
@@ -325,44 +372,26 @@ public class BookIT {
     private final String chapterFetchQuery = "SELECT * FROM library.library_chapters LEFT OUTER JOIN library.library_chapter_previews lcp ON library_chapters.chapter_preview_id = lcp.id WHERE lcp.book_detail_id = '" + chapterBookId + "' ORDER BY lcp.number";
     private static final String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    private static String getMockData(int length) {
-        Random random = new Random();
-        StringBuilder result = new StringBuilder(length);
-        for (int i = 0; i < length; i++) result.append(characters.charAt(random.nextInt(characters.length())));
-        return result.toString();
-    }
 
-    private ResponseEntity<String> upsertChaptersRequest(List<MockFile> fileList) throws IOException {
+
+    private ResponseEntity<String> upsertChaptersRequest(List<MockFile> fileList) {
         HttpHeaders headers = new HttpHeaders(TestProperties.headers);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
         parts.add("authorEmail", authorEmail1);
-        for (MockFile file : fileList) {
-            MockMultipartFile mockMultipartFile = new MockMultipartFile(
-                    "chapterBatch", file.filename, file.mediaType, file.fileContent
-            );
-            ByteArrayResource fileResource = new ByteArrayResource(mockMultipartFile.getBytes()) {
-                @Override
-                public String getFilename() {
-                    return mockMultipartFile.getOriginalFilename();
-                }
-            };
-            parts.add("chapterBatch", fileResource);
-        }
+        for (MockFile file : fileList) parts.add("chapterBatch", new PathResource(file.path));
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(parts, headers);
         return restTemplate.exchange(
                 BASE_AUTH_URL + "/book/" + chapterBookId + "/chapter", HttpMethod.PUT, requestEntity, String.class
         );
     }
-
-    //Tests for .txt files only - Tika and parsers reject other types (if fake-created like here) and mocking everything is pointless.
-    //Manually tested, works for all four types.
+    
     @Test
     public void testUpsertChapters_createAndUpdateChapters() throws Exception {
         List<MockFile> fileList = List.of(
                 new MockFile("100 - Valid1.txt", 100, MediaType.TEXT_PLAIN_VALUE),
-                new MockFile("200 - Valid2.txt", 1000, MediaType.TEXT_PLAIN_VALUE),
-                new MockFile("300.txt", 500, MediaType.TEXT_PLAIN_VALUE)
+                new MockFile("200 - Valid2.docx", 1000, wordType2),
+                new MockFile("300.odt", 500, libreOfficeType)
         );
         var response = upsertChaptersRequest(fileList);
         Assertions.assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
@@ -382,19 +411,19 @@ public class BookIT {
         resultSet.next();
         Assertions.assertEquals(100, resultSet.getInt("number"));
         Assertions.assertEquals("Valid1", resultSet.getString("title"));
-        Assertions.assertEquals(fileList.getFirst().content, resultSet.getString("text"));
+        Assertions.assertEquals(fileList.getFirst().getContent(), resultSet.getString("text"));
         resultSet.next();
         Assertions.assertEquals(200, resultSet.getInt("number"));
         Assertions.assertEquals("Valid2", resultSet.getString("title"));
-        Assertions.assertEquals(fileList.get(1).content, resultSet.getString("text"));
+        Assertions.assertEquals(fileList.get(1).getContent(), resultSet.getString("text"));
         resultSet.next();
         Assertions.assertEquals(300, resultSet.getInt("number"));
         Assertions.assertEquals("No title", resultSet.getString("title"));
-        Assertions.assertEquals(fileList.get(2).content, resultSet.getString("text"));
+        Assertions.assertEquals(fileList.get(2).getContent(), resultSet.getString("text"));
         connection.close();
 
         List<MockFile> updateFileList = List.of(
-                new MockFile("100 - newValid1.txt", 100, MediaType.TEXT_PLAIN_VALUE),
+                new MockFile("100 - newValid1.docx", 100, wordType2),
                 new MockFile("400.txt", 1000, MediaType.TEXT_PLAIN_VALUE),
                 new MockFile("300 - chapter3.txt", 500, MediaType.TEXT_PLAIN_VALUE)
         );
@@ -408,16 +437,16 @@ public class BookIT {
         resultSet.next();
         Assertions.assertEquals(100, resultSet.getInt("number"));
         Assertions.assertEquals("newValid1", resultSet.getString("title"));
-        Assertions.assertEquals(updateFileList.getFirst().content, resultSet.getString("text"));
+        Assertions.assertEquals(updateFileList.getFirst().getContent(), resultSet.getString("text"));
         resultSet.next();
         resultSet.next();
         Assertions.assertEquals(300, resultSet.getInt("number"));
         Assertions.assertEquals("chapter3", resultSet.getString("title"));
-        Assertions.assertEquals(updateFileList.get(2).content, resultSet.getString("text"));
+        Assertions.assertEquals(updateFileList.get(2).getContent(), resultSet.getString("text"));
         resultSet.next();
         Assertions.assertEquals(400, resultSet.getInt("number"));
         Assertions.assertEquals("No title", resultSet.getString("title"));
-        Assertions.assertEquals(updateFileList.get(1).content, resultSet.getString("text"));
+        Assertions.assertEquals(updateFileList.get(1).getContent(), resultSet.getString("text"));
         connection.close();
     }
 

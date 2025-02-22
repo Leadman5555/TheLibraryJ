@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {
-  AbstractControl,
+  AbstractControl, FormBuilder,
   FormControl,
   FormGroup,
   NonNullableFormBuilder,
@@ -18,6 +18,7 @@ import {integerValidator} from '../../../book-filter/filterBox/filterValidators'
 
 export function fileNameValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
+    if(control.value === null) return null;
     const files: File[] = control.value;
     if (files.length === 0) return null;
     if(files.find(file => {
@@ -45,9 +46,9 @@ export class ChapterEditComponent {
 
   chapterUploadForm: FormGroup;
 
-  constructor(private bookService: BookService, private fb: NonNullableFormBuilder, private authorTabDataService: AuthorTabDataService) {
-    this.chapterUploadForm = this.fb.group({
-      uploadedFiles: [[], [Validators.required, textFileTypesValidator(), fileNameValidator(), Validators.minLength(1), Validators.maxLength(50)]],
+  constructor(private bookService: BookService, private nfb: FormBuilder, private authorTabDataService: AuthorTabDataService) {
+    this.chapterUploadForm = this.nfb.group({
+      uploadedFiles: [null, [Validators.required, textFileTypesValidator(), fileNameValidator(), Validators.minLength(1), Validators.maxLength(50)]],
     })
   }
 
@@ -137,7 +138,7 @@ export class ChapterEditComponent {
   deleteChapterMessage: string | null = null;
 
   showDeleteChapterForm() {
-    this.deleteChapterForm = this.fb.group({
+    this.deleteChapterForm = this.nfb.group({
       chapterNumber: [0, [Validators.required, Validators.min(1), Validators.max(10000), integerValidator()]],
     });
     console.log(this.deleteChapterForm.errors)

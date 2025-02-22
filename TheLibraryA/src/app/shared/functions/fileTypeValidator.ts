@@ -3,9 +3,9 @@ import {AbstractControl, ValidationErrors, ValidatorFn} from '@angular/forms';
 function fileTypeValidator(allowedFileTypes: string[], allowedFileExtensions: string[]): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if(control.value === null) return null;
-    const files: File[] = control.value instanceof FileList ? Array.from(control.value) : [control.value];
+    const files: File[] = control.value instanceof Array ? control.value : [control.value];
     if (files.length === 0) return null;
-    if (Array.from(files).every(file =>
+    if (files.every(file =>
       allowedFileExtensions.includes(file.name.substring(file.name.lastIndexOf('.') + 1)) &&
       allowedFileTypes.includes(file.type))
     ) return null;

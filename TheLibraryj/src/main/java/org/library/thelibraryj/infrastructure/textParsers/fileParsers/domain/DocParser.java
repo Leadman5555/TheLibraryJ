@@ -14,11 +14,12 @@ class DocParser {
         try (HWPFDocument document = new HWPFDocument(textFile.getInputStream())) {
             Range range = document.getRange();
             StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < range.numParagraphs(); i++) {
+            int paragraphCount = range.numParagraphs()-1;
+            for (int i = 0; i < paragraphCount; i++) {
                 stringBuilder.append(range.getParagraph(i).text());
                 stringBuilder.append('\n');
             }
-            return stringBuilder.toString();
+            return stringBuilder.append(range.getParagraph(paragraphCount).text()).toString();
         } catch (IOException | IllegalArgumentException _) {
             return null;
         }

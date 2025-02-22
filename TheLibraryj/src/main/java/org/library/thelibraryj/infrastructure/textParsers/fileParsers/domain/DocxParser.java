@@ -16,11 +16,12 @@ class DocxParser {
         try (XWPFDocument document = new XWPFDocument(textFile.getInputStream())) {
             StringBuilder stringBuilder = new StringBuilder();
             List<XWPFParagraph> paragraphs = document.getParagraphs();
-            for (XWPFParagraph paragraph : paragraphs) {
-                stringBuilder.append(paragraph.getText());
+            int paragraphCount = paragraphs.size()-1;
+            for (int i = 0; i < paragraphCount; i++) {
+                stringBuilder.append(paragraphs.get(i).getText());
                 stringBuilder.append('\n');
             }
-            return stringBuilder.toString();
+            return stringBuilder.append(paragraphs.get(paragraphCount).getText()).toString();
         } catch (IOException | UnsupportedFileFormatException _) {
             return null;
         }
