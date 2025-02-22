@@ -17,7 +17,7 @@
         <div class="chapterCount">Chapter count: {{ bookPreview.chapterCount }}</div>
         <div class="tagsDiv">
           @for (tag of bookPreview.bookTags; track tag) {
-            <span class="tagBox" [routerLink]="['/filter', {'hasTags': [tag]}]">{{ tag }}</span>
+            <span class="tagBox" [routerLink]="['/filter']" [queryParams]="{ hasTags: tag }">{{ tag }}</span>
           }
         </div>
       </div>

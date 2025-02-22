@@ -47,13 +47,13 @@ export class AuthorTabEditComponent implements OnInit {
   updateBookFrom?: FormGroup;
 
   ngOnInit(): void {
-    this.authorTabDataService.currentlyEditing$.subscribe(book => {
+    const book: BookResponse | null = this.authorTabDataService.getCurrentlyEditedBook();
+    if (book !== null) {
       this.closeDeleteBookForm();
       this.changeCurrentlyEditingBook(book);
       sessionStorage.setItem(emailKey, this.authorTabDataService.authorEmail);
       this.createForm();
-    });
-    if (this.currentlyEditingBook === undefined) {
+    } else {
       const storedBook = sessionStorage.getItem(currentBookKey);
       const storedEmail = sessionStorage.getItem(emailKey);
       if (storedBook !== null && storedEmail !== null) {
@@ -178,26 +178,28 @@ export class AuthorTabEditComponent implements OnInit {
   deleteBookSuccess: boolean = true;
   deleteBookConfirmation!: string;
 
-  attemptBookDeletion(){
-    if(this.deleteBookForm!.pristine || this.deleteBookForm!.invalid) return;
+  attemptBookDeletion() {
+    if (this.deleteBookForm!.pristine || this.deleteBookForm!.invalid) return;
     const value: string = this.deleteBookForm!.value.confirmDelete;
-    if(value != this.deleteBookConfirmation ) return;
+    if (value != this.deleteBookConfirmation) return;
     this.deleteBookSuccess = true;
     this.bookService.deleteBook(this.currentlyEditingBook.id, this.authorTabDataService.authorEmail).subscribe({
-      next: () => {this.clearCurrentEditingBook();},
-      error: () => this.deleteBookSuccess = false
+        next: () => {
+          this.clearCurrentEditingBook();
+        },
+        error: () => this.deleteBookSuccess = false
       }
     );
   }
 
-  showDeleteBookForm(){
+  showDeleteBookForm() {
     this.deleteBookConfirmation = `I want to delete book titled \"${this.currentlyEditingBook.title}\". I acknowledge that this action is irreversible.`;
     this.deleteBookForm = this.fb.group({
       confirmDelete: ['', repeatValidator(this.deleteBookConfirmation)],
     });
   }
 
-  closeDeleteBookForm(){
+  closeDeleteBookForm() {
     this.deleteBookForm = undefined;
   }
 
@@ -207,7 +209,7 @@ export class AuthorTabEditComponent implements OnInit {
     this.updateBookFrom!.reset();
   }
 
-  resetImageForm(){
+  resetImageForm() {
     this.updateBookFrom!.get('coverImage')!.setValue(null);
   }
 

@@ -1,12 +1,8 @@
-export abstract class PagingHelper {
+export interface PagingHelper {
 
-  abstract onPreviousPage(): void;
+  onPreviousPage(): void;
 
-  abstract onNextPage(): void;
+  onNextPage(): void;
 
-  abstract onChosenPage(pageNumber: number): void;
-
-  identifyPage(index: number, page: number) {
-    return page;
-  }
+  onChosenPage(pageNumber: number): void;
 }

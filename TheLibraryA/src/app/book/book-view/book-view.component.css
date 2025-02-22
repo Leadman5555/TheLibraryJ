@@ -1,5 +1,6 @@
 @import "../../shared/styles/rowCol.css";
 @import "../../shared/styles/emptyInfoBox.css";
+@import "../../shared/styles/pageNumberBox.css";
 
 @keyframes gradientAnimation {
   0% {

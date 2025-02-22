@@ -1,7 +1,7 @@
-import {KeysetPage} from './keyset-page';
+import {KeySetPage} from './key-set-page';
 
 export interface PageInfo {
   page: number;
   totalPages: number;
-  keysetPage : KeysetPage
+  keysetPage : KeySetPage
 }

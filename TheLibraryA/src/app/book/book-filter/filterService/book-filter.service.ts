@@ -6,8 +6,8 @@ import {FormOutcome} from './form-outcome';
   providedIn: 'root'
 })
 export class BookFilterService {
-  private formOutcomeSource = new BehaviorSubject<FormOutcome>(new FormOutcome(true));
-  currentForm$ = this.formOutcomeSource.asObservable();
+  private readonly formOutcomeSource = new BehaviorSubject<FormOutcome>(new FormOutcome(true));
+  readonly currentForm$ = this.formOutcomeSource.asObservable();
 
   onFormSubmit(form: FormOutcome) {
     this.formOutcomeSource.next(form);
@@ -17,9 +17,8 @@ export class BookFilterService {
     this.formOutcomeSource.next(this.formOutcomeSource.getValue());
   }
 
-  getRedirectData() : FormOutcome | undefined {
-    let newForm : FormOutcome | undefined;
-    this.currentForm$.subscribe(form => form.isRedirected ? newForm = form : newForm = undefined);
-    return newForm;
+  getRedirectData() : FormOutcome | null {
+    const redirectForm = this.formOutcomeSource.value;
+    return redirectForm.isRedirected ? redirectForm : null;
   }
 }

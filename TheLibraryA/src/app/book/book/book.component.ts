@@ -28,7 +28,7 @@ import {RangeSelectorComponent} from '../../shared/range-selector/range-selector
   standalone: true,
   styleUrl: './book.component.css'
 })
-export class BookComponent extends PagingHelper implements OnInit {
+export class BookComponent implements OnInit {
   private activatedRoute: ActivatedRoute = inject(ActivatedRoute);
   private defaultRoute: string = '';
   bookPreview!: BookPreview;
@@ -41,7 +41,6 @@ export class BookComponent extends PagingHelper implements OnInit {
   private bookService: BookService = inject(BookService);
 
   constructor(private router: Router, private userAuthService: UserAuthService) {
-    super();
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state) {
       const state = navigation.extras.state as { bp: BookPreview };
@@ -209,15 +208,19 @@ export class BookComponent extends PagingHelper implements OnInit {
   }
 
   onPreviousPage(): void {
-    this.componentStore.loadPreviousPage();
+    this.componentStore.onPreviousPage();
   }
 
   onNextPage(): void {
-    this.componentStore.loadNextPage();
+    this.componentStore.onNextPage();
   }
 
   onChosenPage(pageNumber: number) {
-    this.componentStore.loadSpecifiedPage(pageNumber);
+    this.componentStore.onChosenPage(pageNumber);
+  }
+
+  identifyPage(_: number, item: number) {
+    return item;
   }
 
   protected readonly parseDateString = parseDateString;

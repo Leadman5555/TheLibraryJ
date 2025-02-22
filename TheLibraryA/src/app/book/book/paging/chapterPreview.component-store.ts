@@ -5,28 +5,9 @@ import {asyncScheduler, map, Observable, scheduled, switchMap, withLatestFrom} f
 import {ChapterPreviewPage} from './chapterPreview-page';
 import {GenericComponentStore} from '../../../shared/paging/generic.component-store';
 import {ChapterPreview} from '../../shared/models/chapter-preview';
+import {HttpErrorResponse} from '@angular/common/http';
+import {logError} from '../../../shared/errorHandling/handleError';
 
-const initialState: ChapterPreviewPage = {
-  content: [],
-  pageInfo: {
-    page: 0,
-    totalPages: 0,
-    keysetPage: {
-      firstResult: 0,
-      maxResults: 30,
-      lowest: {
-        number: 0,
-        id: ''
-      },
-      highest: {
-        number: 0,
-        id: ''
-      },
-      keysets: []
-    }
-  },
-  bookId: '',
-}
 
 @Injectable({
   providedIn: 'root'
@@ -35,6 +16,27 @@ export class ChapterPreviewComponentStore extends GenericComponentStore<ChapterP
   private readonly bookService = inject(BookService);
 
   constructor() {
+    const initialState: ChapterPreviewPage = {
+      content: [],
+      pageInfo: {
+        page: 0,
+        totalPages: 0,
+        keysetPage: {
+          firstResult: 0,
+          maxResults: 30,
+          lowest: {
+            number: 0,
+            id: ''
+          },
+          highest: {
+            number: 0,
+            id: ''
+          },
+          keysets: []
+        }
+      },
+      bookId: '',
+    }
     super(initialState);
   }
 
@@ -45,7 +47,7 @@ export class ChapterPreviewComponentStore extends GenericComponentStore<ChapterP
     })
   );
 
-  protected override readonly updatePage = this.updater(
+  protected override readonly updatePageNumber = this.updater(
     (state: ChapterPreviewPage, page: number) => ({
       ...state,
       pageInfo: {
@@ -55,7 +57,7 @@ export class ChapterPreviewComponentStore extends GenericComponentStore<ChapterP
     })
   );
 
-  readonly loadPageByOffset = this.effect((trigger$: Observable<void>) => {
+  override readonly loadPageByOffset = this.effect((trigger$: Observable<void>) => {
     return trigger$.pipe(
       withLatestFrom(this.select((state) => state)),
       map(([, state]) => state),
@@ -64,9 +66,9 @@ export class ChapterPreviewComponentStore extends GenericComponentStore<ChapterP
           else return this.bookService.getChapterPreviewsPageByOffset(currentState.bookId, currentState.pageInfo.page, currentState.pageInfo.keysetPage.maxResults).pipe(
             tapResponse(
               (newChapterPreviewPage: ChapterPreviewPage) => {
-                this.updateContent(newChapterPreviewPage);
+                this.updatePage(newChapterPreviewPage);
               },
-              () => console.error("Something went wrong")
+              (error: HttpErrorResponse) => logError(error)
             )
           )
         }
@@ -74,7 +76,7 @@ export class ChapterPreviewComponentStore extends GenericComponentStore<ChapterP
     );
   });
 
-  readonly loadPageByKeyset = this.effect((trigger$: Observable<void>) => {
+ override readonly loadPageByKeySet = this.effect((trigger$: Observable<void>) => {
     return trigger$.pipe(
       withLatestFrom(this.select((state) => state)),
       map(([, state]) => state),
@@ -82,7 +84,7 @@ export class ChapterPreviewComponentStore extends GenericComponentStore<ChapterP
         this.bookService.getChapterPreviewsPageByKeySet(currentState.bookId, currentState.pageInfo.page, currentState.pageInfo.keysetPage).pipe(
           tapResponse(
             (newChapterPreviewPage: ChapterPreviewPage) => {
-              this.updateContent(newChapterPreviewPage);
+              this.updatePage(newChapterPreviewPage);
             },
             () => this.loadPageByOffset()
           )

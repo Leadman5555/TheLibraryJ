@@ -1,13 +1,12 @@
 import {Injectable} from '@angular/core';
-import {Subject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {BookResponse} from '../../shared/models/book-response';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthorTabDataService {
-  private currentlyEditing = new Subject<BookResponse>();
-  currentlyEditing$ = this.currentlyEditing.asObservable();
+  private currentlyEditing = new BehaviorSubject<BookResponse | null>(null);
   authorEmail!: string;
 
   setCurrentBook(book: BookResponse) {
@@ -16,6 +15,10 @@ export class AuthorTabDataService {
 
   setAuthorEmail(email: string){
     this.authorEmail = email;
+  }
+
+  getCurrentlyEditedBook() : BookResponse | null {
+    return this.currentlyEditing.value;
   }
 
 

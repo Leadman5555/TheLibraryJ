@@ -1,6 +1,6 @@
 import {Keyset} from './keyset';
 
-export interface KeysetPage {
+export interface KeySetPage {
   firstResult: number;
   maxResults: number;
   lowest: Keyset;

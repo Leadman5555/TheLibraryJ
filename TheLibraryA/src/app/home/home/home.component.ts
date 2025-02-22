@@ -21,24 +21,28 @@ import {PagingHelper} from '../../shared/paging/paging-helper';
   standalone: true,
   styleUrl: './home.component.css'
 })
-export class HomeComponent extends PagingHelper {
+export class HomeComponent {
   private readonly componentStore = inject(HomeComponentStore);
   readonly vm$ = this.componentStore.vm$;
   readonly info$ = this.componentStore.info$;
 
   onPreviousPage(): void {
-    this.componentStore.loadPreviousPage();
+    this.componentStore.onPreviousPage();
   }
 
   onNextPage(): void {
-    this.componentStore.loadNextPage();
+    this.componentStore.onNextPage();
   }
 
   onChosenPage(pageNumber: number){
-    this.componentStore.loadSpecifiedPage(pageNumber);
+    this.componentStore.onChosenPage(pageNumber);
   }
 
   identifyBp(_: number, item : BookPreview) {
     return item.title;
+  }
+
+  identifyPage(_: number, item: number) {
+    return item;
   }
 }

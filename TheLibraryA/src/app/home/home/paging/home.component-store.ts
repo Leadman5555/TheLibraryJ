@@ -1,53 +1,23 @@
 import {tapResponse} from '@ngrx/operators'
-import {inject, Injectable} from '@angular/core';
-import {BookService} from '../../../book/shared/book-service';
+import {Injectable} from '@angular/core';
 import {map, Observable, switchMap, withLatestFrom} from 'rxjs';
-import {BookPage} from './book-page';
-import {GenericComponentStore} from '../../../shared/paging/generic.component-store';
-import {BookPreview} from '../../../book/shared/models/book-preview';
+import {BookPage} from '../../../shared/paging/book/book-page';
+import {BookPreviewComponentStore} from '../../../shared/paging/book/bookPreview.component-store';
+import {logError} from '../../../shared/errorHandling/handleError';
+import {HttpErrorResponse} from '@angular/common/http';
 
-const initialState: BookPage = {
-  content: [],
-  pageInfo: {
-    page: 0,
-    totalPages: 0,
-    keysetPage: {
-      firstResult: 0,
-      maxResults: 16,
-      lowest: {
-        number: 0,
-        id: ''
-      },
-      highest: {
-        number: 0,
-        id: ''
-      },
-      keysets: []
-    }
-  }
-}
+
 
 @Injectable({
   providedIn: 'root'
 })
-export class HomeComponentStore extends GenericComponentStore<BookPreview, BookPage> {
-  private readonly bookService = inject(BookService);
+export class HomeComponentStore extends BookPreviewComponentStore {
 
   constructor() {
-    super(initialState);
+    super();
   }
 
-  protected override readonly updatePage = this.updater(
-    (state: BookPage, page: number) => ({
-      ...state,
-      pageInfo: {
-        ...state.pageInfo,
-        page: page
-      }
-    })
-  );
-
-  readonly loadPageByOffset = this.effect((trigger$: Observable<void>) => {
+  override readonly loadPageByOffset = this.effect((trigger$: Observable<void>) => {
     return trigger$.pipe(
       withLatestFrom(this.select((state) => state)),
       map(([, state]) => state),
@@ -55,23 +25,23 @@ export class HomeComponentStore extends GenericComponentStore<BookPreview, BookP
         this.bookService.getBookPreviewsPageByOffset(currentState.pageInfo.page, currentState.pageInfo.keysetPage.maxResults).pipe(
           tapResponse(
             (newBookPage: BookPage) => {
-              this.updateContent(newBookPage);
+              this.updatePage(newBookPage);
             },
-            (error) => console.error("ESomething went wrong", error)
+            (error: HttpErrorResponse) => logError(error)
           )
         )
       )
     );
   });
 
-  readonly loadPageByKeyset = this.effect((trigger$: Observable<void>) => {
+  override readonly loadPageByKeySet = this.effect((trigger$: Observable<void>) => {
     return trigger$.pipe(
       withLatestFrom(this.select((state) => state)),
       map(([, state]) => state),
       switchMap((currentState) =>
         this.bookService.getBookPreviewsPageByKeySet(currentState.pageInfo.page, currentState.pageInfo.keysetPage).pipe(
           tapResponse(
-            (newBookPage: BookPage) => this.updateContent(newBookPage),
+            (newBookPage: BookPage) => this.updatePage(newBookPage),
             () => this.loadPageByOffset()
           )
         )

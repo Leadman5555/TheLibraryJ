@@ -48,14 +48,15 @@ export class BookFilterComponent implements OnInit {
     if (this.filterForm.pristine) return;
     const url = this.router.url;
     if (url.substring(url.lastIndexOf('/') + 1, 7) !== 'filter') {
-      //submit on home
+      //form submitted on home
       const outcome = this.getFormOutcomeRedirected();
       if (outcome !== null) {
+        //will be read in ngOnInit as redirect from home
         this.filterService.onFormSubmit(outcome);
         this.router.navigate(['filter']);
       } else this.filterForm.markAsPristine();
     } else {
-      //submit on filter
+      //form submitted on filter
       const outcome = this.getFormOutcome();
       if (outcome !== null) this.filterService.onFormSubmit(outcome);
       else this.filterForm.markAsPristine();
@@ -224,9 +225,14 @@ export class BookFilterComponent implements OnInit {
 
   ngOnInit(): void {
     this.createFilterForm();
-    const tagsFromRedirect = this.activatedRoute.snapshot.paramMap.getAll('hasTags');
+    const tagsFromRedirect = this.activatedRoute.snapshot.queryParamMap.getAll('hasTags');
     if (tagsFromRedirect.length > 0) {
       //redirect from book tag
+      this.router.navigate([],{
+        queryParams: null,
+        replaceUrl: true,
+        relativeTo: this.activatedRoute,
+      });
       const formOutcome = new FormOutcome(true);
       formOutcome.isRedirected = true;
       formOutcome.setRedirectTags(tagsFromRedirect);
@@ -238,9 +244,8 @@ export class BookFilterComponent implements OnInit {
       return;
     }
     //redirect from home
-    const redirectData = this.filterService.getRedirectData();
+    const redirectData: FormOutcome | null = this.filterService.getRedirectData();
     if (redirectData) {
-      this.filterService.refreshSelection(); //don't ask why, it works
       const redirectTags = redirectData.getRedirectTags();
       if (redirectTags) this.patchTagValues(redirectTags, this.filterByTags);
 
@@ -258,7 +263,7 @@ export class BookFilterComponent implements OnInit {
       this.lastSubmittedData = this.filterForm.value;
       this.wasISubmitted = true;
       this.filterForm.markAsDirty();
-    } else this.filterService.refreshSelection();
+    } else this.filterService.refreshSelection(); //no redirect, site was refreshed, re-fetch previews from server
   }
 
   private createFilterForm() {
