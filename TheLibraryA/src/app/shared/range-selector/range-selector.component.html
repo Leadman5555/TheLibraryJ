@@ -5,10 +5,10 @@
       [ngClass]="{ 'selected': i <= selectedIndex }"
       (click)="selectValue(i+1)">
       <img
-        src="/ratingDragon_gold.png"
+        ngSrc="/ratingDragon_gold.png"
         alt="{{value}}"
         class="fillBox"
-      >
+        height="120" width="120">
     </div>
   }
 </div>

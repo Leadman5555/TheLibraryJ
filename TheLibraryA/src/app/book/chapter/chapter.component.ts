@@ -4,7 +4,6 @@ import {BookService} from '../shared/book-service';
 import {ChapterContent} from '../shared/models/chapter-content';
 import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {TimesMaxPipe} from '../../shared/pipes/times-max.pipe';
-import {identifyByValue} from '../../shared/functions/indentify';
 import { NgStyle } from '@angular/common';
 
 @Component({
@@ -105,6 +104,4 @@ export class ChapterComponent implements OnInit {
   routeToBook(){
     this.router.navigate([this.bookNav, this.bookTitle]);
   }
-
-  protected readonly identifyByValue = identifyByValue;
 }

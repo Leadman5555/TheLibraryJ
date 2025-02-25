@@ -110,7 +110,7 @@
             <span>Current title: </span>
             <div class="column">
               <select formControlName="chosenPreference" id="dropdownPreferenceList">
-                @for (title of preferenceArray; track identifyByIndex) {
+                @for (title of preferenceArray; track $index) {
                   <option style="text-align: center"
                           [ngValue]="title"
                           [disabled]="title.requiredRank > this.userData.rank">{{ rankArray[title.requiredRank] }}

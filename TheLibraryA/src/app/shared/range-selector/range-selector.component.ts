@@ -1,10 +1,10 @@
 import {Component, Input} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {NgClass} from '@angular/common';
+import {NgClass, NgOptimizedImage} from '@angular/common';
 
 @Component({
   selector: 'app-range-selector',
-  imports: [NgClass],
+  imports: [NgClass, NgOptimizedImage],
   templateUrl: './range-selector.component.html',
   styleUrl: './range-selector.component.css',
   standalone: true

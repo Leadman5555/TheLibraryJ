@@ -12,15 +12,15 @@ import {
   Validators
 } from '@angular/forms';
 import {atLeastOneValidator} from '../../../shared/functions/atLeastOneValidator';
-import {allTags, BookTag, identifyTag} from '../../shared/models/BookTag';
+import {allTags, BookTag} from '../../shared/models/BookTag';
 import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
-import {identifyByIndex} from '../../../shared/functions/indentify';
 import {stateArray} from '../../shared/models/BookState';
 import {carriageReturnLengthValidator} from '../../../shared/functions/carriageReturnLengthValidator';
 import {repeatValidator} from '../../../shared/functions/repeatValidator';
 import {ChapterEditComponent} from './chapter-edit/chapter-edit.component';
 import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidator';
 import {Subscription} from 'rxjs';
+import {NgOptimizedImage} from '@angular/common';
 
 export const currentBookKey = 'currentlyEditingBook';
 export const emailKey = 'authorEmail';
@@ -31,7 +31,8 @@ export const emailKey = 'authorEmail';
     ReactiveFormsModule,
     ImageDropComponent,
     FormsModule,
-    ChapterEditComponent
+    ChapterEditComponent,
+    NgOptimizedImage
   ],
   templateUrl: './author-tab-edit.component.html',
   styleUrl: './author-tab-edit.component.css',
@@ -233,12 +234,10 @@ export class AuthorTabEditComponent implements OnInit, OnDestroy {
   }
 
   protected readonly allTags = allTags;
-  protected readonly identifyTag = identifyTag;
 
   getCoverImageControl() {
     return this.updateBookFrom!.get('coverImage') as FormControl;
   }
 
-  protected readonly identifyByIndex = identifyByIndex;
   protected readonly stateArray = stateArray;
 }

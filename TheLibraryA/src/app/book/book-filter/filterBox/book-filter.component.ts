@@ -1,8 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from "@angular/forms";
-import {allTags, allTagsAsString, BookTag, identifyTag} from '../../shared/models/BookTag';
+import {allTags, allTagsAsString, BookTag} from '../../shared/models/BookTag';
 import {ActivatedRoute, Router} from '@angular/router';
 import {integerValidator, stepValidator} from './filterValidators';
+import {NgOptimizedImage} from '@angular/common';
 
 export type FilterSelection = {
   titleLike: string | null;
@@ -17,7 +18,8 @@ export type FilterSelection = {
   selector: 'app-book-filter',
   imports: [
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgOptimizedImage
   ],
   templateUrl: './book-filter.component.html',
   standalone: true,
@@ -72,9 +74,7 @@ export class BookFilterComponent implements OnInit {
   }
 
   resetFilterForm(): void {
-    console.log(this.filterForm.value);
     this.filterForm.reset(this.defaultFormValues);
-    console.log(this.filterForm.value);
     this.clearFilters();
   }
 
@@ -161,8 +161,6 @@ export class BookFilterComponent implements OnInit {
   }
 
   private pushFilterChanges() {
-    console.log(this.filterForm.value);
-    console.log(this.activeFilters, this.newFilters);
     this.activeFilters = this.newFilters;
     this.router.navigate([], {
       queryParams: this.activeFilters,
@@ -232,5 +230,4 @@ export class BookFilterComponent implements OnInit {
   }
 
   protected readonly allTags = allTags;
-  protected readonly identifyTag = identifyTag;
 }

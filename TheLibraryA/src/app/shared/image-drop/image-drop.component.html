@@ -10,8 +10,9 @@
       <p>Drag and drop your profile image here, or click to browse.</p>
     }
     <div class="image34Wrapper">
-      @if (!imagePreview) {
-        <img [src]="imagePreview" alt="Default profile image" class="image34"/>
+      @if (imagePreview) {
+        <!--suppress AngularNgOptimizedImage -->
+        <img src="{{imagePreview}}" alt="Default profile image" class="image34"/>
       }
     </div>
     <input

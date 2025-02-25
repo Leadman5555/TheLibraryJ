@@ -1,12 +1,14 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {BookFilterComponent} from "../book-filter/filterBox/book-filter.component";
 import {BookPreviewCardComponent} from "../book-preview-card/book-preview-card.component";
-import {Subscription} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {BookViewComponentStore} from './paging/BookView.component-store';
 import {provideComponentStore} from '@ngrx/component-store';
 import {TimesMaxPagingPipe} from '../../shared/pipes/times-max-paging.pipe';
 import {ActivatedRoute} from '@angular/router';
 import { AsyncPipe } from '@angular/common';
+import {BookPreview} from '../shared/models/book-preview';
+import {PageInfo} from '../../shared/paging/models/page-info';
 
 @Component({
   selector: 'app-book-view',
@@ -25,8 +27,8 @@ import { AsyncPipe } from '@angular/common';
 })
 export class BookViewComponent implements OnInit, OnDestroy{
   private readonly componentStore = inject(BookViewComponentStore);
-  readonly vm$ = this.componentStore.vm$;
-  readonly info$ = this.componentStore.info$;
+  readonly vm$: Observable<BookPreview[]> = this.componentStore.vm$;
+  readonly info$: Observable<PageInfo> = this.componentStore.info$;
   private filterSubscription!: Subscription;
 
   constructor(private activatedRoute: ActivatedRoute) {

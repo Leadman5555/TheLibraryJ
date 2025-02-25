@@ -11,7 +11,7 @@ import {
 import {UserAuthService} from '../../../user/account/userAuth/user-auth.service';
 import {BookResponse} from '../../shared/models/book-response';
 import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
-import {allTags, identifyTag} from '../../shared/models/BookTag';
+import {allTags} from '../../shared/models/BookTag';
 import {atLeastOneValidator} from '../../../shared/functions/atLeastOneValidator';
 import {carriageReturnLengthValidator} from '../../../shared/functions/carriageReturnLengthValidator';
 import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidator';
@@ -86,5 +86,4 @@ export class AuthorTabCreateComponent {
   }
 
   protected readonly allTags = allTags;
-  protected readonly identifyTag = identifyTag;
 }

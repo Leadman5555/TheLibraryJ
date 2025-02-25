@@ -4,7 +4,6 @@ import {UserProfileData} from '../shared/user-profile-data';
 import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
 import {usernameMatchValidator} from './usernameMatchValidator';
 import {findTitle, preferenceArray, PreferenceTitle, progressArray, rankArray} from '../shared/rankTitles';
-import {identifyByIndex} from '../../../shared/functions/indentify';
 import {ProgressBarComponent} from '../../../shared/progress-bar/progress-bar.component';
 import {catchError} from 'rxjs';
 import {handleError} from '../../../shared/errorHandling/handleError';
@@ -260,8 +259,6 @@ export class UserProfileEditComponent implements OnInit {
     });
   }
 
-
-  protected readonly identifyByIndex = identifyByIndex;
   protected readonly preferenceArray = preferenceArray;
   protected readonly progressArray = progressArray;
   protected readonly rankArray = rankArray;

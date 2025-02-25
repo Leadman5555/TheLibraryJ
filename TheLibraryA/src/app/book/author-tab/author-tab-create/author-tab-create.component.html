@@ -54,7 +54,7 @@
       <div class="tagDiv">
         <span class="tagsInfoText centerVH">Select at least one tag that applies to your book:</span>
         <div formGroupName="bookTags" class="tagSelectorDiv row">
-          @for (tag of allTags; track identifyTag; let i = $index) {
+          @for (tag of allTags; let i = $index; track i) {
             <div class="mt-square3d-custom tagSelector" style="font-size:0.8em;">
               <span class="tagName">{{ tag }}</span>
               <input id="checkMt_{{i}}" type="checkbox" formControlName="{{i}}"/>

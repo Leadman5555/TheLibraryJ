@@ -7,6 +7,8 @@ import {HomeComponentStore} from './paging/home.component-store';
 import {TimesMaxPagingPipe} from '../../shared/pipes/times-max-paging.pipe';
 import {BookFilterComponent} from '../../book/book-filter/filterBox/book-filter.component';
 import { AsyncPipe } from '@angular/common';
+import {Observable} from 'rxjs';
+import {PageInfo} from '../../shared/paging/models/page-info';
 
 
 @Component({
@@ -23,8 +25,8 @@ import { AsyncPipe } from '@angular/common';
 })
 export class HomeComponent {
   private readonly componentStore = inject(HomeComponentStore);
-  readonly vm$ = this.componentStore.vm$;
-  readonly info$ = this.componentStore.info$;
+  readonly vm$: Observable<BookPreview[]> = this.componentStore.vm$;
+  readonly info$: Observable<PageInfo> = this.componentStore.info$;
 
   onPreviousPage(): void {
     this.componentStore.onPreviousPage();

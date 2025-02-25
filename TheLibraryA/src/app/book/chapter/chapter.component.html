@@ -17,7 +17,7 @@
             <div class="row settingsElem">
               <label for="dropdownFontSizeList" class="outerLabel">Font size: </label>
               <select formControlName="fontSize" id="dropdownFontSizeList">
-                @for (fontSize of maxFontSize | timesMax : minFontSize; track identifyByValue) {
+                @for (fontSize of maxFontSize | timesMax : minFontSize; track fontSize) {
                   <option value="{{fontSize}}">{{ fontSize }}</option>
                 }
               </select>
@@ -25,7 +25,7 @@
             <div class="row settingsElem">
               <label for="dropdownFontFamilyList" class="outerLabel">Font family: </label>
               <select formControlName="fontFamily" id="dropdownFontFamilyList">
-                @for (fontFamily of fontFamilies; track identifyByValue) {
+                @for (fontFamily of fontFamilies; track fontFamily) {
                   <option value="{{fontFamily}}">{{ fontFamily }}</option>
                 }
               </select>
@@ -33,7 +33,7 @@
             <div class="row settingsElem">
               <label for="dropdownLineHeightList" class="outerLabel">Line height: </label>
               <select formControlName="lineHeight" id="dropdownLineHeightList">
-                @for (lh of maxLineHeight | timesMax : minLineHeight; track identifyByValue) {
+                @for (lh of maxLineHeight | timesMax : minLineHeight; track lh) {
                   <option value="{{lh*10}}">{{ lh * 10 }}%</option>
                 }
               </select>
@@ -41,7 +41,7 @@
             <div class="row settingsElem">
               <label for="dropdownColorList" class="outerLabel">Background color: </label>
               <select formControlName="backgroundColor" id="dropdownColorList">
-                @for (color of backgroundColors; track identifyByValue) {
+                @for (color of backgroundColors; track color) {
                   <option value="{{color}}" [ngStyle]="{'background-color': color}"> Choose background color
                     }
               </select>
@@ -58,13 +58,13 @@
         </div>
       }
     </div>
-    @if (this.styleForm) {
+    @if (styleForm) {
       <pre class="chContent" [ngStyle]="{
-    'font-size': this.styleForm.value.fontSize + 'px',
-    'font-family': this.styleForm.value.fontFamily + ', sans-serif',
-    'line-height': this.styleForm.value.lineHeight + '%',
-    'background-color' : this.styleForm.value.backgroundColor,
-    'text-align' : this.styleForm.value.alignText}">
+    'font-size': styleForm.value.fontSize + 'px',
+    'font-family': styleForm.value.fontFamily + ', sans-serif',
+    'line-height': styleForm.value.lineHeight + '%',
+    'background-color' : styleForm.value.backgroundColor,
+    'text-align' : styleForm.value.alignText} //noinspection UnresolvedReference">
         {{ chapterContent.content }}
       </pre>
     }

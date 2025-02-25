@@ -5,13 +5,15 @@ import {AuthorTabDataService} from './shared/author-tab-data.service';
 import {BookPreview} from '../shared/models/book-preview';
 import {UserAuthService} from '../../user/account/userAuth/user-auth.service';
 import {BookPreviewCardComponent} from '../book-preview-card/book-preview-card.component';
+import {NgOptimizedImage} from '@angular/common';
 
 @Component({
   selector: 'app-author-tab',
   imports: [
     RouterOutlet,
     RouterLink,
-    BookPreviewCardComponent
+    BookPreviewCardComponent,
+    NgOptimizedImage
   ],
   standalone: true,
   templateUrl: './author-tab.component.html',

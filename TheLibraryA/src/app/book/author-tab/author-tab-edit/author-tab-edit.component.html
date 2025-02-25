@@ -23,7 +23,7 @@
           <span><b>Current state</b>: {{this.currentlyEditingBook.bookState}}</span>
           <div class="column">
             <select formControlName="state" id="dropdownPreferenceList">
-              @for (bookState of stateArray; track identifyByIndex) {
+              @for (bookState of stateArray; track bookState) {
                 <option [ngValue]="bookState">
                   {{bookState}}
                 </option>
@@ -96,7 +96,7 @@
       <div class="tagDiv">
         <span class="tagsInfoText centerVH">Update tags that apply to your book:</span>
         <div formGroupName="bookTags" class="tagSelectorDiv row">
-          @for (tag of allTags; track identifyTag; let i = $index) {
+          @for (tag of allTags; let i = $index; track i) {
             <div class="mt-square3d-custom tagSelector" style="font-size:0.8em;">
               <span class="tagName">{{ tag }}</span>
               <input id="checkMt_{{i}}" type="checkbox" formControlName="{{i}}"/>
@@ -132,7 +132,8 @@
       </div>
     </form>
   } @else {
-    <img src="/dr-sun-yat-sen-classical-chinese-garden.jpg" style="width: 100%; height: auto;" alt="Calm pond">
+    <img ngSrc="/dr-sun-yat-sen-classical-chinese-garden.jpg" style="width: 100%; height: auto;" alt="Calm pond"
+         height="1105" width="1800" priority>
   }
   @if (showChapterEdit) {
     <app-chapter-edit class="floatBox" style="left: 40%" [currentBook]="currentlyEditingBook" (windowClosed)="showChapterEdit=false"></app-chapter-edit>
