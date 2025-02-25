@@ -10,11 +10,11 @@
           style="font-size: 1.1em; margin-right: 0.4em">Cultivation stage:<br><b
           style="font-style: italic">{{ rankArray[this.userData.rank] }}</b></span>
         <span>Accumulation needed:
-          @if (this.userData.rank === 10) {
+          @if (userData!.rank === 10) {
             <span style="color: #976c03; font-style: italic"><br>Heaven's Will is merciless,<br>Sea of Bitterness endless,<br>path to Ascension forever blocked...</span>
           } @else {
-            <app-progress-bar [current]="userData.currentScore"
-                              [goal]="progressArray[userData.rank]"></app-progress-bar>
+            <app-progress-bar [current]="userData!.currentScore"
+                              [goal]="progressArray[userData!.rank]"></app-progress-bar>
           }</span>
       </div>
       <div class="profileImgDiv">

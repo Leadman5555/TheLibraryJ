@@ -6,9 +6,13 @@
     (drop)="onDrop($event)"
     [class.active]="isDropZoneActive"
   >
-    <p *ngIf="!imagePreview">Drag and drop your profile image here, or click to browse.</p>
+    @if (!imagePreview) {
+      <p>Drag and drop your profile image here, or click to browse.</p>
+    }
     <div class="image34Wrapper">
-      <img *ngIf="imagePreview" [src]="imagePreview" alt="Image preview" class="image34"/>
+      @if (!imagePreview) {
+        <img [src]="imagePreview" alt="Default profile image" class="image34"/>
+      }
     </div>
     <input
       type="file"
@@ -23,5 +27,7 @@
     <button type="button" class="sButton sButtonColor" (click)="fileInput.click()">Browse local images</button>
     <button type="button" class="sButton sButtonColor" (click)="resetImage()">Reset image</button>
   </div>
-  <span class="errorBox" *ngIf="parentControl.invalid">Invalid file type of picture uploaded.</span>
+  @if (parentControl.invalid) {
+    <span class="errorBox">Invalid file type of picture uploaded.</span>
+  }
 </div>

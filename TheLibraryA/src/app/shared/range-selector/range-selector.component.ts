@@ -4,11 +4,10 @@ import {NgClass} from '@angular/common';
 
 @Component({
   selector: 'app-range-selector',
-  imports: [
-    NgClass
-  ],
+  imports: [NgClass],
   templateUrl: './range-selector.component.html',
-  styleUrl: './range-selector.component.css'
+  styleUrl: './range-selector.component.css',
+  standalone: true
 })
 export class RangeSelectorComponent {
   @Input() parentControl!: FormControl;

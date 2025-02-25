@@ -1,61 +1,65 @@
-<div *ngIf="chapterContent" class="outerBox column">
-  <div class="column blueBox" id="infoHeader">
-    <a id="bookTitle" (click)="routeToBook()">{{ bookTitle }}</a>
-    <div class="centerVH chTitle">
-      {{ chapterNumber }} :
-      {{ chapterContent.title }}
+@if (chapterContent) {
+  <div class="outerBox column">
+    <div class="column blueBox" id="infoHeader">
+      <a id="bookTitle" (click)="routeToBook()">{{ bookTitle }}</a>
+      <div class="centerVH chTitle">
+        {{ chapterNumber }} :
+        {{ chapterContent.title }}
+      </div>
+      <div class="row">
+        <button class="sButton" (click)="fetchChapter(chapterNumber-1)">Previous</button>
+        <button class="sButton" (click)="toggleSettings()">Settings</button>
+        <button class="sButton" (click)="fetchChapter(chapterNumber+1)">Next</button>
+      </div>
+      @if (showSettings) {
+        <div class="column" id="formBox">
+          <form [formGroup]="styleForm">
+            <div class="row settingsElem">
+              <label for="dropdownFontSizeList" class="outerLabel">Font size: </label>
+              <select formControlName="fontSize" id="dropdownFontSizeList">
+                @for (fontSize of maxFontSize | timesMax : minFontSize; track identifyByValue) {
+                  <option value="{{fontSize}}">{{ fontSize }}</option>
+                }
+              </select>
+            </div>
+            <div class="row settingsElem">
+              <label for="dropdownFontFamilyList" class="outerLabel">Font family: </label>
+              <select formControlName="fontFamily" id="dropdownFontFamilyList">
+                @for (fontFamily of fontFamilies; track identifyByValue) {
+                  <option value="{{fontFamily}}">{{ fontFamily }}</option>
+                }
+              </select>
+            </div>
+            <div class="row settingsElem">
+              <label for="dropdownLineHeightList" class="outerLabel">Line height: </label>
+              <select formControlName="lineHeight" id="dropdownLineHeightList">
+                @for (lh of maxLineHeight | timesMax : minLineHeight; track identifyByValue) {
+                  <option value="{{lh*10}}">{{ lh * 10 }}%</option>
+                }
+              </select>
+            </div>
+            <div class="row settingsElem">
+              <label for="dropdownColorList" class="outerLabel">Background color: </label>
+              <select formControlName="backgroundColor" id="dropdownColorList">
+                @for (color of backgroundColors; track identifyByValue) {
+                  <option value="{{color}}" [ngStyle]="{'background-color': color}"> Choose background color
+                    }
+              </select>
+            </div>
+            <div class="row settingsElem">
+              <label for="alignTextList" class="outerLabel">Align text: </label>
+              <select formControlName="alignText" id="alignTextList">
+                <option value="left">left</option>
+                <option value="center">center</option>
+                <option value="right">right</option>
+              </select>
+            </div>
+          </form>
+        </div>
+      }
     </div>
-    <div class="row">
-      <button class="sButton" (click)="fetchChapter(chapterNumber-1)">Previous</button>
-      <button class="sButton" (click)="toggleSettings()">Settings</button>
-      <button class="sButton" (click)="fetchChapter(chapterNumber+1)">Next</button>
-    </div>
-    <div *ngIf="showSettings" class="column" id="formBox">
-      <form [formGroup]="styleForm">
-        <div class="row settingsElem">
-          <label for="dropdownFontSizeList" class="outerLabel">Font size: </label>
-          <select formControlName="fontSize" id="dropdownFontSizeList">
-            <option *ngFor="let fontSize of maxFontSize | timesMax : minFontSize; trackBy identifyByValue"
-                    value="{{fontSize}}">{{ fontSize }}
-            </option>
-          </select>
-        </div>
-        <div class="row settingsElem">
-          <label for="dropdownFontFamilyList" class="outerLabel">Font family: </label>
-          <select formControlName="fontFamily" id="dropdownFontFamilyList">
-            <option *ngFor="let fontFamily of fontFamilies; trackBy identifyByValue"
-                    value="{{fontFamily}}">{{ fontFamily }}
-            </option>
-          </select>
-        </div>
-        <div class="row settingsElem">
-          <label for="dropdownLineHeightList" class="outerLabel">Line height: </label>
-          <select formControlName="lineHeight" id="dropdownLineHeightList">
-            <option *ngFor="let lh of maxLineHeight | timesMax: minLineHeight; trackBy identifyByValue"
-                    value="{{lh*10}}">{{ lh * 10 }}%
-            </option>
-          </select>
-        </div>
-        <div class="row settingsElem">
-          <label for="dropdownColorList" class="outerLabel">Background color: </label>
-          <select formControlName="backgroundColor" id="dropdownColorList">
-            <option *ngFor="let color of backgroundColors; trackBy identifyByValue"
-                    value="{{color}}" [ngStyle]="{'background-color': color}"> Choose background color
-            </option>
-          </select>
-        </div>
-        <div class="row settingsElem">
-          <label for="alignTextList" class="outerLabel">Align text: </label>
-          <select formControlName="alignText" id="alignTextList">
-            <option value="left">left</option>
-            <option value="center">center</option>
-            <option value="right">right</option>
-          </select>
-        </div>
-      </form>
-    </div>
-  </div>
-      <pre *ngIf="styleForm" class="chContent" [ngStyle]="{
+    @if (this.styleForm) {
+      <pre class="chContent" [ngStyle]="{
     'font-size': this.styleForm.value.fontSize + 'px',
     'font-family': this.styleForm.value.fontFamily + ', sans-serif',
     'line-height': this.styleForm.value.lineHeight + '%',
@@ -63,12 +67,14 @@
     'text-align' : this.styleForm.value.alignText}">
         {{ chapterContent.content }}
       </pre>
-  <div class="row blueBox">
-    <button class="sButton" (click)="fetchChapter(chapterNumber-1)">Previous</button>
-    <div class="centerVH chTitle">
-      {{ chapterNumber }} :
-      {{ chapterContent.title }}
+    }
+    <div class="row blueBox">
+      <button class="sButton" (click)="fetchChapter(chapterNumber-1)">Previous</button>
+      <div class="centerVH chTitle">
+        {{ chapterNumber }} :
+        {{ chapterContent.title }}
+      </div>
+      <button class="sButton" (click)="fetchChapter(chapterNumber+1)">Next</button>
     </div>
-    <button class="sButton" (click)="fetchChapter(chapterNumber+1)">Next</button>
   </div>
-</div>
+}

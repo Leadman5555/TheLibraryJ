@@ -34,11 +34,12 @@
             <label for="titleInput" class="input-label">The title shall be: </label>
             <span class="input-highlight"></span>
           </div>
-          <div class="errorBox"
-               *ngIf="bookCreationForm.get('title')?.invalid && (bookCreationForm.get('title')?.dirty)">
-            Enter a valid title, from 5 to 40 characters long. Allowed special characters: '-', ''', '!', '"', '_', and
-            whitespace.
-          </div>
+          @if (bookCreationForm.get('title')?.invalid && bookCreationForm.get('title')?.dirty) {
+            <div class="errorBox">
+              Enter a valid title, from 5 to 40 characters long. Allowed special characters: '-', ''', '!', '"', '_', and
+              whitespace.
+            </div>
+          }
         </div>
       </div>
       <div class="dropDiv">
@@ -46,27 +47,29 @@
       </div>
       <div class="buttonDiv row">
         <button class="sButton sButtonColor disabledHide" type="submit"
-                [disabled]="bookCreationForm.invalid || bookCreationForm.pristine">Create book
+                [disabled]="bookCreationForm.invalid || isFormPristine">Create book
         </button>
         <button class="sButton sButtonColor" type="reset" (click)="resetForm()">Reset</button>
       </div>
       <div class="tagDiv">
         <span class="tagsInfoText centerVH">Select at least one tag that applies to your book:</span>
         <div formGroupName="bookTags" class="tagSelectorDiv row">
-          <div class="mt-square3d-custom tagSelector" *ngFor="let tag of allTags; let i = index; trackBy: identifyTag"
-               style="font-size:0.8em;">
-            <span class="tagName">{{ tag }}</span>
-            <input id="checkMt_{{i}}" type="checkbox" formControlName="{{i}}"/>
-            <label for="checkMt_{{i}}"></label>
-          </div>
+          @for (tag of allTags; track identifyTag; let i = $index) {
+            <div class="mt-square3d-custom tagSelector" style="font-size:0.8em;">
+              <span class="tagName">{{ tag }}</span>
+              <input id="checkMt_{{i}}" type="checkbox" formControlName="{{i}}"/>
+              <label for="checkMt_{{i}}"></label>
+            </div>
+          }
         </div>
 
       </div>
       <div class="descriptionDiv column">
-        <div class="errorBox"
-             *ngIf="bookCreationForm.get('description')?.invalid && (bookCreationForm.get('description')?.dirty)">
-          Enter between 50 and 700 characters.
-        </div>
+        @if (bookCreationForm.get('description')?.invalid && bookCreationForm.get('description')?.dirty){
+          <div class="errorBox">
+            Enter between 50 and 700 characters.
+          </div>
+        }
         <textarea
           placeholder="Enter description here"
                   class="textArea"
@@ -86,7 +89,9 @@
             <li>The remaining information as well as adding chapters can be done after creating the book from the Book-Edit tab. Simply click the Book preview Card on the left to proceed.</li>
           </ul>
         </div>
-        <span class="errorBox" *ngIf="bookCreationErrorMessage">{{ this.bookCreationErrorMessage }}</span>
+        @if (bookCreationErrorMessage) {
+          <span class="errorBox">{{ this.bookCreationErrorMessage }}</span>
+        }
       </div>
     </form>
   }

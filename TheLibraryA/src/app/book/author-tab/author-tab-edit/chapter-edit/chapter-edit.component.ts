@@ -1,16 +1,15 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {
-  AbstractControl, FormBuilder,
+  AbstractControl,
+  FormBuilder,
   FormControl,
   FormGroup,
-  NonNullableFormBuilder,
   ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
   Validators
 } from '@angular/forms';
 import {BookService} from '../../../shared/book-service';
-import {NgIf} from '@angular/common';
 import {textFileTypesValidator} from '../../../../shared/functions/fileTypeValidator';
 import {AuthorTabDataService} from '../../shared/author-tab-data.service';
 import {BookResponse} from '../../../shared/models/book-response';
@@ -24,7 +23,7 @@ export function fileNameValidator(): ValidatorFn {
     if(files.find(file => {
       const index = file.name.lastIndexOf('.');
       if(index === -1) return true;
-      return file.name.substring(0, index).match('^([0-9])+(\\s-\\s(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s\'_"!.-]*)?$') === null
+      return file.name.substring(0, index).match(/^([0-9])+(\s-\s(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\s'_"!.-]*)?$/) === null
     })) return {invalidFileName: true};
     return null;
   }
@@ -33,8 +32,7 @@ export function fileNameValidator(): ValidatorFn {
 @Component({
   selector: 'app-chapter-edit',
   imports: [
-    ReactiveFormsModule,
-    NgIf
+    ReactiveFormsModule
   ],
   templateUrl: './chapter-edit.component.html',
   styleUrl: './chapter-edit.component.css'

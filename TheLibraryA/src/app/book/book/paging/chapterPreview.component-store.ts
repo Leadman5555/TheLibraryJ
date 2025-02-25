@@ -63,7 +63,7 @@ export class ChapterPreviewComponentStore extends GenericComponentStore<ChapterP
       map(([, state]) => state),
       switchMap((currentState) => {
           if (currentState.bookId === '') return scheduled([], asyncScheduler)
-          else return this.bookService.getChapterPreviewsPageByOffset(currentState.bookId, currentState.pageInfo.page, currentState.pageInfo.keysetPage.maxResults).pipe(
+          else return this.bookService.getChapterPreviewsPageByOffset(currentState.bookId, currentState.pageInfo.page ?? this.initialState.pageInfo.page, currentState.pageInfo.keysetPage?.maxResults ?? this.initialState.pageInfo.keysetPage.maxResults).pipe(
             tapResponse(
               (newChapterPreviewPage: ChapterPreviewPage) => {
                 this.updatePage(newChapterPreviewPage);

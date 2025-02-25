@@ -1,14 +1,12 @@
 import {Component, Input} from '@angular/core';
-import {NgIf} from "@angular/common";
 import {FormControl} from '@angular/forms';
 
 @Component({
   selector: 'app-image-drop',
-    imports: [
-        NgIf
-    ],
+  imports: [],
   templateUrl: './image-drop.component.html',
-  styleUrl: './image-drop.component.css'
+  styleUrl: './image-drop.component.css',
+  standalone: true
 })
 export class ImageDropComponent {
   isDropZoneActive: boolean = false;

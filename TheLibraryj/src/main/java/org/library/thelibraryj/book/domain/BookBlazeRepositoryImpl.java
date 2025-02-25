@@ -75,30 +75,34 @@ class BookBlazeRepositoryImpl extends BlazeRepositoryBase implements BookBlazeRe
     }
 
     @Override
-    public PagedList<BookPreview> getKeySetPagedBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags, Boolean ratingOrder, KeysetPage page, int pageNumber) {
-        return createBookPreviewParamCB(titleLike, minChapters, minRating, state, tags, ratingOrder)
+    public PagedList<BookPreview> getKeySetPagedBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags, Boolean sortAscByRating, KeysetPage page, int pageNumber) {
+        return createBookPreviewParamCB(titleLike, minChapters, minRating, state, tags, sortAscByRating)
                 .page(page, page.getMaxResults() * pageNumber, page.getMaxResults())
                 .withKeysetExtraction(true)
                 .getResultList();
     }
 
     @Override
-    public PagedList<BookPreview> getOffsetBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags, Boolean ratingOrder, int pageSize, int pageNumber) {
-        return createBookPreviewParamCB(titleLike, minChapters, minRating, state, tags, ratingOrder)
+    public PagedList<BookPreview> getOffsetBookPreviewByParams(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags, Boolean sortAscByRating, int pageSize, int pageNumber) {
+        return createBookPreviewParamCB(titleLike, minChapters, minRating, state, tags, sortAscByRating)
                 .page(pageNumber * pageSize, pageSize)
                 .withKeysetExtraction(true)
                 .getResultList();
     }
 
-    private CriteriaBuilder<BookPreview> createBookPreviewParamCB(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags, Boolean ratingOrder) {
-        CriteriaBuilder<BookPreview> cb = cbf.create(em, BookPreview.class).orderByDesc("chapterCount").orderByDesc("id");
+    private CriteriaBuilder<BookPreview> createBookPreviewParamCB(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] tags, Boolean sortAscByRating) {
+        CriteriaBuilder<BookPreview> cb = cbf.create(em, BookPreview.class);
         if (titleLike != null) cb.whereExpression("title LIKE :titleLike").setParameter("titleLike", titleLike + '%');
         if (minChapters != null) cb.where("chapterCount").ge(minChapters);
         if (minRating != null) cb.where("averageRating").ge(minRating);
         if (state != null) cb.where("bookState").eq(state);
         if (tags != null)
-            for (BookTag tag : tags) cb.where(":tag").isMemberOf("bookTags").setParameter("tag", tag);
-        if (ratingOrder != null) cb.orderBy("averageRating", ratingOrder);
+            for (int i = 0; i < tags.length; i++){
+                String paramName = "tag_" + i;
+                cb.where(':' + paramName).isMemberOf("bookTags").setParameter(paramName, tags[i]);
+            }
+        if (sortAscByRating != null) cb.orderBy("averageRating", sortAscByRating).orderByDesc("id");
+        else cb.orderByDesc("chapterCount").orderByDesc("id");
         return cb;
     }
 

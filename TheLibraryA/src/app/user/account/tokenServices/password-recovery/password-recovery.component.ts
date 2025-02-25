@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {NgIf} from '@angular/common';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {passwordMatchValidator} from './passwordMatchValidator';
 import {handleError} from '../../../../shared/errorHandling/handleError';
@@ -10,7 +9,6 @@ import {catchError} from 'rxjs';
 @Component({
   selector: 'app-password-recovery',
   imports: [
-    NgIf,
     ReactiveFormsModule,
     RouterLink
   ],
@@ -42,7 +40,7 @@ export class PasswordRecoveryComponent implements OnInit {
     if (tokenValue) {
       this.tokenValue = tokenValue;
       this.passwordResetForm = new FormGroup({
-          newPassword: new FormControl('', {validators: [Validators.required, Validators.minLength(8), Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).*$'), Validators.maxLength(30)]}),
+          newPassword: new FormControl('', {validators: [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).*$/), Validators.maxLength(30)]}),
           repeatPassword: new FormControl('', {validators: [Validators.required]})
         },
         {validators: passwordMatchValidator()});
@@ -56,6 +54,19 @@ export class PasswordRecoveryComponent implements OnInit {
   get passwordMismatchError(): boolean {
     return this.passwordResetForm?.errors?.['passwordMismatch'] ?? false;
   }
+
+  get isPasswordFormPristine(): boolean {
+    return this.passwordResetForm!.pristine;
+  }
+
+  get isEmailFormPristine(): boolean {
+    return this.emailInputForm!.pristine;
+  }
+
+  get isPasswordFormTouched(): boolean {
+    return this.passwordResetForm!.touched;
+  }
+
 
   sendPasswordResetEmail() {
     this.successSend = undefined;

@@ -2,19 +2,17 @@ import {Component, inject, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {BookService} from '../shared/book-service';
 import {ChapterContent} from '../shared/models/chapter-content';
-import {NgForOf, NgIf, NgStyle} from '@angular/common';
 import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {TimesMaxPipe} from '../../shared/pipes/times-max.pipe';
 import {identifyByValue} from '../../shared/functions/indentify';
+import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-chapter',
   imports: [
-    NgIf,
-    NgStyle,
     ReactiveFormsModule,
-    NgForOf,
-    TimesMaxPipe
+    TimesMaxPipe,
+    NgStyle
   ],
   templateUrl: './chapter.component.html',
   standalone: true,

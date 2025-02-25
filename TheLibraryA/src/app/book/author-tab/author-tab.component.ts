@@ -13,6 +13,7 @@ import {BookPreviewCardComponent} from '../book-preview-card/book-preview-card.c
     RouterLink,
     BookPreviewCardComponent
   ],
+  standalone: true,
   templateUrl: './author-tab.component.html',
   styleUrl: './author-tab.component.css'
 })

@@ -21,6 +21,10 @@ export class AuthorTabDataService {
     return this.currentlyEditing.value;
   }
 
+  getCurrentlyEditingObservable() {
+    return this.currentlyEditing.asObservable();
+  }
+
 
 
 }

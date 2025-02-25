@@ -7,7 +7,6 @@ import {logError} from '../../../shared/errorHandling/handleError';
 import {HttpErrorResponse} from '@angular/common/http';
 
 
-
 @Injectable({
   providedIn: 'root'
 })
@@ -22,7 +21,7 @@ export class HomeComponentStore extends BookPreviewComponentStore {
       withLatestFrom(this.select((state) => state)),
       map(([, state]) => state),
       switchMap((currentState) =>
-        this.bookService.getBookPreviewsPageByOffset(currentState.pageInfo.page, currentState.pageInfo.keysetPage.maxResults).pipe(
+        this.bookService.getBookPreviewsPageByOffset(currentState.pageInfo.page ?? this.initialState.pageInfo.page, currentState.pageInfo.keysetPage?.maxResults ?? this.initialState.pageInfo.keysetPage.maxResults).pipe(
           tapResponse(
             (newBookPage: BookPage) => {
               this.updatePage(newBookPage);

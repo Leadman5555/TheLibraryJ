@@ -2,7 +2,6 @@ import {afterNextRender, ChangeDetectorRef, Component, OnInit} from '@angular/co
 import {RouterLink, RouterOutlet} from '@angular/router';
 import {UserAuthService} from './user/account/userAuth/user-auth.service';
 import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {NgIf, NgOptimizedImage} from '@angular/common';
 import {AuthenticationRequest} from './user/shared/models/authentication-request';
 import {UserMini} from './user/shared/models/user-mini';
 import {EventBusService, LOGIN_EVENT, LOGOUT_EVENT, REFRESH_EVENT} from './shared/eventBus/event-bus.service';
@@ -10,10 +9,12 @@ import {Subscription} from 'rxjs';
 import {StorageService} from './shared/storage/storage.service';
 import {UserSearchComponent} from './user/profile/user-search/user-search.component';
 import {logError} from './shared/errorHandling/handleError';
+import { NgOptimizedImage } from '@angular/common';
+
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, NgIf, ReactiveFormsModule, NgOptimizedImage, UserSearchComponent],
+  imports: [RouterOutlet, RouterLink, ReactiveFormsModule, UserSearchComponent, NgOptimizedImage],
   templateUrl: './app.component.html',
   standalone: true,
   styleUrl: './app.component.css'
@@ -135,5 +136,10 @@ export class AppComponent implements OnInit {
       error: (err) => console.error("Google login unavailable", err)
     });
   }
+
+  get isFormPristine(): boolean {
+    return this.logInForm!.pristine;
+  }
+
 
 }

@@ -3,15 +3,13 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {handleError} from '../../../../shared/errorHandling/handleError';
-import {NgIf} from '@angular/common';
 import {catchError} from 'rxjs';
 
 @Component({
   selector: 'app-account-activation',
   imports: [
-    NgIf,
     ReactiveFormsModule,
-    RouterLink
+    RouterLink,
   ],
   templateUrl: './account-activation.component.html',
   standalone: true,
@@ -86,5 +84,9 @@ export class AccountActivationComponent implements OnInit {
     this.emailInputForm = new FormGroup({
       email: new FormControl('', {validators: [Validators.required, Validators.email]})
     });
+  }
+
+  get isFormPristine(): boolean {
+    return this.emailInputForm!.pristine;
   }
 }

@@ -1,18 +1,18 @@
 import {Component, inject} from '@angular/core';
 import {BookPreview} from '../../book/shared/models/book-preview';
 import {ReactiveFormsModule} from '@angular/forms';
-import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {BookPreviewCardComponent} from '../../book/book-preview-card/book-preview-card.component';
 import {provideComponentStore} from '@ngrx/component-store';
 import {HomeComponentStore} from './paging/home.component-store';
 import {TimesMaxPagingPipe} from '../../shared/pipes/times-max-paging.pipe';
 import {BookFilterComponent} from '../../book/book-filter/filterBox/book-filter.component';
-import {PagingHelper} from '../../shared/paging/paging-helper';
+import { AsyncPipe } from '@angular/common';
+
 
 @Component({
   selector: 'app-home',
   imports: [
-    ReactiveFormsModule, NgIf, NgForOf, BookPreviewCardComponent, AsyncPipe, TimesMaxPagingPipe, BookFilterComponent
+    ReactiveFormsModule, AsyncPipe, BookPreviewCardComponent, TimesMaxPagingPipe, BookFilterComponent
   ],
   providers: [
     provideComponentStore(HomeComponentStore)

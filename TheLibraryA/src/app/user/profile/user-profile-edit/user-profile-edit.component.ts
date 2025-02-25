@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {UserProfileData} from '../shared/user-profile-data';
 import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
-import {NgForOf, NgIf} from '@angular/common';
 import {usernameMatchValidator} from './usernameMatchValidator';
 import {findTitle, preferenceArray, PreferenceTitle, progressArray, rankArray} from '../shared/rankTitles';
 import {identifyByIndex} from '../../../shared/functions/indentify';
@@ -33,8 +32,6 @@ const ANIMATION_HOLD_MS: number = 2000;
   selector: 'app-user-profile-edit',
   imports: [
     ImageDropComponent,
-    NgIf,
-    NgForOf,
     ReactiveFormsModule,
     ProgressBarComponent,
   ],
@@ -56,7 +53,8 @@ const ANIMATION_HOLD_MS: number = 2000;
         animate(`${ANIMATION_OUT_MS}ms ease-in-out`)
       ])
     ])
-  ]
+  ],
+  standalone: true,
 })
 export class UserProfileEditComponent implements OnInit {
   constructor(private fb: NonNullableFormBuilder, private userProfileService: UserProfileService, private userAuthService: UserAuthService) {
@@ -66,7 +64,7 @@ export class UserProfileEditComponent implements OnInit {
             Validators.required,
             Validators.minLength(5),
             Validators.maxLength(20),
-            Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9_-]+$')
+            Validators.pattern(/^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9_-]+$/)
           ]
         ],
         repeatUsername: ['', [Validators.required]]
@@ -132,6 +130,18 @@ export class UserProfileEditComponent implements OnInit {
   protected statusUpdateForm!: FormGroup;
   protected usernameUpdateForm: FormGroup;
   protected preferenceUpdateForm!: FormGroup;
+
+  get isUsernameUpdateFormPristine(): boolean {
+    return this.usernameUpdateForm.pristine;
+  }
+
+  get isUsernameUpdateFormTouched(): boolean {
+    return this.usernameUpdateForm.touched;
+  }
+
+  get isPreferenceUpdateFormPristine(): boolean {
+    return this.preferenceUpdateForm.pristine;
+  }
 
 
   profileImageUpdateErrorMessage?: String = undefined;

@@ -97,10 +97,10 @@ class BookController implements ErrorHandling {
                                                                                          @RequestParam(name = "minRating", required = false) Float minRating,
                                                                                          @RequestParam(value = "state", required = false) BookState state,
                                                                                          @RequestParam(value = "hasTags", required = false) BookTag[] hasTags,
-                                                                                         @RequestParam(value = "ratingOrder", required = false) Boolean ratingOrder,
+                                                                                         @RequestParam(value = "sortAscByRating", required = false) Boolean sortAscByRating,
                                                                                          @RequestParam(name = "pageSize") @Min(1) int pageSize,
                                                                                          @RequestParam(name = "page") @Min(0) int page) {
-        return ResponseEntity.ok(bookService.getByParamsOffsetPaged(titleLike, minChapters, minRating, state, hasTags, ratingOrder, pageSize, page));
+        return ResponseEntity.ok(bookService.getByParamsOffsetPaged(titleLike, minChapters, minRating, state, hasTags, sortAscByRating, pageSize, page));
     }
 
     @Operation(
@@ -116,10 +116,10 @@ class BookController implements ErrorHandling {
                                                                                          @RequestParam(name = "minRating", required = false) Float minRating,
                                                                                          @RequestParam(value = "state", required = false) BookState state,
                                                                                          @RequestParam(value = "hasTags", required = false) BookTag[] hasTags,
-                                                                                         @RequestParam(value = "ratingOrder", required = false) Boolean ratingOrder,
+                                                                                         @RequestParam(value = "sortAscByRating", required = false) Boolean sortAscByRating,
                                                                                          @RequestParam(name = "page") @Min(0) int page,
                                                                                          @NonNull @RequestBody PreviewKeySetPage keySetPage) {
-        return ResponseEntity.ok(bookService.getByParamsKeySetPaged(titleLike, minChapters, minRating, state, hasTags, ratingOrder, keySetPage, page));
+        return ResponseEntity.ok(bookService.getByParamsKeySetPaged(titleLike, minChapters, minRating, state, hasTags, sortAscByRating, keySetPage, page));
     }
 
     @Operation(

@@ -22,7 +22,8 @@ import {parseDateString} from '../../../shared/functions/parseData';
     ProgressBarComponent
   ],
   templateUrl: './user-profile.component.html',
-  styleUrl: './user-profile.component.css'
+  styleUrl: './user-profile.component.css',
+  standalone: true,
 })
 
 export class UserProfileComponent implements OnInit, OnDestroy {

@@ -2,28 +2,32 @@
   <div id="infoDiv">
     <div class="row">
       <span style="font-size: 1.2em; font-weight: bold">Show version for fellow daoists:</span>
-      <div class="mt-square3d-custom" >
+      <div class="mt-square3d-custom">
         <input id="toggle" type="checkbox" (click)="toggleShowVersion()"/>
         <label for="toggle"> </label>
-    </div>
+      </div>
     </div>
     @if (showVersion) {
       <p class="disclaimer">
         Register your account. <br>
-        Remember that emails and usernames must be unique, so your desired one might not be available. Don't worry if that
+        Remember that emails and usernames must be unique, so your desired one might not be available. Don't worry if
+        that
         happens, you can change your username every 90 days.
         <br> Setting the profile image is optional. If you don't set it, a default image will be used instead. The image
-        can also be changed, even daily. Allowed picture formats are: .png, .jpg, .jpeg and .webp, all up to 2MB in size.<br>
+        can also be changed, even daily. Allowed picture formats are: .png, .jpg, .jpeg and .webp, all up to 2MB in
+        size.<br>
         Your profile image and username will be visible to other users. Your email will not be disclosed. <br>
         By default, your account will be inactive. You will have to activate it by clicking on the link in the received
-        activation email. If you did not receive the email upon successful registration, please head to Settings=>Trouble
+        activation email. If you did not receive the email upon successful registration, please head to
+        Settings=>Trouble
         logging in?=>Activate account.<br>
         By registering, you agree to our <a href="https://www.privacypolicies.com/blog/sample-terms-service-template/">Terms
         of Service</a> and <a href="https://www.privacypolicies.com/blog/sample-terms-service-template/">Privacy
         Policy</a>.<br>
         If you decide to register with Google, you will be asked to authorize the application to access some of your
         Google account details, limited to your name, surname and email. No other information will be processed.
-        The default username after Google registration will be the concatenation of your name and surname (non latin characters will be replaced). The profile
+        The default username after Google registration will be the concatenation of your name and surname (non latin
+        characters will be replaced). The profile
         image will be the default one. You can change that after registration.
         Additionally, if you register your account with Google, you will not be able to log in without using Google
         Authentication services in the future.<br>
@@ -31,24 +35,28 @@
         store Cookies in your web browser. Those Cookies are necessary for authentication purposes and keeping you
         logged in.<br>
         Without them, refreshing the page or opening it in another tab would result in you being logged out. The Cookies
-        and any other data stored after you log in are removed when you log out. No stored data is sensitive and all of it is strictly limited
+        and any other data stored after you log in are removed when you log out. No stored data is sensitive and all of
+        it is strictly limited
         to what other users can see.<br>
         This website does not collect any personal information.
       </p>
     } @else {
       <p class="disclaimer">
         Another one, great, wonder if those twelve spirit stones are worth it... <br>
-        Fine, listen up carefully, I won't repeat myself. Even though your daoist title should express thyself fully, there may be others who share your disposition.
+        Fine, listen up carefully, I won't repeat myself. Even though your daoist title should express thyself fully,
+        there may be others who share your disposition.
         Thus, every 90 nights, the sect will graciously allow you to choose a new name to be bestowed with.
         <br> Shaping the image of your divine will is not needed, although encouraged. After all, reputation can shake
-        oceans and move mountains, just remember, the image must come from .png, .jpg, .jpeg or .webp school refinement masters. At worst, the sect shall grant your will a worthy image. In either case, it can be
+        oceans and move mountains, just remember, the image must come from .png, .jpg, .jpeg or .webp school refinement
+        masters. At worst, the sect shall grant your will a worthy image. In either case, it can be
         changed at a later date.<br>
         Of course, your daoist title and divine will shape will be seen and judged by others. Your true name though,
         that shall remain a secret, lest a demonic expert casts a bloodline or soul curse on you. <br>
         After joining, your immortal cave will still be closed. You need to get a jade slip from the Outer Court Elder,
         Zhao Jiang first. If he forgets to give it to you, don't hesitate to remind him. Respectfully of course. He
         tends to spend his days in Troubled pavilion, hidden under the Settings abode.<br>
-        Accepting the rules of the sect is something I hope I don't need to remind you of. You can find a copy of them on
+        Accepting the rules of the sect is something I hope I don't need to remind you of. You can find a copy of them
+        on
         those jade slips: <a href="https://www.privacypolicies.com/blog/sample-terms-service-template/">first jade
         slip</a>, <a href="https://www.privacypolicies.com/blog/sample-terms-service-template/">second jade
         slip</a>. I doubt you'd find them of particular interest though.<br>
@@ -60,8 +68,10 @@
         at least.
         Oh, it nearly slipped my mind, using the decree once means having your soul bound to it. Separating those two
         lies beyond the capabilities of the likes of me. And I doubt you'd have anything that would move the hearts of
-        the Elders, convincing them to lend a hand. Oh, their single breath worth more than a decade of your bitterness...<br>
-        After you join, the sect will keep a few drops of your blood in the Grand Formation. If not for it, you'd be crushed
+        the Elders, convincing them to lend a hand. Oh, their single breath worth more than a decade of your
+        bitterness...<br>
+        After you join, the sect will keep a few drops of your blood in the Grand Formation. If not for it, you'd be
+        crushed
         to death like an ant by its power, treated akin to a guest, without any ties of karma.<br>
         As for other things you own, who'd like to store such useless stuff anyway? Now, carry on, don't bother me any
         longer, my tea is growing cold.<br><br>
@@ -71,78 +81,92 @@
     }
   </div>
   <div id="formDiv">
-    @if(!registerSuccess) {
-    <form id="passwordResetForm column" style="border: 0.2em solid darkgoldenrod; padding: 0.6em" *ngIf="registerForm" [formGroup]="registerForm"
-          (ngSubmit)="attemptRegistration()">
-      <div class="column">
-        <p class="errorBox" style="width: 100%; word-break: break-word" *ngIf="errorMessage">{{ errorMessage }}</p>
-        <div class="inputColumn">
-          <div class="input-container">
-            <input placeholder="Enter email here" class="input-field" id="emailInput" type="text" maxlength="30"
-                   formControlName="email">
-            <label for="emailInput" class="input-label">Email: </label>
-            <span class="input-highlight"></span>
-          </div>
-          <div class="errorBox alignLeft" *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.dirty)">
-            Enter a valid email address
-          </div>
-        </div>
-        <div class="inputColumn">
-          <div class="input-container">
-            <input placeholder="Enter username here" class="input-field" id="usernameInput" type="text" maxlength="20"
-                   formControlName="username">
-            <label for="usernameInput" class="input-label">Username: </label>
-            <span class="input-highlight"></span>
-          </div>
-          <div class="errorBox alignLeft" *ngIf="registerForm.get('username')?.invalid && (registerForm.get('username')?.dirty)">
-            Username can only contain letters ('a-z' and 'A-Z'), digits ('0-9'), hi-fens ('-') and underscores ('_').
-            Username must be between 5 and 20 characters long.
-          </div>
-        </div>
-      </div>
-      <div class="row" style="margin-top:  1em; margin-bottom:  1em">
-        <div class="column" style="margin-right: 1.2em">
-          <div>
-            <div class="input-container">
-              <input placeholder="Enter password" class="input-field" id="passwordInput1"
-                     [type]="showPassword ? 'text' : 'password'" maxlength="30" formControlName="newPassword">
-              <label for="passwordInput1" class="input-label">Password: </label>
-              <span class="input-highlight"></span>
+    @if (!registerSuccess) {
+      @if (registerForm) {
+        <form id="passwordResetForm column" style="border: 0.2em solid darkgoldenrod; padding: 0.6em"
+              [formGroup]="registerForm"
+              (ngSubmit)="attemptRegistration()">
+          <div class="column">
+            @if (errorMessage) {
+              <p class="errorBox" style="width: 100%; word-break: break-word">{{ errorMessage }}</p>
+            }
+            <div class="inputColumn">
+              <div class="input-container">
+                <input placeholder="Enter email here" class="input-field" id="emailInput" type="text" maxlength="30"
+                       formControlName="email">
+                <label for="emailInput" class="input-label">Email: </label>
+                <span class="input-highlight"></span>
+              </div>
+              @if (registerForm.get('email')?.invalid && registerForm.get('email')?.dirty) {
+                <div class="errorBox alignLeft">
+                  Enter a valid email address
+                </div>
+              }
             </div>
-            <div class="errorBox alignLeft"
-                 *ngIf="registerForm.get('newPassword')?.invalid && (registerForm.get('newPassword')?.dirty)">
-              Enter at between 8 and 30 characters, including at least one uppercase letter, one lowercase letter and
-              one
-              special character.
+            <div class="inputColumn">
+              <div class="input-container">
+                <input placeholder="Enter username here" class="input-field" id="usernameInput" type="text"
+                       maxlength="20"
+                       formControlName="username">
+                <label for="usernameInput" class="input-label">Username: </label>
+                <span class="input-highlight"></span>
+              </div>
+              @if (registerForm.get('username')?.invalid && registerForm.get('username')?.dirty) {
+                <div class="errorBox alignLeft">
+                  Username can only contain letters ('a-z' and 'A-Z'), digits ('0-9'), hi-fens ('-') and underscores
+                  ('_').
+                  Username must be between 5 and 20 characters long.
+                </div>
+              }
             </div>
           </div>
-          <div id="repeatPassword" style="margin-bottom:  1em">
-            <div class="input-container">
-              <input placeholder="Repeat the password" class="input-field" id="passwordInput2"
-                     [type]="showPassword ? 'text' : 'password'" maxlength="30" formControlName="repeatPassword">
-              <label for="passwordInput2" class="input-label">Repeat password: </label>
-              <span class="input-highlight"></span>
+          <div class="row" style="margin-top:  1em; margin-bottom:  1em">
+            <div class="column" style="margin-right: 1.2em">
+              <div>
+                <div class="input-container">
+                  <input placeholder="Enter password" class="input-field" id="passwordInput1"
+                         [type]="showPassword ? 'text' : 'password'" maxlength="30" formControlName="newPassword">
+                  <label for="passwordInput1" class="input-label">Password: </label>
+                  <span class="input-highlight"></span>
+                </div>
+                @if (registerForm.get('newPassword')?.invalid && registerForm.get('newPassword')?.dirty) {
+                  <div class="errorBox alignLeft">
+                    Enter at between 8 and 30 characters, including at least one uppercase letter, one lowercase letter
+                    and one special character.
+                  </div>
+                }
+              </div>
+              <div id="repeatPassword" style="margin-bottom:  1em">
+                <div class="input-container">
+                  <input placeholder="Repeat the password" class="input-field" id="passwordInput2"
+                         [type]="showPassword ? 'text' : 'password'" maxlength="30" formControlName="repeatPassword">
+                  <label for="passwordInput2" class="input-label">Repeat password: </label>
+                  <span class="input-highlight"></span>
+                </div>
+                @if (passwordMismatchError && isFormTouched) {
+                  <div class="errorBox alignLeft">
+                    Passwords do not match
+                  </div>
+                }
+              </div>
             </div>
-            <div class="errorBox alignLeft" *ngIf="passwordMismatchError && registerForm.touched">
-              Passwords do not match
-            </div>
+            <button class="sButton" type="button" style="font-size: 0.84em; margin-top: 10%"
+                    (click)="toggleShowPassword()">
+              {{ showPassword ? 'Hide' : 'Show' }} Password
+            </button>
           </div>
-        </div>
-        <button class="sButton" type="button" style="font-size: 0.84em; margin-top: 10%" (click)="toggleShowPassword()">
-          {{ showPassword ? 'Hide' : 'Show' }} Password
-        </button>
-      </div>
-      <app-image-drop [parentControl]="profileImageControl"></app-image-drop>
-      <div class="row" style="margin-top:  1em;">
-        <button class="sButton" type="submit" [disabled]="registerForm.invalid || registerForm.pristine">Register
-          account
-        </button>
-        <button class="sButton" type="button" (click)="resetForm()">Reset form</button>
-        <img ngSrc="/google_register.png" width="180" height="40" alt="Register with Google"
-             (click)="logInWithGoogle()">
-      </div>
-    </form>
-    }@else {
+          <app-image-drop [parentControl]="profileImageControl"></app-image-drop>
+          <div class="row" style="margin-top:  1em;">
+            <button class="sButton" type="submit" [disabled]="registerForm.invalid || isFormPristine">Register
+              account
+            </button>
+            <button class="sButton" type="button" (click)="resetForm()">Reset form</button>
+            <img ngSrc="/google_register.png" width="180" height="40" alt="Register with Google"
+                 (click)="logInWithGoogle()" priority>
+          </div>
+        </form>
+      }
+    } @else {
       <div class="column" style="font-size: 1.2em; width: 40%; margin: auto; text-align: left">
         <p>Registration was successful. Registered account data:</p>
         <ul>
@@ -151,13 +175,17 @@
           <li>Current Score: {{ createdUser?.currentScore }}</li>
           <li>Rank: {{ createdUser?.rank }}</li>
           <div class="column">
-            <span>Profile Image:</span> <div class="image34Wrapper">
-            <img *ngIf="createdUser?.profileImage" src="data:image/jpg;base64,{{createdUser?.profileImage}}"
-                 alt="Profile Image" class="image34">
-          </div>
+            <span>Profile Image:</span>
+            <div class="image34Wrapper">
+              @if (createdUser?.profileImage) {
+                <img src="data:image/jpg;base64,{{createdUser?.profileImage}}"
+                     alt="Profile Image" class="image34">
+              }
+            </div>
           </div>
         </ul>
-        <p>Remember that you must activate your account before using it. If you did not receive an activation email, please follow the instructions on listed the left side of the screen.</p>
+        <p>Remember that you must activate your account before using it. If you did not receive an activation email,
+          please follow the instructions on listed the left side of the screen.</p>
         <p style="text-align: center">Peaceful journey.</p>
         <button class="sButton" routerLink="">Return to homepage</button>
       </div>

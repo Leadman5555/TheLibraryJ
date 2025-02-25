@@ -56,4 +56,5 @@
 
 .disabledHide:disabled{
   display: none;
+  pointer-events: none;
 }

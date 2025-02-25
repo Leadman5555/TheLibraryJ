@@ -10,7 +10,6 @@ import {
 } from '@angular/forms';
 import {UserAuthService} from '../../../user/account/userAuth/user-auth.service';
 import {BookResponse} from '../../shared/models/book-response';
-import {NgForOf, NgIf} from '@angular/common';
 import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
 import {allTags, identifyTag} from '../../shared/models/BookTag';
 import {atLeastOneValidator} from '../../../shared/functions/atLeastOneValidator';
@@ -21,12 +20,11 @@ import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidato
   selector: 'app-author-tab-create',
   imports: [
     ReactiveFormsModule,
-    NgIf,
-    ImageDropComponent,
-    NgForOf
+    ImageDropComponent
   ],
   templateUrl: './author-tab-create.component.html',
-  styleUrl: './author-tab-create.component.css'
+  styleUrl: './author-tab-create.component.css',
+  standalone: true,
 })
 export class AuthorTabCreateComponent {
   constructor(private bookService: BookService, private fb: NonNullableFormBuilder, private userAuthService: UserAuthService) {
@@ -37,8 +35,8 @@ export class AuthorTabCreateComponent {
     }
     this.authorEmail = email;
     this.bookCreationForm = this.fb.group({
-      title: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(40), Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s\'_!.-]*$')]],
-      description: ['', [Validators.required, carriageReturnLengthValidator(50, 800), Validators.pattern(/^[^<>]*(?:[<>][^<>]*){0,9}$/)]],
+      title: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(40), Validators.pattern(/^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\s'_!.-]*$/)]],
+      description: ['', [Validators.required, carriageReturnLengthValidator(50, 800)]],
       bookTags: this.fb.array(allTags.map(() => false), atLeastOneValidator()),
       coverImage: [null, imageFileTypeValidator()],
     });
@@ -49,6 +47,10 @@ export class AuthorTabCreateComponent {
 
   getCoverImageControl(): FormControl {
     return this.bookCreationForm.get('coverImage') as FormControl;
+  }
+
+  get isFormPristine(): boolean {
+    return this.bookCreationForm!.pristine;
   }
 
   bookCreationErrorMessage: string | null = null;

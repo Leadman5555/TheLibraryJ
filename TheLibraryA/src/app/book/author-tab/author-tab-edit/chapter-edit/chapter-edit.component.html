@@ -36,17 +36,20 @@
     <button type="button" class="sButton" (click)="fileInput.click()">Browse local files</button>
   </div>
   <div class="messageDiv column">
-    <div class="errorBox" *ngIf="getFilesControl().errors?.['invalidFileType']">
-      Invalid file type. Only .txt, .docx, .doc, or .odt files are allowed.
-    </div>
-    <div class="errorBox" *ngIf="getFilesControl().errors?.['invalidFileName']">
-      One or more of uploaded file names is not in the required format.
-    </div>
-    <div class="errorBox" *ngIf="getFilesControl().errors?.['maxlength']">
-      Upload limit reached. Maximum number of files per upload is 50.
-    </div>
-    <span *ngIf="!getFilesControl().errors" class="centerVH">{{ uploadMessage }}</span>
-    <span *ngIf="this.uploadErrorMessage" class="errorBox">{{ uploadErrorMessage }}</span>
+    @if (getFilesControl().errors?.['invalidFileType']){
+      <span class="errorBox">Invalid file type. Only .txt, .docx, .doc, or .odt files are allowed.</span>
+    }
+    @if (getFilesControl().errors?.['invalidFileName']){
+      <span class="errorBox">One or more of uploaded file names is not in the required format.</span>
+    }
+    @if (getFilesControl().errors?.['maxlength']){
+      <span class="errorBox">Upload limit reached. Maximum number of files per upload is 50.</span>
+    }
+    @if (!getFilesControl().errors) {
+      <span class="centerVH">{{uploadMessage}}</span>
+    } @else {
+      <span class="errorBox">{{ uploadErrorMessage }}</span>
+    }
   </div>
   <div class="buttonDiv row">
     <button class="sButton disabledHide" type="submit" [disabled]="this.chapterUploadForm.invalid">Upload chapters</button>
@@ -55,7 +58,7 @@
     <button class="sButton" type="button" (click)="windowClosed.emit()">Close</button>
   </div>
 </form>
-@if (this.deleteChapterForm) {
+@if (deleteChapterForm) {
   <div class="deleteChapterBox">
     <form id="deleteChapterForm" [formGroup]="deleteChapterForm" class="column borderBox"
           (ngSubmit)="attemptChapterDeletion()">
@@ -67,15 +70,16 @@
         <label for="chapterNumberInput" class="input-label">Chapter number: </label>
         <span class="input-highlight"></span>
       </div>
-      <div class="errorBox"
-           *ngIf="this.deleteChapterForm.invalid">
-        Enter a valid integer between 1 and 10000, both ends inclusive.
-      </div>
-      @if (this.deleteChapterMessage) {
+      @if (deleteChapterForm.invalid) {
+        <div class="errorBox">
+          Enter a valid integer between 1 and 10000, both ends inclusive.
+        </div>
+      }
+      @if (deleteChapterMessage) {
         <span class="centerVH">{{ deleteChapterMessage }}</span>
       }
       <div class="row" style="margin-top: 1em">
-        <button class="sButton disabledHide" type="submit" [disabled]="this.deleteChapterForm.invalid">Delete chapter
+        <button class="sButton disabledHide" type="submit" [disabled]="deleteChapterForm.invalid">Delete chapter
         </button>
         <button class="sButton" type="button" (click)="closeDeleteChapterForm()">Cancel</button>
       </div>

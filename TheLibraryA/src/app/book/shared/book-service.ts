@@ -53,13 +53,11 @@ export class BookService {
 
   public getBookPreviewsByParamsPageByOffset(filterParams: HttpParams, page: number, pageSize: number): Observable<BookPage> {
     const params = BookService.getParamsForOffsetPaging(page, pageSize, filterParams);
-    console.log('offset')
     return this.http.get<BookPage>(`${this.baseUrl}/filtered`, {params});
   }
 
   public getBookPreviewsByParamsPageByKeySet(filterParams: HttpParams, page: number, keySetPage: KeySetPage): Observable<BookPage> {
     const params = BookService.getParamsForKeySetPaging(page, filterParams);
-    console.log('keySetPage')
     return this.http.post<BookPage>(`${this.baseUrl}/filtered`, keySetPage, {params});
   }
 

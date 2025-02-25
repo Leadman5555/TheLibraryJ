@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AuthorTabDataService} from '../shared/author-tab-data.service';
 import {BookService} from '../../shared/book-service';
 import {BookResponse} from '../../shared/models/book-response';
@@ -13,7 +13,6 @@ import {
 } from '@angular/forms';
 import {atLeastOneValidator} from '../../../shared/functions/atLeastOneValidator';
 import {allTags, BookTag, identifyTag} from '../../shared/models/BookTag';
-import {NgForOf, NgIf} from '@angular/common';
 import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
 import {identifyByIndex} from '../../../shared/functions/indentify';
 import {stateArray} from '../../shared/models/BookState';
@@ -21,6 +20,7 @@ import {carriageReturnLengthValidator} from '../../../shared/functions/carriageR
 import {repeatValidator} from '../../../shared/functions/repeatValidator';
 import {ChapterEditComponent} from './chapter-edit/chapter-edit.component';
 import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidator';
+import {Subscription} from 'rxjs';
 
 export const currentBookKey = 'currentlyEditingBook';
 export const emailKey = 'authorEmail';
@@ -28,31 +28,34 @@ export const emailKey = 'authorEmail';
 @Component({
   selector: 'app-author-tab-edit',
   imports: [
-    NgIf,
     ReactiveFormsModule,
-    NgForOf,
     ImageDropComponent,
     FormsModule,
     ChapterEditComponent
   ],
   templateUrl: './author-tab-edit.component.html',
-  styleUrl: './author-tab-edit.component.css'
+  styleUrl: './author-tab-edit.component.css',
+  standalone: true,
 })
-export class AuthorTabEditComponent implements OnInit {
+export class AuthorTabEditComponent implements OnInit, OnDestroy {
 
   constructor(private bookService: BookService, private authorTabDataService: AuthorTabDataService, private fb: NonNullableFormBuilder) {
   }
 
+  ngOnDestroy(): void {
+    if(this.currentBookSubscription) this.currentBookSubscription.unsubscribe();
+  }
+
+  private currentBookSubscription!: Subscription;
   currentlyEditingBook!: BookResponse;
   updateBookFrom?: FormGroup;
 
   ngOnInit(): void {
+    console.log('authorTabEditComponent.ngOnInit() called.')
     const book: BookResponse | null = this.authorTabDataService.getCurrentlyEditedBook();
     if (book !== null) {
-      this.closeDeleteBookForm();
-      this.changeCurrentlyEditingBook(book);
       sessionStorage.setItem(emailKey, this.authorTabDataService.authorEmail);
-      this.createForm();
+      this.changeCurrentlyEditingBook(book);
     } else {
       const storedBook = sessionStorage.getItem(currentBookKey);
       const storedEmail = sessionStorage.getItem(emailKey);
@@ -62,15 +65,27 @@ export class AuthorTabEditComponent implements OnInit {
         this.createForm();
       }
     }
+    this.setCurrentlyEditingBookSubscription();
   }
 
   private defaultFormValues!: any;
 
+  private setCurrentlyEditingBookSubscription(){
+    this.currentBookSubscription = this.authorTabDataService.getCurrentlyEditingObservable().subscribe(
+      newBook => {
+        this.closeDeleteBookForm();
+        this.hideChapterEditForm();
+        if(newBook) this.changeCurrentlyEditingBook(newBook);
+        else this.updateBookFrom = undefined;
+      }
+    )
+  }
+
   private createForm() {
     this.createDefaultFormValues();
     this.updateBookFrom = this.fb.group({
-      title: [this.defaultFormValues.title, [Validators.minLength(6), Validators.maxLength(40), Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s\'_\"!.-]*$')]],
-      description: [this.defaultFormValues.description, [carriageReturnLengthValidator(50, 800), Validators.pattern(/^[^<>]*(?:[<>][^<>]*){0,9}$/)]],
+      title: [this.defaultFormValues.title, [Validators.minLength(6), Validators.maxLength(40), Validators.pattern(/^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\s'_"!.-]*$/)]],
+      description: [this.defaultFormValues.description, [carriageReturnLengthValidator(50, 800)]],
       bookTags: this.fb.array(this.defaultFormValues.bookTags, atLeastOneValidator()),
       editCoverImage: [false],
       coverImage: [this.defaultFormValues.coverImage, imageFileTypeValidator()],
@@ -90,8 +105,12 @@ export class AuthorTabEditComponent implements OnInit {
 
   showChapterEdit: boolean = false;
 
-  toggleChapterEdit() {
-    this.showChapterEdit = !this.showChapterEdit;
+  showChapterEditForm() {
+    this.showChapterEdit = true;
+  }
+
+  hideChapterEditForm() {
+    this.showChapterEdit = false;
   }
 
   bookUpdateErrorMessage: string | null = null;

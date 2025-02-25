@@ -3,11 +3,9 @@ import {BookService} from '../shared/book-service';
 import {BookPreview} from '../shared/models/book-preview';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {BookDetail} from '../shared/models/book-detail';
-import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {RatingResponse} from '../shared/models/rating-response';
 import {TimesMaxPagingPipe} from '../../shared/pipes/times-max-paging.pipe';
 import {ChapterPreviewComponentStore} from './paging/chapterPreview.component-store';
-import {PagingHelper} from '../../shared/paging/paging-helper';
 import {ChapterPreview} from '../shared/models/chapter-preview';
 import {Observable} from 'rxjs';
 import {PageInfo} from '../../shared/paging/models/page-info';
@@ -17,10 +15,12 @@ import {logError} from '../../shared/errorHandling/handleError';
 import {UserAuthService} from '../../user/account/userAuth/user-auth.service';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {RangeSelectorComponent} from '../../shared/range-selector/range-selector.component';
+import { AsyncPipe } from '@angular/common';
+
 
 @Component({
   selector: 'app-book',
-  imports: [RouterLink, NgIf, AsyncPipe, NgForOf, TimesMaxPagingPipe, ReactiveFormsModule, FormsModule, RangeSelectorComponent],
+  imports: [RouterLink, TimesMaxPagingPipe, ReactiveFormsModule, AsyncPipe, FormsModule, RangeSelectorComponent],
   providers: [
     provideComponentStore(ChapterPreviewComponentStore)
   ],
@@ -94,7 +94,6 @@ export class BookComponent implements OnInit {
     return new Observable<never>((observer) => {
       this.bookService.getRatingsForBook(this.bookPreview.id).subscribe({
         next: (v) => {
-          console.log(v)
           this.ratings = v;
           observer.complete();
         },

@@ -5,20 +5,19 @@ import {HttpClient} from '@angular/common/http';
 import {catchError} from 'rxjs';
 import {handleError} from '../../../shared/errorHandling/handleError';
 import {UserCreationResponse} from './user-creation-response';
-import {NgIf, NgOptimizedImage} from '@angular/common';
 import {UserAuthService} from '../userAuth/user-auth.service';
 import {RouterLink} from '@angular/router';
 import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
 import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidator';
+import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-register',
   imports: [
-    NgIf,
     ReactiveFormsModule,
     RouterLink,
-    NgOptimizedImage,
     ImageDropComponent,
+    NgOptimizedImage
   ],
   templateUrl: './register.component.html',
   standalone: true,
@@ -55,6 +54,15 @@ export class RegisterComponent implements OnInit {
     return this.registerForm?.errors?.['passwordMismatch'] ?? false;
   }
 
+  get isFormPristine(): boolean {
+    return this.registerForm.pristine;
+  }
+
+  get isFormTouched(): boolean {
+    return this.registerForm.touched;
+  }
+
+
   private defaultFormValues = {
     email: '',
     newPassword: '',
@@ -66,14 +74,14 @@ export class RegisterComponent implements OnInit {
   private createRegisterForm() {
     this.registerForm = this.fb.group({
         email: ['', [Validators.required, Validators.email]],
-        newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).*$'), Validators.maxLength(30)]],
+        newPassword: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).*$/), Validators.maxLength(30)]],
         repeatPassword: ['', [Validators.required]],
         username: ['',
           [
             Validators.required,
             Validators.minLength(5),
             Validators.maxLength(20),
-            Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9_-]+$')
+            Validators.pattern(/^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9_-]+$/)
           ]
         ],
         profileImage: [null, imageFileTypeValidator()]

@@ -1,48 +1,52 @@
+<div id="backgroundScroll"></div>
 <div class="row">
-  <ng-container *ngIf="vm$ | async as vm">
+  @if (vm$ | async; as vm) {
     @if (vm.length) {
       <div class="column">
-        <div *ngIf="info$ | async as info" class="row">
-          <div class="pageNumberBox" aria-label="First page" (click)="onChosenPage(0)"
-               [class.selected]="0 == info.page">1
+        @if (info$ | async; as info){
+          <div class="row">
+            <div class="pageNumberBox" aria-label="First page" (click)="onChosenPage(0)"
+                 [class.selected]="0 == info.page">1
+            </div>
+            <button type="button" class="pageNumberBox" aria-label="Previous Page" (click)="onPreviousPage()">←</button>
+            @for (pageNumber of info.totalPages - 1 | timesMaxPaging : info.page : 6; track identifyPage){
+              <div class="pageNumberBox"
+                   (click)="onChosenPage(pageNumber)"
+                   [class.selected]="pageNumber === info.page">{{ pageNumber + 1 }}
+              </div>
+            }
+            <button type="button" class="pageNumberBox" aria-label="Next Page" (click)="onNextPage()">→</button>
+            <div class="pageNumberBox" aria-label="Last page" (click)="onChosenPage(info.totalPages - 1)"
+                 [class.selected]="info.totalPages -1 === info.page">{{ info.totalPages }}
+            </div>
           </div>
-          <button type="button" class="pageNumberBox" aria-label="Previous Page" (click)="onPreviousPage()">←</button>
-          <div class="pageNumberBox"
-               *ngFor="let pageNumber of info.totalPages - 1 | timesMaxPaging : info.page : 6; trackBy identifyPage"
-               (click)="onChosenPage(pageNumber)"
-               [class.selected]="pageNumber === info.page">{{ pageNumber + 1 }}
+          <div class="previewContainer">
+            @for (bp of vm; track bp.title) {
+              <app-book-preview-card [bookPreview]="bp"/>
+            }
           </div>
-          <button type="button" class="pageNumberBox" aria-label="Next Page" (click)="onNextPage()">→</button>
-          <div class="pageNumberBox" aria-label="Last page" (click)="onChosenPage(info.totalPages - 1)"
-               [class.selected]="info.totalPages -1 === info.page">{{ info.totalPages }}
+          <div class="row">
+            <div class="pageNumberBox" aria-label="First page" (click)="onChosenPage(0)"
+                 [class.selected]="0 == info.page">1
+            </div>
+            <button type="button" class="pageNumberBox" aria-label="Previous Page" (click)="onPreviousPage()">←</button>
+            @for (pageNumber of info.totalPages - 1 | timesMaxPaging : info.page : 6; track identifyPage){
+              <div class="pageNumberBox"
+                   (click)="onChosenPage(pageNumber)"
+                   [class.selected]="pageNumber === info.page">{{ pageNumber + 1 }}
+              </div>
+            }
+            <button type="button" class="pageNumberBox" aria-label="Next Page" (click)="onNextPage()">→</button>
+            <div class="pageNumberBox" aria-label="Last page" (click)="onChosenPage(info.totalPages - 1)"
+                 [class.selected]="info.totalPages -1 === info.page">{{ info.totalPages }}
+            </div>
           </div>
-        </div>
-        <div class="previewContainer">
-          <app-book-preview-card
-            *ngFor="let bp  of vm; trackBy : identifyBp "
-            [bookPreview]="bp"
-          />
-        </div>
-        <div *ngIf="info$ | async as info" class="row">
-          <div class="pageNumberBox" aria-label="First page" (click)="onChosenPage(0)"
-               [class.selected]="0 == info.page">1
-          </div>
-          <button type="button" class="pageNumberBox" aria-label="Previous Page" (click)="onPreviousPage()">←</button>
-          <div class="pageNumberBox"
-               *ngFor="let pageNumber of info.totalPages - 1 | timesMaxPaging : info.page : 6; trackBy identifyPage"
-               (click)="onChosenPage(pageNumber)"
-               [class.selected]="pageNumber === info.page">{{ pageNumber + 1 }}
-          </div>
-          <button type="button" class="pageNumberBox" aria-label="Next Page" (click)="onNextPage()">→</button>
-          <div class="pageNumberBox" aria-label="Last page" (click)="onChosenPage(info.totalPages - 1)"
-               [class.selected]="info.totalPages -1 === info.page">{{ info.totalPages }}
-          </div>
-        </div>
+        }
       </div>
     } @else {
       <div class="emptyInfoBox">No scriptures here, fellow daoist. Just us.</div>
     }
-  </ng-container>
+  }
   <div class="filterContainer stick">
     <app-book-filter/>
   </div>

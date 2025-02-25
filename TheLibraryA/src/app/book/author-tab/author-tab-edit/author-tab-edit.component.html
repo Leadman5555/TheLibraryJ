@@ -1,5 +1,5 @@
 <div id="outerBox">
-  @if (this.updateBookFrom) {
+  @if (updateBookFrom) {
     <form id="innerBox" [formGroup]="updateBookFrom" (ngSubmit)="attemptBookUpdate()">
       <div class="titleDiv column">
         <div class="column" style="margin-bottom: 1em">
@@ -11,22 +11,23 @@
               <label for="titleInput" class="input-label">The new title shall be: </label>
               <span class="input-highlight"></span>
             </div>
-            <div class="errorBox"
-                 *ngIf="updateBookFrom.get('title')?.invalid && (updateBookFrom.get('title')?.dirty)">
-              Enter a valid title, from 5 to 40 characters long. Allowed special characters: '-', ''', '!', '"', '_', and
-              whitespace.
-            </div>
+            @if (updateBookFrom.get('title')?.invalid && updateBookFrom.get('title')?.dirty) {
+              <div class="errorBox">
+                Enter a valid title, from 5 to 40 characters long. Allowed special characters: '-', ''', '!', '"', '_', and
+                whitespace.
+              </div>
+            }
           </div>
         </div>
         <div class="column">
           <span><b>Current state</b>: {{this.currentlyEditingBook.bookState}}</span>
           <div class="column">
             <select formControlName="state" id="dropdownPreferenceList">
-              <option *ngFor="let bookState of stateArray; trackBy identifyByIndex"
-                      [ngValue]="bookState"
-              >
-                {{bookState}}
-              </option>
+              @for (bookState of stateArray; track identifyByIndex) {
+                <option [ngValue]="bookState">
+                  {{bookState}}
+                </option>
+              }
             </select>
           </div>
         </div>
@@ -49,17 +50,21 @@
       </div>
       <div class="buttonDiv column">
         <div>
-          <span class="errorBox" *ngIf="bookUpdateErrorMessage">{{ this.bookUpdateErrorMessage }}</span>
-          <span class="successBox" *ngIf="bookUpdatedSuccessfully">Book updated successfully. Changes will be reflected on the website after the next 10 minute mark at latest.</span>
+          @if (bookUpdateErrorMessage) {
+            <span class="errorBox">{{ this.bookUpdateErrorMessage }}</span>
+          }
+          @else if(bookUpdatedSuccessfully)  {
+            <span class="successBox">Book updated successfully. Changes will be reflected on the website after the next 10 minute mark at latest.</span>
+          }
         </div>
         <div class="row">
           <button class="sButton sButtonColor disabledHide" type="submit"
                   [disabled]="updateBookFrom.invalid">Update book
           </button>
           <button class="sButton sButtonColor" type="button" (click)="resetForm()">Reset</button>
-          <button class="sButton sButtonColor" type="button" (click)="toggleChapterEdit()">Edit chapters</button>
+          <button class="sButton sButtonColor" type="button" (click)="showChapterEditForm()">Edit chapters</button>
           <button class="sButton sButtonColor" type="button" (click)="showDeleteBookForm()">Delete book</button>
-          @if (this.deleteBookForm) {
+          @if (deleteBookForm) {
             <div class="floatBox" style="left: 40%">
               <form id="deleteBookForm" [formGroup]="deleteBookForm" class="column borderBox" (ngSubmit)="attemptBookDeletion()">
                 <span>Enter the confirmation message to proceed:</span>
@@ -70,10 +75,11 @@
                   <label for="confirmationInput" class="input-label">Confirm deletion: </label>
                   <span class="input-highlight"></span>
                 </div>
-                <div class="errorBox"
-                     *ngIf="deleteBookForm.invalid">
-                  Repeat the confirmation message.
-                </div>
+                @if (deleteBookForm.invalid) {
+                  <div class="errorBox">
+                    Repeat the confirmation message.
+                  </div>
+                }
                 <div class="row" style="margin-top: 1em">
                   <button class="sButton disabledHide" type="submit" [disabled]="deleteBookForm.invalid">Delete book</button>
                   <button class="sButton" type="button" (click)="closeDeleteBookForm()">Cancel</button>
@@ -90,19 +96,21 @@
       <div class="tagDiv">
         <span class="tagsInfoText centerVH">Update tags that apply to your book:</span>
         <div formGroupName="bookTags" class="tagSelectorDiv row">
-          <div class="mt-square3d-custom tagSelector" *ngFor="let tag of allTags; let i = index; trackBy: identifyTag"
-               style="font-size:0.8em;">
-            <span class="tagName">{{ tag }}</span>
-            <input id="checkMt_{{i}}" type="checkbox" formControlName="{{i}}"/>
-            <label for="checkMt_{{i}}"></label>
-          </div>
+          @for (tag of allTags; track identifyTag; let i = $index) {
+            <div class="mt-square3d-custom tagSelector" style="font-size:0.8em;">
+              <span class="tagName">{{ tag }}</span>
+              <input id="checkMt_{{i}}" type="checkbox" formControlName="{{i}}"/>
+              <label for="checkMt_{{i}}"></label>
+            </div>
+          }
         </div>
       </div>
       <div class="descriptionDiv column">
-        <div class="errorBox"
-             *ngIf="updateBookFrom.get('description')?.invalid">
-          Enter between 50 and 700 characters.
-        </div>
+        @if (updateBookFrom.get('description')?.invalid) {
+          <div class="errorBox">
+            Enter between 50 and 700 characters.
+          </div>
+        }
         <textarea
           class="textArea"
           rows="14"
@@ -126,7 +134,7 @@
   } @else {
     <img src="/dr-sun-yat-sen-classical-chinese-garden.jpg" style="width: 100%; height: auto;" alt="Calm pond">
   }
-  <div *ngIf="showChapterEdit">
+  @if (showChapterEdit) {
     <app-chapter-edit class="floatBox" style="left: 40%" [currentBook]="currentlyEditingBook" (windowClosed)="showChapterEdit=false"></app-chapter-edit>
-  </div>
+  }
 </div>

@@ -49,13 +49,14 @@ public class BookControllerTest {
     @Test
     public void testGetBookPreviews() throws Exception {
         int page = 0;
+        int pageSize = 1;
         mockMvc.perform(get(ENDPOINT + "/na/books")
                         .param("page", String.valueOf(page))
-                        .param("pageSize", String.valueOf(page))
+                        .param("pageSize", String.valueOf(pageSize))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-        verify(bookService).getOffsetPagedBookPreviewResponses(page, page);
+        verify(bookService).getOffsetPagedBookPreviewResponses(pageSize, page);
         final UUID id1 = UUID.randomUUID();
         final UUID id2 = UUID.randomUUID();
         PreviewKeySetPage keySetPage = new PreviewKeySetPage(0, 3, new PreviewKeySet(1, id1), new PreviewKeySet(0, id2), List.of());

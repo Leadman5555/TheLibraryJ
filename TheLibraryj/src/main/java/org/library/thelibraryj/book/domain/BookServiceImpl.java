@@ -562,14 +562,14 @@ class BookServiceImpl implements BookService {
     }
 
     @Override
-    public PagedBookPreviewsResponse getByParamsOffsetPaged(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags, Boolean ratingOrder, int pageSize, int page) {
-        PagedList<BookPreview> pagedList = bookBlazeRepository.getOffsetBookPreviewByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder, pageSize, page);
+    public PagedBookPreviewsResponse getByParamsOffsetPaged(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags, Boolean sortAscByRating, int pageSize, int page) {
+        PagedList<BookPreview> pagedList = bookBlazeRepository.getOffsetBookPreviewByParams(titleLike, minChapters, minRating, state, hasTags, sortAscByRating, pageSize, page);
         return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()));
     }
 
     @Override
-    public PagedBookPreviewsResponse getByParamsKeySetPaged(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags, Boolean ratingOrder, KeysetPage lastPage, int page) {
-        PagedList<BookPreview> pagedList = bookBlazeRepository.getKeySetPagedBookPreviewByParams(titleLike, minChapters, minRating, state, hasTags, ratingOrder, lastPage, page);
+    public PagedBookPreviewsResponse getByParamsKeySetPaged(String titleLike, Integer minChapters, Float minRating, BookState state, BookTag[] hasTags, Boolean sortAscByRating, KeysetPage lastPage, int page) {
+        PagedList<BookPreview> pagedList = bookBlazeRepository.getKeySetPagedBookPreviewByParams(titleLike, minChapters, minRating, state, hasTags, sortAscByRating, lastPage, page);
         return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()));
     }
 

@@ -1,12 +1,10 @@
 import {Component} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
-import {NgIf} from '@angular/common';
 import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-user-search',
   imports: [
-    NgIf,
     ReactiveFormsModule
   ],
   standalone: true,
@@ -23,7 +21,7 @@ export class UserSearchComponent {
           Validators.required,
           Validators.minLength(5),
           Validators.maxLength(20),
-          Validators.pattern('^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9_-]+$')
+          Validators.pattern(/^(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9_-]+$/)
         ])
     });
   }
@@ -33,4 +31,9 @@ export class UserSearchComponent {
     this.router.navigate(['/profile', this.userSearchForm.value.username]);
     this.userSearchForm.reset();
   }
+
+  get isFormPristine(): boolean {
+    return this.userSearchForm.pristine;
+  }
+
 }

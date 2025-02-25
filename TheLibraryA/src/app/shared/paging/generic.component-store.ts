@@ -40,6 +40,7 @@ export abstract class GenericComponentStore<TS, T extends GenericPage<TS>> exten
     ({
       ...currentPage,
       pageInfo: {
+        ...currentPage.pageInfo,
         page: 0,
         totalPages: 1,
       },
