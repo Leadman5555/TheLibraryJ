@@ -1,8 +1,12 @@
 package org.library.thelibraryj.userInfo.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
@@ -16,6 +20,7 @@ import lombok.NoArgsConstructor;
 import org.library.thelibraryj.infrastructure.model.AbstractEntity;
 
 import java.time.Instant;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -56,6 +61,11 @@ class UserInfo extends AbstractEntity {
     @Column(nullable = false)
     private UUID userAuthId;
 
+    @ElementCollection(targetClass = UUID.class, fetch = FetchType.LAZY)
+    @CollectionTable(name = "favourite_books", joinColumns =  @JoinColumn(name = "user_info_id"))
+    @Column(name = "book_id")
+    private Set<UUID> favouriteBookIds;
+
     @Builder
     public UserInfo(UUID id, Long version, Instant createdAt, Instant updatedAt, Instant dataUpdatedAt, String username, String email, int rank, UUID userAuthId, int currentScore, short preference, String status) {
         super(id, version, createdAt, updatedAt);
@@ -71,7 +81,15 @@ class UserInfo extends AbstractEntity {
 
     @Transient
     @JsonIgnore
-    public void incrementScore(int byScore) {
-        currentScore += byScore;
+    public int addBookIdToFavourites(UUID bookId){
+        this.favouriteBookIds.add(bookId);
+        return this.favouriteBookIds.size();
+    }
+
+    @Transient
+    @JsonIgnore
+    public int addBookIdToFavourites(Set<UUID> bookIds){
+        this.favouriteBookIds.addAll(bookIds);
+        return this.favouriteBookIds.size();
     }
 }

@@ -4,10 +4,14 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.library.thelibraryj.book.BookService;
+import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
+import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.library.thelibraryj.infrastructure.textParsers.inputParsers.HtmlEscaper;
+import org.library.thelibraryj.userInfo.dto.request.FavouriteBookMergerRequest;
+import org.library.thelibraryj.userInfo.dto.request.FavouriteBookRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
@@ -15,6 +19,7 @@ import org.library.thelibraryj.userInfo.dto.request.UserInfoRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoScoreUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoStatusUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.response.FavouriteBookMergerResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserInfoMiniResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserPreferenceUpdateResponse;
@@ -35,6 +40,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.UUID;
 
 import static java.lang.Integer.max;
@@ -72,7 +78,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         return userInfoRepository.existsById(userId);
     }
 
-    Either<GeneralError, UserInfo> getUserInfoById(UUID userId) {
+    Either<GeneralError, UserInfo> getUserInfoLazyById(UUID userId) {
         return Try.of(() -> userInfoRepository.findById(userId))
                 .toEither()
                 .map(Option::ofOptional)
@@ -80,9 +86,25 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundById(userId)));
     }
 
+    Either<GeneralError, UserInfo> getUserInfoEagerById(UUID userId) {
+        return Try.of(() -> userInfoRepository.fetchUserInfoEagerById(userId))
+                .toEither()
+                .map(Option::ofOptional)
+                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
+                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundById(userId)));
+    }
+
+    Either<GeneralError, UserInfo> getUserInfoEagerByEmail(String email) {
+        return Try.of(() -> userInfoRepository.fetchUserInfoEagerByEmail(email))
+                .toEither()
+                .map(Option::ofOptional)
+                .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
+                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundByEmail(email)));
+    }
+
     @Override
     public Either<GeneralError, UserProfileResponse> getUserProfileById(UUID userId) {
-        Either<GeneralError, UserInfo> fetched = getUserInfoById(userId);
+        Either<GeneralError, UserInfo> fetched = getUserInfoLazyById(userId);
         if (fetched.isLeft()) return Either.left(fetched.getLeft());
         return Either.right(userInfoMapper.userInfoToUserProfileResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(userId)));
     }
@@ -93,7 +115,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundUsername(username)));
+                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundByUsername(username)));
         if (fetched.isLeft()) return Either.left(fetched.getLeft());
         return Either.right(userInfoMapper.userInfoToUserProfileResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(fetched.get().getId())));
     }
@@ -104,7 +126,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFound(email)));
+                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundByEmail(email)));
         if (fetched.isLeft()) return Either.left(fetched.getLeft());
         return Either.right(userInfoMapper.userInfoToUserProfileResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(fetched.get().getId())));
 
@@ -118,14 +140,14 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                                 new UserInfoMiniResponse(view.getUsername(),
                                         userInfoImageHandler.fetchProfileImage(view.getId())))
                 )
-                .orElse(Either.left(new UserInfoError.UserInfoEntityNotFound(email)));
+                .orElse(Either.left(new UserInfoError.UserInfoEntityNotFoundByEmail(email)));
 
     }
 
     @Override
     public Either<GeneralError, UserInfoDetailsView> getUserInfoDetailsByUsername(String username) {
         return userInfoRepository.getUserInfoDetailsView(username).map(Either::<GeneralError, UserInfoDetailsView>right)
-                .orElse(Either.left(new UserInfoError.UserInfoEntityNotFoundUsername(username)));
+                .orElse(Either.left(new UserInfoError.UserInfoEntityNotFoundByUsername(username)));
     }
 
     @Override
@@ -134,7 +156,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundUsername(email)));
+                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundByUsername(email)));
     }
 
     Either<GeneralError, UserInfo> getUserInfoByEmail(String email) {
@@ -142,13 +164,13 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundUsername(email)));
+                .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundByUsername(email)));
     }
 
     @Override
     public Either<GeneralError, RatingUpsertView> getUsernameAndIdByEmail(String email) {
         return userInfoRepository.getRatingUpsertView(email).map(Either::<GeneralError, RatingUpsertView>right)
-                .orElse(Either.left(new UserInfoError.UserInfoEntityNotFound(email)));
+                .orElse(Either.left(new UserInfoError.UserInfoEntityNotFoundByEmail(email)));
     }
 
     @Override
@@ -158,7 +180,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
             if (ageDiff < userInfoProperties.getMinimal_age_hours())
                 return Either.<GeneralError, BookCreationUserView>left(new UserInfoError.UserAccountTooYoung(authorEmail, ageDiff));
             return Either.<GeneralError, BookCreationUserView>right(bookCreationUserView);
-        }).orElse(Either.left(new UserInfoError.UserInfoEntityNotFound(authorEmail)));
+        }).orElse(Either.left(new UserInfoError.UserInfoEntityNotFoundByEmail(authorEmail)));
     }
 
     @Override
@@ -299,6 +321,61 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         fetched.setPreference(userInfoPreferenceUpdateRequest.preference());
         userInfoRepository.update(fetched);
         return Either.right(new UserPreferenceUpdateResponse(userInfoPreferenceUpdateRequest.preference()));
+    }
+
+    @Override
+    public Either<GeneralError, Set<BookPreviewResponse>> getFavouriteBooks(String email) {
+        Either<GeneralError, UUID> fetchedE = getUserInfoIdByEmail(email);
+        if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
+        return Either.right(bookService.getBookPreviewsByIds(userInfoRepository.fetchUserFavouriteBookIds(fetchedE.get())));
+    }
+
+    @Transactional
+    @Override
+    public Either<GeneralError, Integer> addBookToFavourites(FavouriteBookRequest favouriteBookRequest) {
+        if(!bookService.checkIfBookExists(favouriteBookRequest.bookId()))
+            return Either.left(new BookError.BookPreviewEntityNotFound(favouriteBookRequest.bookId().toString()));
+        Either<GeneralError, UserInfo> fetchedE =  getUserInfoEagerByEmail(favouriteBookRequest.email());
+        if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
+        UserInfo fetched = fetchedE.get();
+        int favouriteCount = fetched.addBookIdToFavourites(favouriteBookRequest.bookId());
+        userInfoRepository.update(fetched);
+        return Either.right(favouriteCount);
+    }
+
+    @Async
+    @Transactional
+    @Override
+    public void removeBookFromFavourites(FavouriteBookRequest favouriteBookRequest) {
+       getUserInfoIdByEmail(favouriteBookRequest.email()).peek(id -> userInfoRepository.removeBookFromFavourites(id, favouriteBookRequest.bookId()));
+    }
+
+    @Async
+    @Transactional
+    @Override
+    public void removeBookFromFavouritesForAllUsers(UUID bookId) {
+        userInfoRepository.removeBookFromFavouritesForAllUsers(bookId);
+    }
+
+    @Transactional
+    @Override
+    public Either<GeneralError, FavouriteBookMergerResponse> mergeAndFetchFavouriteBooks(FavouriteBookMergerRequest mergerRequest) {
+        Either<GeneralError, UserInfo> fetchedFromE = getUserInfoEagerById(mergerRequest.fromUserId());
+        if(fetchedFromE.isLeft()) return Either.left(fetchedFromE.getLeft());
+        Either<GeneralError, UserInfo> fetchedToE = getUserInfoByEmail(mergerRequest.toUserEmail());
+        if(fetchedToE.isLeft()) return Either.left(fetchedToE.getLeft());
+        UserInfo fetchedTo = fetchedToE.get();
+        UserInfo fetchedFrom = fetchedFromE.get();
+        int sizeBefore = fetchedTo.getFavouriteBookIds().size();
+        int sizeAfter = fetchedTo.addBookIdToFavourites(fetchedFrom.getFavouriteBookIds());
+        userInfoRepository.update(fetchedTo);
+        return Either.right(new FavouriteBookMergerResponse(
+                sizeBefore,
+                sizeAfter,
+                fetchedFrom.getFavouriteBookIds().size(),
+                fetchedFrom.getUsername(),
+                fetchedTo.getUsername()
+        ));
     }
 
     @Async

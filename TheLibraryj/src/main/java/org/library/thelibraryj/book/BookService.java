@@ -22,12 +22,17 @@ import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.springframework.lang.Nullable;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface BookService {
-    Either<GeneralError, BookDetailResponse> getBookDetailResponse(UUID detailId);
+    Either<GeneralError, BookDetailResponse> getBookDetailResponse(UUID bookId);
 
-    Either<GeneralError, BookPreviewResponse> getBookPreviewResponse(UUID previewId);
+    Either<GeneralError, BookPreviewResponse> getBookPreviewResponse(UUID bookId);
+
+    boolean checkIfBookExists(UUID bookId);
+
+    Set<BookPreviewResponse> getBookPreviewsByIds(Set<UUID> bookIds);
 
     PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(KeysetPage lastPage, int page);
 

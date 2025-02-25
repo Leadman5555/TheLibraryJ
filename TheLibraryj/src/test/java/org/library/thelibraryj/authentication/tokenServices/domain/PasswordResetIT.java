@@ -43,8 +43,8 @@ public class PasswordResetIT {
     private DataSource dataSource;
 
     private static final String BASE_URL = TestProperties.BASE_URL + "/na/auth/password";
-    private static final String user1email = "sample.email1@gmail.com";
-    private final UUID user1Id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+    private static final String user1email = TestProperties.userEmail1;
+    private static final UUID user1Id = TestProperties.userId1;
 
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)

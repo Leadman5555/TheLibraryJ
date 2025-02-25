@@ -74,7 +74,7 @@ public class UserInfoControllerTest {
                 .andExpect(content().json("{'newRank': 10}"));
         final String invalidEmail = "invalid@gmail.com";
         UserInfoRankUpdateRequest request2 = new UserInfoRankUpdateRequest(invalidEmail, -10);
-        when(userInfoService.forceUpdateRank(request2)).thenReturn(Either.left(new UserInfoError.UserInfoEntityNotFound(invalidEmail)));
+        when(userInfoService.forceUpdateRank(request2)).thenReturn(Either.left(new UserInfoError.UserInfoEntityNotFoundByEmail(invalidEmail)));
 
         mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/force")
                         .contentType(MediaType.APPLICATION_JSON)

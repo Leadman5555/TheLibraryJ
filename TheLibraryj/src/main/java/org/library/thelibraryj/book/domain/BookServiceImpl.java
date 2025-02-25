@@ -119,12 +119,22 @@ class BookServiceImpl implements BookService {
         return Either.left(fetched.getLeft());
     }
 
+    @Override
+    public boolean checkIfBookExists(UUID bookId) {
+        return bookPreviewRepository.existsById(bookId);
+    }
+
+    @Override
+    public Set<BookPreviewResponse> getBookPreviewsByIds(Set<UUID> bookIds) {
+        return bookPreviewRepository.getBookPreviewsEagerByIds(bookIds).stream().map(bookPreview -> mapper.bookPreviewWithCoverToBookPreviewResponse(bookPreview, bookImageHandler.fetchCoverImage(bookPreview.getTitle()))).collect(Collectors.toSet());
+    }
+
     Either<GeneralError, BookPreview> getBookPreviewLazy(UUID previewId) {
         return Try.of(() -> bookPreviewRepository.findById(previewId))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(previewId, null)));
+                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(previewId.toString())));
     }
 
     Either<GeneralError, BookPreview> getBookPreviewEager(UUID previewId) {
@@ -132,7 +142,7 @@ class BookServiceImpl implements BookService {
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(previewId, null)));
+                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(previewId.toString())));
     }
 
     @Transactional
@@ -221,7 +231,7 @@ class BookServiceImpl implements BookService {
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(null, title)));
+                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(title)));
         if (preview.isLeft()) return Either.left(preview.getLeft());
         Either<GeneralError, BookDetail> detail = getBookDetail(preview.get().getId());
         if (detail.isLeft()) return Either.left(detail.getLeft());
@@ -478,6 +488,7 @@ class BookServiceImpl implements BookService {
         chapterPreviewRepository.deleteBook(removalRequest.bookId());
         ratingRepository.deleteBook(removalRequest.bookId());
         bookDetailRepository.deleteById(removalRequest.bookId());
+        userInfoService.removeBookFromFavouritesForAllUsers(removalRequest.bookId());
         log.info("Book {} has been deleted", removalRequest.bookId());
         return Either.right(new ContentRemovalSuccess(removalRequest.bookId(), removalRequest.userEmail()));
     }

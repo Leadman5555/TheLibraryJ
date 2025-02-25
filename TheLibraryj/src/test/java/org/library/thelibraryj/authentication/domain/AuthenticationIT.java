@@ -45,11 +45,11 @@ public class AuthenticationIT {
     private DataSource dataSource;
 
     private static final String BASE_URL = TestProperties.BASE_URL + "/na/auth";
-    private static final UUID notEnabledUserId = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
+    private static final UUID notEnabledUserId = TestProperties.notEnabledUserId2;
 
-    static final String existingEmail = "sample.email1@gmail.com";
-    static final String existingNonEnabledEmail = "sample.email2@gmail.com";
-    final char[] validPassword = "password".toCharArray();
+    static final String existingEmail = TestProperties.userEmail1;
+    static final String existingNonEnabledEmail = TestProperties.notEnabledUserEmail2;
+    final char[] validPassword = TestProperties.allUserPassword.toCharArray();
 
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)

@@ -26,7 +26,12 @@ CREATE TABLE IF NOT EXISTS library.library_book_previews
 CREATE TABLE IF NOT EXISTS library.book_tag
 (
     book_preview_id UUID NOT NULL,
-    tag             SMALLINT
+    tag             SMALLINT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS library.favourite_books
+(
+    user_info_id UUID NOT NULL,
+    book_id UUID NOT NULL
 );
 CREATE TABLE IF NOT EXISTS library.library_chapter_previews
 (
@@ -113,3 +118,5 @@ ALTER TABLE library.library_ratings
     ADD CONSTRAINT fk_library_ratings_on_bookdetail FOREIGN KEY (book_detail_id) REFERENCES library.library_book_details (id);
 ALTER TABLE library.book_tag
     ADD CONSTRAINT fk_book_tag_on_book_preview FOREIGN KEY (book_preview_id) REFERENCES library.library_book_previews (book_detail_id) ON DELETE CASCADE;
+ALTER TABLE library.favourite_books
+    ADD CONSTRAINT fk_favourite_books_on_user_info FOREIGN KEY (user_info_id) REFERENCES library.library_user_info (id) ON DELETE CASCADE;

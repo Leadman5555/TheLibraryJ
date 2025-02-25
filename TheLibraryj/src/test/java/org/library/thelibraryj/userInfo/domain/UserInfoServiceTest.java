@@ -47,9 +47,6 @@ public class UserInfoServiceTest {
 
     @BeforeEach
     public void setUp() {
-//        when(userInfoProperties.getMinimal_age_hours()).thenReturn(24);
-//        when(userInfoProperties.getUsername_change_cooldown_days()).thenReturn(90);
-//        when(userInfoProperties.getRank_requirements()).thenReturn("3, 5, 10, 20, 40, 60, 100, 200, 500, 1000");
         userInfoProperties.setMinimal_age_hours(24);
         userInfoProperties.setUsername_change_cooldown_days(90);
         userInfoProperties.setRank_requirements("3, 5, 10, 20, 40, 60, 100, 200, 500, 1000");
