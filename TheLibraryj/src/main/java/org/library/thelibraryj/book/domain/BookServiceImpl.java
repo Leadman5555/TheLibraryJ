@@ -27,7 +27,7 @@ import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalSuccess;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
-import org.library.thelibraryj.infrastructure.model.PageInfo;
+import org.library.thelibraryj.infrastructure.model.paging.PageInfo;
 import org.library.thelibraryj.infrastructure.textParsers.fileParsers.TextParser;
 import org.library.thelibraryj.infrastructure.textParsers.inputParsers.HtmlEscaper;
 import org.library.thelibraryj.userInfo.UserInfoService;

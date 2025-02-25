@@ -100,7 +100,7 @@ INSERT INTO library.library_ratings(ID, VERSION, CREATED_AT, UPDATED_AT, CURRENT
                                     BOOK_DETAIL_ID)
 VALUES ('123e4567-e89b-12d3-a456-888884174001', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 5,
         '123e4567-e89b-12d3-a456-426614174000', 'USER1', 'some comment', '123e4567-e89b-12d3-a456-426614174000');
-INSERT INTO library.library_tokens(id, token, for_user_id, version, created_at, updated_at, expires_at, is_used)
+INSERT INTO library.library_auth_tokens(id, token, for_user_id, version, created_at, updated_at, expires_at, is_used)
 VALUES ('123e4567-e89b-12d3-a456-426614174001', '123e4567-e89b-12d3-a456-426614174001',
         '123e4567-e89b-12d3-a456-426614174001', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP + INTERVAL '10 day', false);

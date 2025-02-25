@@ -362,7 +362,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     public Either<GeneralError, FavouriteBookMergerResponse> mergeAndFetchFavouriteBooks(FavouriteBookMergerRequest mergerRequest) {
         Either<GeneralError, UserInfo> fetchedFromE = getUserInfoEagerById(mergerRequest.fromUserId());
         if(fetchedFromE.isLeft()) return Either.left(fetchedFromE.getLeft());
-        Either<GeneralError, UserInfo> fetchedToE = getUserInfoByEmail(mergerRequest.toUserEmail());
+        Either<GeneralError, UserInfo> fetchedToE = getUserInfoEagerByEmail(mergerRequest.toUserEmail());
         if(fetchedToE.isLeft()) return Either.left(fetchedToE.getLeft());
         UserInfo fetchedTo = fetchedToE.get();
         UserInfo fetchedFrom = fetchedFromE.get();

@@ -17,6 +17,8 @@ import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
 import org.library.thelibraryj.userInfo.domain.UserInfoDetailsView;
 import org.library.thelibraryj.userInfo.domain.UserInfoMiniView;
+import org.library.thelibraryj.userInfo.userInfoTokenServices.domain.EssentialFavouriteBookTokenView;
+import org.library.thelibraryj.userInfo.userInfoTokenServices.domain.MiniFavouriteBookTokenView;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +34,7 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 @EnableTransactionManagement
 @EnableJpaRepositories(
         value = {"org.library.thelibraryj.book.domain", "org.library.thelibraryj.userInfo.domain",
-                "org.library.thelibraryj.authentication.userAuth.domain", "org.library.thelibraryj.authentication.tokenServices.domain"},
+                "org.library.thelibraryj.authentication.userAuth.domain", "org.library.thelibraryj.authentication.authTokenServices.domain"},
         repositoryBaseClass = BaseJpaRepositoryImpl.class
 )
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
@@ -61,6 +63,8 @@ public class BlazePersistenceConfiguration {
         evc.addEntityView(PasswordResetView.class);
         evc.addEntityView(ChapterPreviewTitleView.class);
         evc.addEntityView(UserInfoMiniView.class);
+        evc.addEntityView(MiniFavouriteBookTokenView.class);
+        evc.addEntityView(EssentialFavouriteBookTokenView.class);
         return evc;
     }
 

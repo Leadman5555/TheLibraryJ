@@ -13,7 +13,7 @@ import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
 import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
-import org.library.thelibraryj.infrastructure.model.PageInfo;
+import org.library.thelibraryj.infrastructure.model.paging.PageInfo;
 import org.library.thelibraryj.infrastructure.textParsers.inputParsers.HtmlEscaper;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;

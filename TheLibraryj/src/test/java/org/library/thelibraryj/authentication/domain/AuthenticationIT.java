@@ -17,7 +17,12 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
@@ -153,7 +158,7 @@ public class AuthenticationIT {
     }
 
     @Test
-    public void testRefreshTokenFail() throws Exception {
+    public void testRefreshTokenFail() {
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.COOKIE, "refresh-token=" + "InvalidToken");
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
@@ -191,10 +196,8 @@ public class AuthenticationIT {
     @Test
     public void shouldResendActivationEmail() throws Exception {
         final String email = "sample.email2@gmail.com";
-        final String username = "user2";
 
         Connection connection = dataSource.getConnection();
-
         Statement checkIfDisabled = connection.createStatement();
         checkIfDisabled.execute("SELECT is_enabled FROM library.library_user_auth WHERE id  = '" + notEnabledUserId + "'");
         ResultSet resultSetInfo = checkIfDisabled.getResultSet();
@@ -220,14 +223,14 @@ public class AuthenticationIT {
 
 
         Statement checkCreatedAuth = connection.createStatement();
-        checkCreatedAuth.execute("SELECT token FROM library.library_tokens WHERE for_user_id = '" + notEnabledUserId + "'");
+        checkCreatedAuth.execute("SELECT token FROM library.library_auth_tokens WHERE for_user_id = '" + notEnabledUserId + "'");
         ResultSet resultSet = checkCreatedAuth.getResultSet();
         resultSet.next();
         UUID newToken = resultSet.getObject("token", UUID.class);
 
         MultiValueMap<String, String> params2 = new LinkedMultiValueMap<>();
         params2.add("tokenId", newToken.toString());
-        HttpEntity<MultiValueMap<String, String>> request2 = new HttpEntity<>(params2, headers);;
+        HttpEntity<MultiValueMap<String, String>> request2 = new HttpEntity<>(params2, headers);
 
         ResponseEntity<String> activationResponse = restTemplate.exchange(
                 BASE_URL + "/activation", HttpMethod.PATCH, request2, String.class

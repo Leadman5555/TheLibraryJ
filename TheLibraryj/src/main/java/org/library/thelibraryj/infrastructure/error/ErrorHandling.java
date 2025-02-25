@@ -46,6 +46,10 @@ public interface ErrorHandling {
         return createErrorResponse(new ApiErrorWrapper(errorServiceReturn.getLeft()));
     }
 
+    default ResponseEntity<String> handleError(GeneralError errorServiceReturn){
+        return createErrorResponse(new ApiErrorWrapper(errorServiceReturn));
+    }
+
     default ResponseEntity<String> handleSuccess(Object serviceReturnBody, HttpStatus successReturn){
         return createSuccessResponse(serviceReturnBody, successReturn);
     }

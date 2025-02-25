@@ -73,6 +73,10 @@ public class ApiErrorWrapper {
                     getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "User not eligible for rank increase. Missing score: " + e.missingScore(), e.email());
             case UserInfoError.UserNotEligibleForChosenPreference e ->
                     getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "User not eligible for chosen preference. Missing rank: " + e.missingRank(), e.email());
+            case UserInfoError.FavouriteBookTokenNotFound e ->
+                    getErrorResponseAndLog(error, HttpStatus.NOT_FOUND, "Favourite book token not found. Please generate a new one.", e.tokenId().toString());
+            case UserInfoError.FavouriteBookTokenExpired e ->
+                    getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Favourite book token has expired. Please request a new one.", e.tokenId().toString());
             case UserAuthError.UserAuthNotFoundId e ->
                     getErrorResponseAndLog(error, HttpStatus.NOT_FOUND, "User authentication data missing.", e.userId().toString());
             case UserAuthError.EmailNotUnique e ->

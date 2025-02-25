@@ -10,7 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.library.thelibraryj.infrastructure.model.AbstractEntity;
+import org.library.thelibraryj.infrastructure.model.entities.AbstractEntity;
 
 import java.time.Instant;
 import java.util.UUID;

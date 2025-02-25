@@ -1,8 +1,13 @@
 package org.library.thelibraryj.book.dto.pagingDto;
 
 import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
-import org.library.thelibraryj.infrastructure.model.PageInfo;
+import org.library.thelibraryj.infrastructure.model.paging.PageInfo;
+import org.library.thelibraryj.infrastructure.model.paging.PagingResponseBase;
 
 import java.util.List;
 
-public record PagedBookPreviewsResponse(List<BookPreviewResponse> content, PageInfo pageInfo) {}
+public final class PagedBookPreviewsResponse extends PagingResponseBase<BookPreviewResponse> {
+    public PagedBookPreviewsResponse(List<BookPreviewResponse> content, PageInfo pageInfo) {
+        super(content, pageInfo);
+    }
+}

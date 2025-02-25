@@ -39,9 +39,9 @@ public interface BookService {
     PagedBookPreviewsResponse getOffsetPagedBookPreviewResponses(int pageSize, int page);
 
     PagedBookPreviewsResponse getByParamsOffsetPaged(@Nullable String titleLike, @Nullable Integer minChapters,
-                                          @Nullable Float minRating, @Nullable BookState state,
-                                          @Nullable BookTag[] hasTags, @Nullable Boolean sortAscByRating,
-                                          int pageSize, int page);
+                                                     @Nullable Float minRating, @Nullable BookState state,
+                                                     @Nullable BookTag[] hasTags, @Nullable Boolean sortAscByRating,
+                                                     int pageSize, int page);
 
     PagedBookPreviewsResponse getByParamsKeySetPaged(@Nullable String titleLike, @Nullable Integer minChapters,
                                                      @Nullable Float minRating, @Nullable BookState state,

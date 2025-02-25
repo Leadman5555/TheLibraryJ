@@ -19,7 +19,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
@@ -45,7 +44,6 @@ public class UserInfoControllerTest {
 
     private static final String ENDPOINT =  URL_BASE;
 
-    private static final UUID userId = UUID.randomUUID();
     private static final String email = "email@sample.com";
 
 

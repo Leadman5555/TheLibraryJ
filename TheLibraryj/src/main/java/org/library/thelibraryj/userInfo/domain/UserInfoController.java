@@ -53,7 +53,7 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/id/{id}")
-    public ResponseEntity<String> getUserProfileById(@PathVariable("id") UUID id) {
+    public ResponseEntity<String> getUserProfileById(@PathVariable("id") @org.hibernate.validator.constraints.UUID UUID id) {
         return handle(userInfoService.getUserProfileById(id), HttpStatus.OK);
     }
 
@@ -240,7 +240,7 @@ class UserInfoController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Add a book to user's favourites.",
+            summary = "Add a book to user's favourites. Returns current favourite book count on success.",
             tags = {"book", "user"}
     )
     @ApiResponses(value = {
@@ -251,7 +251,7 @@ class UserInfoController implements ErrorHandling {
     @PostMapping(value = "/user/book")
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
     public ResponseEntity<String> addBookToFavouritesForUser(@RequestParam("email") @Email String email,
-                                                             @RequestParam("bookId") @NotNull UUID bookId) {
+                                                             @RequestParam("bookId") @NotNull @org.hibernate.validator.constraints.UUID UUID bookId) {
         return handle(userInfoService.addBookToFavourites(new FavouriteBookRequest(email, bookId)), HttpStatus.OK);
     }
 
@@ -267,7 +267,7 @@ class UserInfoController implements ErrorHandling {
     @DeleteMapping(value = "/user/book")
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
     public ResponseEntity<String> removeBookFromFavouritesForUser(@RequestParam("email") @Email String email,
-                                                                  @RequestParam("bookId") @NotNull UUID bookId) {
+                                                                  @RequestParam("bookId") @NotNull @org.hibernate.validator.constraints.UUID UUID bookId) {
         userInfoService.removeBookFromFavourites(new FavouriteBookRequest(email, bookId));
         return ResponseEntity.noContent().build();
     }
