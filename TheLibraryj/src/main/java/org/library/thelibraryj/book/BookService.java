@@ -32,8 +32,6 @@ public interface BookService {
 
     boolean checkIfBookExists(UUID bookId);
 
-    Set<BookPreviewResponse> getBookPreviewsByIds(Set<UUID> bookIds);
-
     PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(KeysetPage lastPage, int page);
 
     PagedBookPreviewsResponse getOffsetPagedBookPreviewResponses(int pageSize, int page);
@@ -49,6 +47,8 @@ public interface BookService {
                                                      KeysetPage lastPage, int page);
 
     List<BookPreviewResponse> getBookPreviewsByAuthor(String byUser);
+    List<BookPreviewResponse> getBookPreviewsByIds(Set<UUID> bookIds);
+    Set<BookPreviewResponse> getBookPreviewsByIdsAsSet(Set<UUID> bookIds);
     PagedChapterPreviewResponse getOffsetPagedChapterPreviewResponses(int pageSize, int page, UUID bookId);
 
     PagedChapterPreviewResponse getKeySetPagedChapterPreviewResponses(KeysetPage lastPage, int page, UUID bookId);

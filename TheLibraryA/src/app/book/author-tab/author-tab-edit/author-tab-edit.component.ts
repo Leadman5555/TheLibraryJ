@@ -11,14 +11,14 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import {atLeastOneValidator} from '../../../shared/functions/atLeastOneValidator';
+import {atLeastOneValidator} from '@app/shared/functions/atLeastOneValidator';
 import {allTags, BookTag} from '../../shared/models/BookTag';
-import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
+import {ImageDropComponent} from '@app/shared/image-drop/image-drop.component';
 import {stateArray} from '../../shared/models/BookState';
-import {carriageReturnLengthValidator} from '../../../shared/functions/carriageReturnLengthValidator';
-import {repeatValidator} from '../../../shared/functions/repeatValidator';
+import {carriageReturnLengthValidator} from '@app/shared/functions/carriageReturnLengthValidator';
+import {repeatValidator} from '@app/shared/functions/repeatValidator';
 import {ChapterEditComponent} from './chapter-edit/chapter-edit.component';
-import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidator';
+import {imageFileTypeValidator} from '@app/shared/functions/fileTypeValidator';
 import {Subscription} from 'rxjs';
 import {NgOptimizedImage} from '@angular/common';
 

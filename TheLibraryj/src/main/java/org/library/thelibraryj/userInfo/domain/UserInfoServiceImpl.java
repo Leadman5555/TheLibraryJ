@@ -327,7 +327,14 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     public Either<GeneralError, Set<BookPreviewResponse>> getFavouriteBooks(String email) {
         Either<GeneralError, UUID> fetchedE = getUserInfoIdByEmail(email);
         if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
-        return Either.right(bookService.getBookPreviewsByIds(userInfoRepository.fetchUserFavouriteBookIds(fetchedE.get())));
+        return Either.right(bookService.getBookPreviewsByIdsAsSet(userInfoRepository.fetchUserFavouriteBookIds(fetchedE.get())));
+    }
+
+    @Override
+    public Either<GeneralError, Set<UUID>> getFavouriteBooksIds(String email) {
+        Either<GeneralError, UUID> fetchedE = getUserInfoIdByEmail(email);
+        if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
+        return Either.right(userInfoRepository.fetchUserFavouriteBookIds(fetchedE.get()));
     }
 
     @Transactional

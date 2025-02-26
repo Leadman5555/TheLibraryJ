@@ -225,17 +225,18 @@ class UserInfoController implements ErrorHandling {
 
 
     @Operation(
-            summary = "Fetch previews of books that are added to user's favourites.",
+            summary = "Fetch previews of books (or Ids if 'onlyIds' param is true) that are added to user's favourites.",
             tags = {"book", "user"}
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Previews fetched successfully"),
+            @ApiResponse(responseCode = "200", description = "Previews or Ids fetched successfully"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "User not found"),
     })
     @GetMapping(value = "/user/book")
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
-    public ResponseEntity<String> getFavouriteBooksForUser(@RequestParam("email") @Email String email) {
+    public ResponseEntity<String> getFavouriteBooksForUser(@RequestParam("email") @Email String email, @RequestParam(value = "onlyIds", required = false) @Nullable Boolean onlyIds) {
+        if (onlyIds != null && onlyIds) return handle(userInfoService.getFavouriteBooksIds(email), HttpStatus.OK);
         return handle(userInfoService.getFavouriteBooks(email), HttpStatus.OK);
     }
 

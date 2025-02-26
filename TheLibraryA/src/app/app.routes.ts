@@ -14,6 +14,7 @@ import {AuthorTabComponent} from './book/author-tab/author-tab.component';
 import {AuthorGuard} from './user/account/userAuth/author.guard';
 import {AuthorTabCreateComponent} from './book/author-tab/author-tab-create/author-tab-create.component';
 import {AuthorTabEditComponent} from './book/author-tab/author-tab-edit/author-tab-edit.component';
+import {FavouriteBooksComponent} from '@app/book/favourite-books/favourite-books.component';
 
 export const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -26,10 +27,13 @@ export const routes: Routes = [
   {path: 'oauth2Callback', component: AuthCallbackComponent},
   {path: 'password-recovery', component: PasswordRecoveryComponent},
   {path: 'activate-account', component: AccountActivationComponent},
-  {path: 'author-tab', component: AuthorTabComponent, canActivate: [AuthGuard, AuthorGuard],
-  children: [
-    {path: 'create', component: AuthorTabCreateComponent},
-    {path: 'edit', component: AuthorTabEditComponent}
-  ]},
+  {path: 'favourite-books', component: FavouriteBooksComponent},
+  {
+    path: 'author-tab', component: AuthorTabComponent, canActivate: [AuthGuard, AuthorGuard],
+    children: [
+      {path: 'create', component: AuthorTabCreateComponent},
+      {path: 'edit', component: AuthorTabEditComponent}
+    ]
+  },
   {path: '*', component: HomeComponent}
 ];

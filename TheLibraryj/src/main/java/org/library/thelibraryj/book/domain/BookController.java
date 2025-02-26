@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.bookDto.request.BookCreationModel;
@@ -46,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -132,6 +130,18 @@ class BookController implements ErrorHandling {
     @GetMapping("/na/books/authored/{byUser}")
     public ResponseEntity<List<BookPreviewResponse>> getBookPreviewsByAuthor(@PathVariable String byUser) {
         return ResponseEntity.ok(bookService.getBookPreviewsByAuthor(byUser));
+    }
+
+    @Operation(
+            summary = "Retrieve all book previews that match given Ids. POST request to send ids through body instead of params.",
+            tags = {"book", "no auth required"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the book previews"),
+    })
+    @PostMapping("/na/books/id")
+    public ResponseEntity<List<BookPreviewResponse>> getBookPreviewsById(@RequestBody @NotEmpty Set<UUID> bookIds) {
+        return ResponseEntity.ok(bookService.getBookPreviewsByIds(bookIds));
     }
 
     @Operation(

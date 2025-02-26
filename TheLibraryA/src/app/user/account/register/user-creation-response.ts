@@ -4,4 +4,5 @@ export interface UserCreationResponse {
   currentScore: number;
   rank: number;
   profileImage: string;
+  dataUpdatedAt: string;
 }

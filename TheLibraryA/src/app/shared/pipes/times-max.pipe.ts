@@ -8,7 +8,7 @@ export class TimesMaxPipe implements PipeTransform {
 
   transform(maxValue: number, value: number): Iterable<number> {
     return {
-      [Symbol.iterator]: function* () {
+      [Symbol.iterator]: function* (): Iterator<number> {
         let n = value;
         while (n < maxValue) {
           yield ++n;

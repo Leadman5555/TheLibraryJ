@@ -1,9 +1,9 @@
 import {tapResponse} from '@ngrx/operators'
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, map, Observable, of, switchMap, tap, withLatestFrom} from 'rxjs';
-import {BookPage} from '../../../shared/paging/book/book-page';
-import {BookPreviewComponentStore} from '../../../shared/paging/book/bookPreview.component-store';
-import {logError} from '../../../shared/errorHandling/handleError';
+import {BookPage} from '@app/shared/paging/book/book-page';
+import {BookPreviewComponentStore} from '@app/shared/paging/book/bookPreview.component-store';
+import {logError} from '@app/shared/errorHandling/handleError';
 import {HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {ParamMap} from '@angular/router';
 import {BookPreview} from '../../shared/models/book-preview';

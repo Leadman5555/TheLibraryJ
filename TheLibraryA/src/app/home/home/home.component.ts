@@ -1,14 +1,14 @@
 import {Component, inject} from '@angular/core';
-import {BookPreview} from '../../book/shared/models/book-preview';
+import {BookPreview} from '@app/book/shared/models/book-preview';
 import {ReactiveFormsModule} from '@angular/forms';
-import {BookPreviewCardComponent} from '../../book/book-preview-card/book-preview-card.component';
+import {BookPreviewCardComponent} from '@app/book/book-preview-card/book-preview-card.component';
 import {provideComponentStore} from '@ngrx/component-store';
 import {HomeComponentStore} from './paging/home.component-store';
-import {TimesMaxPagingPipe} from '../../shared/pipes/times-max-paging.pipe';
-import {BookFilterComponent} from '../../book/book-filter/filterBox/book-filter.component';
+import {TimesMaxPagingPipe} from '@app/shared/pipes/times-max-paging.pipe';
+import {BookFilterComponent} from '@app/book/book-filter/filterBox/book-filter.component';
 import { AsyncPipe } from '@angular/common';
 import {Observable} from 'rxjs';
-import {PageInfo} from '../../shared/paging/models/page-info';
+import {PageInfo} from '@app/shared/paging/models/page-info';
 
 
 @Component({

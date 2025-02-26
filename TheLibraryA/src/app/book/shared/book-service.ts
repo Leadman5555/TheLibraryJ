@@ -5,12 +5,12 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {BookDetail} from './models/book-detail';
 import {BookResponse} from './models/book-response';
 import {ChapterContent} from './models/chapter-content';
-import {BookPage} from '../../shared/paging/book/book-page';
-import {KeySetPage} from '../../shared/paging/models/key-set-page';
+import {BookPage} from '@app/shared/paging/book/book-page';
+import {KeySetPage} from '@app/shared/paging/models/key-set-page';
 import {RatingResponse} from './models/rating-response';
 import {ChapterPreviewPage} from '../book/paging/chapterPreview-page';
 import {RatingRequest} from './models/rating-request';
-import {handleError} from '../../shared/errorHandling/handleError';
+import {handleError} from '@app/shared/errorHandling/handleError';
 import {ChapterPreview} from './models/chapter-preview';
 
 @Injectable({

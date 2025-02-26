@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {handleError} from '../../../../shared/errorHandling/handleError';
+import {handleError} from '@app/shared/errorHandling/handleError';
 import {catchError} from 'rxjs';
 
 @Component({

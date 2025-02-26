@@ -5,11 +5,6 @@
 @import '../../shared/styles/textArea.css';
 
 
-.fetchRatings {
-  display: block;
-  margin: 0.6em auto;
-}
-
 .upsertRatingForm {
   position: fixed;
   top: 50%;
@@ -209,4 +204,23 @@
 
 .infoMsg {
   font-size: 1.2em;
+}
+
+.notFavouriteDiv{
+  opacity: 0.5;
+  text-align: center;
+  color: black;
+  cursor: pointer;
+}
+
+.favouriteDiv{
+  text-align: center;
+  opacity: 1;
+  color: #daa520;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.notFavouriteDiv:hover, .favouriteDiv:hover {
+  opacity: 0.8;
 }

@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {BookService} from '../shared/book-service';
 import {ChapterContent} from '../shared/models/chapter-content';
 import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
-import {TimesMaxPipe} from '../../shared/pipes/times-max.pipe';
+import {TimesMaxPipe} from '@app/shared/pipes/times-max.pipe';
 import { NgStyle } from '@angular/common';
 
 @Component({

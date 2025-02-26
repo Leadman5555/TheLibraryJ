@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("${library.mapping}")
+@RequestMapping("${library.mapping}/user/book/token")
 class UserInfoTokenServicesController implements ErrorHandling {
 
     private final UserInfoTokenService userInfoTokenService;
@@ -35,7 +35,7 @@ class UserInfoTokenServicesController implements ErrorHandling {
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "User not found"),
     })
-    @PutMapping(value = "/user/book/token")
+    @PutMapping
     @PreAuthorize("hasRole('ADMIN') or #bookTokenRequest.email == authentication.principal.username")
     public ResponseEntity<String> upsertAndGetFavouriteBookToken(@RequestBody @Valid BookTokenRequest bookTokenRequest) {
         return userInfoTokenService.upsertFavouriteBookToken(bookTokenRequest).fold(
@@ -54,7 +54,7 @@ class UserInfoTokenServicesController implements ErrorHandling {
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Token or user not found"),
     })
-    @PostMapping(value = "/user/book/token")
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN') or #bookTokenConsummationRequest.email == authentication.principal.username")
     public ResponseEntity<String> mergeFavouriteBooksUsingToken(@RequestBody @Valid BookTokenConsummationRequest bookTokenConsummationRequest) {
         return handle(userInfoTokenService.consumeFavouriteBookToken(bookTokenConsummationRequest), HttpStatus.OK);
@@ -70,9 +70,9 @@ class UserInfoTokenServicesController implements ErrorHandling {
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Token or user not found"),
     })
-    @PostMapping(value = "/user/book/token/email")
+    @PostMapping(value = "/email")
     @PreAuthorize("hasRole('ADMIN') or #bookTokenConsummationRequest.email == authentication.principal.username")
-    public ResponseEntity<String> sendExistingFavouriteBookTokenToEmail(@RequestBody @Valid BookTokenConsummationRequest bookTokenConsummationRequest) {
+    public ResponseEntity<String> sendExistingFavouriteBookTokenToOwnerEmail(@RequestBody @Valid BookTokenConsummationRequest bookTokenConsummationRequest) {
         return userInfoTokenService.sendTokenToEmail(bookTokenConsummationRequest).fold(
                 this::handleError,
                 _ -> ResponseEntity.noContent().build()

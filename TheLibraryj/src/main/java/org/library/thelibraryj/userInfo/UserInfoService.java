@@ -58,6 +58,7 @@ public interface UserInfoService {
     Either<GeneralError, UserStatusUpdateResponse> updateUserInfoStatus(UserInfoStatusUpdateRequest userInfoStatusUpdateRequest);
     Either<GeneralError, UserPreferenceUpdateResponse> updateUserInfoPreference(UserInfoPreferenceUpdateRequest userInfoPreferenceUpdateRequest);
     Either<GeneralError, Set<BookPreviewResponse>> getFavouriteBooks(String email);
+    Either<GeneralError, Set<UUID>> getFavouriteBooksIds(String email);
     Either<GeneralError, Integer> addBookToFavourites(FavouriteBookRequest favouriteBookRequest);
     @Async
     void removeBookFromFavourites(FavouriteBookRequest favouriteBookRequest);

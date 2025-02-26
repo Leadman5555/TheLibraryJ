@@ -125,7 +125,12 @@ class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Set<BookPreviewResponse> getBookPreviewsByIds(Set<UUID> bookIds) {
+    public List<BookPreviewResponse> getBookPreviewsByIds(Set<UUID> bookIds) {
+        return bookPreviewRepository.getBookPreviewsEagerByIds(bookIds).stream().map(bookPreview -> mapper.bookPreviewWithCoverToBookPreviewResponse(bookPreview, bookImageHandler.fetchCoverImage(bookPreview.getTitle()))).toList();
+    }
+
+    @Override
+    public Set<BookPreviewResponse> getBookPreviewsByIdsAsSet(Set<UUID> bookIds) {
         return bookPreviewRepository.getBookPreviewsEagerByIds(bookIds).stream().map(bookPreview -> mapper.bookPreviewWithCoverToBookPreviewResponse(bookPreview, bookImageHandler.fetchCoverImage(bookPreview.getTitle()))).collect(Collectors.toSet());
     }
 

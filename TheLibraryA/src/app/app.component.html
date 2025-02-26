@@ -102,6 +102,7 @@
     } @else if (this.showOptions) {
       <div class="window column">
         <app-user-search (click)="this.showMenu = false"></app-user-search>
+        <button class="sButton" (click)="this.showMenu = false" routerLink="/favourite-books">Favourite books</button>
       </div>
     }
   </div>

@@ -4,11 +4,11 @@ import {BookPreviewCardComponent} from "../book-preview-card/book-preview-card.c
 import {Observable, Subscription} from 'rxjs';
 import {BookViewComponentStore} from './paging/BookView.component-store';
 import {provideComponentStore} from '@ngrx/component-store';
-import {TimesMaxPagingPipe} from '../../shared/pipes/times-max-paging.pipe';
+import {TimesMaxPagingPipe} from '@app/shared/pipes/times-max-paging.pipe';
 import {ActivatedRoute} from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import {BookPreview} from '../shared/models/book-preview';
-import {PageInfo} from '../../shared/paging/models/page-info';
+import {PageInfo} from '@app/shared/paging/models/page-info';
 
 @Component({
   selector: 'app-book-view',

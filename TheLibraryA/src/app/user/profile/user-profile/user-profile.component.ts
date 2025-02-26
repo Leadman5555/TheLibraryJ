@@ -1,16 +1,16 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {UserProfileData} from '../shared/user-profile-data';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {handleError, logAndExtractMessage} from '../../../shared/errorHandling/handleError';
+import {handleError, logAndExtractMessage} from '@app/shared/errorHandling/handleError';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {BookService} from '../../../book/shared/book-service';
+import {BookService} from '@app/book/shared/book-service';
 import {catchError, Subscription, switchMap} from 'rxjs';
-import {BookPreview} from '../../../book/shared/models/book-preview';
-import {BookPreviewCardComponent} from '../../../book/book-preview-card/book-preview-card.component';
-import {ProgressBarComponent} from '../../../shared/progress-bar/progress-bar.component';
+import {BookPreview} from '@app/book/shared/models/book-preview';
+import {BookPreviewCardComponent} from '@app/book/book-preview-card/book-preview-card.component';
+import {ProgressBarComponent} from '@app/shared/progress-bar/progress-bar.component';
 import {findTitle, progressArray, rankArray} from '../shared/rankTitles';
 import {UserProfileService} from '../user-profile.service';
-import {parseDateString} from '../../../shared/functions/parseData';
+import {parseDateString} from '@app/shared/functions/parseData';
 
 @Component({
   selector: 'app-user-profile',
