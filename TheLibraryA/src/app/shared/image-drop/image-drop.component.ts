@@ -1,6 +1,5 @@
 import {Component, Input} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {NgOptimizedImage} from '@angular/common';
 
 @Component({
   selector: 'app-image-drop',
