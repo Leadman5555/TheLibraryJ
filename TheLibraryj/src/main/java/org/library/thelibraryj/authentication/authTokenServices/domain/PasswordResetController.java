@@ -4,9 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import org.library.thelibraryj.authentication.authTokenServices.PasswordResetTokenService;
 import org.library.thelibraryj.authentication.authTokenServices.dto.password.PasswordResetRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("${library.mapping}/na/auth/password")
-record PasswordResetController(PasswordResetServiceImpl passwordResetService) implements ErrorHandling {
+record PasswordResetController(PasswordResetTokenService passwordResetTokenService) implements ErrorHandling {
 
     @Operation(
             summary = "Starts the password reset procedure, creating a reset token and sending a password reset email to the user of given email address.",
@@ -28,9 +29,12 @@ record PasswordResetController(PasswordResetServiceImpl passwordResetService) im
             @ApiResponse(responseCode = "400", description = "Account not eligible for password reset."),
             @ApiResponse(responseCode = "404", description = "Account not found."),
     })
-    @PostMapping("/{emailAddress}")
-    public ResponseEntity<String> startPasswordResetProcedure(@PathVariable String emailAddress) {
-        return handle(passwordResetService.startPasswordResetProcedure(emailAddress), HttpStatus.NO_CONTENT);
+    @PostMapping("/{email}")
+    public ResponseEntity<String> startPasswordResetProcedure(@PathVariable @Email String email) {
+        return passwordResetTokenService.startPasswordResetProcedure(email).fold(
+                this::handleError,
+                _ -> ResponseEntity.noContent().build()
+        );
     }
 
     @Operation(
@@ -44,7 +48,10 @@ record PasswordResetController(PasswordResetServiceImpl passwordResetService) im
     })
     @PatchMapping
     public ResponseEntity<String> consumePasswordResetToken(@RequestBody @Valid PasswordResetRequest passwordResetRequest) {
-        return handle(passwordResetService.consumePasswordResetToken(passwordResetRequest), HttpStatus.NO_CONTENT);
+        return passwordResetTokenService.consumePasswordResetToken(passwordResetRequest).fold(
+                this::handleError,
+                _ -> ResponseEntity.noContent().build()
+        );
     }
 
 }

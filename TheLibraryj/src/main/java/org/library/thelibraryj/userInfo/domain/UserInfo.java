@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 import org.library.thelibraryj.infrastructure.model.entities.AbstractEntity;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -64,7 +65,7 @@ class UserInfo extends AbstractEntity {
     @ElementCollection(targetClass = UUID.class, fetch = FetchType.LAZY)
     @CollectionTable(name = "favourite_books", joinColumns =  @JoinColumn(name = "user_info_id"))
     @Column(name = "book_id")
-    private Set<UUID> favouriteBookIds;
+    private Set<UUID> favouriteBookIds = new HashSet<>();
 
     @Builder
     public UserInfo(UUID id, Long version, Instant createdAt, Instant updatedAt, Instant dataUpdatedAt, String username, String email, int rank, UUID userAuthId, int currentScore, short preference, String status) {

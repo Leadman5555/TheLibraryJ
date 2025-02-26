@@ -1,7 +1,7 @@
 package org.library.thelibraryj.userInfo;
 
 import io.vavr.control.Either;
-import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.bookDto.response.BookPreviewResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
@@ -63,5 +63,5 @@ public interface UserInfoService {
     void removeBookFromFavourites(FavouriteBookRequest favouriteBookRequest);
     @Async
     void removeBookFromFavouritesForAllUsers(UUID bookId);
-    Either<GeneralError, FavouriteBookMergerResponse> mergeAndFetchFavouriteBooks(FavouriteBookMergerRequest mergerRequest);
+    Either<GeneralError, FavouriteBookMergerResponse> mergeFavouriteBooks(FavouriteBookMergerRequest mergerRequest);
 }

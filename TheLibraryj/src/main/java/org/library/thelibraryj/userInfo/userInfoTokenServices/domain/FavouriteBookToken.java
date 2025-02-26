@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.library.thelibraryj.infrastructure.model.entities.Token;
+import org.library.thelibraryj.infrastructure.tokenServices.Token;
 
 import java.time.Instant;
 import java.util.UUID;

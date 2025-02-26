@@ -7,7 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.validators.fileValidators.imageFile.ValidImageFormat;
 import org.library.thelibraryj.userInfo.UserInfoService;
@@ -37,9 +37,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.UUID;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("${library.mapping}")
-@RequiredArgsConstructor
 class UserInfoController implements ErrorHandling {
 
     private final UserInfoService userInfoService;
@@ -53,7 +53,7 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/id/{id}")
-    public ResponseEntity<String> getUserProfileById(@PathVariable("id") @org.hibernate.validator.constraints.UUID UUID id) {
+    public ResponseEntity<String> getUserProfileById(@PathVariable("id") UUID id) {
         return handle(userInfoService.getUserProfileById(id), HttpStatus.OK);
     }
 
@@ -251,7 +251,7 @@ class UserInfoController implements ErrorHandling {
     @PostMapping(value = "/user/book")
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
     public ResponseEntity<String> addBookToFavouritesForUser(@RequestParam("email") @Email String email,
-                                                             @RequestParam("bookId") @NotNull @org.hibernate.validator.constraints.UUID UUID bookId) {
+                                                             @RequestParam("bookId") @NotNull UUID bookId) {
         return handle(userInfoService.addBookToFavourites(new FavouriteBookRequest(email, bookId)), HttpStatus.OK);
     }
 
@@ -267,7 +267,7 @@ class UserInfoController implements ErrorHandling {
     @DeleteMapping(value = "/user/book")
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
     public ResponseEntity<String> removeBookFromFavouritesForUser(@RequestParam("email") @Email String email,
-                                                                  @RequestParam("bookId") @NotNull @org.hibernate.validator.constraints.UUID UUID bookId) {
+                                                                  @RequestParam("bookId") @NotNull UUID bookId) {
         userInfoService.removeBookFromFavourites(new FavouriteBookRequest(email, bookId));
         return ResponseEntity.noContent().build();
     }

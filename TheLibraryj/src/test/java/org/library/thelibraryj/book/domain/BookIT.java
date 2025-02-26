@@ -9,7 +9,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
-import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.sharedDto.request.ContentRemovalRequest;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;

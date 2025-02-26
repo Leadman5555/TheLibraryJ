@@ -33,7 +33,7 @@ public class PasswordControllerTest {
     private static final String ENDPOINT =  URL_BASE + "/na/auth/password";
 
     @MockBean
-    private PasswordResetServiceImpl passwordResetService;
+    private PasswordResetTokenServiceImpl passwordResetService;
 
     @Test
     public void testConsumePasswordResetToken() throws Exception {

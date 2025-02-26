@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.userInfo.userInfoTokenServices.UserInfoTokenService;
 import org.library.thelibraryj.userInfo.userInfoTokenServices.dto.request.BookTokenConsummationRequest;
@@ -12,14 +12,18 @@ import org.library.thelibraryj.userInfo.userInfoTokenServices.dto.request.BookTo
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("${library.mapping}")
-@RequiredArgsConstructor
-public class UserInfoTokenServicesController implements ErrorHandling {
+class UserInfoTokenServicesController implements ErrorHandling {
 
-    private UserInfoTokenService userInfoTokenService;
+    private final UserInfoTokenService userInfoTokenService;
 
     @Operation(
             summary = "Generate a new one or return an existing valid Favourite book token.",
@@ -54,5 +58,24 @@ public class UserInfoTokenServicesController implements ErrorHandling {
     @PreAuthorize("hasRole('ADMIN') or #bookTokenConsummationRequest.email == authentication.principal.username")
     public ResponseEntity<String> mergeFavouriteBooksUsingToken(@RequestBody @Valid BookTokenConsummationRequest bookTokenConsummationRequest) {
         return handle(userInfoTokenService.consumeFavouriteBookToken(bookTokenConsummationRequest), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Send an existing token to it's owner's email. Does not create a new token in case of invalid one.",
+            tags = {"book", "user"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Token sent to email"),
+            @ApiResponse(responseCode = "400", description = "Token expired"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "404", description = "Token or user not found"),
+    })
+    @PostMapping(value = "/user/book/token/email")
+    @PreAuthorize("hasRole('ADMIN') or #bookTokenConsummationRequest.email == authentication.principal.username")
+    public ResponseEntity<String> sendExistingFavouriteBookTokenToEmail(@RequestBody @Valid BookTokenConsummationRequest bookTokenConsummationRequest) {
+        return userInfoTokenService.sendTokenToEmail(bookTokenConsummationRequest).fold(
+                this::handleError,
+                _ -> ResponseEntity.noContent().build()
+        );
     }
 }

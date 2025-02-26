@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+    body {
+        background-color: #80bcca;
+    }
+
+    h1 {
+        color: white;
+        text-align: center;
+    }
+
+    p {
+        border: 10px double #4c6c7a;
+        font-family: verdana, sans-serif;
+        font-size: 15px;
+    }
+    p.title {
+        text-align: center;
+        font-family: "Bell MT",sans-serif;
+        font-size: 25px;
+        border: none;
+    }
+    img {
+        border: none;
+        align-content: center;
+    }
+    p.signoff, p.nested-img {
+        border: none;
+        text-align: center;
+        align-content: center;
+    }
+</style>
+<head>
+    <title th:text="${subject}"></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<p class="title">Greetings fellow Daoist- your token is here!</p>
+<p>
+    I've been tasked with delivering your sharing token. <br/>
+    Here it is. Oh, it appears to have been used a total of <span th:text="${use_count}"></span> by others as of now.<br/>
+    This is your token, <b th:text="${token}"></b>.
+    <br/>
+    From what I've heard it will be valid for another <span th:text="${expires_at}">Expiration time lost in transmission</span>. After that you will need to request a new one from the Elders.<br/>
+</p>
+<p class="signoff">
+    Good luck, it's always suitable to make new acquaintances! <br/>
+</p>
+<p class="signoff">
+    Delivering the token slips, hopefully for a tip,<br/>
+    <em>Outer Court disciple, <br/>Su Ming</em>
+</p>
+<p class="nested-img">
+    <img th:src="|cid:${image_name}|" src="images/default.jpg" alt="Visual clue lost in transmission"/>
+</p>
+</body>
+</html>

@@ -33,8 +33,11 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        value = {"org.library.thelibraryj.book.domain", "org.library.thelibraryj.userInfo.domain",
-                "org.library.thelibraryj.authentication.userAuth.domain", "org.library.thelibraryj.authentication.authTokenServices.domain"},
+        value = {"org.library.thelibraryj.book.domain",
+                "org.library.thelibraryj.userInfo.domain",
+                "org.library.thelibraryj.authentication.userAuth.domain",
+                "org.library.thelibraryj.authentication.authTokenServices.domain",
+                "org.library.thelibraryj.userInfo.userInfoTokenServices.domain"},
         repositoryBaseClass = BaseJpaRepositoryImpl.class
 )
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)

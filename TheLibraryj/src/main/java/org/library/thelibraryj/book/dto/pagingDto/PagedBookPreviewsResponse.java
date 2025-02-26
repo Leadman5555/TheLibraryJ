@@ -1,6 +1,6 @@
 package org.library.thelibraryj.book.dto.pagingDto;
 
-import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.bookDto.response.BookPreviewResponse;
 import org.library.thelibraryj.infrastructure.model.paging.PageInfo;
 import org.library.thelibraryj.infrastructure.model.paging.PagingResponseBase;
 

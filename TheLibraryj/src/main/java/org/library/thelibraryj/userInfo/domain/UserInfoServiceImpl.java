@@ -4,7 +4,7 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.library.thelibraryj.book.BookService;
-import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.bookDto.response.BookPreviewResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
@@ -359,13 +359,15 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
 
     @Transactional
     @Override
-    public Either<GeneralError, FavouriteBookMergerResponse> mergeAndFetchFavouriteBooks(FavouriteBookMergerRequest mergerRequest) {
+    public Either<GeneralError, FavouriteBookMergerResponse> mergeFavouriteBooks(FavouriteBookMergerRequest mergerRequest) {
         Either<GeneralError, UserInfo> fetchedFromE = getUserInfoEagerById(mergerRequest.fromUserId());
         if(fetchedFromE.isLeft()) return Either.left(fetchedFromE.getLeft());
         Either<GeneralError, UserInfo> fetchedToE = getUserInfoEagerByEmail(mergerRequest.toUserEmail());
         if(fetchedToE.isLeft()) return Either.left(fetchedToE.getLeft());
         UserInfo fetchedTo = fetchedToE.get();
         UserInfo fetchedFrom = fetchedFromE.get();
+        if(fetchedFrom.getId().equals(fetchedTo.getId()))
+            return Either.left(new UserInfoError.FavouriteBookTokenOnSelfUse(fetchedFrom.getId(), fetchedFrom.getEmail()));
         int sizeBefore = fetchedTo.getFavouriteBookIds().size();
         int sizeAfter = fetchedTo.addBookIdToFavourites(fetchedFrom.getFavouriteBookIds());
         userInfoRepository.update(fetchedTo);

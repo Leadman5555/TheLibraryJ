@@ -4,9 +4,9 @@ import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
-import org.library.thelibraryj.authentication.userAuth.dto.GoogleUserCreationRequest;
+import org.library.thelibraryj.authentication.userAuth.dto.request.GoogleUserCreationRequest;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationData;
-import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
+import org.library.thelibraryj.authentication.userAuth.dto.request.UserCreationRequest;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
@@ -14,6 +14,7 @@ import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoRequest;
 import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,7 @@ class UserAuthServiceImpl implements UserAuthService {
         return Either.right(mapper.userAuthAndUserInfoResponseToUserCreationResponse(createdInfo, createdAuth));
     }
 
+    @Async
     @Transactional
     @Override
     public void createNewGoogleUser(GoogleUserCreationRequest userCreationRequest) {

@@ -25,13 +25,13 @@ CREATE TABLE IF NOT EXISTS library.library_book_previews
 );
 CREATE TABLE IF NOT EXISTS library.book_tag
 (
-    book_preview_id UUID NOT NULL,
+    book_preview_id UUID     NOT NULL,
     tag             SMALLINT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS library.favourite_books
 (
     user_info_id UUID NOT NULL,
-    book_id UUID NOT NULL
+    book_id      UUID NOT NULL
 );
 CREATE TABLE IF NOT EXISTS library.library_chapter_previews
 (
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS library.library_book_tokens
     created_at  TIMESTAMP,
     updated_at  TIMESTAMP,
     expires_at  TIMESTAMP NOT NULL,
-    use_count     SMALLINT   NOT NULL DEFAULT 0,
+    use_count   INTEGER   NOT NULL DEFAULT 0,
     CONSTRAINT pk_library_book_tokens PRIMARY KEY (id)
 );
 

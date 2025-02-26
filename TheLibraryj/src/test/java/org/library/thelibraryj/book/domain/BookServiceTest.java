@@ -6,8 +6,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.library.thelibraryj.book.dto.bookDto.*;
-import org.library.thelibraryj.book.dto.chapterDto.ChapterUpsertResponse;
+import org.library.thelibraryj.book.dto.bookDto.request.BookCreationModel;
+import org.library.thelibraryj.book.dto.bookDto.request.BookCreationRequest;
+import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateModel;
+import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.bookDto.response.BookDetailResponse;
+import org.library.thelibraryj.book.dto.bookDto.response.BookResponse;
+import org.library.thelibraryj.book.dto.chapterDto.response.ChapterUpsertResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
 import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
@@ -26,11 +31,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.Method;
 import java.time.Instant;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings("FieldCanBeLocal")
 @ExtendWith(MockitoExtension.class)
 public class BookServiceTest {
     @Mock
@@ -52,7 +62,7 @@ public class BookServiceTest {
     @Mock
     private BookProperties bookProperties;
     @Spy
-    private BookMapper bookMapper = new BookMapperImpl();
+    private final BookMapper bookMapper = new BookMapperImpl();
     @Spy
     private HtmlEscaper htmlEscaper = new HtmlEscaper(false);
     @InjectMocks
@@ -250,7 +260,7 @@ public class BookServiceTest {
         Set<Integer> chapterNumbers = new HashSet<>();
 
         var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
-
+        Assertions.assertNotNull(result);
         assertTrue(result.isLeft());
         var error = result.getLeft();
         assertInstanceOf(BookError.InvalidChapterTitleFormat.class, error);
@@ -266,6 +276,7 @@ public class BookServiceTest {
         var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
 
         assertTrue(result.isLeft());
+        Assertions.assertNotNull(result);
         var error = result.getLeft();
         assertInstanceOf(BookError.InvalidChapterTitleFormat.class, error);
     }
@@ -279,6 +290,7 @@ public class BookServiceTest {
         var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
 
         assertTrue(result.isLeft());
+        Assertions.assertNotNull(result);
         var error = result.getLeft();
         assertInstanceOf(BookError.InvalidChapterTitleFormat.class, error);
         assertEquals(bookId, ((BookError.InvalidChapterTitleFormat) error).bookId());

@@ -47,7 +47,7 @@ public class PasswordResetIT {
     private static final UUID user1Id = TestProperties.userId1;
 
     @RegisterExtension
-    static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
+    static final GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
             .withConfiguration(GreenMailConfiguration.aConfig().withUser("username", "password"))
             .withPerMethodLifecycle(false);
 

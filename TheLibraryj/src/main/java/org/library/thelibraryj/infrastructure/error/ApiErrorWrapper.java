@@ -77,6 +77,8 @@ public class ApiErrorWrapper {
                     getErrorResponseAndLog(error, HttpStatus.NOT_FOUND, "Favourite book token not found. Please generate a new one.", e.tokenId().toString());
             case UserInfoError.FavouriteBookTokenExpired e ->
                     getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Favourite book token has expired. Please request a new one.", e.tokenId().toString());
+            case UserInfoError.FavouriteBookTokenOnSelfUse e ->
+                    getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Favourite book token cannot be used on oneself.", e.tokenId().toString() + ", " + e.email());
             case UserAuthError.UserAuthNotFoundId e ->
                     getErrorResponseAndLog(error, HttpStatus.NOT_FOUND, "User authentication data missing.", e.userId().toString());
             case UserAuthError.EmailNotUnique e ->

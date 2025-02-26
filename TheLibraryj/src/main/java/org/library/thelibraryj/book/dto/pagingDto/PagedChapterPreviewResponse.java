@@ -1,7 +1,7 @@
 package org.library.thelibraryj.book.dto.pagingDto;
 
 import lombok.Getter;
-import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
+import org.library.thelibraryj.book.dto.chapterDto.response.ChapterPreviewResponse;
 import org.library.thelibraryj.infrastructure.model.paging.PageInfo;
 import org.library.thelibraryj.infrastructure.model.paging.PagingResponseBase;
 

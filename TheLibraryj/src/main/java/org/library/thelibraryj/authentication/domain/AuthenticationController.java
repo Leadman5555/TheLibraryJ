@@ -13,9 +13,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import org.library.thelibraryj.authentication.AuthenticationService;
-import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
-import org.library.thelibraryj.authentication.dto.AuthenticationResponse;
-import org.library.thelibraryj.authentication.dto.RegisterRequest;
+import org.library.thelibraryj.authentication.dto.request.AuthenticationRequest;
+import org.library.thelibraryj.authentication.dto.response.AuthenticationResponse;
+import org.library.thelibraryj.authentication.dto.request.RegisterRequest;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.validators.fileValidators.imageFile.ValidImageFormat;
@@ -100,7 +100,10 @@ class AuthenticationController implements ErrorHandling {
     })
     @PostMapping("/na/auth/activation")
     public ResponseEntity<String> resendActivationEmail(@RequestParam @NotNull @Email String email) {
-        return handle(authenticationService.resendActivationEmail(email), HttpStatus.NO_CONTENT);
+        return authenticationService.resendActivationEmail(email).fold(
+                this::handleError,
+                _ -> ResponseEntity.noContent().build()
+        );
     }
 
 //    @Operation(

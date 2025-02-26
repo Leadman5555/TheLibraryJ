@@ -19,6 +19,16 @@ class UserInfoTokenServicesViewRepositoryImpl extends ViewRepositoryBase impleme
     }
 
     @Override
+    public Optional<MiniFavouriteBookTokenView> fetchByUserIdAndToken(UUID userId, UUID token) {
+        List<MiniFavouriteBookTokenView> resultList = evm.applySetting(EntityViewSetting.create(MiniFavouriteBookTokenView.class),
+                        cbf.create(em, FavouriteBookToken.class)
+                                .where("forUserId").eq(userId))
+                                .where("token").eq(token)
+                                .getResultList();
+        return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
+    }
+
+    @Override
     public Optional<MiniFavouriteBookTokenView> fetchByUserId(UUID userId) {
         List<MiniFavouriteBookTokenView> resultList = evm.applySetting(EntityViewSetting.create(MiniFavouriteBookTokenView.class),
                         cbf.create(em, FavouriteBookToken.class)

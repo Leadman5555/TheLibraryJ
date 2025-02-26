@@ -13,9 +13,9 @@ interface AuthTokenRepository extends BaseJpaRepository<AuthToken, UUID> {
     @Modifying
     @Query("""
                 DELETE FROM auth_token
-                WHERE isUsed = true OR expiresAt < CURRENT_TIMESTAMP
+                WHERE expiresAt < CURRENT_TIMESTAMP
             """)
-    void deleteAllUsedAndExpired();
+    void deleteAllExpired();
 
     Optional<AuthToken> findByToken(UUID token);
 }

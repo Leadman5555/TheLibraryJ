@@ -14,4 +14,5 @@ public sealed interface UserInfoError extends GeneralError {
     record UserNotEligibleForChosenPreference(String email, int missingRank) implements UserInfoError {}
     record FavouriteBookTokenNotFound(UUID tokenId) implements UserInfoError {}
     record FavouriteBookTokenExpired(UUID tokenId) implements UserInfoError {}
+    record FavouriteBookTokenOnSelfUse(UUID tokenId, String email) implements UserInfoError {}
 }

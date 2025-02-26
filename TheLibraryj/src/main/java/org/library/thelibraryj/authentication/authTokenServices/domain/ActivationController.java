@@ -4,13 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
-import org.library.thelibraryj.authentication.authTokenServices.ActivationService;
+import org.library.thelibraryj.authentication.authTokenServices.ActivationTokenService;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,10 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("${library.mapping}/na/auth/activation")
-class ActivationController implements ErrorHandling {
-    private final ActivationService activationService;
+record ActivationController(ActivationTokenService activationTokenService) implements ErrorHandling {
 
     @Operation(
             summary = "Enable an account by consuming an already existing account activation token.",
@@ -35,18 +29,9 @@ class ActivationController implements ErrorHandling {
     })
     @PatchMapping
     public ResponseEntity<String> consumeActivationToken(@RequestParam("tokenId") @NotNull UUID tokenId) {
-        return handle(activationService.consumeActivationToken(tokenId), HttpStatus.NO_CONTENT);
-    }
-
-    @Operation(
-            summary = "Deletes all activation token records from the database that are already used and/or expired.",
-            tags = {"authentication", "activation", "no auth required"}
-    )
-    @ApiResponse(responseCode = "204", description = "Used and expired tokens deleted from the database.")
-    @DeleteMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> deleteAllUsedAndExpiredTokens() {
-        activationService.deleteAllUsedAndExpiredTokens();
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return activationTokenService.consumeActivationToken(tokenId).fold(
+                this::handleError,
+                _ -> ResponseEntity.noContent().build()
+        );
     }
 }

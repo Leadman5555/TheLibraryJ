@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
-import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
+import org.library.thelibraryj.authentication.dto.request.AuthenticationRequest;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -57,7 +57,7 @@ public class AuthenticationIT {
     final char[] validPassword = TestProperties.allUserPassword.toCharArray();
 
     @RegisterExtension
-    static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
+    static final GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
             .withConfiguration(GreenMailConfiguration.aConfig().withUser("username", "password"))
             .withPerMethodLifecycle(false);
 
@@ -87,6 +87,7 @@ public class AuthenticationIT {
                 requestEntity,
                 String.class
         );
+        Assertions.assertEquals(HttpStatus.CREATED, registerResponse.getStatusCode());
 
         await().atMost(10, TimeUnit.SECONDS).until(
                 () -> greenMail.getReceivedMessagesForDomain(email).length == 1
