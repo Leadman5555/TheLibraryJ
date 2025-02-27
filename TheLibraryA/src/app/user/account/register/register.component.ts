@@ -3,12 +3,12 @@ import {FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Val
 import {passwordMatchValidator} from '../tokenServices/password-recovery/passwordMatchValidator';
 import {HttpClient} from '@angular/common/http';
 import {catchError} from 'rxjs';
-import {handleError} from '../../../shared/errorHandling/handleError';
+import {handleError} from '@app/shared/errorHandling/handleError';
 import {UserCreationResponse} from './user-creation-response';
 import {UserAuthService} from '../userAuth/user-auth.service';
 import {RouterLink} from '@angular/router';
-import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
-import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidator';
+import {ImageDropComponent} from '@app/shared/image-drop/image-drop.component';
+import {imageFileTypeValidator} from '@app/shared/functions/fileTypeValidator';
 import { NgOptimizedImage } from '@angular/common';
 
 @Component({

@@ -7,27 +7,27 @@ import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.book.BookService;
-import org.library.thelibraryj.book.dto.bookDto.BookCreationModel;
-import org.library.thelibraryj.book.dto.bookDto.BookCreationRequest;
-import org.library.thelibraryj.book.dto.bookDto.BookDetailResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookPreviewResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookResponse;
-import org.library.thelibraryj.book.dto.bookDto.BookUpdateModel;
-import org.library.thelibraryj.book.dto.bookDto.BookUpdateRequest;
-import org.library.thelibraryj.book.dto.chapterDto.ChapterBatchRequest;
-import org.library.thelibraryj.book.dto.chapterDto.ChapterPreviewResponse;
-import org.library.thelibraryj.book.dto.chapterDto.ChapterResponse;
-import org.library.thelibraryj.book.dto.chapterDto.ChapterUpsertResponse;
+import org.library.thelibraryj.book.dto.bookDto.request.BookCreationModel;
+import org.library.thelibraryj.book.dto.bookDto.request.BookCreationRequest;
+import org.library.thelibraryj.book.dto.bookDto.response.BookDetailResponse;
+import org.library.thelibraryj.book.dto.bookDto.response.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.bookDto.response.BookResponse;
+import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateModel;
+import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.chapterDto.request.ChapterBatchRequest;
+import org.library.thelibraryj.book.dto.chapterDto.response.ChapterPreviewResponse;
+import org.library.thelibraryj.book.dto.chapterDto.response.ChapterResponse;
+import org.library.thelibraryj.book.dto.chapterDto.response.ChapterUpsertResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
 import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
-import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
-import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalSuccess;
+import org.library.thelibraryj.book.dto.sharedDto.request.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.sharedDto.response.ContentRemovalSuccess;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
-import org.library.thelibraryj.infrastructure.model.PageInfo;
+import org.library.thelibraryj.infrastructure.model.paging.PageInfo;
 import org.library.thelibraryj.infrastructure.textParsers.fileParsers.TextParser;
 import org.library.thelibraryj.infrastructure.textParsers.inputParsers.HtmlEscaper;
 import org.library.thelibraryj.userInfo.UserInfoService;
@@ -119,12 +119,27 @@ class BookServiceImpl implements BookService {
         return Either.left(fetched.getLeft());
     }
 
+    @Override
+    public boolean checkIfBookExists(UUID bookId) {
+        return bookPreviewRepository.existsById(bookId);
+    }
+
+    @Override
+    public List<BookPreviewResponse> getBookPreviewsByIds(Set<UUID> bookIds) {
+        return bookPreviewRepository.getBookPreviewsEagerByIds(bookIds).stream().map(bookPreview -> mapper.bookPreviewWithCoverToBookPreviewResponse(bookPreview, bookImageHandler.fetchCoverImage(bookPreview.getTitle()))).toList();
+    }
+
+    @Override
+    public Set<BookPreviewResponse> getBookPreviewsByIdsAsSet(Set<UUID> bookIds) {
+        return bookPreviewRepository.getBookPreviewsEagerByIds(bookIds).stream().map(bookPreview -> mapper.bookPreviewWithCoverToBookPreviewResponse(bookPreview, bookImageHandler.fetchCoverImage(bookPreview.getTitle()))).collect(Collectors.toSet());
+    }
+
     Either<GeneralError, BookPreview> getBookPreviewLazy(UUID previewId) {
         return Try.of(() -> bookPreviewRepository.findById(previewId))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(previewId, null)));
+                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(previewId.toString())));
     }
 
     Either<GeneralError, BookPreview> getBookPreviewEager(UUID previewId) {
@@ -132,7 +147,7 @@ class BookServiceImpl implements BookService {
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(previewId, null)));
+                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(previewId.toString())));
     }
 
     @Transactional
@@ -221,7 +236,7 @@ class BookServiceImpl implements BookService {
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(null, title)));
+                .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.BookPreviewEntityNotFound(title)));
         if (preview.isLeft()) return Either.left(preview.getLeft());
         Either<GeneralError, BookDetail> detail = getBookDetail(preview.get().getId());
         if (detail.isLeft()) return Either.left(detail.getLeft());
@@ -478,6 +493,7 @@ class BookServiceImpl implements BookService {
         chapterPreviewRepository.deleteBook(removalRequest.bookId());
         ratingRepository.deleteBook(removalRequest.bookId());
         bookDetailRepository.deleteById(removalRequest.bookId());
+        userInfoService.removeBookFromFavouritesForAllUsers(removalRequest.bookId());
         log.info("Book {} has been deleted", removalRequest.bookId());
         return Either.right(new ContentRemovalSuccess(removalRequest.bookId(), removalRequest.userEmail()));
     }

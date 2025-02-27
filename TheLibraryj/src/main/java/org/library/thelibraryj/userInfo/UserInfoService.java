@@ -1,10 +1,13 @@
 package org.library.thelibraryj.userInfo;
 
 import io.vavr.control.Either;
+import org.library.thelibraryj.book.dto.bookDto.response.BookPreviewResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
 import org.library.thelibraryj.userInfo.domain.UserInfoDetailsView;
+import org.library.thelibraryj.userInfo.dto.request.FavouriteBookMergerRequest;
+import org.library.thelibraryj.userInfo.dto.request.FavouriteBookRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
@@ -12,6 +15,7 @@ import org.library.thelibraryj.userInfo.dto.request.UserInfoRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoScoreUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoStatusUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.response.FavouriteBookMergerResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserInfoMiniResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserPreferenceUpdateResponse;
@@ -25,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -52,4 +57,12 @@ public interface UserInfoService {
     Either<GeneralError, UserProfileImageUpdateResponse> updateProfileImage(UserInfoImageUpdateRequest userInfoImageUpdateRequest) throws IOException;
     Either<GeneralError, UserStatusUpdateResponse> updateUserInfoStatus(UserInfoStatusUpdateRequest userInfoStatusUpdateRequest);
     Either<GeneralError, UserPreferenceUpdateResponse> updateUserInfoPreference(UserInfoPreferenceUpdateRequest userInfoPreferenceUpdateRequest);
+    Either<GeneralError, Set<BookPreviewResponse>> getFavouriteBooks(String email);
+    Either<GeneralError, Set<UUID>> getFavouriteBooksIds(String email);
+    Either<GeneralError, Integer> addBookToFavourites(FavouriteBookRequest favouriteBookRequest);
+    @Async
+    void removeBookFromFavourites(FavouriteBookRequest favouriteBookRequest);
+    @Async
+    void removeBookFromFavouritesForAllUsers(UUID bookId);
+    Either<GeneralError, FavouriteBookMergerResponse> mergeFavouriteBooks(FavouriteBookMergerRequest mergerRequest);
 }

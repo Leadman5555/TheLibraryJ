@@ -5,17 +5,17 @@ import io.vavr.control.Either;
 import jakarta.servlet.http.Cookie;
 import org.library.thelibraryj.authentication.AuthenticationService;
 import org.library.thelibraryj.authentication.PasswordControl;
-import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
-import org.library.thelibraryj.authentication.dto.AuthenticationResponse;
-import org.library.thelibraryj.authentication.dto.RegisterRequest;
+import org.library.thelibraryj.authentication.dto.request.AuthenticationRequest;
+import org.library.thelibraryj.authentication.dto.response.AuthenticationResponse;
+import org.library.thelibraryj.authentication.dto.request.RegisterRequest;
 import org.library.thelibraryj.authentication.jwtAuth.JwtService;
-import org.library.thelibraryj.authentication.tokenServices.ActivationService;
-import org.library.thelibraryj.authentication.tokenServices.dto.activation.ActivationTokenResponse;
+import org.library.thelibraryj.authentication.authTokenServices.ActivationTokenService;
+import org.library.thelibraryj.authentication.authTokenServices.dto.activation.ActivationTokenResponse;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
 import org.library.thelibraryj.authentication.userAuth.domain.LoginDataView;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationData;
-import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
-import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
+import org.library.thelibraryj.authentication.userAuth.dto.request.UserCreationRequest;
+import org.library.thelibraryj.authentication.userAuth.dto.response.UserCreationResponse;
 import org.library.thelibraryj.email.EmailService;
 import org.library.thelibraryj.email.dto.EmailRequest;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
@@ -36,7 +36,7 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
                                  AuthenticationProperties properties,
                                  PasswordEncoder passwordEncoder,
                                  AuthenticationManager authenticationManager,
-                                 ActivationService activationService,
+                                 ActivationTokenService activationTokenService,
                                  JwtService jwtService) implements PasswordControl, AuthenticationService {
     @Override
     public Either<GeneralError, AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest) {
@@ -64,7 +64,7 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
         Either<GeneralError, UserCreationData> createdUser = createUser(registerRequest);
         if (createdUser.isLeft()) return Either.left(createdUser.getLeft());
         UserCreationData data = createdUser.get();
-        ActivationTokenResponse createdToken = activationService.createFirstActivationToken(data.userAuthId());
+        ActivationTokenResponse createdToken = activationTokenService.createFirstActivationToken(data.userAuthId());
         sendActivationMail(registerRequest.username(), registerRequest.email(), createdToken);
         return Either.right(new UserCreationResponse(
                 data.username(),
@@ -79,7 +79,7 @@ record AuthenticationServiceImpl(UserAuthService userAuthService,
 
     @Override
     public Either<GeneralError, Boolean> resendActivationEmail(String email) {
-        Either<GeneralError, ActivationTokenResponse> createdTokenE = activationService.createActivationToken(email);
+        Either<GeneralError, ActivationTokenResponse> createdTokenE = activationTokenService.createActivationToken(email);
         if (createdTokenE.isLeft()) return Either.left(createdTokenE.getLeft());
         sendActivationMail(email, email, createdTokenE.get());
         return Either.right(true);

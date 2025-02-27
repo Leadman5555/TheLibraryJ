@@ -3,7 +3,7 @@ import {BookService} from '../shared/book-service';
 import {NavigationEnd, NavigationStart, Router, RouterLink, RouterOutlet} from '@angular/router';
 import {AuthorTabDataService} from './shared/author-tab-data.service';
 import {BookPreview} from '../shared/models/book-preview';
-import {UserAuthService} from '../../user/account/userAuth/user-auth.service';
+import {UserAuthService} from '@app/user/account/userAuth/user-auth.service';
 import {BookPreviewCardComponent} from '../book-preview-card/book-preview-card.component';
 import {NgOptimizedImage} from '@angular/common';
 

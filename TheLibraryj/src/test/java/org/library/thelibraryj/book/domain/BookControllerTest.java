@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.library.thelibraryj.book.BookService;
-import org.library.thelibraryj.book.dto.bookDto.BookDetailResponse;
+import org.library.thelibraryj.book.dto.bookDto.response.BookDetailResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PreviewKeySet;
 import org.library.thelibraryj.book.dto.pagingDto.PreviewKeySetPage;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;

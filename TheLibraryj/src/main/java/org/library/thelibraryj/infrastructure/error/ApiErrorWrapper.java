@@ -41,7 +41,7 @@ public class ApiErrorWrapper {
             case BookError.BookDetailEntityNotFound e -> getErrorResponseAndLog(error, HttpStatus.NOT_FOUND,
                     "Book data (details) missing. Id: " + e.missingEntityId(), NO_SERVER_DETAILS);
             case BookError.BookPreviewEntityNotFound e -> getErrorResponseAndLog(error, HttpStatus.NOT_FOUND,
-                    "Book data (preview) missing. Id: " + e.missingEntityId(), NO_SERVER_DETAILS);
+                    "Book data (preview) missing. Resource identifier: " + e.missingEntityIdentifier(), NO_SERVER_DETAILS);
             case BookError.DuplicateTitle e -> getErrorResponseAndLog(error, HttpStatus.CONFLICT, "Duplicate title - chosen title is already used.", e.bookIdentifier());
             case BookError.UserNotAuthor e ->
                     getErrorResponseAndLog(error, HttpStatus.CONFLICT, "User is not the book author. Email: " + e.userEmail(), e.bookId().toString());
@@ -55,11 +55,11 @@ public class ApiErrorWrapper {
                     getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Invalid chapter text length for chapter number: " + e.chapterNumber(), e.bookId().toString());
             case BookError.MalformedChapterText e ->
                     getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Malformed chapter text for chapter number: " + e.chapterNumber(), e.bookId().toString());
-            case UserInfoError.UserInfoEntityNotFound e -> getErrorResponseAndLog(error, HttpStatus.NOT_FOUND,
+            case UserInfoError.UserInfoEntityNotFoundByEmail e -> getErrorResponseAndLog(error, HttpStatus.NOT_FOUND,
                     "User data (details) missing. Email: " + e.missingEntityEmail(), NO_SERVER_DETAILS);
             case UserInfoError.UserInfoEntityNotFoundById e -> getErrorResponseAndLog(error, HttpStatus.NOT_FOUND,
                     "User data (details) missing by Id", e.userId().toString());
-            case UserInfoError.UserInfoEntityNotFoundUsername e -> getErrorResponseAndLog(error, HttpStatus.NOT_FOUND,
+            case UserInfoError.UserInfoEntityNotFoundByUsername e -> getErrorResponseAndLog(error, HttpStatus.NOT_FOUND,
                     "User data (details) missing. Username: " + e.missingEntityUsername(), NO_SERVER_DETAILS);
             case UserInfoError.UserAccountTooYoung e -> getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST,
                     "User account too young to complete the desired action. Missing account age (hours):" + e.accountAgeMissing(), e.userEmail());
@@ -73,6 +73,12 @@ public class ApiErrorWrapper {
                     getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "User not eligible for rank increase. Missing score: " + e.missingScore(), e.email());
             case UserInfoError.UserNotEligibleForChosenPreference e ->
                     getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "User not eligible for chosen preference. Missing rank: " + e.missingRank(), e.email());
+            case UserInfoError.FavouriteBookTokenNotFound e ->
+                    getErrorResponseAndLog(error, HttpStatus.NOT_FOUND, "Favourite book token not found. Please generate a new one.", e.tokenId().toString());
+            case UserInfoError.FavouriteBookTokenExpired e ->
+                    getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Favourite book token has expired. Please request a new one.", e.tokenId().toString());
+            case UserInfoError.FavouriteBookTokenOnSelfUse e ->
+                    getErrorResponseAndLog(error, HttpStatus.BAD_REQUEST, "Favourite book token cannot be used on oneself.", e.tokenId().toString() + ", " + e.email());
             case UserAuthError.UserAuthNotFoundId e ->
                     getErrorResponseAndLog(error, HttpStatus.NOT_FOUND, "User authentication data missing.", e.userId().toString());
             case UserAuthError.EmailNotUnique e ->

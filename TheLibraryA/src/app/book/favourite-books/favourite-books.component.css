@@ -1,0 +1,68 @@
+@import "../../shared/styles/rowCol.css";
+@import "../../shared/styles/borderBox.css";
+@import "../../shared/styles/sButton.css";
+@import "../../shared/styles/sInput.css";
+@import "../../shared/styles/previewsColumn.css";
+
+.outerBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+  gap: 0.5em;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "previewsDiv previewsDiv previewsDiv infoDiv infoDiv infoDiv"
+    "previewsDiv previewsDiv previewsDiv infoDiv infoDiv infoDiv"
+    "previewsDiv previewsDiv previewsDiv tokenDiv tokenDiv tokenDiv"
+    "previewsDiv previewsDiv previewsDiv tokenDiv tokenDiv tokenDiv"
+    "previewsDiv previewsDiv previewsDiv tokenDiv tokenDiv tokenDiv";
+}
+
+.infoDiv {
+  grid-area: infoDiv;
+  background: #969db6;
+}
+
+.tokenDiv {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  gap: 0 0;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "tokenInfoDiv tokenInfoDiv tokenInfoDiv tokenInfoDiv"
+    "tokenInfoDiv tokenInfoDiv tokenInfoDiv tokenInfoDiv"
+    "tokenValueDiv tokenValueDiv tokenValueDiv tokenValueDiv"
+    "tokenValueDiv tokenValueDiv tokenValueDiv tokenValueDiv";
+  grid-area: tokenDiv;
+  background: rgba(202, 243, 243, 0.65);
+  text-align: center;
+}
+
+.tokenInfoDiv {
+  grid-area: tokenInfoDiv;
+  background: #a6a4a4;
+  padding: 0.5em;
+}
+
+.tokenValueDiv {
+  grid-area: tokenValueDiv;
+}
+
+.bookToken {
+  text-shadow: 0 0 0.2em rgba(255, 147, 5, 0.73);
+  color: darkgoldenrod;
+  font-weight: bold;
+  font-size: 1.4em;
+  font-style: italic;
+}
+
+.bookTokenInfo {
+  color: rgba(77, 1, 209, 0.7);
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.sButtonColor::before, .sButtonColor::after {
+  background-color: #A4D5D6;
+}

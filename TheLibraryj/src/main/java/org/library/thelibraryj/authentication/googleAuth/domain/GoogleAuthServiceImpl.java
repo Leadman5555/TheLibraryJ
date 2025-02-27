@@ -13,10 +13,11 @@ import org.library.thelibraryj.authentication.googleAuth.dto.GoogleCallbackRespo
 import org.library.thelibraryj.authentication.googleAuth.dto.GoogleLinkResponse;
 import org.library.thelibraryj.authentication.jwtAuth.JwtService;
 import org.library.thelibraryj.authentication.userAuth.UserAuthService;
-import org.library.thelibraryj.authentication.userAuth.dto.GoogleUserCreationRequest;
+import org.library.thelibraryj.authentication.userAuth.dto.request.GoogleUserCreationRequest;
 import org.library.thelibraryj.infrastructure.exception.GoogleApiNotRespondingException;
 import org.library.thelibraryj.infrastructure.exception.GoogleTokenVerificationException;
 import org.library.thelibraryj.userInfo.UserInfoService;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -80,7 +81,8 @@ class GoogleAuthServiceImpl implements GoogleAuthService {
         );
     }
 
-    private void createUserIfNotRegistered(StringBuilder defaultUsername, String email) {
+    @Async
+    void createUserIfNotRegistered(StringBuilder defaultUsername, String email) {
         if (!userInfoService.existsByEmail(email)) {
             if (defaultUsername.length() > 20) defaultUsername.delete(21, defaultUsername.length());
             Random random = new Random();

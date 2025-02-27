@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -16,7 +17,25 @@ interface UserInfoRepository extends BaseJpaRepository<UserInfo, UUID>, UserInfo
 
     boolean existsByEmail(String email);
 
+    @Query("""
+            select ui from userInfo ui
+            where ui.username = :username
+            """)
     Optional<UserInfo> getByUsername(@Param("username") String username);
+
+    @Query("""
+            select ui from userInfo ui
+            left join fetch ui.favouriteBookIds
+            where ui.id = :id
+            """)
+    Optional<UserInfo> fetchUserInfoEagerById(@Param("id") UUID id);
+
+    @Query("""
+            select ui from userInfo ui
+            left join fetch ui.favouriteBookIds
+            where ui.email = :email
+            """)
+    Optional<UserInfo> fetchUserInfoEagerByEmail(@Param("email") String email);
 
     @Query("""
                 select id from userInfo
@@ -40,8 +59,22 @@ interface UserInfoRepository extends BaseJpaRepository<UserInfo, UUID>, UserInfo
 
     @Modifying
     @Query("""
-    update userInfo ui set ui.currentScore = ui.currentScore + :change
-    where ui.id = :userId
-""")
+                update userInfo ui set ui.currentScore = ui.currentScore + :change
+                where ui.id = :userId
+            """)
     void updateCurrentScore(@Param("userId") UUID userId, @Param("change") int change);
+
+    @Query("""
+                   select ui.favouriteBookIds  from userInfo ui
+                   where ui.id = :userId
+            """)
+    Set<UUID> fetchUserFavouriteBookIds(@Param("userId") UUID userId);
+
+    @Modifying
+    @Query(value = "DELETE FROM library.favourite_books WHERE user_info_id = :userId AND book_id = :bookId", nativeQuery = true)
+    void removeBookFromFavourites(@Param("userId") UUID userId, @Param("bookId") UUID bookId);
+
+    @Modifying
+    @Query(value = "DELETE FROM library.favourite_books WHERE book_id = :bookId", nativeQuery = true)
+    void removeBookFromFavouritesForAllUsers(@Param("bookId") UUID bookId);
 }

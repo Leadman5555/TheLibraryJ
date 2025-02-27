@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.library.thelibraryj.authentication.userAuth.dto.UserCreationData;
-import org.library.thelibraryj.authentication.userAuth.dto.UserCreationRequest;
+import org.library.thelibraryj.authentication.userAuth.dto.request.UserCreationRequest;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserAuthError;
 import org.library.thelibraryj.userInfo.UserInfoService;
@@ -32,7 +32,7 @@ public class UserAuthServiceTest {
     @Mock
     private UserInfoService userInfoService;
     @Spy
-    private UserAuthMapper mapper = new UserAuthMapperImpl();
+    private final UserAuthMapper mapper = new UserAuthMapperImpl();
     @InjectMocks
     private UserAuthServiceImpl userAuthService;
 

@@ -2,8 +2,9 @@
   @if (this.tokenValue !== undefined) {
     <button class="sButton" (click)="attemptAccountActivation()">Token present, activate account</button>
   } @else {
-    <div id="formBox">
+    <div id="formBox column">
       @if (emailInputForm !== undefined) {
+        <span>Enter email address to send account activation email:</span>
         <form id="emailInputForm" [formGroup]="emailInputForm"
               (ngSubmit)="sendAccountActivationEmail()">
           <div class="emailInput">

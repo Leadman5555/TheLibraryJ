@@ -100,8 +100,9 @@
         }
       </div>
     } @else if (this.showOptions) {
-      <div class="window column">
+      <div class="window column borderBox" style="padding: 0.5em">
         <app-user-search (click)="this.showMenu = false"></app-user-search>
+        <button class="sButton" (click)="hideWindows()" routerLink="/favourite-books">Favourite book collection</button>
       </div>
     }
   </div>

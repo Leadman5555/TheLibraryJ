@@ -1,8 +1,8 @@
 import {GenericComponentStore} from '../generic.component-store';
-import {BookPreview} from '../../../book/shared/models/book-preview';
+import {BookPreview} from '@app/book/shared/models/book-preview';
 import {BookPage} from './book-page';
 import {inject} from '@angular/core';
-import {BookService} from '../../../book/shared/book-service';
+import {BookService} from '@app/book/shared/book-service';
 
 export abstract class BookPreviewComponentStore extends GenericComponentStore<BookPreview, BookPage> {
   protected readonly bookService = inject(BookService);

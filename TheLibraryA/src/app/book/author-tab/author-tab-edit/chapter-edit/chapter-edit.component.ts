@@ -10,7 +10,7 @@ import {
   Validators
 } from '@angular/forms';
 import {BookService} from '../../../shared/book-service';
-import {textFileTypesValidator} from '../../../../shared/functions/fileTypeValidator';
+import {textFileTypesValidator} from '@app/shared/functions/fileTypeValidator';
 import {AuthorTabDataService} from '../../shared/author-tab-data.service';
 import {BookResponse} from '../../../shared/models/book-response';
 import {integerValidator} from '../../../book-filter/filterBox/filterValidators';

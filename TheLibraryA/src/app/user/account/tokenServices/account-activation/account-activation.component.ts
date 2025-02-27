@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {handleError} from '../../../../shared/errorHandling/handleError';
+import {handleError} from '@app/shared/errorHandling/handleError';
 import {catchError} from 'rxjs';
 
 @Component({
@@ -33,12 +33,20 @@ export class AccountActivationComponent implements OnInit {
     this.activatedRoute.paramMap.subscribe((params) => {
       const tokenValue = params.get('token');
       if (tokenValue) {
-        this.tokenValue = tokenValue;
+        if(!tokenValue.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)){
+          alert('Token does not match required format.');
+          this.generateEmailForm();
+        }
+        else this.tokenValue = tokenValue;
       } else {
-        this.emailInputForm = new FormGroup({
-          email: new FormControl('', {validators: [Validators.required, Validators.email]})
-        });
+        this.generateEmailForm();
       }
+    });
+  }
+
+  private generateEmailForm(){
+    this.emailInputForm = new FormGroup({
+      email: new FormControl('', {validators: [Validators.required, Validators.email]})
     });
   }
 

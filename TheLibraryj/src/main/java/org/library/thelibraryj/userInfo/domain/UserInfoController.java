@@ -7,10 +7,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.validators.fileValidators.imageFile.ValidImageFormat;
 import org.library.thelibraryj.userInfo.UserInfoService;
+import org.library.thelibraryj.userInfo.dto.request.FavouriteBookRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
@@ -21,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,9 +37,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.UUID;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("${library.mapping}")
-@RequiredArgsConstructor
 class UserInfoController implements ErrorHandling {
 
     private final UserInfoService userInfoService;
@@ -64,7 +66,7 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/{username}")
-    public ResponseEntity<String> getUserProfileByUsername(@PathVariable("username") String username) {
+    public ResponseEntity<String> getUserProfileByUsername(@PathVariable("username") @NotBlank String username) {
         return handle(userInfoService.getUserProfileByUsername(username), HttpStatus.OK);
     }
 
@@ -77,7 +79,7 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/email/{email}")
-    public ResponseEntity<String> getUserProfileByEmail(@PathVariable("email") String email) {
+    public ResponseEntity<String> getUserProfileByEmail(@PathVariable("email") @Email String email) {
         return handle(userInfoService.getUserProfileByEmail(email), HttpStatus.OK);
     }
 
@@ -90,7 +92,7 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/details/{username}")
-    public ResponseEntity<String> getUserInfoDetailsByUsername(@PathVariable("username") String username) {
+    public ResponseEntity<String> getUserInfoDetailsByUsername(@PathVariable("username") @NotBlank String username) {
         return handle(userInfoService.getUserInfoDetailsByUsername(username), HttpStatus.OK);
     }
 
@@ -103,7 +105,7 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/na/user/mini/{email}")
-    public ResponseEntity<String> getUserInfoMiniByEmail(@PathVariable("email") String email) {
+    public ResponseEntity<String> getUserInfoMiniByEmail(@PathVariable("email") @Email String email) {
         return handle(userInfoService.getUserInfoMiniResponseByEmail(email), HttpStatus.OK);
     }
 
@@ -202,7 +204,7 @@ class UserInfoController implements ErrorHandling {
     })
     @PatchMapping(value = "/user/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
-    public ResponseEntity<String> updateUserProfileImage(@RequestParam("email") @NotBlank @Email String email,
+    public ResponseEntity<String> updateUserProfileImage(@RequestParam("email") @Email String email,
                                                          @RequestPart(value = "newImage", required = false) @Nullable @ValidImageFormat MultipartFile newImage) throws IOException {
         return handle(userInfoService.updateProfileImage(new UserInfoImageUpdateRequest(email, newImage)), HttpStatus.OK);
     }
@@ -216,8 +218,58 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "403", description = "User is not eligible to author books")
     })
     @PostMapping("/na/user/verify/{email}")
-    public ResponseEntity<String> verifyWritingEligibility(@PathVariable @NotNull @Email String email) {
-        if(userInfoService.checkWritingEligibility(email)) return ResponseEntity.noContent().build();
+    public ResponseEntity<String> verifyWritingEligibility(@PathVariable("email") @NotNull @Email String email) {
+        if (userInfoService.checkWritingEligibility(email)) return ResponseEntity.noContent().build();
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+
+    @Operation(
+            summary = "Fetch previews of books (or Ids if 'onlyIds' param is true) that are added to user's favourites.",
+            tags = {"book", "user"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Previews or Ids fetched successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+    })
+    @GetMapping(value = "/user/book")
+    @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
+    public ResponseEntity<String> getFavouriteBooksForUser(@RequestParam("email") @Email String email, @RequestParam(value = "onlyIds", required = false) @Nullable Boolean onlyIds) {
+        if (onlyIds != null && onlyIds) return handle(userInfoService.getFavouriteBooksIds(email), HttpStatus.OK);
+        return handle(userInfoService.getFavouriteBooks(email), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Add a book to user's favourites. Returns current favourite book count on success.",
+            tags = {"book", "user"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Book added successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "404", description = "User not found or book not found"),
+    })
+    @PostMapping(value = "/user/book")
+    @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
+    public ResponseEntity<String> addBookToFavouritesForUser(@RequestParam("email") @Email String email,
+                                                             @RequestParam("bookId") @NotNull UUID bookId) {
+        return handle(userInfoService.addBookToFavourites(new FavouriteBookRequest(email, bookId)), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Remove a book from user's favourites.",
+            tags = {"book", "user"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Book removed successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "404", description = "User not found or book not found"),
+    })
+    @DeleteMapping(value = "/user/book")
+    @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
+    public ResponseEntity<String> removeBookFromFavouritesForUser(@RequestParam("email") @Email String email,
+                                                                  @RequestParam("bookId") @NotNull UUID bookId) {
+        userInfoService.removeBookFromFavourites(new FavouriteBookRequest(email, bookId));
+        return ResponseEntity.noContent().build();
     }
 }

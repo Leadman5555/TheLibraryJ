@@ -1,12 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {UserProfileData} from '../shared/user-profile-data';
-import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
+import {ImageDropComponent} from '@app/shared/image-drop/image-drop.component';
 import {usernameMatchValidator} from './usernameMatchValidator';
 import {findTitle, preferenceArray, PreferenceTitle, progressArray, rankArray} from '../shared/rankTitles';
-import {ProgressBarComponent} from '../../../shared/progress-bar/progress-bar.component';
+import {ProgressBarComponent} from '@app/shared/progress-bar/progress-bar.component';
 import {catchError} from 'rxjs';
-import {handleError} from '../../../shared/errorHandling/handleError';
+import {handleError} from '@app/shared/errorHandling/handleError';
 import {UserProfileService} from '../user-profile.service';
 import {UserAuthService} from '../../account/userAuth/user-auth.service';
 import {
@@ -19,9 +19,9 @@ import {
   UserUsernameUpdateResponse
 } from './dto/UserUpdateDtos';
 import {animate, state, style, transition, trigger} from '@angular/animations';
-import {parseDateString} from '../../../shared/functions/parseData';
-import {carriageReturnLengthValidator} from '../../../shared/functions/carriageReturnLengthValidator';
-import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidator';
+import {parseDateString} from '@app/shared/functions/parseDate';
+import {carriageReturnLengthValidator} from '@app/shared/functions/carriageReturnLengthValidator';
+import {imageFileTypeValidator} from '@app/shared/functions/fileTypeValidator';
 
 const ANIMATION_IN_MS: number = 500;
 const ANIMATION_OUT_MS: number = 1000;

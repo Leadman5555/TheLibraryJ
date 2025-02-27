@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -24,6 +25,13 @@ interface BookPreviewRepository extends BaseJpaRepository<BookPreview, UUID> {
             where bp.id = :id
             """)
     Optional<BookPreview> getBookPreviewEager(@Param("id") UUID id);
+
+    @Query("""
+            select bp from bookPreview bp
+            join fetch bp.bookTags
+            where bp.id in (:idSet)
+            """)
+    Set<BookPreview> getBookPreviewsEagerByIds(@Param("idSet") Set<UUID> idSet);
 
     @Query("""
             select (count(b) > 0) from bookPreview b where b.title = :title

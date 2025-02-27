@@ -1,9 +1,6 @@
 package org.library.thelibraryj.userInfo.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-
 import java.util.UUID;
 
-public record UserInfoRequest(@NotBlank String username, @NotBlank String email, @NotNull UUID userAuthId) {
+public record UserInfoRequest(String username, String email, UUID userAuthId) {
 }

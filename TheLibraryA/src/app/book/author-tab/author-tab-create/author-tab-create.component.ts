@@ -8,13 +8,13 @@ import {
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import {UserAuthService} from '../../../user/account/userAuth/user-auth.service';
+import {UserAuthService} from '@app/user/account/userAuth/user-auth.service';
 import {BookResponse} from '../../shared/models/book-response';
-import {ImageDropComponent} from '../../../shared/image-drop/image-drop.component';
+import {ImageDropComponent} from '@app/shared/image-drop/image-drop.component';
 import {allTags} from '../../shared/models/BookTag';
-import {atLeastOneValidator} from '../../../shared/functions/atLeastOneValidator';
-import {carriageReturnLengthValidator} from '../../../shared/functions/carriageReturnLengthValidator';
-import {imageFileTypeValidator} from '../../../shared/functions/fileTypeValidator';
+import {atLeastOneValidator} from '@app/shared/functions/atLeastOneValidator';
+import {carriageReturnLengthValidator} from '@app/shared/functions/carriageReturnLengthValidator';
+import {imageFileTypeValidator} from '@app/shared/functions/fileTypeValidator';
 
 @Component({
   selector: 'app-author-tab-create',

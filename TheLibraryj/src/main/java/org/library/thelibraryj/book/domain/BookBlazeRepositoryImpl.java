@@ -6,7 +6,7 @@ import com.blazebit.persistence.KeysetPage;
 import com.blazebit.persistence.PagedList;
 import com.blazebit.persistence.UpdateCriteriaBuilder;
 import jakarta.persistence.EntityManager;
-import org.library.thelibraryj.infrastructure.model.BlazeRepositoryBase;
+import org.library.thelibraryj.infrastructure.model.blaze.BlazeRepositoryBase;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

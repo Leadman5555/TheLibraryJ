@@ -3,10 +3,10 @@ import {inject, Injectable} from '@angular/core';
 import {BookService} from '../../shared/book-service';
 import {asyncScheduler, map, Observable, scheduled, switchMap, withLatestFrom} from 'rxjs';
 import {ChapterPreviewPage} from './chapterPreview-page';
-import {GenericComponentStore} from '../../../shared/paging/generic.component-store';
+import {GenericComponentStore} from '@app/shared/paging/generic.component-store';
 import {ChapterPreview} from '../../shared/models/chapter-preview';
 import {HttpErrorResponse} from '@angular/common/http';
-import {logError} from '../../../shared/errorHandling/handleError';
+import {logError} from '@app/shared/errorHandling/handleError';
 
 
 @Injectable({

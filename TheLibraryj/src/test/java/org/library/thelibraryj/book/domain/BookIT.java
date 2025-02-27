@@ -9,7 +9,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
-import org.library.thelibraryj.book.dto.sharedDto.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.sharedDto.request.ContentRemovalRequest;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
@@ -18,7 +18,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.PathResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
@@ -55,21 +60,18 @@ public class BookIT {
 
     private static final String BASE_URL = TestProperties.BASE_URL + "/na/books";
     private static final String BASE_AUTH_URL = TestProperties.BASE_URL + "/books";
-    private final UUID bookId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-    private final UUID chapterBookId = UUID.fromString("123e4567-e89b-12d3-a456-426614174003");
-    private final UUID userId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-    private final UUID userId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
-    private final UUID chapterId = UUID.fromString("123e4567-e89b-12d3-a456-999994174001");
-    private static final String authorEmail1 = "sample.email1@gmail.com";
-    private static final String authorEmail2 = "sample.email2@gmail.com";
-    private static final String validBookTitle7 = "Book7D";
-    private static final String validBookTitle1 = "Book1";
+    private static final UUID bookId = TestProperties.bookId1;
+    private static final UUID chapterBookId = TestProperties.noChapterBookId;
+    private static final String authorEmail1 = TestProperties.userEmail1;
+    private static final String authorEmail2 = TestProperties.notEnabledUserEmail2;
+    private static final String validBookTitle7 = TestProperties.bookTitle2;
+    private static final String validBookTitle1 = TestProperties.bookTitle1;
 
     @BeforeEach
     public void setUp() {
         ResourceDatabasePopulator scriptExecutor = new ResourceDatabasePopulator();
-        scriptExecutor.addScript(new ClassPathResource("schema.sql"));
-        scriptExecutor.addScript(new ClassPathResource("dataInit.sql"));
+        scriptExecutor.addScript(new ClassPathResource(TestProperties.SCHEMA_FILE_NAME));
+        scriptExecutor.addScript(new ClassPathResource(TestProperties.DATA_FILE_NAME));
         scriptExecutor.setSeparator("@@");
         scriptExecutor.execute(this.dataSource);
         TestProperties.fillHeadersForUser1();
@@ -369,7 +371,7 @@ public class BookIT {
     private static final String libreOfficeType = "application/vnd.oasis.opendocument.text";
     private static final String wordType = "application/msword";
     private static final String wordType2 = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-    private final String chapterFetchQuery = "SELECT * FROM library.library_chapters LEFT OUTER JOIN library.library_chapter_previews lcp ON library_chapters.chapter_preview_id = lcp.id WHERE lcp.book_detail_id = '" + chapterBookId + "' ORDER BY lcp.number";
+    private static final String chapterFetchQuery = "SELECT * FROM library.library_chapters LEFT OUTER JOIN library.library_chapter_previews lcp ON library_chapters.chapter_preview_id = lcp.id WHERE lcp.book_detail_id = '" + chapterBookId + "' ORDER BY lcp.number";
     private static final String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
 

@@ -33,12 +33,12 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class JwtServiceTest {
     @Spy
-    private JwtProperties jwtProperties = new JwtProperties();
+    private final JwtProperties jwtProperties = new JwtProperties();
 
     static final String publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEHMberk3xVepnUlc1p17905sSBmYJ+9IS6UKHgsfm8kYGe4QsYASumkY6vG0WtQc77Mqot9jXQaYqVxHYinNYXg==";
     static final String privateKey = "MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCCJo7IN6eWnORQPrc8+TdICImuwtZK/+KhY+Bf9EYaMKA==";
     @Spy
-    private Algorithm jwtSigningAlgorithm = Algorithm.ECDSA256(
+    private final Algorithm jwtSigningAlgorithm = Algorithm.ECDSA256(
             (ECPublicKey) KeyFactory.getInstance("EC").generatePublic(new X509EncodedKeySpec(Base64.decodeBase64(publicKey))),
             (ECPrivateKey) KeyFactory.getInstance("EC").generatePrivate(new PKCS8EncodedKeySpec(Base64.decodeBase64(privateKey))));
 
@@ -133,6 +133,7 @@ class JwtServiceTest {
 
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static UserDetails getMockDetails(String forSubject) {
         return new UserDetails() {
             @Override

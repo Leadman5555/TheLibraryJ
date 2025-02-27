@@ -114,6 +114,7 @@ export class AppComponent implements OnInit {
     this.showLoggedIn = true;
     this.errorMessage = undefined;
     this.userMini = this.storageService.getUserMini();
+    window.location.reload();
   }
 
   private subscribeToLogIn(): void {

@@ -19,7 +19,7 @@ export class TimesMaxPagingPipe implements PipeTransform {
       boundStart = Math.max(maxValue - maxTimes, 0);
     }
     return {
-      [Symbol.iterator]: function* () {
+      [Symbol.iterator]: function* (): Iterator<number> {
       let n = boundStart;
       while (n < boundEnd) {
         yield ++n;

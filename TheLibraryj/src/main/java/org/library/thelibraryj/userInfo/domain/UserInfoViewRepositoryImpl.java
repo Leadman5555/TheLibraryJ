@@ -4,7 +4,7 @@ import com.blazebit.persistence.CriteriaBuilderFactory;
 import com.blazebit.persistence.view.EntityViewManager;
 import com.blazebit.persistence.view.EntityViewSetting;
 import jakarta.persistence.EntityManager;
-import org.library.thelibraryj.infrastructure.model.ViewRepositoryBase;
+import org.library.thelibraryj.infrastructure.model.blaze.ViewRepositoryBase;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

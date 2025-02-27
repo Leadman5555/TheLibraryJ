@@ -4,23 +4,24 @@ import {BookPreview} from '../shared/models/book-preview';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {BookDetail} from '../shared/models/book-detail';
 import {RatingResponse} from '../shared/models/rating-response';
-import {TimesMaxPagingPipe} from '../../shared/pipes/times-max-paging.pipe';
+import {TimesMaxPagingPipe} from '@app/shared/pipes/times-max-paging.pipe';
 import {ChapterPreviewComponentStore} from './paging/chapterPreview.component-store';
 import {ChapterPreview} from '../shared/models/chapter-preview';
 import {Observable} from 'rxjs';
-import {PageInfo} from '../../shared/paging/models/page-info';
+import {PageInfo} from '@app/shared/paging/models/page-info';
 import {provideComponentStore} from '@ngrx/component-store';
-import {parseDateString} from '../../shared/functions/parseData';
-import {logError} from '../../shared/errorHandling/handleError';
-import {UserAuthService} from '../../user/account/userAuth/user-auth.service';
+import {parseDateString} from '@app/shared/functions/parseDate';
+import {logError} from '@app/shared/errorHandling/handleError';
+import {UserAuthService} from '@app/user/account/userAuth/user-auth.service';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {RangeSelectorComponent} from '../../shared/range-selector/range-selector.component';
-import { AsyncPipe } from '@angular/common';
+import {RangeSelectorComponent} from '@app/shared/range-selector/range-selector.component';
+import {AsyncPipe, NgOptimizedImage} from '@angular/common';
+import {UserProfileService} from '@app/user/profile/user-profile.service';
 
 
 @Component({
   selector: 'app-book',
-  imports: [RouterLink, TimesMaxPagingPipe, ReactiveFormsModule, AsyncPipe, FormsModule, RangeSelectorComponent],
+  imports: [RouterLink, TimesMaxPagingPipe, ReactiveFormsModule, AsyncPipe, FormsModule, RangeSelectorComponent, NgOptimizedImage],
   providers: [
     provideComponentStore(ChapterPreviewComponentStore)
   ],
@@ -35,12 +36,14 @@ export class BookComponent implements OnInit {
   bookDetail!: BookDetail;
   ratings?: RatingResponse[];
 
+  isBookInFavourites: boolean = false;
+
   private readonly componentStore: ChapterPreviewComponentStore = inject(ChapterPreviewComponentStore);
   readonly vm$: Observable<ChapterPreview[]> = this.componentStore.vm$;
   readonly info$: Observable<PageInfo> = this.componentStore.info$;
   private bookService: BookService = inject(BookService);
 
-  constructor(private router: Router, private userAuthService: UserAuthService) {
+  constructor(private router: Router, private userAuthService: UserAuthService, private userProfileService: UserProfileService) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras?.state) {
       const state = navigation.extras.state as { bp: BookPreview };
@@ -51,10 +54,13 @@ export class BookComponent implements OnInit {
   ngOnInit() {
     if (this.bookPreview) {
       this.bookService.getBookDetail(this.bookPreview.id).subscribe({
-        next: (v) => this.bookDetail = v,
+        next: (v) => {
+          this.bookDetail = v;
+          this.loadIsFavourite();
+          this.fetchChapterPreviews();
+          },
         error: (_) => this.router.navigate([`book`, this.bookPreview.title]),
       });
-      this.fetchChapterPreviews();
     } else {
       const title: string = this.activatedRoute.snapshot.params['title'];
       if (title) {
@@ -74,15 +80,21 @@ export class BookComponent implements OnInit {
               author: v.author,
               description: v.description,
             };
+            this.loadIsFavourite();
             this.fetchChapterPreviews();
           },
           error: (e) => {
-            console.error(e);
+            logError(e);
             this.router.navigate([this.defaultRoute]);
           }
         });
       } else this.router.navigate([this.defaultRoute]);
     }
+  }
+
+  private loadIsFavourite(){
+    if(this.userAuthService.isLoggedIn()) this.isBookInFavourites = this.userProfileService.isBookInLoggedFavourites(this.bookPreview.id);
+    else this.isBookInFavourites = this.userProfileService.isBookInFavourites(this.bookPreview.id);
   }
 
   private fetchChapterPreviews() {
@@ -223,4 +235,42 @@ export class BookComponent implements OnInit {
   }
 
   protected readonly parseDateString = parseDateString;
+
+  addBookToFavourites(){
+    if(this.isBookInFavourites) return;
+    if(this.userAuthService.isLoggedIn()){
+      const email = this.userAuthService.getLoggedInEmail();
+      if(!email) return;
+      this.userProfileService.addBookToUserFavourites(this.bookPreview.id, email).subscribe({
+        next: (totalCount) => {
+          this.isBookInFavourites = true;
+          alert('Book added to favourites. You have ' + (totalCount === 1 ? 'one book' : totalCount + ' books')  + ' in favourites.');
+        },
+        error: (error) => alert("Adding book failed. Details: " + error)
+      });
+    }else{
+      const deviceCount = this.userProfileService.addBookToDeviceFavourites(this.bookPreview.id);
+      this.isBookInFavourites = true;
+      alert('Book added to favourites. Log in to access it on all devices. You have ' + (deviceCount === 1 ? 'one book' : deviceCount + ' books')  + ' in favourites locally.');
+    }
+  }
+
+  removeBookFromFavourites(){
+    if(!this.isBookInFavourites) return;
+    if(this.userAuthService.isLoggedIn()){
+      const email = this.userAuthService.getLoggedInEmail();
+      if(!email) return;
+      this.userProfileService.removeBookFromUserFavourites(this.bookPreview.id, email).subscribe({
+        next: () => {
+          this.isBookInFavourites = false;
+          alert("Book removed from favourites successfully.");
+        },
+        error: (error) => alert("Removing book from favourites failed. Details: " + error)
+      });
+    }else{
+      this.userProfileService.removeBookFromDeviceFavourites(this.bookPreview.id);
+      alert("Book removed from favourites locally. Please log in to have access to favourite books on all devices.");
+      this.isBookInFavourites = false;
+    }
+  }
 }

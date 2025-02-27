@@ -1,5 +1,12 @@
 import {Injectable} from '@angular/core';
-import {UserMini} from '../../user/shared/models/user-mini';
+import {UserMini} from '@app/user/shared/models/user-mini';
+
+const ACCESS_TOKEN_KEY = 'access_token';
+const USER_MINI_KEY = 'user_mini';
+const DEVICE_FAV_BOOKS_KEY = 'device_fav_books';
+const LOGGED_FAV_BOOKS_KEY = 'logged_fav_books';
+
+const LOGGED_KEYS: string[] = [ACCESS_TOKEN_KEY, USER_MINI_KEY, LOGGED_FAV_BOOKS_KEY];
 
 @Injectable({
   providedIn: 'root'
@@ -9,23 +16,23 @@ export class StorageService {
   constructor() { }
 
   public isLoggedIn(): boolean {
-    return localStorage.getItem('access_token') !== null && localStorage.getItem('user_mini') !== null;
+    return localStorage.getItem(ACCESS_TOKEN_KEY) !== null && localStorage.getItem(USER_MINI_KEY) !== null;
   }
 
   public getAccessToken(): string {
-    return localStorage.getItem('access_token')!;
+    return localStorage.getItem(ACCESS_TOKEN_KEY)!;
   }
 
   public setAccessToken(accessToken: string): void {
-    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
   }
 
   public setUserMini(userMini: UserMini): void {
-    localStorage.setItem('user_mini', JSON.stringify(userMini));
+    localStorage.setItem(USER_MINI_KEY, JSON.stringify(userMini));
   }
 
   public setUserMiniImage(image: string): boolean {
-    const userMini = localStorage.getItem('user_mini');
+    const userMini = localStorage.getItem(USER_MINI_KEY);
     if(!userMini) return false;
     const parsedMini: UserMini = JSON.parse(userMini);
     parsedMini.profileImage = image;
@@ -34,7 +41,7 @@ export class StorageService {
   }
 
   public setUserMiniUsername(username: string): boolean {
-    const userMini = localStorage.getItem('user_mini');
+    const userMini = localStorage.getItem(USER_MINI_KEY);
     if(!userMini) return false;
     const parsedMini: UserMini = JSON.parse(userMini);
     parsedMini.username = username;
@@ -43,21 +50,93 @@ export class StorageService {
   }
 
   public getUserMini(): UserMini | undefined {
-    const fetched = localStorage.getItem('user_mini');
+    const fetched = localStorage.getItem(USER_MINI_KEY);
     if(fetched && fetched.length > 0) return JSON.parse(fetched);
     return undefined;
   }
 
-  public getUserMiniUsername(): string | undefined {
-    const fetched = localStorage.getItem('user_mini');
+  public getUserMiniUsername(): string | null {
+    const fetched = localStorage.getItem(USER_MINI_KEY);
     if(fetched && fetched.length > 0) return JSON.parse(fetched).username;
-    return undefined;
+    return null;
   }
 
-  public getUserMiniEmail(): string | undefined {
-    const fetched = localStorage.getItem('user_mini');
+  public getUserMiniEmail(): string | null {
+    const fetched = localStorage.getItem(USER_MINI_KEY);
     if(fetched && fetched.length > 0) return JSON.parse(fetched).email;
-    return undefined;
+    return null;
+  }
+
+  public setLoggedFavBooks(favBooksIds: string[]): void {
+    localStorage.setItem(LOGGED_FAV_BOOKS_KEY, JSON.stringify(favBooksIds));
+  }
+
+  public getLoggedFavBooks(): string[] | null {
+    const fetched = localStorage.getItem(LOGGED_FAV_BOOKS_KEY);
+    if(fetched && fetched.length > 0) return JSON.parse(fetched);
+    return null;
+  }
+
+  public isBookInLoggedFavBooks(bookId: string): boolean {
+    const favBooks = this.getLoggedFavBooks();
+    if(!favBooks) return false;
+    return favBooks.includes(bookId);
+  }
+
+  public addBookToLoggedFavBooks(bookId: string, desiredCount: number): boolean {
+    const favBooks = this.getLoggedFavBooks();
+    if(!favBooks || favBooks.length === 0){
+      if(desiredCount === 0){
+        this.setLoggedFavBooks([bookId]);
+        return true;
+      }
+      return false;
+    }
+    if(!favBooks.includes(bookId)) favBooks.push(bookId);
+    if(favBooks.length !== desiredCount) return false;
+    this.setLoggedFavBooks(favBooks);
+    return true;
+  }
+
+  public removeBookFromLoggedFavBooks(bookId: string): void {
+    const favBooks = this.getLoggedFavBooks();
+    if(!favBooks) return;
+    this.setLoggedFavBooks(favBooks.filter(id => id !== bookId));
+  }
+
+  public setDeviceFavBooks(favBooksIds: string[]): void {
+    localStorage.setItem(DEVICE_FAV_BOOKS_KEY, JSON.stringify(favBooksIds));
+  }
+
+  public getDeviceFavBooks(): string[] | null {
+    const fetched = localStorage.getItem(DEVICE_FAV_BOOKS_KEY);
+    if(fetched && fetched.length > 0) return JSON.parse(fetched);
+    return null;
+  }
+
+  public isBookInDeviceFavBooks(bookId: string): boolean {
+    const favBooks = this.getDeviceFavBooks();
+    if(!favBooks) return false;
+    return favBooks.includes(bookId);
+  }
+
+  public addBookToDeviceFavBooks(bookId: string): number {
+    const favBooks = this.getDeviceFavBooks();
+    if(!favBooks){
+      this.setDeviceFavBooks([bookId]);
+      return 1;
+    }
+    if(!favBooks.includes(bookId)) favBooks.push(bookId);
+    this.setDeviceFavBooks(favBooks);
+    return favBooks.length;
+  }
+
+  public removeBookFromDeviceFavBooks(bookId: string): number {
+    let favBooks = this.getDeviceFavBooks();
+    if(!favBooks) return 0;
+    favBooks = favBooks.filter(id => id !== bookId);
+    this.setDeviceFavBooks(favBooks);
+    return favBooks.length;
   }
 
   public saveData(key: string, value: string) {
@@ -72,7 +151,7 @@ export class StorageService {
   }
 
   public clearData() {
-    localStorage.clear();
+    LOGGED_KEYS.forEach(key => localStorage.removeItem(key));
     sessionStorage.clear();
   }
 }

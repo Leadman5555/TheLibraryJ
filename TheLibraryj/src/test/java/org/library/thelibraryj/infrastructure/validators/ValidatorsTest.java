@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 public class ValidatorsTest {
 
+    @SuppressWarnings("EmptyMethod")
     @Validated
     static class ToValidate {
         public void checkUsername(@ValidUsernameCharacters String username){}

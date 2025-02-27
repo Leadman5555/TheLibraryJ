@@ -2,10 +2,10 @@ package org.library.thelibraryj.authentication;
 
 import io.vavr.control.Either;
 import jakarta.servlet.http.Cookie;
-import org.library.thelibraryj.authentication.dto.AuthenticationRequest;
-import org.library.thelibraryj.authentication.dto.AuthenticationResponse;
-import org.library.thelibraryj.authentication.dto.RegisterRequest;
-import org.library.thelibraryj.authentication.userAuth.dto.UserCreationResponse;
+import org.library.thelibraryj.authentication.dto.request.AuthenticationRequest;
+import org.library.thelibraryj.authentication.dto.response.AuthenticationResponse;
+import org.library.thelibraryj.authentication.dto.request.RegisterRequest;
+import org.library.thelibraryj.authentication.userAuth.dto.response.UserCreationResponse;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.springframework.lang.Nullable;
 
