@@ -1,7 +1,7 @@
 import {Component, inject, OnDestroy, OnInit} from '@angular/core';
 import {UserProfileData} from '../shared/user-profile-data';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {handleError, logAndExtractMessage} from '@app/shared/errorHandling/handleError';
+import {handleError} from '@app/shared/errorHandling/handleError';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {BookService} from '@app/book/shared/book-service';
 import {catchError, Subscription, switchMap} from 'rxjs';
@@ -10,7 +10,7 @@ import {BookPreviewCardComponent} from '@app/book/book-preview-card/book-preview
 import {ProgressBarComponent} from '@app/shared/progress-bar/progress-bar.component';
 import {findTitle, progressArray, rankArray} from '../shared/rankTitles';
 import {UserProfileService} from '../user-profile.service';
-import {parseDateString} from '@app/shared/functions/parseData';
+import {parseDateString} from '@app/shared/functions/parseDate';
 
 @Component({
   selector: 'app-user-profile',
@@ -45,7 +45,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         if (username)
           return this.userProfileService.fetchUserProfile(username)
             .pipe(catchError((error) => {
-                this.userFetchErrorMsg = logAndExtractMessage(error);
+                this.userFetchErrorMsg = error;
                 return [];
               }
             ));

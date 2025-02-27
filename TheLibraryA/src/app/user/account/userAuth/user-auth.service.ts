@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {catchError, map, Observable, of, switchMap} from 'rxjs';
-import {HttpClient, HttpParams, HttpResponse} from '@angular/common/http';
+import {HttpClient, HttpResponse} from '@angular/common/http';
 import {AuthenticationResponse} from '../../shared/models/authentication-response';
 import {AuthenticationRequest} from '../../shared/models/authentication-request';
 import {GoogleCallbackResponse} from '../googleOAuth2/auth-callback/google-callback-response';

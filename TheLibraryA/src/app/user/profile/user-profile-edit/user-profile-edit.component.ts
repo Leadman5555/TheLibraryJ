@@ -19,7 +19,7 @@ import {
   UserUsernameUpdateResponse
 } from './dto/UserUpdateDtos';
 import {animate, state, style, transition, trigger} from '@angular/animations';
-import {parseDateString} from '@app/shared/functions/parseData';
+import {parseDateString} from '@app/shared/functions/parseDate';
 import {carriageReturnLengthValidator} from '@app/shared/functions/carriageReturnLengthValidator';
 import {imageFileTypeValidator} from '@app/shared/functions/fileTypeValidator';
 

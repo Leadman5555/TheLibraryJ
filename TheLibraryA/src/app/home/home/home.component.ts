@@ -40,10 +40,6 @@ export class HomeComponent {
     this.componentStore.onChosenPage(pageNumber);
   }
 
-  identifyBp(_: number, item : BookPreview) {
-    return item.title;
-  }
-
   identifyPage(_: number, item: number) {
     return item;
   }

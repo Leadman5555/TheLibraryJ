@@ -1,1 +1,89 @@
-<p>favourite-books works!</p>
+<div class="outerBox borderBox">
+  <div class="previewsDiv">
+    @if (favouriteBooks && favouriteBooks.length) {
+      <div class="previewsColumn">
+        @for (bp of favouriteBooks; track bp.title) {
+          <app-book-preview-card [bookPreview]="bp"/>
+        }
+      </div>
+    } @else if (userLoggedIn) {
+      <span class="infoMsg centerVH">No books in favourites.</span>
+    } @else {
+      <span class="infoMsg centerVH">No books in favourites. Log in to access favourite books on all devices.</span>
+    }
+  </div>
+  <div class="infoDiv column colourlessBorderBox">
+    <span>You currently have {{ getFavouriteBookCount() }} in favourite book collection.</span>
+    <p>
+      To add or remove the book, navigate to its page and click the golden lantern.
+      Dim lantern means that the book is not in the favourite collection and a lit one signifies that it is a part of it.
+    </p>
+    @if (errorFetchingMessage){
+      <span class="errorBox">{{errorFetchingMessage}}</span>
+    }
+  </div>
+  <div class="tokenDiv colourlessBorderBox">
+    <div class="tokenInfoDiv centerVH">
+      <p>To merge your collection into another user's one, click the 'Generate token' button below and share the code
+        with them.<br>
+        Likewise, to merge a foreign collection into yours use the 'Import' function below.</p>
+    </div>
+    <div class="tokenValueDiv column">
+      @if (userLoggedIn) {
+        <div class="column">
+          @if (importForm) {
+              <form [formGroup]="importForm" (ngSubmit)="attemptImport()" class="borderBox column">
+                <p>
+                  Paste the token value into the field below and click the 'Import' button to a merge foreign collection into yours.
+                  The token should look similar this (without the quotes): 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX', where 'X' is a letter or a digit.
+                </p>
+                <div class="input-container">
+                  <input placeholder="Enter token value here" class="input-field" id="token" type="text" maxlength="36"
+                         formControlName="token">
+                  <label for="token" class="input-label">Token value: </label>
+                  <span class="input-highlight"></span>
+                </div>
+                @if (importForm.invalid && importForm.dirty) {
+                  <div class="errorBox">
+                    Invalid token format.
+                  </div>
+                }
+                @if (importErrorMessage) {
+                  <div class="errorBox">
+                    {{ importErrorMessage }}
+                  </div>
+                } @else if (importSuccessMessage) {
+                  <div class="successBox" style="width: 100%;">
+                    {{ importSuccessMessage }}
+                  </div>
+                }
+                <div class="row">
+                  <button class="sButton disabledHide" type="submit" [disabled]="importForm.invalid || isFormPristine">Import</button>
+                  <button class="sButton" type="button" (click)="hideImportForm()">Cancel</button>
+                </div>
+              </form>
+          }@else if(favouriteBookToken){
+            <span>Your Favourite Book token is:</span>
+            <span class="bookToken">{{favouriteBookToken.token}}</span>
+            <span class="bookTokenInfo">Expires in: {{hoursFromNowAsHourString(favouriteBookToken.expiresAt)}}. Token usage count: {{favouriteBookToken.useCount}}.</span>
+            <div class="row">
+              <button class="sButton sButtonColor" (click)="sendTokenToEmail()">Send token to my email</button>
+              <button class="sButton sButtonColor" (click)="showImportForm()">Import</button>
+            </div>
+          } @else {
+            <span>No token generated yet.</span>
+            @if (errorGeneratingMessage){
+              <span class="errorBox">{{errorGeneratingMessage}}</span>
+            }
+            <div class="row">
+              <button class="sButton sButtonColor" (click)="generateFavouriteBookToken()">Generate token</button>
+              <button class="sButton sButtonColor" (click)="showImportForm()">Import</button>
+            </div>
+          }
+        </div>
+      } @else {
+        <span>Favourite book token sharing feature is only available to logged in users.</span>
+      }
+    </div>
+  </div>
+</div>

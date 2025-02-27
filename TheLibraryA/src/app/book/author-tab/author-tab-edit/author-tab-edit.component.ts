@@ -143,7 +143,7 @@ export class AuthorTabEditComponent implements OnInit, OnDestroy {
     }
 
     //resetCoverImage = true -> resets cover
-    //resetCoverImage = false -> was new image sent ? change image : do nothing
+    //resetCoverImage = false -> was new image sent ? change image: do nothing
     if (!values.editCoverImage) formData.set('resetCoverImage', "false");
     else {
       if (values.coverImage) {

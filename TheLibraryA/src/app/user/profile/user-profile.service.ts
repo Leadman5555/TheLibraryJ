@@ -1,6 +1,6 @@
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {catchError, map, ObjectUnsubscribedError, Observable, of, switchMap, tap} from 'rxjs';
+import {catchError, Observable, of, tap} from 'rxjs';
 import {UserProfileData} from './shared/user-profile-data';
 import {handleError, logError} from '@app/shared/errorHandling/handleError';
 import {
@@ -32,31 +32,32 @@ export class UserProfileService {
   constructor(private http: HttpClient, private storageService: StorageService) { }
 
   fetchUserProfile(forUsername: string): Observable<UserProfileData> {
-    return this.http.get<UserProfileData>(this.baseUrl + forUsername);
+    return this.http.get<UserProfileData>(`${this.baseUrl}/${forUsername}`)
+      .pipe(catchError(handleError));
   }
 
   updateRank(forEmail: string) : Observable<UserRankUpdateResponse> {
-    return this.http.patch<UserRankUpdateResponse>(this.baseAuthUrl + '/profile/rank/' + forEmail, null)
+    return this.http.patch<UserRankUpdateResponse>(`${this.baseAuthUrl}/profile/rank/` + forEmail, null)
       .pipe(catchError(handleError));
   }
 
   updateUsername(updateRequest: UserUsernameUpdateRequest) : Observable<UserUsernameUpdateResponse> {
-    return this.http.patch<UserUsernameUpdateResponse>(this.baseAuthUrl + '/profile/username', updateRequest)
+    return this.http.patch<UserUsernameUpdateResponse>(`${this.baseAuthUrl}/profile/username`, updateRequest)
       .pipe(catchError(handleError));
   }
 
   updateStatus(updateRequest: UserStatusUpdateRequest) : Observable<UserStatusUpdateResponse> {
-    return this.http.patch<UserStatusUpdateResponse>(this.baseAuthUrl + '/profile/status', updateRequest)
+    return this.http.patch<UserStatusUpdateResponse>(`${this.baseAuthUrl}/profile/status`, updateRequest)
       .pipe(catchError(handleError));
   }
 
   updateProfileImage(profileImageUpdateRequest: FormData) : Observable<UserProfileImageUpdateResponse> {
-    return this.http.patch<UserProfileImageUpdateResponse>(this.baseAuthUrl + '/profile/image', profileImageUpdateRequest)
+    return this.http.patch<UserProfileImageUpdateResponse>(`${this.baseAuthUrl}/profile/image`, profileImageUpdateRequest)
       .pipe(catchError(handleError));
   }
 
   updatePreference(preferenceUpdateRequest: UserPreferenceUpdateRequest) : Observable<UserPreferenceUpdateResponse> {
-    return this.http.patch<UserPreferenceUpdateResponse>(this.baseAuthUrl + '/profile/preference', preferenceUpdateRequest)
+    return this.http.patch<UserPreferenceUpdateResponse>(`${this.baseAuthUrl}/profile/preference`, preferenceUpdateRequest)
       .pipe(catchError(handleError));
   }
 
@@ -100,8 +101,7 @@ export class UserProfileService {
   public getFavouriteBooksForDevice(): Observable<BookPreview[]> {
     const deviceFavBooks = this.storageService.getDeviceFavBooks();
     if(!deviceFavBooks || deviceFavBooks.length === 0) return of([]);
-    const body = {bookIds: deviceFavBooks};
-    return this.http.post<BookPreview[]>(this.bookByIdFetchUrl, body).pipe(catchError(handleError));
+    return this.http.post<BookPreview[]>(this.bookByIdFetchUrl, deviceFavBooks).pipe(catchError(handleError));
   }
 
   public getFavouriteBookIdsForUser(email: string): Observable<string[]> {
@@ -137,8 +137,8 @@ export class UserProfileService {
     return this.http.post<FavouriteBookMergerResponse>(this.baseAuthUrl + '/book/token', consummationRequest).pipe(catchError(handleError));
   }
 
-  public sendExistingBookTokenToOwnerEmail(consummationRequest: BookTokenConsummationRequest): Observable<FavouriteBookMergerResponse> {
-    return this.http.post<FavouriteBookMergerResponse>(this.baseAuthUrl + '/book/token/email', consummationRequest).pipe(catchError(handleError));
+  public sendExistingBookTokenToOwnerEmail(consummationRequest: BookTokenConsummationRequest): Observable<void> {
+    return this.http.post<void>(this.baseAuthUrl + '/book/token/email', consummationRequest).pipe(catchError(handleError));
   }
 
   public canUserAuthorBooks(email: string): Observable<void>{

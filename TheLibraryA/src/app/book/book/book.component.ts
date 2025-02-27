@@ -10,7 +10,7 @@ import {ChapterPreview} from '../shared/models/chapter-preview';
 import {Observable} from 'rxjs';
 import {PageInfo} from '@app/shared/paging/models/page-info';
 import {provideComponentStore} from '@ngrx/component-store';
-import {parseDateString} from '@app/shared/functions/parseData';
+import {parseDateString} from '@app/shared/functions/parseDate';
 import {logError} from '@app/shared/errorHandling/handleError';
 import {UserAuthService} from '@app/user/account/userAuth/user-auth.service';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
@@ -250,8 +250,8 @@ export class BookComponent implements OnInit {
       });
     }else{
       const deviceCount = this.userProfileService.addBookToDeviceFavourites(this.bookPreview.id);
-      alert('Book added to favourites. Log in to access it on all devices. You have ' + (deviceCount === 1 ? 'one book' : deviceCount + ' books')  + ' in favourites locally.');
       this.isBookInFavourites = true;
+      alert('Book added to favourites. Log in to access it on all devices. You have ' + (deviceCount === 1 ? 'one book' : deviceCount + ' books')  + ' in favourites locally.');
     }
   }
 

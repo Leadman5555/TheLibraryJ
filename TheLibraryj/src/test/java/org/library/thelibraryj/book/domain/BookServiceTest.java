@@ -275,6 +275,7 @@ public class BookServiceTest {
 
         var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
 
+        assert result != null;
         assertTrue(result.isLeft());
         Assertions.assertNotNull(result);
         var error = result.getLeft();
@@ -289,6 +290,7 @@ public class BookServiceTest {
 
         var result = validateAndParseChapterRequests(chapterFiles, bookId, chapterNumbers);
 
+        assert result != null;
         assertTrue(result.isLeft());
         Assertions.assertNotNull(result);
         var error = result.getLeft();

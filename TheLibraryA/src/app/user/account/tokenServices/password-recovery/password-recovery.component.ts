@@ -38,6 +38,10 @@ export class PasswordRecoveryComponent implements OnInit {
   ngOnInit(): void {
     const tokenValue = this.activatedRoute.snapshot.paramMap.get('token');
     if (tokenValue) {
+      if(!tokenValue.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)){
+        alert('Token does not match required format.');
+        this.generateEmailForm();
+      }
       this.tokenValue = tokenValue;
       this.passwordResetForm = new FormGroup({
           newPassword: new FormControl('', {validators: [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).*$/), Validators.maxLength(30)]}),
@@ -45,10 +49,14 @@ export class PasswordRecoveryComponent implements OnInit {
         },
         {validators: passwordMatchValidator()});
     } else {
-      this.emailInputForm = new FormGroup({
-        email: new FormControl('', {validators: [Validators.required, Validators.email]})
-      });
+      this.generateEmailForm();
     }
+  }
+
+  private generateEmailForm(){
+    this.emailInputForm = new FormGroup({
+      email: new FormControl('', {validators: [Validators.required, Validators.email]})
+    });
   }
 
   get passwordMismatchError(): boolean {

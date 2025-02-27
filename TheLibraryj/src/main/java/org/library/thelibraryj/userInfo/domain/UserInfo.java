@@ -62,6 +62,7 @@ class UserInfo extends AbstractEntity {
     @Column(nullable = false)
     private UUID userAuthId;
 
+    @JsonIgnore
     @ElementCollection(targetClass = UUID.class, fetch = FetchType.LAZY)
     @CollectionTable(name = "favourite_books", joinColumns =  @JoinColumn(name = "user_info_id"))
     @Column(name = "book_id")

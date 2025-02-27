@@ -4,7 +4,6 @@ import io.hypersistence.utils.spring.repository.BaseJpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
@@ -19,7 +18,6 @@ interface FavouriteBookTokenRepository extends BaseJpaRepository<FavouriteBookTo
             """)
     void deleteAllExpired();
 
-    @Async
     @Modifying
     @Query("""
             update book_token bt SET bt.useCount = (bt.useCount + :change)
