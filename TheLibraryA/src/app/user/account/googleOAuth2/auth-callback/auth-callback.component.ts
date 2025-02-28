@@ -3,6 +3,7 @@ import {UserAuthService} from '../../userAuth/user-auth.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {HttpClient, HttpParams} from '@angular/common/http';
 import {GoogleCallbackResponse} from './google-callback-response';
+import {serverAuthFreeRoute} from '@app/app.routes';
 
 @Component({
   selector: 'app-auth-callback',
@@ -17,7 +18,7 @@ export class AuthCallbackComponent implements OnInit{
   ) {}
 
   private userAuthService: UserAuthService = inject(UserAuthService);
-  private readonly baseUrl: string = 'http://localhost:8082/v0.9/na';
+  private readonly baseUrl: string = `${serverAuthFreeRoute}`;
   private readonly redirectTo: string = '';
 
   ngOnInit(): void {

@@ -37,7 +37,7 @@ class SecurityConfiguration {
             "/swagger-ui/**",
             "/webjars/**",
             "/v3/api-docs/**",
-            "/v0.9/na/**"
+            "/na/**"
     };
     private final UserDetailsService userDetailsService;
     private final FilterChainExceptionHandler filterChainExceptionHandler;

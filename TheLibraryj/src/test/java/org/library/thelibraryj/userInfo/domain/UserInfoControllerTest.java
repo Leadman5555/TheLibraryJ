@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = {UserInfoController.class})
+@WebMvcTest(controllers = {UserInfoController.class, PublicUserInfoController.class})
 @AutoConfigureMockMvc(addFilters = false)
 @WithMockUser(roles = "ADMIN")
 public class UserInfoControllerTest {
@@ -40,9 +40,8 @@ public class UserInfoControllerTest {
     @MockBean
     private UserInfoService userInfoService;
 
-    private static final String URL_BASE = TestProperties.BASE_URL;
-
-    private static final String ENDPOINT =  URL_BASE;
+    private static final String URL_BASE = TestProperties.BASE_URL + "/user";
+    private static final String BASE_AUTH_FREE_URL = TestProperties.BASE_AUTH_FREE_URL + "/user";
 
     private static final String email = "email@sample.com";
 
@@ -51,7 +50,7 @@ public class UserInfoControllerTest {
     public void testGetUserInfoResponseByUsername() throws Exception {
         final String username = "username";
         when(userInfoService.getUserProfileByUsername(username)).thenReturn(Either.right(new UserProfileResponse(username, email,1, 1,null, (short) 0, null, LocalDateTime.now(),LocalDateTime.now())));
-        mockMvc.perform(get(ENDPOINT + "/na/user/" + username)
+        mockMvc.perform(get( BASE_AUTH_FREE_URL+ '/' + username)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -64,7 +63,7 @@ public class UserInfoControllerTest {
         UserRankUpdateResponse response = new UserRankUpdateResponse(10, 0, (short) 0);
         when(userInfoService.forceUpdateRank(request)).thenReturn(Either.right(response));
 
-        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/force")
+        mockMvc.perform(patch(URL_BASE + "/profile/rank/force")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"" + email + "\",\"rankChange\":\"10\"}"))
@@ -74,7 +73,7 @@ public class UserInfoControllerTest {
         UserInfoRankUpdateRequest request2 = new UserInfoRankUpdateRequest(invalidEmail, -10);
         when(userInfoService.forceUpdateRank(request2)).thenReturn(Either.left(new UserInfoError.UserInfoEntityNotFoundByEmail(invalidEmail)));
 
-        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/force")
+        mockMvc.perform(patch(URL_BASE + "/profile/rank/force")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"" + invalidEmail + "\",\"rankChange\":\"-10\"}"))
@@ -87,7 +86,7 @@ public class UserInfoControllerTest {
         UserRankUpdateResponse response = new UserRankUpdateResponse(10, 0, (short) 0);
         when(userInfoService.updateRank(email)).thenReturn(Either.right(response));
 
-        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/" + email)
+        mockMvc.perform(patch(URL_BASE + "/profile/rank/" + email)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -96,7 +95,7 @@ public class UserInfoControllerTest {
         int missingScore = 10;
         when(userInfoService.updateRank(email)).thenReturn(Either.left(new UserInfoError.UserNotEligibleForRankIncrease(email, missingScore)));
 
-        mockMvc.perform(patch(ENDPOINT + "/user/profile/rank/" + email)
+        mockMvc.perform(patch(URL_BASE + "/profile/rank/" + email)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -107,7 +106,7 @@ public class UserInfoControllerTest {
     public void testUpdateUserInfoUsername() throws Exception {
         UserInfoUsernameUpdateRequest request = new UserInfoUsernameUpdateRequest(email, "newUsername");
         when(userInfoService.updateUserInfoUsername(request)).thenReturn(Either.left(new UserInfoError.UsernameNotUnique(email)));
-        mockMvc.perform(patch(ENDPOINT + "/user/profile/username")
+        mockMvc.perform(patch(URL_BASE + "/profile/username")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"" + email + "\",\"username\":\"newUsername\"}"))

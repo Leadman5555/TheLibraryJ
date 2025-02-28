@@ -14,9 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+
 @RestController
-@RequestMapping("${library.mapping}/na/auth/activation")
-record ActivationController(ActivationTokenService activationTokenService) implements ErrorHandling {
+@RequestMapping("${library.servlet.auth_free_mapping}${library.auth.mapping}/activation")
+record PublicActivationController(ActivationTokenService activationTokenService) implements ErrorHandling {
 
     @Operation(
             summary = "Enable an account by consuming an already existing account activation token.",

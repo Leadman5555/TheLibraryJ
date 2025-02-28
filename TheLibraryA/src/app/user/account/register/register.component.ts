@@ -10,6 +10,7 @@ import {RouterLink} from '@angular/router';
 import {ImageDropComponent} from '@app/shared/image-drop/image-drop.component';
 import {imageFileTypeValidator} from '@app/shared/functions/fileTypeValidator';
 import { NgOptimizedImage } from '@angular/common';
+import {serverAuthFreeRoute} from '@app/app.routes';
 
 @Component({
   selector: 'app-register',
@@ -25,7 +26,7 @@ import { NgOptimizedImage } from '@angular/common';
 })
 export class RegisterComponent implements OnInit {
 
-  private readonly registerUrl: string = 'http://localhost:8082/v0.9/na/auth/register';
+  private readonly registerUrl: string = `${serverAuthFreeRoute}/auth/register`;
 
   constructor(private fb: NonNullableFormBuilder, private http: HttpClient, private userAuthService: UserAuthService) {
   }

@@ -38,8 +38,8 @@ public class UserInfoIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String VERSION = TestProperties.BASE_URL;
-    private static final String BASE_URL = VERSION + "/user";
+    private static final String BASE_URL = TestProperties.BASE_URL + "/user";
+    private static final String BASE_AUTH_FREE_URL = TestProperties.BASE_AUTH_FREE_URL;
     private static final UUID bookId = TestProperties.bookId1;
     private static final UUID bookId2 = TestProperties.bookId2;
     private static final UUID userId = TestProperties.userId1;
@@ -72,7 +72,7 @@ public class UserInfoIT {
         Assertions.assertEquals(newUsername, object.getString("newUsername"));
 
         ResponseEntity<String> userBookDetailResponse = restTemplate.getForEntity(
-                VERSION + "/na/books/" + bookId, String.class);
+                 BASE_AUTH_FREE_URL + "/books/" + bookId, String.class);
         Assertions.assertEquals(HttpStatus.OK.value(), userBookDetailResponse.getStatusCode().value());
         Assertions.assertNotNull(userBookDetailResponse.getBody());
         JSONObject object2 = new JSONObject(userBookDetailResponse.getBody());

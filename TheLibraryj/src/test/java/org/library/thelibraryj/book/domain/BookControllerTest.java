@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(BookController.class)
+@WebMvcTest(controllers = {BookController.class, PublicBookController.class})
 @AutoConfigureMockMvc(addFilters = false)
 @WithMockUser(roles = "ADMIN")
 public class BookControllerTest {
@@ -40,17 +40,14 @@ public class BookControllerTest {
     @MockBean
     private BookService bookService;
 
-    private static final String URL_BASE = TestProperties.BASE_URL;
-
-    private static final String ENDPOINT = URL_BASE;
-
+    private static final String URL_BASE = TestProperties.BASE_AUTH_FREE_URL + "/books";
     private static final UUID bookId = UUID.randomUUID();
 
     @Test
     public void testGetBookPreviews() throws Exception {
         int page = 0;
         int pageSize = 1;
-        mockMvc.perform(get(ENDPOINT + "/na/books")
+        mockMvc.perform(get(URL_BASE)
                         .param("page", String.valueOf(page))
                         .param("pageSize", String.valueOf(pageSize))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -72,7 +69,7 @@ public class BookControllerTest {
                 "  \"keysets\": []\n" +
                 "}";
 
-        mockMvc.perform(post(ENDPOINT + "/na/books")
+        mockMvc.perform(post(URL_BASE)
                         .param("page", String.valueOf(page))
                         .content(jsonKeyset)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -86,7 +83,7 @@ public class BookControllerTest {
         BookDetailResponse detailResponse = new BookDetailResponse("author", "des");
         when(bookService.getBookDetailResponse(bookId)).thenReturn(Either.right(detailResponse));
 
-        mockMvc.perform(get(ENDPOINT + "/na/books/" + bookId)
+        mockMvc.perform(get(URL_BASE + '/' + bookId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -95,7 +92,7 @@ public class BookControllerTest {
         UUID invalidId = UUID.randomUUID();
         when(bookService.getBookDetailResponse(invalidId)).thenReturn(Either.left(new BookError.BookDetailEntityNotFound(invalidId)));
 
-        mockMvc.perform(get(ENDPOINT + "/na/books/" + invalidId)
+        mockMvc.perform(get(URL_BASE + '/' + invalidId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())

@@ -18,9 +18,9 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(value = ActivationController.class)
+@WebMvcTest(value = PublicActivationController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class ActivationControllerTest {
+public class PublicActivationControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -30,15 +30,13 @@ public class ActivationControllerTest {
     @MockBean
     private ActivationTokenService activationTokenService;
 
-    private static final String URL_BASE = TestProperties.BASE_URL;
-
-    private static final String ENDPOINT =  URL_BASE + "/na/auth/activation";
+    private static final String URL_BASE = TestProperties.BASE_AUTH_FREE_URL;
 
     @Test
     public void testConsumeActivationToken() throws Exception {
         UUID tokenId = UUID.randomUUID();
         when(activationTokenService.consumeActivationToken(tokenId)).thenReturn(Either.right(true));
-        mockMvc.perform(patch(ENDPOINT)
+        mockMvc.perform(patch(URL_BASE + "/auth/activation")
                         .param("tokenId", tokenId.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

@@ -37,3 +37,6 @@ export const routes: Routes = [
   },
   {path: '*', component: HomeComponent}
 ];
+
+export const serverRoute: string = 'http://localhost:8082/v0.9';
+export const serverAuthFreeRoute = serverRoute + '/na';

@@ -58,7 +58,7 @@ public class BookIT {
     @TempDir
     private Path temporaryDir;
 
-    private static final String BASE_URL = TestProperties.BASE_URL + "/na/books";
+    private static final String BASE_URL = TestProperties.BASE_AUTH_FREE_URL + "/books";
     private static final String BASE_AUTH_URL = TestProperties.BASE_URL + "/books";
     private static final UUID bookId = TestProperties.bookId1;
     private static final UUID chapterBookId = TestProperties.noChapterBookId;
@@ -66,6 +66,7 @@ public class BookIT {
     private static final String authorEmail2 = TestProperties.notEnabledUserEmail2;
     private static final String validBookTitle7 = TestProperties.bookTitle2;
     private static final String validBookTitle1 = TestProperties.bookTitle1;
+
 
     @BeforeEach
     public void setUp() {

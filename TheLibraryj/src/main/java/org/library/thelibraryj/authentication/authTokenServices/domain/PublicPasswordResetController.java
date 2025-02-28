@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("${library.mapping}/na/auth/password")
-record PasswordResetController(PasswordResetTokenService passwordResetTokenService) implements ErrorHandling {
+@RequestMapping("${library.servlet.auth_free_mapping}${library.auth.mapping}/password")
+record PublicPasswordResetController(PasswordResetTokenService passwordResetTokenService) implements ErrorHandling {
 
     @Operation(
             summary = "Starts the password reset procedure, creating a reset token and sending a password reset email to the user of given email address.",

@@ -5,6 +5,7 @@ import {ActivatedRoute, RouterLink} from '@angular/router';
 import {passwordMatchValidator} from './passwordMatchValidator';
 import {handleError} from '@app/shared/errorHandling/handleError';
 import {catchError} from 'rxjs';
+import {serverAuthFreeRoute} from '@app/app.routes';
 
 @Component({
   selector: 'app-password-recovery',
@@ -20,7 +21,7 @@ export class PasswordRecoveryComponent implements OnInit {
   constructor(private http: HttpClient, private activatedRoute: ActivatedRoute) {
   }
 
-  private readonly BASE_URL = 'http://localhost:8082/v0.9/na/auth/password';
+  private readonly BASE_URL = `${serverAuthFreeRoute}/auth/password`;
 
   tokenValue?: string;
   successReset?: boolean = undefined;

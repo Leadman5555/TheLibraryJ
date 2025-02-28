@@ -42,7 +42,7 @@ public class PasswordResetIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String BASE_URL = TestProperties.BASE_URL + "/na/auth/password";
+    private static final String BASE_URL = TestProperties.BASE_AUTH_FREE_URL + "/auth/password";
     private static final String user1email = TestProperties.userEmail1;
     private static final UUID user1Id = TestProperties.userId1;
 

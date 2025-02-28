@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "library.password")
+@ConfigurationProperties(prefix = "library.auth.password")
 @Getter
 @Setter
 class PasswordResetProperties {

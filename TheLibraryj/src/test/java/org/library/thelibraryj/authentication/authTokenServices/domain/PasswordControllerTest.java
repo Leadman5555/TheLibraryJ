@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(PasswordResetController.class)
+@WebMvcTest(PublicPasswordResetController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class PasswordControllerTest {
     @Autowired
@@ -28,9 +28,7 @@ public class PasswordControllerTest {
     @MockBean
     private JwtFilter disabledFilter;
 
-    private static final String URL_BASE = TestProperties.BASE_URL;
-
-    private static final String ENDPOINT =  URL_BASE + "/na/auth/password";
+    private static final String URL_BASE = TestProperties.BASE_AUTH_FREE_URL;
 
     @MockBean
     private PasswordResetTokenServiceImpl passwordResetService;
@@ -40,7 +38,7 @@ public class PasswordControllerTest {
         UUID tokenId = UUID.randomUUID();
         char[] newPassword = "P@ssword123".toCharArray();
         when(passwordResetService.consumePasswordResetToken(any(PasswordResetRequest.class))).thenReturn(Either.right(true));
-        mockMvc.perform(patch(ENDPOINT)
+        mockMvc.perform(patch(URL_BASE + "/auth/password")
                         .content("{\"tokenId\":\"" + tokenId + "\",\"newPassword\":\"" + new String(newPassword) + "\"}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

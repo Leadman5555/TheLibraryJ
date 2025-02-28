@@ -8,7 +8,8 @@ import java.util.UUID;
 
 
 public class TestProperties {
-    public static final String BASE_URL = "/v0.9";
+    public static final String BASE_URL = "";
+    public static final String BASE_AUTH_FREE_URL = BASE_URL + "/na";
     public static final MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
     public static final String SCHEMA_FILE_NAME = "schema.sql";
     public static final String DATA_FILE_NAME = "dataInit.sql";

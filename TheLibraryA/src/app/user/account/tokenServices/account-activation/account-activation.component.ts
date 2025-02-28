@@ -4,6 +4,7 @@ import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {handleError} from '@app/shared/errorHandling/handleError';
 import {catchError} from 'rxjs';
+import {serverAuthFreeRoute} from '@app/app.routes';
 
 @Component({
   selector: 'app-account-activation',
@@ -19,7 +20,7 @@ export class AccountActivationComponent implements OnInit {
   constructor(private http: HttpClient, private activatedRoute: ActivatedRoute) {
   }
 
-  private readonly BASE_URL = 'http://localhost:8082/v0.9/na/auth/activation';
+  private readonly BASE_URL = `${serverAuthFreeRoute}/auth/activation`;
 
   successActivation?: boolean = undefined;
   activationErrorMessage? : string = undefined;

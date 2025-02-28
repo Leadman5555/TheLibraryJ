@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("${library.mapping}/user/book/token")
+@RequestMapping("${library.user.mapping}/book/token")
 class UserInfoTokenServicesController implements ErrorHandling {
 
     private final UserInfoTokenService userInfoTokenService;

@@ -19,15 +19,16 @@ import {StorageService} from '@app/shared/storage/storage.service';
 import {BookTokenResponse} from '@app/user/profile/shared/dto/book-token-response';
 import {BookTokenConsummationRequest} from '@app/user/profile/shared/dto/book-token-consummation-request';
 import {FavouriteBookMergerResponse} from '@app/user/profile/shared/dto/favourite-book-merger-response';
+import {serverAuthFreeRoute, serverRoute} from '@app/app.routes';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserProfileService {
 
-  private readonly baseUrl: string = 'http://localhost:8082/v0.9/na/user';
-  private readonly baseAuthUrl: string ='http://localhost:8082/v0.9/user';
-  private readonly bookByIdFetchUrl: string = 'http://localhost:8082/v0.9/na/books/id';
+  private readonly baseUrl: string = `${serverAuthFreeRoute}/user`;
+  private readonly baseAuthUrl: string =`${serverRoute}/user`;
+  private readonly bookByIdFetchUrl: string = `${serverAuthFreeRoute}/books/id`;
 
   constructor(private http: HttpClient, private storageService: StorageService) { }
 

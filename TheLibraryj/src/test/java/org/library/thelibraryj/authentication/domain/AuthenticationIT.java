@@ -49,7 +49,7 @@ public class AuthenticationIT {
     @Autowired
     private DataSource dataSource;
 
-    private static final String BASE_URL = TestProperties.BASE_URL + "/na/auth";
+    private static final String BASE_URL = TestProperties.BASE_AUTH_FREE_URL + "/auth";
     private static final UUID notEnabledUserId = TestProperties.notEnabledUserId2;
 
     static final String existingEmail = TestProperties.userEmail1;

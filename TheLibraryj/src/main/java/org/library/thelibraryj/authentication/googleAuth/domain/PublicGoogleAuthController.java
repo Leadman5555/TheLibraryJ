@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("${library.mapping}/na/auth/google")
-record GoogleAuthController(GoogleAuthService googleAuthService) implements ErrorHandling {
+@RequestMapping("${library.servlet.auth_free_mapping}${library.auth.mapping}/google")
+record PublicGoogleAuthController(GoogleAuthService googleAuthService) implements ErrorHandling {
     @Operation(
             summary = "Request a google authentication link to login with a google account.",
             tags = {"authentication", "google", "no auth required"}
@@ -39,7 +39,7 @@ record GoogleAuthController(GoogleAuthService googleAuthService) implements Erro
             @ApiResponse(responseCode = "401", description = "Verification error."),
             @ApiResponse(responseCode = "503", description = "Google authentication service not available.")
     })
-    @GetMapping("callback")
+    @GetMapping("/callback")
     public ResponseEntity<GoogleCallbackResponse> getGoogleAuthCallbackUrl(@RequestParam @NotNull String code, HttpServletResponse response) {
         GoogleCallbackResponseWrapper callbackWrapper = googleAuthService.getGoogleAuthToken(code);
         response.addCookie(callbackWrapper.refreshToken());

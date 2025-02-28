@@ -17,7 +17,7 @@ class UserInfoImageHandler {
     private byte[] defaultImage;
     private final Path basePath;
 
-    public UserInfoImageHandler(@Value("${library.user_info.image_source}") String imageSourcePath) {
+    public UserInfoImageHandler(@Value("${library.user.image_source}") String imageSourcePath) {
         try {
             defaultImage = Files.readAllBytes(Path.of(imageSourcePath, "default.jpg"));
         } catch (IOException e) {

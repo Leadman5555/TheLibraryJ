@@ -12,12 +12,13 @@ import {EventBusService, LOGIN_EVENT, LOGOUT_EVENT, REFRESH_EVENT} from '@app/sh
 import {EventData} from '@app/shared/eventBus/event.class';
 import {handleError, logError} from '@app/shared/errorHandling/handleError';
 import {UserProfileService} from '@app/user/profile/user-profile.service';
+import {serverAuthFreeRoute} from '@app/app.routes';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserAuthService {
-  private readonly baseUrl: string = 'http://localhost:8082/v0.9/na/auth';
+  private readonly baseUrl: string = `${serverAuthFreeRoute}/auth`;
 
   constructor(private httpClient: HttpClient, private storageService: StorageService, private eventBus: EventBusService, private userProfileService: UserProfileService) {
   }

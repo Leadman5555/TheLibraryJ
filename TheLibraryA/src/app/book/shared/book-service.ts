@@ -12,6 +12,7 @@ import {ChapterPreviewPage} from '../book/paging/chapterPreview-page';
 import {RatingRequest} from './models/rating-request';
 import {handleError} from '@app/shared/errorHandling/handleError';
 import {ChapterPreview} from './models/chapter-preview';
+import {serverAuthFreeRoute, serverRoute} from '@app/app.routes';
 
 @Injectable({
   providedIn: 'root'
@@ -20,8 +21,8 @@ export class BookService {
   constructor(private readonly http: HttpClient) {
   }
 
-  private readonly baseUrl: string = 'http://localhost:8082/v0.9/na/books';
-  private readonly baseAuthUrl: string = 'http://localhost:8082/v0.9/books';
+  private readonly baseUrl: string = `${serverAuthFreeRoute}/books`;
+  private readonly baseAuthUrl: string = `${serverRoute}/books`;
 
   private static getParamsForKeySetPaging(page: number, params?: HttpParams): HttpParams {
     return (params ?? new HttpParams()).set('page', page);
