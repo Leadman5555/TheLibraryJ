@@ -3,6 +3,7 @@ package org.library.thelibraryj.authentication.authTokenServices.domain;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import org.library.thelibraryj.authentication.authTokenServices.PasswordResetTokenService;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("${library.servlet.auth_free_mapping}${library.auth.mapping}/password")
+@Tag(name = "Authentication - Public - Password", description = "Authentication endpoints that don't require valid credentials to access and are password related.")
 record PublicPasswordResetController(PasswordResetTokenService passwordResetTokenService) implements ErrorHandling {
 
     @Operation(

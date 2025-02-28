@@ -55,7 +55,7 @@ export class AccountActivationComponent implements OnInit {
     this.successActivation = undefined;
     this.activationErrorMessage = undefined;
     if (this.tokenValue)
-      this.http.patch(this.BASE_URL, null, {params: {tokenId: this.tokenValue}}).subscribe({
+      this.http.patch(this.BASE_URL, null, {params: {token: this.tokenValue}}).subscribe({
         next: () => {
           this.successActivation = true;
         },

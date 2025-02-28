@@ -1,15 +1,20 @@
 package org.library.thelibraryj.userInfo.domain;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.userInfo.UserInfoService;
+import org.library.thelibraryj.userInfo.dto.response.UserProfileResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,16 +27,23 @@ import java.util.UUID;
 @AllArgsConstructor
 @RestController
 @RequestMapping("${library.servlet.auth_free_mapping}${library.user.mapping}")
+@Tag(name = "User - Public", description = "User-related endpoints that don't require valid credentials to access - mostly related to fetching publicly available information about users.")
 class PublicUserInfoController implements ErrorHandling {
 
     private final UserInfoService userInfoService;
 
     @Operation(
-            summary = "Fetch a single UserInfo record by Id",
+            summary = "Fetch the profile of a user by userId",
             tags = {"user", "no auth required"}
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved user profile",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserProfileResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/id/{id}")
@@ -40,11 +52,17 @@ class PublicUserInfoController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Fetch a single UserInfo record by username",
+            summary = "Fetch the profile of a user by username",
             tags = {"user", "no auth required"}
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved user profile",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserProfileResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/{username}")
@@ -53,11 +71,17 @@ class PublicUserInfoController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Fetch a single UserInfo record by email",
+            summary = "Fetch the profile of a user by email",
             tags = {"user", "no auth required"}
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved user profile",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserProfileResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/email/{email}")
@@ -66,11 +90,17 @@ class PublicUserInfoController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Fetch extra details of UserInfo record by username",
+            summary = "Fetch extra details of a user by username",
             tags = {"user", "no auth required"}
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved user details",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserInfoDetailsView.class)
+                    )
+            ),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/details/{username}")
@@ -79,11 +109,17 @@ class PublicUserInfoController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Fetch basic information of UserInfo record by email",
+            summary = "Fetch basic information of a user by email",
             tags = {"user", "no auth required"}
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved basic user information",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserInfoMiniView.class)
+                    )
+            ),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/mini/{email}")

@@ -1,6 +1,7 @@
 package org.library.thelibraryj.email.domain;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.library.thelibraryj.email.EmailService;
 import org.library.thelibraryj.email.dto.EmailRequest;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
@@ -18,6 +19,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("${library.servlet.auth_free_mapping}/email")
+@Tag(name = "Email - DELETE ME", description = "To be deleted later")
 record EmailControllerDELETEME(EmailService emailService) {
 
     @Operation(

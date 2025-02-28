@@ -3,6 +3,7 @@ package org.library.thelibraryj.authentication.domain;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor
 @RequestMapping("${library.auth.mapping}")
+@Tag(name = "Authentication", description = "Authentication endpoints that require valid credentials to access.")
 class AuthenticationController implements ErrorHandling {
 
     @SuppressWarnings("EmptyMethod")
@@ -26,7 +28,7 @@ class AuthenticationController implements ErrorHandling {
             tags = {"authentication"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Valid tokens."),
+            @ApiResponse(responseCode = "204", description = "Valid token."),
             @ApiResponse(responseCode = "401", description = "Authorization failure."),
             @ApiResponse(responseCode = "403", description = "Permission lacking")
     })

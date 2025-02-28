@@ -2,58 +2,84 @@
 <html lang="en">
 <style>
     body {
-        background-color: #80bcca;
+        background-color: cadetblue;
+        font-family: "Bell MT", sans-serif;
     }
 
-    h1 {
-        color: white;
-        text-align: center;
+    .column {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .outerBox {
+        border: 10px double darkgoldenrod;
+        padding: 10px;
+        margin-top: 10px;
     }
 
     p {
-        border: 10px double #4c6c7a;
-        font-family: verdana, sans-serif;
         font-size: 15px;
     }
-    p.title {
+
+    .centerVH {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .title {
         text-align: center;
-        font-family: "Bell MT",sans-serif;
         font-size: 25px;
         border: none;
+        font-style: italic;
     }
+
     img {
         border: none;
         align-content: center;
     }
-    p.signoff, p.nested-img {
-        border: none;
-        text-align: center;
-        align-content: center;
+
+
+    .signoff {
+        color: #805e05;
+        font-style: italic;
+        text-shadow: 1px 1px 1px #e39e0a;
     }
+
 </style>
 <head>
     <title th:text="${subject}"></title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-<p class="title">Greetings disciple, <span th:text="${username}">[name lost in transmission]</span>!</p>
-<p>
-    You have been accepted to the Library Sect. <br/>
-    One last formality awaits you before you can make use of our boundless resources. <br/>
-    Bellow you shall find a dark blue formation array. Interacting with it will let you complete your initialization.
-    <br/>
-    <a th:href="@{${activation_link}}">Confirm my sect recruitment.</a> <br/>
-    Be prudent junior for the formation array will run out of energy in about <span th:text="${expires_at}">[Expiration time lost in transmission]</span> <br/>
-</p>
-<p class="signoff">
-    Congratulations on joining the Library, junior! <br/>
-</p>
-<p class="signoff">
-    Wishing you a peaceful journey,<br/>
-        <em>Outer Court Elder, <br/> Head of Admissions, Zhao Jiang</em>
-</p>
-<p class="nested-img">
+<div class="centerVH">
+    <span class="title">Greetings disciple, <span th:text="${username}">[Name lost in transmission]</span>!</span>
+</div>
+<div class="outerBox column">
+    <div class="column">
+        <span style="font-size: 20px"> You have been accepted to the Library Sect.</span>
+        <p>
+            One last formality awaits you before you can make use of our boundless resources.
+            Bellow you shall find a dark blue formation array. Interacting with it will let you complete your
+            initialization.
+        </p>
+        <a th:href="@{${activation_link}}">Confirm my sect recruitment.</a>
+        <span>Be prudent junior for the formation array will run out of energy in about <span th:text="${expires_at}">[Expiration time lost in transmission]</span>.</span>
+    </div>
+    <span>
+        Congratulations on joining the Library, junior!
+    </span>
+</div>
+<div class="column" style="margin: 10px 0">
+    <span style="font-style: italic">Wishing you a peaceful journey,</span>
+    <span class="signoff" style="margin-bottom: -10px">Outer Court Elder,</span>
+    <span class="signoff">Head of Admissions, Zhao Jiang</span>
+</div>
+<div class="centerVH">
     <img th:src="|cid:${image_name}|" src="images/default.jpg" alt="[Visual clue lost in transmission]"/>
-</p>
+</div>
 </body>
 </html>

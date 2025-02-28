@@ -1,8 +1,11 @@
 package org.library.thelibraryj.authentication.domain;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.vavr.control.Either;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +19,7 @@ import org.library.thelibraryj.authentication.AuthenticationService;
 import org.library.thelibraryj.authentication.dto.request.AuthenticationRequest;
 import org.library.thelibraryj.authentication.dto.request.RegisterRequest;
 import org.library.thelibraryj.authentication.dto.response.AuthenticationResponse;
+import org.library.thelibraryj.authentication.userAuth.dto.response.UserCreationResponse;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.validators.fileValidators.imageFile.ValidImageFormat;
@@ -37,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @AllArgsConstructor
 @RequestMapping("${library.servlet.auth_free_mapping}${library.auth.mapping}")
+@Tag(name = "Authentication - Public", description = "Authentication endpoints that don't require valid credentials to access.")
 class PublicAuthenticationController implements ErrorHandling {
     private final AuthenticationService authenticationService;
 
@@ -45,7 +50,13 @@ class PublicAuthenticationController implements ErrorHandling {
             tags = {"authentication", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Account created, activation email sent."),
+            @ApiResponse(responseCode = "201",
+                    description = "Account created, activation email sent.",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserCreationResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "400", description = "Invalid request parameters."),
             @ApiResponse(responseCode = "409", description = "Parts of user data required to be unique are not."),
     })
@@ -62,7 +73,7 @@ class PublicAuthenticationController implements ErrorHandling {
             tags = {"authentication", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Log in successful, tokens sent."),
+            @ApiResponse(responseCode = "200", description = "Log in successful, tokens sent as body, cookie added to response."),
             @ApiResponse(responseCode = "400", description = "Google account must login with Google authentication."),
             @ApiResponse(responseCode = "401", description = "Authentication failed."),
             @ApiResponse(responseCode = "404", description = "Account not found."),

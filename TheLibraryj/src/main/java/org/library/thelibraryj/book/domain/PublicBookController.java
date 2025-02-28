@@ -2,19 +2,27 @@ package org.library.thelibraryj.book.domain;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.library.thelibraryj.book.BookService;
+import org.library.thelibraryj.book.dto.bookDto.response.BookDetailResponse;
 import org.library.thelibraryj.book.dto.bookDto.response.BookPreviewResponse;
+import org.library.thelibraryj.book.dto.bookDto.response.BookResponse;
+import org.library.thelibraryj.book.dto.chapterDto.response.ChapterResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedBookPreviewsResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PagedChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PreviewKeySetPage;
 import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,8 +38,9 @@ import java.util.Set;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("${library.servlet.auth_free_mapping}${library.book.mapping}")
 @RequiredArgsConstructor
+@RequestMapping("${library.servlet.auth_free_mapping}${library.book.mapping}")
+@Tag(name = "Book - Public", description = "Book endpoints that require don't valid credentials to access.")
 class PublicBookController implements ErrorHandling {
 
     private final BookService bookService;
@@ -41,7 +50,14 @@ class PublicBookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved the page of book previews"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved the page of book previews",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = PagedBookPreviewsResponse.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "200", description = ""),
             @ApiResponse(responseCode = "400", description = "Invalid paging data provided"),
             @ApiResponse(responseCode = "404", description = "Requested page not found")
     })
@@ -56,7 +72,13 @@ class PublicBookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved the page of book previews"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved the page of book previews",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = PagedBookPreviewsResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "400", description = "Invalid paging data provided"),
             @ApiResponse(responseCode = "404", description = "Requested page not found")
     })
@@ -71,7 +93,13 @@ class PublicBookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved the book previews"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved the page of book previews",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = PagedBookPreviewsResponse.class)
+                    )
+            ),
     })
     @GetMapping("/filtered")
     public ResponseEntity<PagedBookPreviewsResponse> getBookPreviewsByParamsPageByOffset(@RequestParam(name = "titleLike", required = false) String titleLike,
@@ -90,7 +118,13 @@ class PublicBookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved the book previews"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved the page of book previews",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = PagedBookPreviewsResponse.class)
+                    )
+            ),
     })
     @PostMapping("/filtered")
     public ResponseEntity<PagedBookPreviewsResponse> getBookPreviewsByParamsPageByKeySet(@RequestParam(name = "titleLike", required = false) String titleLike,
@@ -109,7 +143,13 @@ class PublicBookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved the book previews"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved the book previews",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = BookPreviewResponse.class))
+                    )
+            ),
     })
     @GetMapping("/authored/{byUser}")
     public ResponseEntity<List<BookPreviewResponse>> getBookPreviewsByAuthor(@PathVariable String byUser) {
@@ -121,7 +161,13 @@ class PublicBookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved the book previews"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved the book previews",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = BookPreviewResponse.class))
+                    )
+            ),
     })
     @PostMapping("/id")
     public ResponseEntity<List<BookPreviewResponse>> getBookPreviewsById(@RequestBody @NotEmpty Set<UUID> bookIds) {
@@ -133,7 +179,13 @@ class PublicBookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Book details retrieved successfully"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved the book detail",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                           schema = @Schema(implementation = BookDetailResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "404", description = "Book with specified ID not found")
     })
     @GetMapping("/{id}")
@@ -146,7 +198,13 @@ class PublicBookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved book ratings"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved book ratings",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = RatingResponse.class))
+                    )
+            ),
             @ApiResponse(responseCode = "404", description = "Book with specified ID not found")
     })
     @GetMapping("/{id}/rating")
@@ -160,7 +218,13 @@ class PublicBookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Book preview retrieved successfully"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved the book preview with its tags",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = BookPreviewResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "404", description = "Book preview with specified ID not found")
     })
     @GetMapping("/preview/{id}")
@@ -173,7 +237,13 @@ class PublicBookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Book retrieved successfully"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved the book",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = BookResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "404", description = "Book with specified title not found")
     })
     @GetMapping("/book/{title}")
@@ -186,7 +256,13 @@ class PublicBookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved chapter content"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved chapter content",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ChapterResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "404", description = "Request entities not found"),
     })
     @GetMapping("/book/chapter")
@@ -199,7 +275,13 @@ class PublicBookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved chapter previews"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved paged chapter previews",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = PagedChapterPreviewResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "400", description = "Invalid paging data provided"),
             @ApiResponse(responseCode = "404", description = "Requested chapter previews not found")
     })
@@ -213,7 +295,13 @@ class PublicBookController implements ErrorHandling {
             tags = {"book", "no auth required"}
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved chapter previews"),
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved paged chapter previews",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = PagedChapterPreviewResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "400", description = "Invalid paging data provided"),
             @ApiResponse(responseCode = "404", description = "Requested chapter previews not found")
     })

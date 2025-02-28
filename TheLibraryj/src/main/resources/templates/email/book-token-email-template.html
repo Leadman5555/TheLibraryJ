@@ -2,33 +2,51 @@
 <html lang="en">
 <style>
     body {
-        background-color: #80bcca;
+        background-color: cadetblue;
+        font-family: "Bell MT", sans-serif;
     }
 
-    h1 {
-        color: white;
-        text-align: center;
+    .column {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .outerBox {
+        border: 10px double darkgoldenrod;
+        padding: 10px;
+        margin-top: 10px;
     }
 
     p {
-        border: 10px double #4c6c7a;
-        font-family: verdana, sans-serif;
         font-size: 15px;
     }
-    p.title {
+
+    .centerVH {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .title {
         text-align: center;
-        font-family: "Bell MT",sans-serif;
         font-size: 25px;
         border: none;
+        font-style: italic;
     }
+
     img {
         border: none;
         align-content: center;
     }
-    p.signoff, p.nested-img {
-        border: none;
-        text-align: center;
-        align-content: center;
+
+
+    .signoff {
+        color: #805e05;
+        font-style: italic;
+        text-shadow: 1px 1px 1px #e39e0a;
     }
 </style>
 <head>
@@ -36,23 +54,30 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-<p class="title">Greetings fellow Daoist- your token is here!</p>
-<p>
-    I've been tasked with delivering your sharing token. <br/>
-    Here it is. Oh, it appears to have been used a total of <span th:text="${use_count}"></span> by others as of now.<br/>
-    This is your token, <b th:text="${token}"></b>.
-    <br/>
-    From what I've heard it will be valid for another <span th:text="${expires_at}">Expiration time lost in transmission</span>. After that you will need to request a new one from the Elders.<br/>
-</p>
-<p class="signoff">
-    Good luck, it's always suitable to make new acquaintances! <br/>
-</p>
-<p class="signoff">
-    Delivering the token slips, hopefully for a tip,<br/>
-    <em>Outer Court disciple, <br/>Su Ming</em>
-</p>
-<p class="nested-img">
-    <img th:src="|cid:${image_name}|" src="images/default.jpg" alt="Visual clue lost in transmission"/>
-</p>
+<div class="centerVH">
+    <span class="title">Greetings fellow Daoist - your requested for token is here!</span>
+</div>
+<div class="outerBox column">
+    <div class="column">
+        <p>
+            I've been tasked with delivering your sharing token.
+            Here it is. Oh, it appears to have been used a total of <span th:text="${use_count}">[Use count lost in transmission]</span> by others as of now.
+            This is your token:.
+        </p>
+        <b th:text="${token}">[Token value lost in transmission]</b>
+        <span>From what I've heard it will be valid for another <span th:text="${expires_at}">[Expiration time lost in transmission]</span>. After that you will need to request a new one from the Elders.</span>
+    </div>
+    <span>
+        Good luck, it's always suitable to make new acquaintances!
+    </span>
+</div>
+<div class="column" style="margin: 10px 0">
+    <span style="font-style: italic">Delivering the token slips, hopefully for a tip,</span>
+    <span class="signoff" style="margin-bottom: -10px">Outer Court disciple,</span>
+    <span class="signoff">Su Ming</span>
+</div>
+<div class="centerVH">
+    <img th:src="|cid:${image_name}|" src="images/default.jpg" alt="[Visual clue lost in transmission]"/>
+</div>
 </body>
 </html>

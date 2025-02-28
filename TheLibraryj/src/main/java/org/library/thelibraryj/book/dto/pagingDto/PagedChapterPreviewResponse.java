@@ -1,5 +1,7 @@
 package org.library.thelibraryj.book.dto.pagingDto;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import org.library.thelibraryj.book.dto.chapterDto.response.ChapterPreviewResponse;
 import org.library.thelibraryj.infrastructure.model.paging.PageInfo;
@@ -13,7 +15,9 @@ import java.util.UUID;
 public final class PagedChapterPreviewResponse extends PagingResponseBase<ChapterPreviewResponse> {
     private final UUID bookId;
 
-    public PagedChapterPreviewResponse(List<ChapterPreviewResponse> content, PageInfo pageInfo, UUID bookId) {
+    public PagedChapterPreviewResponse(@ArraySchema(schema = @Schema(implementation = ChapterPreviewResponse.class)) List<ChapterPreviewResponse> content,
+                                       @Schema(implementation = PageInfo.class) PageInfo pageInfo,
+                                       UUID bookId) {
         super(content, pageInfo);
         this.bookId = bookId;
     }

@@ -1,8 +1,12 @@
 package org.library.thelibraryj.book.domain;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
@@ -14,9 +18,13 @@ import org.library.thelibraryj.book.dto.bookDto.request.BookCreationModel;
 import org.library.thelibraryj.book.dto.bookDto.request.BookCreationRequest;
 import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateModel;
 import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateRequest;
+import org.library.thelibraryj.book.dto.bookDto.response.BookResponse;
 import org.library.thelibraryj.book.dto.chapterDto.request.ChapterBatchRequest;
+import org.library.thelibraryj.book.dto.chapterDto.response.ChapterUpsertResponse;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
+import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.book.dto.sharedDto.request.ContentRemovalRequest;
+import org.library.thelibraryj.book.dto.sharedDto.response.ContentRemovalSuccess;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.validators.batchSize.ValidBatchSize;
 import org.library.thelibraryj.infrastructure.validators.fileValidators.imageFile.ValidImageFormat;
@@ -44,6 +52,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("${library.book.mapping}")
 @RequiredArgsConstructor
+@Tag(name = "Book", description = "Book endpoints that require valid credentials to access - mostly related to author activities.")
 class BookController implements ErrorHandling {
     private final BookService bookService;
 
@@ -56,7 +65,13 @@ class BookController implements ErrorHandling {
             tags = "book"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Chapters created successfully"),
+            @ApiResponse(responseCode = "201",
+                    description = "Chapters created successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = ChapterUpsertResponse.class))
+                    )
+            ),
             @ApiResponse(responseCode = "400", description = "Request data invalid. More information in the return error."),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
@@ -75,7 +90,13 @@ class BookController implements ErrorHandling {
             tags = "book"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Book created successfully"),
+            @ApiResponse(responseCode = "201",
+                    description = "Book created successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = BookResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "400", description = "Request data invalid"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
@@ -94,7 +115,13 @@ class BookController implements ErrorHandling {
             tags = "book"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Book updated successfully"),
+            @ApiResponse(responseCode = "200",
+                    description = "Book updated successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = BookResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "400", description = "Request data invalid"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
@@ -117,7 +144,13 @@ class BookController implements ErrorHandling {
             tags = "book"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Rating entry upserted successfully"),
+            @ApiResponse(responseCode = "200",
+                    description = "Rating entry upserted successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = RatingResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Request entities or users not found"),
             @ApiResponse(responseCode = "403", description = "Permission lacking")
@@ -149,7 +182,13 @@ class BookController implements ErrorHandling {
             tags = "book"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Chapter deleted successfully"),
+            @ApiResponse(responseCode = "200",
+                    description = "Chapter deleted successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ContentRemovalSuccess.class)
+                    )
+            ),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Chapter to delete not found"),
             @ApiResponse(responseCode = "403", description = "Permission lacking")
@@ -165,7 +204,13 @@ class BookController implements ErrorHandling {
             tags = "book"
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Book deleted successfully"),
+            @ApiResponse(responseCode = "200",
+                    description = "Book deleted successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ContentRemovalSuccess.class)
+                    )
+            ),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "Book to delete not found"),
             @ApiResponse(responseCode = "403", description = "Permission lacking")

@@ -1,12 +1,17 @@
 package org.library.thelibraryj.userInfo.domain;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import org.library.thelibraryj.book.dto.bookDto.response.BookPreviewResponse;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.validators.fileValidators.imageFile.ValidImageFormat;
 import org.library.thelibraryj.userInfo.UserInfoService;
@@ -16,6 +21,11 @@ import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequ
 import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoStatusUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
+import org.library.thelibraryj.userInfo.dto.response.UserPreferenceUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserProfileImageUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserStatusUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +49,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @RestController
 @RequestMapping("${library.user.mapping}")
+@Tag(name = "User", description = "User-related endpoints that require valid credentials to access - mostly related to changes with user profile and logged-in-user-specific actions.")
 class UserInfoController implements ErrorHandling {
 
     private final UserInfoService userInfoService;
@@ -48,7 +59,13 @@ class UserInfoController implements ErrorHandling {
             tags = "user"
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Rank updated successfully"),
+            @ApiResponse(responseCode = "200",
+                    description = "Rank updated successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserRankUpdateResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "403", description = "Permission lacking")
@@ -64,7 +81,13 @@ class UserInfoController implements ErrorHandling {
             tags = "user"
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Rank updated successfully"),
+            @ApiResponse(responseCode = "200",
+                    description = "Rank updated successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserRankUpdateResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "400", description = "User not eligible for rank increase"),
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "401", description = "Authentication failure")
@@ -79,7 +102,13 @@ class UserInfoController implements ErrorHandling {
             tags = "user"
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Username updated successfully"),
+            @ApiResponse(responseCode = "200",
+                    description = "Username updated successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserUsernameUpdateResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "400", description = "Request data invalid"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "403", description = "Permission lacking"),
@@ -97,7 +126,13 @@ class UserInfoController implements ErrorHandling {
             tags = "user"
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Status updated successfully"),
+            @ApiResponse(responseCode = "200",
+                    description = "Status updated successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserStatusUpdateResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "403", description = "Permission lacking"),
             @ApiResponse(responseCode = "404", description = "User not found")
@@ -113,7 +148,13 @@ class UserInfoController implements ErrorHandling {
             tags = "user"
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Preference updated successfully"),
+            @ApiResponse(responseCode = "200",
+                    description = "Preference updated successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserPreferenceUpdateResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "400", description = "Invalid preference or rank lacking"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "403", description = "Permission lacking"),
@@ -130,7 +171,13 @@ class UserInfoController implements ErrorHandling {
             tags = "user"
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Profile image updated successfully"),
+            @ApiResponse(responseCode = "200",
+                    description = "Profile image updated successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = UserProfileImageUpdateResponse.class)
+                    )
+            ),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "403", description = "Permission lacking"),
             @ApiResponse(responseCode = "404", description = "User not found"),
@@ -149,6 +196,20 @@ class UserInfoController implements ErrorHandling {
             tags = {"book", "user"}
     )
     @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Ids fetched successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = UUID.class))
+                    )
+            ),
+            @ApiResponse(responseCode = "200",
+                    description = "Book previews fetched successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = BookPreviewResponse.class))
+                    )
+            ),
             @ApiResponse(responseCode = "200", description = "Previews or Ids fetched successfully"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "User not found"),
@@ -181,7 +242,7 @@ class UserInfoController implements ErrorHandling {
             tags = {"book", "user"}
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Book removed successfully"),
+            @ApiResponse(responseCode = "204", description = "Book removed successfully"),
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "User not found or book not found"),
     })
