@@ -13,6 +13,7 @@ import org.library.thelibraryj.authentication.userAuth.domain.BasicUserAuthView;
 import org.library.thelibraryj.authentication.userAuth.domain.LoginDataView;
 import org.library.thelibraryj.authentication.userAuth.domain.PasswordResetView;
 import org.library.thelibraryj.book.domain.ChapterPreviewTitleView;
+import org.library.thelibraryj.book.domain.NotificationEssentialsView;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
 import org.library.thelibraryj.userInfo.domain.UserInfoDetailsView;
@@ -70,6 +71,7 @@ public class BlazePersistenceConfiguration {
         evc.addEntityView(MiniFavouriteBookTokenView.class);
         evc.addEntityView(EssentialFavouriteBookTokenView.class);
         evc.addEntityView(UserInfoRankView.class);
+        evc.addEntityView(NotificationEssentialsView.class);
         return evc;
     }
 

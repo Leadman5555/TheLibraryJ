@@ -6,31 +6,19 @@ import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.bookDto.response.BookPreviewResponse;
+import org.library.thelibraryj.email.EmailService;
+import org.library.thelibraryj.email.dto.EmailRequest;
+import org.library.thelibraryj.email.template.EmailTemplate;
+import org.library.thelibraryj.email.template.SubscribedBookNotificationTemplate;
 import org.library.thelibraryj.infrastructure.cache.CacheRegister;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.library.thelibraryj.infrastructure.textParsers.inputParsers.HtmlEscaper;
-import org.library.thelibraryj.userInfo.dto.request.FavouriteBookMergerRequest;
-import org.library.thelibraryj.userInfo.dto.request.FavouriteBookRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoScoreUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoStatusUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
-import org.library.thelibraryj.userInfo.dto.response.FavouriteBookMergerResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserInfoMiniResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserPreferenceUpdateResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserProfileImageUpdateResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserProfileResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserStatusUpdateResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserTopRankerResponse;
-import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
+import org.library.thelibraryj.userInfo.UserInfoService;
+import org.library.thelibraryj.userInfo.dto.request.*;
+import org.library.thelibraryj.userInfo.dto.response.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -56,7 +44,7 @@ import static java.lang.Integer.min;
 @Service
 @Slf4j
 @Transactional(readOnly = true)
-class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoService {
+class UserInfoServiceImpl implements UserInfoService {
 
     private final UserInfoRepository userInfoRepository;
     private final UserInfoMapper userInfoMapper;
@@ -65,6 +53,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     private BookService bookService;
     private final int[] rankRequirementsArray;
     private final HtmlEscaper htmlEscaper;
+    private EmailService emailService;
 
     @Autowired
     void setBookService(@Lazy BookService bookService) {
@@ -347,13 +336,13 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
 
     @Transactional
     @Override
-    public Either<GeneralError, Integer> addBookToFavourites(FavouriteBookRequest favouriteBookRequest) {
-        if(!bookService.checkIfBookExists(favouriteBookRequest.bookId()))
-            return Either.left(new BookError.BookPreviewEntityNotFound(favouriteBookRequest.bookId().toString()));
-        Either<GeneralError, UserInfo> fetchedE =  getUserInfoEagerByEmail(favouriteBookRequest.email());
+    public Either<GeneralError, Integer> addBookToFavourites(BookCollectionRequest bookCollectionRequest) {
+        if(!bookService.checkIfBookExists(bookCollectionRequest.bookId()))
+            return Either.left(new BookError.BookPreviewEntityNotFound(bookCollectionRequest.bookId().toString()));
+        Either<GeneralError, UserInfo> fetchedE =  getUserInfoEagerByEmail(bookCollectionRequest.email());
         if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         UserInfo fetched = fetchedE.get();
-        int favouriteCount = fetched.addBookIdToFavourites(favouriteBookRequest.bookId());
+        int favouriteCount = fetched.addBookIdToFavourites(bookCollectionRequest.bookId());
         userInfoRepository.update(fetched);
         return Either.right(favouriteCount);
     }
@@ -361,8 +350,8 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     @Async
     @Transactional
     @Override
-    public void removeBookFromFavourites(FavouriteBookRequest favouriteBookRequest) {
-       getUserInfoIdByEmail(favouriteBookRequest.email()).peek(id -> userInfoRepository.removeBookFromFavourites(id, favouriteBookRequest.bookId()));
+    public void removeBookFromFavourites(BookCollectionRequest bookCollectionRequest) {
+       getUserInfoIdByEmail(bookCollectionRequest.email()).peek(id -> userInfoRepository.removeBookFromFavourites(id, bookCollectionRequest.bookId()));
     }
 
     @Async
@@ -393,6 +382,49 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 fetchedFrom.getUsername(),
                 fetchedTo.getUsername()
         ));
+    }
+
+    @Override
+    public Either<GeneralError, Set<BookPreviewResponse>> getSubscribedBooks(String email) {
+        return Either.right(bookService.getBookPreviewsByIdsAsSet(userInfoRepository.fetchUserFavouriteSubscribedBookIds((email))));
+    }
+
+    @Override
+    public Either<GeneralError, Set<UUID>> getSubscribedBooksIds(String email) {
+        return Either.right(userInfoRepository.fetchUserFavouriteSubscribedBookIds((email)));
+    }
+
+    @Transactional
+    @Override
+    public Either<GeneralError, Integer> addBookToSubscribed(BookCollectionRequest bookCollectionRequest) {
+        if(!bookService.checkIfBookExists(bookCollectionRequest.bookId()))
+            return Either.left(new BookError.BookPreviewEntityNotFound(bookCollectionRequest.bookId().toString()));
+        Either<GeneralError, UserInfo> fetchedE =  getUserInfoEagerByEmail(bookCollectionRequest.email());
+        if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
+        UserInfo fetched = fetchedE.get();
+        int favouriteCount = fetched.addBookIdToSubscribed(bookCollectionRequest.bookId());
+        userInfoRepository.update(fetched);
+        return Either.right(favouriteCount);
+    }
+
+    @Transactional
+    @Override
+    public void removeBookFromSubscribed(BookCollectionRequest bookCollectionRequest) {
+        userInfoRepository.removeBookFromSubscribed(bookCollectionRequest.email(), bookCollectionRequest.bookId());
+    }
+
+    @Transactional
+    @Override
+    public void removeBookFromSubscribedForAllUsers(UUID bookId) {
+        userInfoRepository.removeBookFromSubscribedForAllUsers(bookId);
+    }
+
+    @Override
+    public void notifySubscribedUsers(UUID bookId, SubscribedUserNotificationRequest notificationRequest) {
+        Set<String> subscriberEmails = userInfoRepository.fetchSubscriberEmailsForBookId(bookId);
+        if(subscriberEmails.isEmpty()) return;
+        EmailTemplate emailTemplate = new SubscribedBookNotificationTemplate(notificationRequest);
+        subscriberEmails.forEach(subscriber -> emailService.sendEmail(new EmailRequest(subscriber, emailTemplate)));
     }
 
     @Override
@@ -429,5 +461,10 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     @Override
     public boolean existsByEmail(String email) {
         return userInfoRepository.existsByEmail(email);
+    }
+
+    @Autowired
+    public void setEmailService(EmailService emailService) {
+        this.emailService = emailService;
     }
 }

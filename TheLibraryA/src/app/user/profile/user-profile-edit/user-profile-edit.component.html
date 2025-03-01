@@ -125,13 +125,13 @@
           </form>
         </div>
         <div>
-          @if (rankUpdateErrorMessage) {
-            <div class="errorBox">{{ rankUpdateErrorMessage }}</div>
-          }
           <div class="rankDiv column">
-        <span
-          style="font-size: 1.1em; margin-right: 0.4em; width: fit-content">Cultivation stage: <b
-          style="font-style: italic;">{{ rankArray[this.userData.rank] }}</b></span>
+            @if (rankUpdateErrorMessage) {
+              <div class="errorBox">{{ rankUpdateErrorMessage }}</div>
+            }
+            <span
+              style="font-size: 1.1em; margin-right: 0.4em; width: fit-content">Cultivation stage: <b
+              style="font-style: italic;">{{ rankArray[this.userData.rank] }}</b></span>
             <span>Accumulation needed:
               @if (this.userData.rank === 10) {
                 <span style="color: #976c03; font-style: italic"><br>Heaven's Will is merciless,<br>Sea of Bitterness endless,<br>path to Ascension forever blocked...</span>

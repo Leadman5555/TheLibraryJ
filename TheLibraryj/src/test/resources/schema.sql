@@ -8,6 +8,8 @@ DROP TABLE IF EXISTS library.book_tag;
 CREATE TABLE library.book_tag(book_preview_id UUID NOT NULL,   tag             TINYINT);
 DROP TABLE IF EXISTS library.favourite_books;
 CREATE TABLE library.favourite_books(user_info_id UUID NOT NULL,book_id UUID NOT NULL);
+DROP TABLE IF EXISTS library.subscribed_books;
+CREATE TABLE library.subscribed_books (user_info_email VARCHAR(48) NOT NULL,book_id      UUID NOT NULL);
 DROP TABLE IF EXISTS library.library_chapter_previews;
 CREATE TABLE library.library_chapter_previews(id             UUID   NOT NULL,   version        BIGINT NOT NULL DEFAULT 0,created_at     TIMESTAMP,updated_at     TIMESTAMP,title          VARCHAR(255),number         INT    NOT NULL,book_detail_id UUID   NOT NULL,CONSTRAINT pk_library_chapter_previews PRIMARY KEY (id));
 DROP TABLE IF EXISTS library.library_chapters;
@@ -29,3 +31,4 @@ ALTER TABLE library.library_chapters ADD CONSTRAINT fk_library_chapters_on_chapt
 ALTER TABLE library.library_ratings ADD CONSTRAINT fk_library_ratings_on_bookdetail FOREIGN KEY (book_detail_id) REFERENCES library.library_book_details (id);
 ALTER TABLE library.book_tag    ADD CONSTRAINT fk_book_tag_on_book_preview FOREIGN KEY (book_preview_id) REFERENCES library.library_book_previews (book_detail_id) ON DELETE CASCADE;
 ALTER TABLE library.favourite_books ADD CONSTRAINT fk_favourite_books_on_user_info FOREIGN KEY (user_info_id) REFERENCES library.library_user_info (id) ON DELETE CASCADE;
+ALTER TABLE library.subscribed_books ADD CONSTRAINT fk_subscribed_books_on_user_info FOREIGN KEY (user_info_email) REFERENCES library.library_user_info (email) ON DELETE CASCADE;

@@ -31,7 +31,6 @@
               See profile
             </button>
             <button class="sButton" (click)="hideWindows()" [routerLink]="['/profile-edit']">Edit profile</button>
-            <button class="sButton" (click)="hideWindows()" routerLink="/author-tab">Author Tab</button>
             <button class="sButton" (click)="logOut()">Log out</button>
           </div>
         } @else {
@@ -102,7 +101,9 @@
     } @else if (this.showOptions) {
       <div class="window column borderBox" style="padding: 0.5em">
         <app-user-search (click)="this.showMenu = false"></app-user-search>
+        <button class="sButton" (click)="hideWindows()" [disabled]="!showLoggedIn" routerLink="/author-tab">Author Tab</button>
         <button class="sButton" (click)="hideWindows()" routerLink="/favourite-books">Favourite book collection</button>
+        <button class="sButton" (click)="hideWindows()" [disabled]="!showLoggedIn" routerLink="/book-subscriptions">Book subscriptions</button>
         <button class="sButton" (click)="hideWindows()" routerLink="/pavilion-of-glory">Pavilion of Glory</button>
       </div>
     }

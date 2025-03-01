@@ -9,11 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.bookDto.request.BookCreationModel;
 import org.library.thelibraryj.book.dto.bookDto.request.BookCreationRequest;
+import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateModel;
+import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.bookDto.response.BookDetailResponse;
 import org.library.thelibraryj.book.dto.bookDto.response.BookPreviewResponse;
 import org.library.thelibraryj.book.dto.bookDto.response.BookResponse;
-import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateModel;
-import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.chapterDto.request.ChapterBatchRequest;
 import org.library.thelibraryj.book.dto.chapterDto.response.ChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.chapterDto.response.ChapterResponse;
@@ -35,6 +35,7 @@ import org.library.thelibraryj.infrastructure.textParsers.inputParsers.HtmlEscap
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
+import org.library.thelibraryj.userInfo.dto.request.SubscribedUserNotificationRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoScoreUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,14 +51,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.PriorityQueue;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -73,6 +67,7 @@ class BookServiceImpl implements BookService {
     private final BookMapper mapper;
     private final BookImageHandler bookImageHandler;
     private final BookBlazeRepository bookBlazeRepository;
+    private final BookViewRepository bookViewRepository;
     private final BookProperties bookProperties;
     private UserInfoService userInfoService;
     private final Pattern chapterTitleMatcher = Pattern.compile("^([0-9])+(\\s-\\s(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s'_\"!.-]*)?$");
@@ -84,7 +79,7 @@ class BookServiceImpl implements BookService {
         this.userInfoService = userInfoService;
     }
 
-    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, @Qualifier("bookMapperImpl") BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository, BookImageHandler bookImageHandler, BookBlazeRepository bookBlazeRepository, BookProperties bookProperties, TextParser textParser, HtmlEscaper htmlEscaper) {
+    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, @Qualifier("bookMapperImpl") BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository, BookImageHandler bookImageHandler, BookBlazeRepository bookBlazeRepository, BookProperties bookProperties, TextParser textParser, HtmlEscaper htmlEscaper, BookViewRepository bookViewRepository) {
         this.bookDetailRepository = bookDetailRepository;
         this.bookPreviewRepository = bookPreviewRepository;
         this.mapper = mapper;
@@ -93,6 +88,7 @@ class BookServiceImpl implements BookService {
         this.chapterRepository = chapterRepository;
         this.bookImageHandler = bookImageHandler;
         this.bookBlazeRepository = bookBlazeRepository;
+        this.bookViewRepository = bookViewRepository;
         this.bookProperties = bookProperties;
         this.textParser = textParser;
         this.htmlEscaper = htmlEscaper;
@@ -293,7 +289,7 @@ class BookServiceImpl implements BookService {
 
     @Override
     public Either<GeneralError, ChapterResponse> getChapterByBookIdAndNumber(UUID bookId, int chapterNumber) {
-        ChapterPreviewTitleView fetchedData = chapterPreviewRepository.findChapterPreviewTitleAndIdByBookIdAndNumber(bookId, chapterNumber);
+        ChapterPreviewTitleView fetchedData = bookViewRepository.findChapterPreviewTitleAndIdByBookIdAndNumber(bookId, chapterNumber);
         return Try.of(() -> chapterRepository.getChapterContentById(fetchedData.getId()))
                 .toEither()
                 .map(Option::ofOptional)
@@ -456,10 +452,29 @@ class BookServiceImpl implements BookService {
         mergedList.sort(Comparator.comparingInt(ChapterDraft::number));
 
         List<ChapterPreview> existingChapterPreviews = bookBlazeRepository.getSortedChapterPreviews(bookId, chapterNumbers);
-        if (!existingChapterPreviews.isEmpty()) updateAndCreate(existingChapterPreviews, mergedList, bookDetail);
-        else for (ChapterDraft draft : mergedList) createChapter(draft, bookDetail);
-        bookPreviewRepository.changeChapterCount(bookId, mergedList.size() - existingChapterPreviews.size());
-
+        List<SubscribedUserNotificationRequest.ChapterNotificationData> chapterNotifications = new ArrayList<>();
+        if (!existingChapterPreviews.isEmpty()){
+            for(ChapterDraft draft: mergedList) chapterNotifications.add(new SubscribedUserNotificationRequest.ChapterNotificationData(draft.escapedTitle, draft.number));
+            updateAndCreate(existingChapterPreviews, mergedList, bookDetail);
+        }
+        else for (ChapterDraft draft : mergedList){
+            chapterNotifications.add(new SubscribedUserNotificationRequest.ChapterNotificationData(draft.escapedTitle, draft.number));
+            createChapter(draft, bookDetail);
+        }
+        int chapterCountChange = mergedList.size() - existingChapterPreviews.size();
+        if (chapterCountChange > 0){
+            //if chapterCountChange is 0, no new chapters were added, only existing ones were updated
+            bookPreviewRepository.changeChapterCount(bookId, chapterCountChange);
+            NotificationEssentialsView notificationEssentials = bookViewRepository.findNotificationEssentialsViewByBookId(bookId);
+            SubscribedUserNotificationRequest notificationRequest = new SubscribedUserNotificationRequest(
+                    chapterNotifications,
+                    notificationEssentials.getTitle(),
+                    bookDetail.getAuthor(),
+                    bookImageHandler.fetchCoverImage(notificationEssentials.getTitle()),
+                    notificationEssentials.getChapterCount() + chapterCountChange
+            );
+            userInfoService.notifySubscribedUsers(bookId, notificationRequest);
+        }
         return Either.right(chapterEntries);
     }
 
@@ -496,6 +511,7 @@ class BookServiceImpl implements BookService {
         ratingRepository.deleteBook(removalRequest.bookId());
         bookDetailRepository.deleteById(removalRequest.bookId());
         userInfoService.removeBookFromFavouritesForAllUsers(removalRequest.bookId());
+        userInfoService.removeBookFromSubscribedForAllUsers(removalRequest.bookId());
         log.info("Book {} has been deleted", removalRequest.bookId());
         return Either.right(new ContentRemovalSuccess(removalRequest.bookId(), removalRequest.userEmail()));
     }
