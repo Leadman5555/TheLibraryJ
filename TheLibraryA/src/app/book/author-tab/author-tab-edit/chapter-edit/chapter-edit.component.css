@@ -4,6 +4,12 @@
 @import "../../../../shared/styles/emptyInfoBox.css";
 @import "../../../../shared/styles/sInput.css";
 
+#container {
+  overflow-y: auto;
+  max-height: 90vh;
+  max-width: 90vw;
+}
+
 .outerBox {
   height: auto;
   width: 50em;
@@ -82,10 +88,6 @@
   font-weight: bold;
   color: #280049;
   background-color: rgba(209, 1, 126, 0.62);
-}
-
-.deleteChapterBox{
-
 }
 
 .messageDiv {

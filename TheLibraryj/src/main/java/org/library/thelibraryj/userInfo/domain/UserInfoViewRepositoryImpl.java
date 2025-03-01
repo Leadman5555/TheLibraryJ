@@ -38,8 +38,8 @@ class UserInfoViewRepositoryImpl extends ViewRepositoryBase implements UserInfoV
     @Override
     public Optional<UserInfoDetailsView> getUserInfoDetailsView(String username) {
         List<UserInfoDetailsView> resultList = evm.applySetting(EntityViewSetting.create(UserInfoDetailsView.class),
-                cbf.create(em, UserInfo.class)
-                        .where("username").eq(username))
+                        cbf.create(em, UserInfo.class)
+                                .where("username").eq(username))
                 .getResultList();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
     }
@@ -51,5 +51,15 @@ class UserInfoViewRepositoryImpl extends ViewRepositoryBase implements UserInfoV
                                 .where("email").eq(email))
                 .getResultList();
         return resultList.isEmpty() ? Optional.empty() : Optional.of(resultList.getFirst());
+    }
+
+    @Override
+    public List<UserInfoRankView> getTopRatedUsersRankView(int limit) {
+        return evm.applySetting(EntityViewSetting.create(UserInfoRankView.class)
+                        , cbf.create(em, UserInfo.class)
+                                .orderByDesc("rank")
+                                .orderByDesc("currentScore")
+                                .setMaxResults(limit))
+                .getResultList();
     }
 }

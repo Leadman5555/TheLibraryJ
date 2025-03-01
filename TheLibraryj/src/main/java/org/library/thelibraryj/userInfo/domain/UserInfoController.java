@@ -253,4 +253,18 @@ class UserInfoController implements ErrorHandling {
         userInfoService.removeBookFromFavourites(new FavouriteBookRequest(email, bookId));
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(
+            summary = "Verify is the user can author books.",
+            tags = {"user", "book"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "User is eligible to author books."),
+            @ApiResponse(responseCode = "403", description = "User is not eligible to author books")
+    })
+    @PostMapping("/verify/{email}")
+    public ResponseEntity<String> verifyWritingEligibility(@PathVariable("email") @NotNull @Email String email) {
+        if (userInfoService.checkWritingEligibility(email)) return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
 }

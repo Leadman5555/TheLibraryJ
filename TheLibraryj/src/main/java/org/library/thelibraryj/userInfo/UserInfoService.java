@@ -23,12 +23,14 @@ import org.library.thelibraryj.userInfo.dto.response.UserProfileImageUpdateRespo
 import org.library.thelibraryj.userInfo.dto.response.UserProfileResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserStatusUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserTopRankerResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -65,4 +67,5 @@ public interface UserInfoService {
     @Async
     void removeBookFromFavouritesForAllUsers(UUID bookId);
     Either<GeneralError, FavouriteBookMergerResponse> mergeFavouriteBooks(FavouriteBookMergerRequest mergerRequest);
+    List<UserTopRankerResponse> getTopUsers();
 }

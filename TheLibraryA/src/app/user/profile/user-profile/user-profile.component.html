@@ -2,13 +2,13 @@
   @if (this.userData) {
     <div class="userProfileGrid">
       <div class="usernameBar centerVH">
-        {{ findTitle(this.userData.preference).title }}<span
-        style="color: #280049; margin-left: 0.2em">{{ this.userData.username }}</span>
+        {{ findTitle(this.userData.preference).title }}
+        <span style="color: #280049; margin-left: 0.2em">{{ this.userData.username }}</span>
       </div>
       <div class="rankDiv row">
         <span
-          style="font-size: 1.1em; margin-right: 0.4em">Cultivation stage:<br><b
-          style="font-style: italic">{{ rankArray[this.userData.rank] }}</b></span>
+          style="font-size: 1.1em; margin-right: 0.4em">Cultivation stage:<br>
+          <b style="font-style: italic">{{ rankArray[this.userData.rank] }}</b></span>
         <span>Accumulation needed:
           @if (userData!.rank === 10) {
             <span style="color: #976c03; font-style: italic"><br>Heaven's Will is merciless,<br>Sea of Bitterness endless,<br>path to Ascension forever blocked...</span>

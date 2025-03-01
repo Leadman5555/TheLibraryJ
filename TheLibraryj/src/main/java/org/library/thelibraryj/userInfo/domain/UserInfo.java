@@ -45,7 +45,7 @@ class UserInfo extends AbstractEntity {
     @Min(0)
     @Max(10)
     @Column(nullable = false)
-    private int rank;
+    private short rank;
 
     @Column(nullable = false)
     private int currentScore;
@@ -69,7 +69,7 @@ class UserInfo extends AbstractEntity {
     private Set<UUID> favouriteBookIds = new HashSet<>();
 
     @Builder
-    public UserInfo(UUID id, Long version, Instant createdAt, Instant updatedAt, Instant dataUpdatedAt, String username, String email, int rank, UUID userAuthId, int currentScore, short preference, String status) {
+    public UserInfo(UUID id, Long version, Instant createdAt, Instant updatedAt, Instant dataUpdatedAt, String username, String email, short rank, UUID userAuthId, int currentScore, short preference, String status) {
         super(id, version, createdAt, updatedAt);
         this.dataUpdatedAt = dataUpdatedAt;
         this.username = username;

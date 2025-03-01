@@ -24,6 +24,8 @@ import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
 import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.book.dto.sharedDto.request.ContentRemovalRequest;
 import org.library.thelibraryj.book.dto.sharedDto.response.ContentRemovalSuccess;
+import org.library.thelibraryj.infrastructure.cache.CacheRegister;
+import org.library.thelibraryj.infrastructure.cache.OffsetKeyGenerator;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
@@ -564,14 +566,14 @@ class BookServiceImpl implements BookService {
 
 
     @Override
-    @Cacheable(value = "bookPreviewsKeySet")
+    @Cacheable(value = CacheRegister.BOOK_PREVIEW_KEYSET_CACHE)
     public PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(KeysetPage lastPage, int page) {
         PagedList<BookPreview> pagedList = bookBlazeRepository.getKeySetPagedBookPreviewNext(lastPage, page);
         return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()));
     }
 
     @Override
-    @Cacheable(value = "bookPreviewsOffset", keyGenerator = "offsetKeyGenerator")
+    @Cacheable(value = CacheRegister.BOOK_PREVIEW_OFFSET_CACHE, keyGenerator = OffsetKeyGenerator.OFFSET_KEY_GENERATOR)
     public PagedBookPreviewsResponse getOffsetPagedBookPreviewResponses(int pageSize, int page) {
         PagedList<BookPreview> pagedList = bookBlazeRepository.getOffsetBookPreviewPaged(pageSize, page);
         return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()));
@@ -596,7 +598,7 @@ class BookServiceImpl implements BookService {
     }
 
     @Override
-    @Cacheable(value = "chapterPreviewOffset", keyGenerator = "offsetKeyGenerator")
+    @Cacheable(value = CacheRegister.CHAPTER_PREVIEW_OFFSET_CACHE, keyGenerator = OffsetKeyGenerator.OFFSET_KEY_GENERATOR)
     public PagedChapterPreviewResponse getOffsetPagedChapterPreviewResponses(int pageSize, int page, UUID bookId) {
         PagedList<ChapterPreview> pagedList = bookBlazeRepository.getOffsetChapterPreviewPaged(pageSize, page, bookId);
         return new PagedChapterPreviewResponse(mapper.chapterPreviewsToChapterPreviewResponseList(pagedList), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()), bookId);
@@ -610,8 +612,8 @@ class BookServiceImpl implements BookService {
 
 
     @Override
-    @CacheEvict(value = {"bookPreviewsOffset", "bookPreviewsKeySet", "chapterPreviewOffset"}, allEntries = true)
-    @Scheduled(cron = "0 */${library.caching.bookPreviewTTL} * * * *")
+    @CacheEvict(value = {CacheRegister.BOOK_PREVIEW_OFFSET_CACHE, CacheRegister.BOOK_PREVIEW_KEYSET_CACHE, CacheRegister.CHAPTER_PREVIEW_OFFSET_CACHE}, allEntries = true)
+    @Scheduled(cron = "0 */${library.book.cache.book_preview_minutes} * * * *")
     public void resetBookPreviewsCache() {
         bookPreviewRepository.flush();
         ratingRepository.flush();

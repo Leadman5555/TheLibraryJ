@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS library.library_user_info
     created_at      TIMESTAMP,
     updated_at      TIMESTAMP,
     data_updated_at TIMESTAMP,
-    rank            INTEGER            NOT NULL DEFAULT 0,
+    rank            SMALLINT            NOT NULL DEFAULT 0,
     current_score   INTEGER            NOT NULL DEFAULT 0,
     preference      SMALLINT           NOT NULL DEFAULT 0,
     CONSTRAINT pk_library_user_info PRIMARY KEY (id)

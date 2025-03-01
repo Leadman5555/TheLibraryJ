@@ -20,6 +20,7 @@ import {BookTokenResponse} from '@app/user/profile/shared/dto/book-token-respons
 import {BookTokenConsummationRequest} from '@app/user/profile/shared/dto/book-token-consummation-request';
 import {FavouriteBookMergerResponse} from '@app/user/profile/shared/dto/favourite-book-merger-response';
 import {serverAuthFreeRoute, serverRoute} from '@app/app.routes';
+import {TopRankerResponse} from '@app/user/shared/models/top-ranker-response';
 
 @Injectable({
   providedIn: 'root'
@@ -131,22 +132,26 @@ export class UserProfileService {
 
   public upsertAndGetFavouriteBookToken(email: string): Observable<BookTokenResponse> {
     const body = {email: email};
-    return this.http.put<BookTokenResponse>(this.baseAuthUrl + '/book/token', body).pipe(catchError(handleError));
+    return this.http.put<BookTokenResponse>(`${this.baseAuthUrl}/book/token`, body).pipe(catchError(handleError));
   }
 
   public mergeFavouriteBooksUsingToken(consummationRequest: BookTokenConsummationRequest): Observable<FavouriteBookMergerResponse> {
-    return this.http.post<FavouriteBookMergerResponse>(this.baseAuthUrl + '/book/token', consummationRequest).pipe(catchError(handleError));
+    return this.http.post<FavouriteBookMergerResponse>(`${this.baseAuthUrl}/book/token`, consummationRequest).pipe(catchError(handleError));
   }
 
   public sendExistingBookTokenToOwnerEmail(consummationRequest: BookTokenConsummationRequest): Observable<void> {
-    return this.http.post<void>(this.baseAuthUrl + '/book/token/email', consummationRequest).pipe(catchError(handleError));
+    return this.http.post<void>(`${this.baseAuthUrl}/book/token/email`, consummationRequest).pipe(catchError(handleError));
   }
 
   public canUserAuthorBooks(email: string): Observable<void>{
-    return this.http.post<void>(`${this.baseUrl}/verify/${email}`, null);
+    return this.http.post<void>(`${this.baseAuthUrl}/verify/${email}`, null);
   }
 
   public fetchUserMiniData(email: string): Observable<FetchedUserMini> {
     return this.http.get<FetchedUserMini>(`${this.baseUrl}/mini/${email}`);
+  }
+
+  public fetchTopRankingUsers(): Observable<TopRankerResponse[]> {
+    return this.http.get<TopRankerResponse[]>(`${this.baseUrl}/top`).pipe(catchError(handleError));
   }
 }

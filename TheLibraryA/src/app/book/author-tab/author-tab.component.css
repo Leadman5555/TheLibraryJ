@@ -45,3 +45,12 @@
   padding: 0.5em;
   background-color: rgba(202, 210, 243, 0.36);
 }
+
+@media (max-width: 1850px) {
+  #topBarDiv {
+    font-size: 3.5em;
+  }
+  .previewsColumn {
+    font-size: 0.8em;
+  }
+}

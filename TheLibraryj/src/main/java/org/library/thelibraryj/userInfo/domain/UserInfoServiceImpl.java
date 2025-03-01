@@ -3,8 +3,10 @@ package org.library.thelibraryj.userInfo.domain;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.bookDto.response.BookPreviewResponse;
+import org.library.thelibraryj.infrastructure.cache.CacheRegister;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
@@ -27,11 +29,15 @@ import org.library.thelibraryj.userInfo.dto.response.UserProfileImageUpdateRespo
 import org.library.thelibraryj.userInfo.dto.response.UserProfileResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserStatusUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserTopRankerResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +46,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -47,6 +54,7 @@ import static java.lang.Integer.max;
 import static java.lang.Integer.min;
 
 @Service
+@Slf4j
 @Transactional(readOnly = true)
 class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoService {
 
@@ -221,7 +229,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
     UserInfo createUserInfoInternal(UserInfoRequest userInfoRequest) {
         UserInfo mapped = userInfoMapper.userInfoRequestToUserInfo(userInfoRequest);
         mapped.setUsername(htmlEscaper.escapeHtml(mapped.getUsername()));
-        mapped.setRank(0);
+        mapped.setRank((short) 0);
         mapped.setCurrentScore(0);
         mapped.setPreference((short) 0);
         mapped.setDataUpdatedAt(Instant.now());
@@ -234,7 +242,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         Either<GeneralError, UserInfo> fetchedE = getUserInfoByEmail(userInfoRankUpdateRequest.email());
         if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         UserInfo fetched = fetchedE.get();
-        int newRank = max(min(fetched.getRank() + userInfoRankUpdateRequest.rankChange(), rankRequirementsArray.length), 0);
+        short newRank = (short) max(min(fetched.getRank() + userInfoRankUpdateRequest.rankChange(), rankRequirementsArray.length), 0);
         if (newRank < fetched.getRank() && fetched.getPreference() > newRank / 10) fetched.setPreference((short) 0);
         fetched.setRank(newRank);
         userInfoRepository.update(fetched);
@@ -247,7 +255,7 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
         Either<GeneralError, UserInfo> fetchedE = getUserInfoByEmail(forUserEmail);
         if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         UserInfo fetched = fetchedE.get();
-        int newRank = fetched.getRank();
+        short newRank = fetched.getRank();
         int currentPoints = fetched.getCurrentScore();
 
         while (newRank < rankRequirementsArray.length && currentPoints - rankRequirementsArray[newRank] >= 0) {
@@ -385,6 +393,22 @@ class UserInfoServiceImpl implements org.library.thelibraryj.userInfo.UserInfoSe
                 fetchedFrom.getUsername(),
                 fetchedTo.getUsername()
         ));
+    }
+
+    @Override
+    @Cacheable(value = CacheRegister.TOP_USERS_CACHE)
+    public List<UserTopRankerResponse> getTopUsers() {
+        return userInfoRepository.getTopRatedUsersRankView(userInfoProperties.getTop_rated().getLimit())
+                .stream()
+                .map(rankView -> userInfoMapper.userInfoRankViewToUserTopRankerResponse(rankView, userInfoImageHandler.fetchProfileImage(rankView.getId())))
+                .toList();
+    }
+
+    @CacheEvict(value = {CacheRegister.TOP_USERS_CACHE}, allEntries = true)
+    @Scheduled(cron = "0 0 ${library.user.top_rated.cache_evict_hours_list} * * *")
+    public void resetBookPreviewsCache() {
+        userInfoRepository.flush();
+        log.info("Top user cache and repositories flushed.");
     }
 
     @Async

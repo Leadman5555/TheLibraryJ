@@ -1,0 +1,258 @@
+@import "../../shared/styles/borderBox.css";
+@import "../../shared/styles/rowCol.css";
+@import "../../shared/styles/image34.css";
+@import "../../shared/styles/emptyInfoBox.css";
+@import "../../shared/styles/sButton.css";
+
+#preOpen {
+  margin-top: 3em;
+  width: 90%;
+  height: 80%;
+  overflow-wrap: break-word;
+  transform-style: preserve-3d;
+  border-radius: 0.3em;
+  color: bisque;
+}
+
+#preOpen::before {
+  content: "";
+  position: absolute;
+  inset: -1.2em;
+  background: conic-gradient(
+    from 90deg at 40% -25%,
+    cadetblue,
+    goldenrod,
+    rgba(40, 0, 73, 0.88),
+    #969DB6FF,
+    aquamarine,
+    lightsteelblue,
+    rosybrown,
+    rgba(40, 0, 73, 0.7),
+    darkgoldenrod,
+    cadetblue
+  );
+  filter: blur(2.1em);
+  transform: translate3d(0px, 0px, -1px);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+#musicSource {
+  background-color: rgba(202, 243, 243, 0.65);
+  border-radius: 0.3em;
+  padding: 0.2em;
+  font-size: 0.3em;
+  display: none;
+  text-align: center;
+  z-index: 1;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 0.1em;
+}
+
+#topTitle2 {
+  background-color: cadetblue;
+  border: 0.05em solid darkgoldenrod;
+  padding-top: 0.5em;
+  margin-bottom: 0.1em;
+}
+
+#topTitle2:hover #musicSource {
+  display: block;
+  opacity: 1;
+}
+
+.topTitle {
+  cursor: default;
+  width: 100%;
+  height: fit-content;
+  font-size: 6em;
+  margin-bottom: -0.5em;
+  margin-top: 0.5em;
+  position: relative;
+  display: inline-block;
+}
+
+#topTitle1 {
+  width: 80vw;
+  height: fit-content;
+}
+
+
+.outerBox {
+  background-image: url("/images/wangHui_scrollThree.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 96vw;
+  height: 90vh;
+  display: grid;
+  gap: 0 0;
+  justify-items: center;
+  grid-auto-flow: row;
+  align-items: center;
+
+  grid-template-columns: repeat(8, 12vw);
+  grid-template-rows: repeat(7, 12vh);
+  grid-template-areas:
+    ". . . . . . . ."
+    ". . . place1 . . . ."
+    ". . . . . place2 . ."
+    ". . place3 . . . . ."
+    ". . . . . . place4 ."
+    ". place5 . . place6 . . ."
+    ". . . . . . . .";
+}
+
+.usernameBar {
+  font-size: 2em;
+  font-weight: bold;
+  font-style: italic;
+  color: rgba(40, 0, 73, 0.7);
+}
+
+.username {
+  font-style: italic;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.userShrine {
+  width: 12em;
+  height: 16em;
+  border: 0.2em solid;
+  overflow: visible;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  color: black;
+}
+
+.place1 {
+  grid-area: place1;
+  border-color: darkgoldenrod;
+  background-color: rgba(218, 165, 32, 0.7);
+  text-align: center;
+}
+
+.place1:hover {
+  scale: 1.05;
+  box-shadow: 0 0 0.5em 0.3em rgba(255, 177, 0, 0.7);
+  transition: all 0.3s;
+}
+
+.place1 .username {
+  color: rgb(84, 12, 142);
+}
+
+.place2 {
+  grid-area: place2;
+  border-color: bisque;
+  background-color: rgba(152, 152, 144, 0.7);
+}
+
+.place2 .username {
+  color: #ffb100;
+}
+
+.place2:hover {
+  scale: 1.05;
+  box-shadow: 0 0 0.5em 0.3em rgb(83, 81, 81);
+  transition: all 0.3s;
+}
+
+.place3 {
+  grid-area: place3;
+  border-color: rgb(40, 0, 73);
+  background-color: rgba(150, 157, 182, 0.7);
+}
+
+.place3 .username {
+  color: rgb(41, 52, 80);
+}
+
+.place3:hover {
+  scale: 1.05;
+  box-shadow: 0 0 0.5em 0.3em rgba(143, 5, 255, 0.51);
+  transition: all 0.3s;
+}
+
+.place4 {
+  grid-area: place4;
+  border-color: rgba(80, 80, 21, 0.82);
+  background-color: rgba(152, 152, 91, 0.7);
+}
+
+.place4 .username {
+  color: rgba(40, 113, 84, 0.86);
+}
+
+.place4:hover {
+  scale: 1.05;
+  box-shadow: 0 0 0.5em 0.3em rgba(188, 188, 2, 0.7);
+  transition: all 0.3s;
+}
+
+.place5 {
+  grid-area: place5;
+  border-color: #969db6;
+  background-color: rgba(131, 175, 175, 0.7);
+}
+
+.place5 .username {
+  color: #001773;
+}
+
+.place5:hover {
+  scale: 1.05;
+  box-shadow: 0 0 0.5em 0.3em rgb(0, 15, 73);
+  transition: all 0.3s;
+}
+
+.place6 {
+  margin-top: 5em;
+  grid-area: place6;
+  border-color: #490032;
+  background-color: rgba(208, 179, 248, 0.7);
+}
+
+.place6 .username {
+  color: #ffe2b9;
+}
+
+.place6:hover {
+  scale: 1.05;
+  box-shadow: 0 0 0.5em 0.3em rgb(174, 100, 140);
+  transition: all 0.3s;
+}
+
+@media (max-width: 1880px) {
+  .outerBox {
+    grid-template-columns: repeat(11, 9vw);
+    grid-template-rows: repeat(10, 10vh);
+    grid-template-areas:
+    ". . . . . . . . . . ."
+    ". . . . place1 . . . . . ."
+    ". . . . . . . place2 . . ."
+    ". . place3 . . . . . . . ."
+    ". . . . . . . . . . ."
+    ". . . . . place4 . . . . ."
+    ". . . . . . . . . place5 ."
+    ". place6 . . . . . . . . ."
+    ". . . . . . . . . . ."
+    ". . . . . . . . . . ."
+    ". . . . . . . . . . ."
+    ". . . . . . . . . . .";
+  }
+  .place6{
+    margin-top: 0;
+  }
+  .topTitle{
+    font-size: 5em;
+  }
+}

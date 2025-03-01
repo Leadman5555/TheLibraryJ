@@ -17,6 +17,7 @@ import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
 import org.library.thelibraryj.userInfo.domain.UserInfoDetailsView;
 import org.library.thelibraryj.userInfo.domain.UserInfoMiniView;
+import org.library.thelibraryj.userInfo.domain.UserInfoRankView;
 import org.library.thelibraryj.userInfo.userInfoTokenServices.domain.EssentialFavouriteBookTokenView;
 import org.library.thelibraryj.userInfo.userInfoTokenServices.domain.MiniFavouriteBookTokenView;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -68,6 +69,7 @@ public class BlazePersistenceConfiguration {
         evc.addEntityView(UserInfoMiniView.class);
         evc.addEntityView(MiniFavouriteBookTokenView.class);
         evc.addEntityView(EssentialFavouriteBookTokenView.class);
+        evc.addEntityView(UserInfoRankView.class);
         return evc;
     }
 

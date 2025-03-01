@@ -14,4 +14,11 @@ class UserInfoProperties {
     private int points_for_review;
     private int points_for_author;
     private String rank_requirements;
+    private top_rated top_rated;
+
+    @Data
+    static class top_rated {
+        private int limit;
+        private String cache_evict_hours_list;
+    }
 }
