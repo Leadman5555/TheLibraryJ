@@ -214,7 +214,7 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "User not found"),
     })
-    @GetMapping(value = "/book")
+    @GetMapping(value = "/book/favourite")
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
     public ResponseEntity<String> getFavouriteBooksForUser(@RequestParam("email") @Email String email, @RequestParam(value = "onlyIds", required = false) @Nullable Boolean onlyIds) {
         if (onlyIds != null && onlyIds) return handle(userInfoService.getFavouriteBooksIds(email), HttpStatus.OK);
@@ -254,6 +254,35 @@ class UserInfoController implements ErrorHandling {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(
+            summary = "Fetch previews of books (or Ids if 'onlyIds' param is true) that user is subscribed to.",
+            tags = {"book", "user"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Ids fetched successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = UUID.class))
+                    )
+            ),
+            @ApiResponse(responseCode = "200",
+                    description = "Book previews fetched successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = BookPreviewResponse.class))
+                    )
+            ),
+            @ApiResponse(responseCode = "200", description = "Previews or Ids fetched successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+    })
+    @GetMapping(value = "/book/subscribed")
+    @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
+    public ResponseEntity<String> getSubscribedBooksForUser(@RequestParam("email") @Email String email, @RequestParam(value = "onlyIds", required = false) @Nullable Boolean onlyIds) {
+        if (onlyIds != null && onlyIds) return handle(userInfoService.getSubscribedBooksIds(email), HttpStatus.OK);
+        return handle(userInfoService.getSubscribedBooks(email), HttpStatus.OK);
+    }
 
     @Operation(
             summary = "Add a book to user's subscribed books. Returns current subscribed book count on success.",

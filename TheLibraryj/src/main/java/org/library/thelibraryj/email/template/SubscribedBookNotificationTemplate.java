@@ -13,7 +13,7 @@ public final class SubscribedBookNotificationTemplate extends EmailTemplate {
                 formattedString
                         .append(notificationData.number())
                         .append(" - ")
-                        .append(notificationData.title())
+                        .append(notificationData.isSpoiler() ? "[SPOILER]" : notificationData.title())
                         .append('\n')
         );
         parameters = Map.of(

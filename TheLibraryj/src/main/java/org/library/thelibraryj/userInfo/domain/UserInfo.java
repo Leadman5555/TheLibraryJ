@@ -70,7 +70,7 @@ class UserInfo extends AbstractEntity {
 
     @JsonIgnore
     @ElementCollection(targetClass = UUID.class, fetch = FetchType.LAZY)
-    @CollectionTable(name = "subscribed_books", joinColumns =  @JoinColumn(name = "user_info_email"))
+    @CollectionTable(name = "subscribed_books", joinColumns =  @JoinColumn(name = "user_info_email", referencedColumnName = "email"))
     @Column(name = "book_id")
     private Set<UUID> subscribedBookIds = new HashSet<>();
 

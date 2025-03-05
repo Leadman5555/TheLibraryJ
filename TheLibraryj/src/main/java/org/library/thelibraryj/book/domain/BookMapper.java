@@ -20,16 +20,16 @@ interface BookMapper {
     BookPreviewResponse bookPreviewToBookPreviewResponse(BookPreview bookPreview, byte[] coverImage);
     BookPreviewResponse bookPreviewWithCoverToBookPreviewResponse(BookPreview bookPreview, byte[] coverImage);
 
-    @Mapping(source = "id", target = "chapterId")
     List<ChapterPreviewResponse> chapterPreviewsToChapterPreviewResponseList(List<ChapterPreview> chapterPreviews);
 
     List<RatingResponse> ratingsToRatingResponseList(List<Rating> ratings);
 
     @Mapping(source = "id", target = "chapterId")
+    @Mapping(source = "spoiler", target = "isSpoiler")
     ChapterPreviewResponse chapterPreviewToChapterPreviewResponse(ChapterPreview chapterPreview);
 
     @Mapping(source = "text", target = "content")
-    ChapterResponse chapterDataToChapterResponse(String text, String title);
+    ChapterResponse chapterDataToChapterResponse(String text, String title, boolean isSpoiler);
 
     static LocalDateTime map(Instant value){
         return LocalDateTime.ofInstant(value, ZoneOffset.ofHours(1));

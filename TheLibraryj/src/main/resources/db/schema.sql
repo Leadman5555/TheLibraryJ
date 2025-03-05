@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS library.library_chapter_previews
     created_at     TIMESTAMP,
     updated_at     TIMESTAMP,
     number         INT    NOT NULL,
+    is_spoiler BOOL NOT NULL DEFAULT FALSE,
     CONSTRAINT pk_library_chapter_previews PRIMARY KEY (id)
 );
 CREATE TABLE IF NOT EXISTS library.library_chapters

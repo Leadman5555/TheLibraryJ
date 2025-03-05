@@ -25,16 +25,19 @@ class ChapterPreview extends AbstractEntity {
     private String title;
     @Column(nullable = false)
     private int number;
+    @Column(nullable = false)
+    private boolean isSpoiler;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "book_detail_id")
     private BookDetail bookDetail;
 
     @Builder
-    public ChapterPreview(UUID id, Long version, Instant createdAt, Instant updatedAt, String title, int number, BookDetail bookDetail) {
+    public ChapterPreview(UUID id, Long version, Instant createdAt, Instant updatedAt, String title, int number, BookDetail bookDetail, boolean isSpoiler) {
         super(id, version, createdAt, updatedAt);
         this.title = title;
         this.number = number;
         this.bookDetail = bookDetail;
+        this.isSpoiler = isSpoiler;
     }
 }

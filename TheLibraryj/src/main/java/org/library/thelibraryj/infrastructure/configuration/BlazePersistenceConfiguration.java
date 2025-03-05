@@ -12,7 +12,7 @@ import jakarta.persistence.PersistenceUnit;
 import org.library.thelibraryj.authentication.userAuth.domain.BasicUserAuthView;
 import org.library.thelibraryj.authentication.userAuth.domain.LoginDataView;
 import org.library.thelibraryj.authentication.userAuth.domain.PasswordResetView;
-import org.library.thelibraryj.book.domain.ChapterPreviewTitleView;
+import org.library.thelibraryj.book.domain.ChapterPreviewContentView;
 import org.library.thelibraryj.book.domain.NotificationEssentialsView;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
@@ -66,7 +66,7 @@ public class BlazePersistenceConfiguration {
         evc.addEntityView(BasicUserAuthView.class);
         evc.addEntityView(LoginDataView.class);
         evc.addEntityView(PasswordResetView.class);
-        evc.addEntityView(ChapterPreviewTitleView.class);
+        evc.addEntityView(ChapterPreviewContentView.class);
         evc.addEntityView(UserInfoMiniView.class);
         evc.addEntityView(MiniFavouriteBookTokenView.class);
         evc.addEntityView(EssentialFavouriteBookTokenView.class);

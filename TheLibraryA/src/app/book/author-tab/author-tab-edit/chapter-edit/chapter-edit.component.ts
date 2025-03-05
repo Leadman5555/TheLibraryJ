@@ -23,7 +23,7 @@ export function fileNameValidator(): ValidatorFn {
     if(files.find(file => {
       const index = file.name.lastIndexOf('.');
       if(index === -1) return true;
-      return file.name.substring(0, index).match(/^([0-9])+(\s-\s(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\s'_"!.-]*)?$/) === null
+      return file.name.substring(0, index).match(/^\d+(?: - (?=.*[a-zA-Z0-9])\$?[a-zA-Z0-9\s'_"!.-]*)?$/) === null
     })) return {invalidFileName: true};
     return null;
   }
@@ -51,7 +51,7 @@ export class ChapterEditComponent {
   }
 
   uploadMessage: string  = '';
-  uploadErrorMessage: string | null = null;
+  uploadErrorMessage?: string = undefined;
 
   isDropZoneActive: boolean = false;
 
@@ -102,15 +102,16 @@ export class ChapterEditComponent {
       const index = file.name.indexOf(' ');
       if(index !== -1) return parseInt(file.name.substring(0, index));
       return  parseInt(file.name);
-    }).join(', ')
+    }).sort((a,b) => a - b).join(', ')
   }
 
   attemptChapterUpload(){
+    this.uploadErrorMessage = undefined;
     if(this.chapterUploadForm.invalid) return;
     const files: File[] = this.chapterUploadForm.value.uploadedFiles;
       this.bookService.uploadChaptersInBatch(this.currentBook.id, this.authorTabDataService.authorEmail, files).subscribe({
         next: (_) => {
-          alert('Upload successful');
+          alert('Upload successful. All users subscribed to book will be notified about new chapters.');
         },
         error: (error: string) => {
           this.uploadErrorMessage = error;
@@ -120,7 +121,7 @@ export class ChapterEditComponent {
 
   resetForm(){
     this.chapterUploadForm.reset();
-    this.uploadErrorMessage = null;
+    this.uploadErrorMessage = undefined;
     this.updateUploadMessage([]);
   }
 

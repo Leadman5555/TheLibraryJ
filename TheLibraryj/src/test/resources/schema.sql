@@ -11,7 +11,7 @@ CREATE TABLE library.favourite_books(user_info_id UUID NOT NULL,book_id UUID NOT
 DROP TABLE IF EXISTS library.subscribed_books;
 CREATE TABLE library.subscribed_books (user_info_email VARCHAR(48) NOT NULL,book_id      UUID NOT NULL);
 DROP TABLE IF EXISTS library.library_chapter_previews;
-CREATE TABLE library.library_chapter_previews(id             UUID   NOT NULL,   version        BIGINT NOT NULL DEFAULT 0,created_at     TIMESTAMP,updated_at     TIMESTAMP,title          VARCHAR(255),number         INT    NOT NULL,book_detail_id UUID   NOT NULL,CONSTRAINT pk_library_chapter_previews PRIMARY KEY (id));
+CREATE TABLE library.library_chapter_previews(id             UUID   NOT NULL,   version        BIGINT NOT NULL DEFAULT 0,created_at     TIMESTAMP,updated_at     TIMESTAMP,title          VARCHAR(255),number         INT    NOT NULL,  is_spoiler BOOL NOT NULL DEFAULT FALSE, book_detail_id UUID   NOT NULL,CONSTRAINT pk_library_chapter_previews PRIMARY KEY (id));
 DROP TABLE IF EXISTS library.library_chapters;
 CREATE TABLE library.library_chapters(chapter_preview_id UUID   NOT NULL,   version            BIGINT NOT NULL DEFAULT 0,created_at         TIMESTAMP,updated_at         TIMESTAMP,text               TEXT,CONSTRAINT pk_library_chapters PRIMARY KEY (chapter_preview_id));
 DROP TABLE IF EXISTS library.library_ratings;

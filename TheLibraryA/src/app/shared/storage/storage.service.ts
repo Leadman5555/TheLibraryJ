@@ -5,8 +5,9 @@ const ACCESS_TOKEN_KEY = 'access_token';
 const USER_MINI_KEY = 'user_mini';
 const DEVICE_FAV_BOOKS_KEY = 'device_fav_books';
 const LOGGED_FAV_BOOKS_KEY = 'logged_fav_books';
+const LOGGED_SUB_BOOKS_KEY = 'logged_sub_books';
 
-const LOGGED_KEYS: string[] = [ACCESS_TOKEN_KEY, USER_MINI_KEY, LOGGED_FAV_BOOKS_KEY];
+const LOGGED_KEYS: string[] = [ACCESS_TOKEN_KEY, USER_MINI_KEY, LOGGED_FAV_BOOKS_KEY, LOGGED_SUB_BOOKS_KEY];
 
 @Injectable({
   providedIn: 'root'
@@ -137,6 +138,43 @@ export class StorageService {
     favBooks = favBooks.filter(id => id !== bookId);
     this.setDeviceFavBooks(favBooks);
     return favBooks.length;
+  }
+
+  public setLoggedSubBooks(subBooksIds: string[]): void {
+    localStorage.setItem(LOGGED_SUB_BOOKS_KEY, JSON.stringify(subBooksIds));
+  }
+
+  public getLoggedSubBooks(): string[] | null {
+    const fetched = localStorage.getItem(LOGGED_SUB_BOOKS_KEY);
+    if(fetched && fetched.length > 0) return JSON.parse(fetched);
+    return null;
+  }
+
+  public isBookInLoggedSubBooks(bookId: string): boolean {
+    const subBooks = this.getLoggedSubBooks();
+    if(!subBooks) return false;
+    return subBooks.includes(bookId);
+  }
+
+  public addBookToLoggedSubBooks(bookId: string, desiredCount: number): boolean {
+    const subBooks = this.getLoggedSubBooks();
+    if(!subBooks || subBooks.length === 0){
+      if(desiredCount === 0){
+        this.setLoggedSubBooks([bookId]);
+        return true;
+      }
+      return false;
+    }
+    if(!subBooks.includes(bookId)) subBooks.push(bookId);
+    if(subBooks.length !== desiredCount) return false;
+    this.setLoggedSubBooks(subBooks);
+    return true;
+  }
+
+  public removeBookFromLoggedSubBooks(bookId: string): void {
+    const subBooks = this.getLoggedSubBooks();
+    if(!subBooks) return;
+    this.setLoggedSubBooks(subBooks.filter(id => id !== bookId));
   }
 
   public saveData(key: string, value: string) {

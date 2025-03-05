@@ -51,11 +51,11 @@
             </div>
           }
           <div class="chapterPrevBox">
-            @for (chPrev of vm; track chPrev.number) {
+            @for (chPrev of vm; track chPrev.number;) {
               <div class="chapterBox row" [routerLink]="['chapter', chPrev.number, this.bookPreview.id]">
                 <span class="bold centerVH" id="chNumber">{{ chPrev.number.toString().padStart(4, '0') }}</span>
                 <div class="column" id="chInfo">
-                  <span class="bold">{{ chPrev.title }}</span>
+                  <b [ngClass]="{'obscured': chPrev.isSpoiler }">{{ chPrev.title }}</b>
                   <span>Updated at: {{ parseDateString(chPrev.updatedAt) }}</span>
                 </div>
               </div>
@@ -72,17 +72,34 @@
         <button class="sButton" (click)="startUpsertRatingProcedure()">
             Add/Update rating
         </button>
+      @if (isBookInSubscribed) {
+        <div class="column activeDiv" (click)="removeBookFromSubscribed()">
+          <img ngSrc="/images/sub_lantern_small.png"
+               alt="Subscribe to book"
+               width="100" height="152"
+          >
+          <span style="color: darkmagenta">Book subscribed to</span>
+        </div>
+      } @else {
+        <div class="column notActiveDiv" (click)="addBookToSubscribed()">
+          <img ngSrc="/images/sub_lantern_small.png"
+               alt="Cancel book subscription"
+               width="100" height="152"
+          >
+          <span>Subscribe to book</span>
+        </div>
+      }
         @if (isBookInFavourites) {
-            <div class="column favouriteDiv" (click)="removeBookFromFavourites()">
-                <img ngSrc="/images/lantern_small.png"
-                     alt="Add book to favourites"
+            <div class="column activeDiv" (click)="removeBookFromFavourites()">
+                <img ngSrc="/images/fav_lantern_small.png"
+                     alt="Remove book from favourites"
                      width="100" height="152"
                 >
-                <span>Book in favourites</span>
+                <span style="color: goldenrod">Book in favourites</span>
             </div>
         } @else {
-            <div class="column notFavouriteDiv" (click)="addBookToFavourites()">
-                <img ngSrc="/images/lantern_small.png"
+            <div class="column notActiveDiv" (click)="addBookToFavourites()">
+                <img ngSrc="/images/fav_lantern_small.png"
                      alt="Add book to favourites"
                      width="100" height="152"
                 >
