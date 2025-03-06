@@ -15,13 +15,13 @@ import {logError} from '@app/shared/errorHandling/handleError';
 import {UserAuthService} from '@app/user/account/userAuth/user-auth.service';
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {RangeSelectorComponent} from '@app/shared/range-selector/range-selector.component';
-import {AsyncPipe, NgOptimizedImage} from '@angular/common';
+import {AsyncPipe, NgClass, NgOptimizedImage} from '@angular/common';
 import {UserProfileService} from '@app/user/profile/user-profile.service';
 
 
 @Component({
   selector: 'app-book',
-  imports: [RouterLink, TimesMaxPagingPipe, ReactiveFormsModule, AsyncPipe, FormsModule, RangeSelectorComponent, NgOptimizedImage],
+  imports: [RouterLink, TimesMaxPagingPipe, ReactiveFormsModule, AsyncPipe, FormsModule, RangeSelectorComponent, NgOptimizedImage, NgClass],
   providers: [
     provideComponentStore(ChapterPreviewComponentStore)
   ],
@@ -37,6 +37,7 @@ export class BookComponent implements OnInit {
   ratings?: RatingResponse[];
 
   isBookInFavourites: boolean = false;
+  isBookInSubscribed: boolean = false;
 
   private readonly componentStore: ChapterPreviewComponentStore = inject(ChapterPreviewComponentStore);
   readonly vm$: Observable<ChapterPreview[]> = this.componentStore.vm$;
@@ -57,6 +58,7 @@ export class BookComponent implements OnInit {
         next: (v) => {
           this.bookDetail = v;
           this.loadIsFavourite();
+          this.loadIsSubscribed();
           this.fetchChapterPreviews();
           },
         error: (_) => this.router.navigate([`book`, this.bookPreview.title]),
@@ -81,6 +83,7 @@ export class BookComponent implements OnInit {
               description: v.description,
             };
             this.loadIsFavourite();
+            this.loadIsSubscribed();
             this.fetchChapterPreviews();
           },
           error: (e) => {
@@ -95,6 +98,10 @@ export class BookComponent implements OnInit {
   private loadIsFavourite(){
     if(this.userAuthService.isLoggedIn()) this.isBookInFavourites = this.userProfileService.isBookInLoggedFavourites(this.bookPreview.id);
     else this.isBookInFavourites = this.userProfileService.isBookInFavourites(this.bookPreview.id);
+  }
+
+  private loadIsSubscribed(){
+    if(this.userAuthService.isLoggedIn()) this.isBookInSubscribed = this.userProfileService.isBookInLoggedSubscribed(this.bookPreview.id);
   }
 
   private fetchChapterPreviews() {
@@ -271,6 +278,40 @@ export class BookComponent implements OnInit {
       this.userProfileService.removeBookFromDeviceFavourites(this.bookPreview.id);
       alert("Book removed from favourites locally. Please log in to have access to favourite books on all devices.");
       this.isBookInFavourites = false;
+    }
+  }
+
+  addBookToSubscribed(){
+    if(this.isBookInSubscribed) return;
+    if(this.userAuthService.isLoggedIn()){
+      const email = this.userAuthService.getLoggedInEmail();
+      if(!email) return;
+      this.userProfileService.addBookToUserSubscribed(this.bookPreview.id, email).subscribe({
+        next: (totalCount) => {
+          this.isBookInSubscribed = true;
+          alert('Book has been subscribed to. You are currently subscribed to ' + (totalCount === 1 ? 'one book' : totalCount + ' books'));
+        },
+        error: (error) => alert("Adding book failed. Details: " + error)
+      });
+    }else{
+      alert('Please log in to subscribe to books.');
+    }
+  }
+
+  removeBookFromSubscribed(){
+    if(!this.isBookInSubscribed) return;
+    if(this.userAuthService.isLoggedIn()){
+      const email = this.userAuthService.getLoggedInEmail();
+      if(!email) return;
+      this.userProfileService.removeBookFromUserSubscribed(this.bookPreview.id, email).subscribe({
+        next: () => {
+          this.isBookInSubscribed = false;
+          alert("Book subscription cancelled successfully.");
+        },
+        error: (error) => alert("Cancelling the book subscription failed. Details: " + error)
+      });
+    }else{
+      alert('Please log in to subscribe to books.');
     }
   }
 }

@@ -99,7 +99,7 @@ public class BookServiceTest {
                 .bookTags(List.of(BookTag.UNTAGGED))
                 .ratingCount(0).build();
         bookPreview.setBookDetail(bookDetail);
-        chapterPreview = new ChapterPreview(UUID.randomUUID(), 0L, Instant.now(), Instant.now(), title, 1, bookDetail);
+        chapterPreview = new ChapterPreview(UUID.randomUUID(), 0L, Instant.now(), Instant.now(), title, 1, bookDetail, false);
         rating = Rating.builder()
                 .userId(authorId)
                 .currentRating(5)

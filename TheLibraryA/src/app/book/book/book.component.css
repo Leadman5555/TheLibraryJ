@@ -3,6 +3,7 @@
 @import '../../shared/styles/rowCol.css';
 @import '../../shared/styles/image34.css';
 @import '../../shared/styles/textArea.css';
+@import "../../shared/styles/obscuredText.css";
 
 
 .upsertRatingForm {
@@ -206,21 +207,20 @@
   font-size: 1.2em;
 }
 
-.notFavouriteDiv{
+.notActiveDiv{
   opacity: 0.5;
   text-align: center;
   color: black;
   cursor: pointer;
 }
 
-.favouriteDiv{
+.activeDiv{
   text-align: center;
   opacity: 1;
-  color: #daa520;
   cursor: pointer;
   font-weight: bold;
 }
 
-.notFavouriteDiv:hover, .favouriteDiv:hover {
+.notActiveDiv:hover, .activeDiv:hover {
   opacity: 0.8;
 }

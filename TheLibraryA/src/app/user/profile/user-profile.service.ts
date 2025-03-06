@@ -20,6 +20,7 @@ import {BookTokenResponse} from '@app/user/profile/shared/dto/book-token-respons
 import {BookTokenConsummationRequest} from '@app/user/profile/shared/dto/book-token-consummation-request';
 import {FavouriteBookMergerResponse} from '@app/user/profile/shared/dto/favourite-book-merger-response';
 import {serverAuthFreeRoute, serverRoute} from '@app/app.routes';
+import {TopRankerResponse} from '@app/user/shared/models/top-ranker-response';
 
 @Injectable({
   providedIn: 'root'
@@ -63,12 +64,12 @@ export class UserProfileService {
   }
 
   public addBookToUserFavourites(bookId: string, userEmail: string): Observable<number> {
-    return this.http.post<number>(`${this.baseAuthUrl}/book`, null, {params: new HttpParams().set('bookId', bookId).set('email', userEmail)})
+    return this.http.post<number>(`${this.baseAuthUrl}/book/favourite`, null, {params: new HttpParams().set('bookId', bookId).set('email', userEmail)})
       .pipe(
         tap(countOnServer => {
           if(!this.storageService.addBookToLoggedFavBooks(bookId, countOnServer)){
             console.log('Favourite book count on server differs from local count. Updating local stash.')
-            this.updateLocalBookIds(userEmail);
+            this.updateLocalFavouriteBookIds(userEmail);
           }
         }),
         catchError(handleError)
@@ -76,15 +77,15 @@ export class UserProfileService {
   }
 
 
-  private updateLocalBookIds(email: string){
-    this.http.get<string[]>(`${this.baseAuthUrl}/book`, {params: new HttpParams().set('email', email).set('onlyIds', 'true')}).subscribe({
+  private updateLocalFavouriteBookIds(email: string){
+    this.http.get<string[]>(`${this.baseAuthUrl}/book/favourite`, {params: new HttpParams().set('email', email).set('onlyIds', 'true')}).subscribe({
       next: (bookIds) => this.storageService.setLoggedFavBooks(bookIds),
       error: (error) => logError(error)
     })
   }
 
   public removeBookFromUserFavourites(bookId: string, userEmail: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseAuthUrl}/book`, {params: new HttpParams().set('bookId', bookId).set('email', userEmail)})
+    return this.http.delete<void>(`${this.baseAuthUrl}/book/favourite`, {params: new HttpParams().set('bookId', bookId).set('email', userEmail)})
       .pipe(
         tap(() => this.storageService.removeBookFromLoggedFavBooks(bookId)),
         catchError(handleError)
@@ -92,7 +93,7 @@ export class UserProfileService {
   }
 
   public getFavouriteBooksForUser(email: string): Observable<BookPreview[]> {
-    return this.http.get<BookPreview[]>(`${this.baseAuthUrl}/book`, {params: new HttpParams().set('email', email)})
+    return this.http.get<BookPreview[]>(`${this.baseAuthUrl}/book/favourite`, {params: new HttpParams().set('email', email)})
       .pipe(
         tap(bookPreviews => this.storageService.setLoggedFavBooks(bookPreviews.map(bookPreview => bookPreview.id))),
         catchError(handleError)
@@ -106,7 +107,7 @@ export class UserProfileService {
   }
 
   public getFavouriteBookIdsForUser(email: string): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseAuthUrl}/book`, {params: new HttpParams().set('email', email).set('onlyIds', 'true')})
+    return this.http.get<string[]>(`${this.baseAuthUrl}/book/favourite`, {params: new HttpParams().set('email', email).set('onlyIds', 'true')})
       .pipe(
         tap(bookIds => this.storageService.setLoggedFavBooks(bookIds)),
         catchError(handleError)
@@ -131,22 +132,76 @@ export class UserProfileService {
 
   public upsertAndGetFavouriteBookToken(email: string): Observable<BookTokenResponse> {
     const body = {email: email};
-    return this.http.put<BookTokenResponse>(this.baseAuthUrl + '/book/token', body).pipe(catchError(handleError));
+    return this.http.put<BookTokenResponse>(`${this.baseAuthUrl}/book/token`, body).pipe(catchError(handleError));
   }
 
   public mergeFavouriteBooksUsingToken(consummationRequest: BookTokenConsummationRequest): Observable<FavouriteBookMergerResponse> {
-    return this.http.post<FavouriteBookMergerResponse>(this.baseAuthUrl + '/book/token', consummationRequest).pipe(catchError(handleError));
+    return this.http.post<FavouriteBookMergerResponse>(`${this.baseAuthUrl}/book/token`, consummationRequest).pipe(catchError(handleError));
   }
 
   public sendExistingBookTokenToOwnerEmail(consummationRequest: BookTokenConsummationRequest): Observable<void> {
-    return this.http.post<void>(this.baseAuthUrl + '/book/token/email', consummationRequest).pipe(catchError(handleError));
+    return this.http.post<void>(`${this.baseAuthUrl}/book/token/email`, consummationRequest).pipe(catchError(handleError));
+  }
+
+  public addBookToUserSubscribed(bookId: string, userEmail: string): Observable<number> {
+    return this.http.post<number>(`${this.baseAuthUrl}/book/subscribed`, null, {params: new HttpParams().set('bookId', bookId).set('email', userEmail)})
+      .pipe(
+        tap(countOnServer => {
+          if(!this.storageService.addBookToLoggedSubBooks(bookId, countOnServer)){
+            console.log('Subscribed book count on server differs from local count. Updating local stash.')
+            this.updateLocalFavouriteBookIds(userEmail);
+          }
+        }),
+        catchError(handleError)
+      );
+  }
+
+
+  private updateLocalSubscribedBookIds(email: string){
+    this.http.get<string[]>(`${this.baseAuthUrl}/book/subscribed`, {params: new HttpParams().set('email', email).set('onlyIds', 'true')}).subscribe({
+      next: (bookIds) => this.storageService.setLoggedSubBooks(bookIds),
+      error: (error) => logError(error)
+    })
+  }
+
+  public removeBookFromUserSubscribed(bookId: string, userEmail: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseAuthUrl}/book/subscribed`, {params: new HttpParams().set('bookId', bookId).set('email', userEmail)})
+      .pipe(
+        tap(() => this.storageService.removeBookFromLoggedSubBooks(bookId)),
+        catchError(handleError)
+      );
+  }
+
+  public getSubscribedBooksForUser(email: string): Observable<BookPreview[]> {
+    return this.http.get<BookPreview[]>(`${this.baseAuthUrl}/book/subscribed`, {params: new HttpParams().set('email', email)})
+      .pipe(
+        tap(bookPreviews => this.storageService.setLoggedSubBooks(bookPreviews.map(bookPreview => bookPreview.id))),
+        catchError(handleError)
+      );
+  }
+
+  public getSubscribedBookIdsForUser(email: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseAuthUrl}/book/subscribed`, {params: new HttpParams().set('email', email).set('onlyIds', 'true')})
+      .pipe(
+        tap(bookIds => this.storageService.setLoggedSubBooks(bookIds)),
+        catchError(handleError)
+      );
+  }
+
+
+  public isBookInLoggedSubscribed(bookId: string): boolean {
+    return this.storageService.isBookInLoggedSubBooks(bookId);
   }
 
   public canUserAuthorBooks(email: string): Observable<void>{
-    return this.http.post<void>(`${this.baseUrl}/verify/${email}`, null);
+    return this.http.post<void>(`${this.baseAuthUrl}/verify/${email}`, null);
   }
 
   public fetchUserMiniData(email: string): Observable<FetchedUserMini> {
     return this.http.get<FetchedUserMini>(`${this.baseUrl}/mini/${email}`);
+  }
+
+  public fetchTopRankingUsers(): Observable<TopRankerResponse[]> {
+    return this.http.get<TopRankerResponse[]>(`${this.baseUrl}/top`).pipe(catchError(handleError));
   }
 }

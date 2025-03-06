@@ -4,7 +4,7 @@
       <a id="bookTitle" (click)="routeToBook()">{{ bookTitle }}</a>
       <div class="centerVH chTitle">
         {{ chapterNumber }} :
-        {{ chapterContent.title }}
+        <div [ngClass]="{'obscured': chapterContent.isSpoiler}"> {{ chapterContent.title }} </div>
       </div>
       <div class="row">
         <button class="sButton" (click)="fetchChapter(chapterNumber-1)">Previous</button>

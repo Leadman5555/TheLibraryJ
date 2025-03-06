@@ -51,15 +51,6 @@
   grid-area: profileImgDiv;
 }
 
-#statusBox {
-  width: 90%;
-  height: 80%;
-  overflow-wrap: break-word;
-  transform-style: preserve-3d;
-  border-radius: 0.3em;
-  color: bisque;
-}
-
 .statusDiv {
   grid-area: statusDiv;
   display: flex;
@@ -67,6 +58,15 @@
   align-items: center;
   padding: 1.2em;
   position: relative;
+}
+
+#statusBox {
+  width: 90%;
+  height: 80%;
+  overflow-wrap: break-word;
+  transform-style: preserve-3d;
+  border-radius: 0.3em;
+  color: bisque;
 }
 
 #statusBox::before {

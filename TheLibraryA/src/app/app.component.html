@@ -1,7 +1,7 @@
 <div id="mainBody">
   <div id="body">
     <div id="header">
-      <a id="home" routerLink="">
+      <a id="home" routerLink="" (click)="hideWindows()">
         The Library
       </a>
       <div id="right" class="row">
@@ -31,7 +31,6 @@
               See profile
             </button>
             <button class="sButton" (click)="hideWindows()" [routerLink]="['/profile-edit']">Edit profile</button>
-            <button class="sButton" (click)="hideWindows()" routerLink="/author-tab">Author Tab</button>
             <button class="sButton" (click)="logOut()">Log out</button>
           </div>
         } @else {
@@ -78,7 +77,7 @@
               </div>
               <div class="row" style="margin-top: 0.6em; margin-bottom: 0.2em">
                 <button class="sButton" type="submit" [disabled]="logInForm.invalid || isFormPristine">Log in</button>
-                <img id="googleLogIn" ngSrc="/google_logIn.png" width="189" height="40" alt="Google sign in" priority
+                <img id="googleLogIn" ngSrc="/images/google_logIn.png" width="189" height="40" alt="Google sign in" priority
                      (click)="logInWithGoogle()">
               </div>
               <div class="row" style="margin-top:0.2em;">
@@ -102,7 +101,10 @@
     } @else if (this.showOptions) {
       <div class="window column borderBox" style="padding: 0.5em">
         <app-user-search (click)="this.showMenu = false"></app-user-search>
+        <button class="sButton" (click)="hideWindows()" [disabled]="!showLoggedIn" routerLink="/author-tab">Author Tab</button>
         <button class="sButton" (click)="hideWindows()" routerLink="/favourite-books">Favourite book collection</button>
+        <button class="sButton" (click)="hideWindows()" [disabled]="!showLoggedIn" routerLink="/book-subscriptions">Book subscriptions</button>
+        <button class="sButton" (click)="hideWindows()" routerLink="/pavilion-of-glory">Pavilion of Glory</button>
       </div>
     }
   </div>

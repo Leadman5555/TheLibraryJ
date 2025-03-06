@@ -132,8 +132,12 @@
       </div>
     </form>
   } @else {
-    <img ngSrc="/dr-sun-yat-sen-classical-chinese-garden.jpg" style="width: 100%; height: auto;" alt="Calm pond"
-         height="1105" width="1800" priority>
+    <img
+      ngSrc="/images/wangHui_scrollThree_4.jpg"
+      alt="The Kangxi Emperor's Southern Inspection Tour, Scroll Three"
+      fill
+      priority
+    >
   }
   @if (showChapterEdit) {
     <app-chapter-edit class="floatBox" style="left: 40%" [currentBook]="currentlyEditingBook" (windowClosed)="showChapterEdit=false"></app-chapter-edit>

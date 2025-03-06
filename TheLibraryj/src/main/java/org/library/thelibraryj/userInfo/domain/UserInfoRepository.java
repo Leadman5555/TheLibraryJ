@@ -64,10 +64,7 @@ interface UserInfoRepository extends BaseJpaRepository<UserInfo, UUID>, UserInfo
             """)
     void updateCurrentScore(@Param("userId") UUID userId, @Param("change") int change);
 
-    @Query("""
-                   select ui.favouriteBookIds  from userInfo ui
-                   where ui.id = :userId
-            """)
+    @Query(value = "SELECT book_id FROM library.favourite_books WHERE user_info_id = :userId", nativeQuery = true)
     Set<UUID> fetchUserFavouriteBookIds(@Param("userId") UUID userId);
 
     @Modifying
@@ -77,4 +74,18 @@ interface UserInfoRepository extends BaseJpaRepository<UserInfo, UUID>, UserInfo
     @Modifying
     @Query(value = "DELETE FROM library.favourite_books WHERE book_id = :bookId", nativeQuery = true)
     void removeBookFromFavouritesForAllUsers(@Param("bookId") UUID bookId);
+
+    @Query(value = "SELECT book_id FROM library.subscribed_books WHERE user_info_email = :email", nativeQuery = true)
+    Set<UUID> fetchUserFavouriteSubscribedBookIds(@Param("email") String email);
+
+    @Query(value = "SELECT user_info_email FROM library.subscribed_books WHERE book_id = :bookId", nativeQuery = true)
+    Set<String> fetchSubscriberEmailsForBookId(@Param("bookId") UUID bookId);
+
+    @Modifying
+    @Query(value = "DELETE FROM library.subscribed_books WHERE book_id = :bookId", nativeQuery = true)
+    void removeBookFromSubscribedForAllUsers(@Param("bookId") UUID bookId);
+
+    @Modifying
+    @Query(value = "DELETE FROM library.subscribed_books WHERE user_info_email = :email AND book_id = :bookId", nativeQuery = true)
+    void removeBookFromSubscribed(@Param("email") String email, @Param("bookId") UUID bookId);
 }

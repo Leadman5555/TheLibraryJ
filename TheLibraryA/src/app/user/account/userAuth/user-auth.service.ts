@@ -59,6 +59,10 @@ export class UserAuthService {
             this.userProfileService.getFavouriteBookIdsForUser(request.email).subscribe({
               next: (bookIds) => this.storageService.setLoggedFavBooks(bookIds),
               error: err => logError(err)
+            });
+            this.userProfileService.getSubscribedBookIdsForUser(request.email).subscribe({
+              next: (bookIds) => this.storageService.setLoggedSubBooks(bookIds),
+              error: err => logError(err)
             })
           }),
           catchError((error) => {

@@ -61,7 +61,7 @@ class BookController implements ErrorHandling {
     @Operation(
             summary = "Create new chapter entries in batch. Batch size is limited to 50, distinct number entries. " +
                     "Chapters must be files in .doc, .docx, .txt or .odt format." +
-                    " File name must be: 'CHAPTER_NUMBER - CHAPTER_TITLE.EXTENSION' or 'CHAPTER_NUMBER.EXTENSION'. Chapter title must meet required character constraints. Chapter length is limited.",
+                    " File name must be: 'CHAPTER_NUMBER - CHAPTER_TITLE.EXTENSION' or 'CHAPTER_NUMBER.EXTENSION' or 'CHAPTER_NUMBER - $CHAPTER_TITLE.EXTENSION'. Chapter title must meet required character constraints. Chapter length is limited. If a chapter title starts with a $, it will be treated as a spoiler title and obscured appropriately",
             tags = "book"
     )
     @ApiResponses({

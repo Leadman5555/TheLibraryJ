@@ -6,11 +6,6 @@
 @import "../../../shared/styles/horizontalTagSelector.css";
 @import "../../../shared/styles/image34.css";
 
-#outerBox {
-  width: 100%;
-  height: 100%;
-}
-
 #innerBox {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
@@ -45,7 +40,7 @@
 .textArea{
   margin-right: 0.5em;
   margin-left: 0.5em;
-  max-width: min(40em, 100%);
+  max-width: 40em;
 }
 
 .infoDiv {
@@ -65,4 +60,13 @@
 
 :host {
   --buttonColor: #86B1BE;
+}
+
+@media (max-width: 1920px) {
+  .textArea {
+    max-width: 30em;
+  }
+  #innerBox {
+    padding: 1em;
+  }
 }

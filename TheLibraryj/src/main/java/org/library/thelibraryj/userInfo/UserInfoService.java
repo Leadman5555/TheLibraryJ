@@ -6,8 +6,9 @@ import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
 import org.library.thelibraryj.userInfo.domain.UserInfoDetailsView;
+import org.library.thelibraryj.userInfo.dto.request.BookCollectionRequest;
 import org.library.thelibraryj.userInfo.dto.request.FavouriteBookMergerRequest;
-import org.library.thelibraryj.userInfo.dto.request.FavouriteBookRequest;
+import org.library.thelibraryj.userInfo.dto.request.SubscribedUserNotificationRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
@@ -23,12 +24,14 @@ import org.library.thelibraryj.userInfo.dto.response.UserProfileImageUpdateRespo
 import org.library.thelibraryj.userInfo.dto.response.UserProfileResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserRankUpdateResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserStatusUpdateResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserTopRankerResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -59,10 +62,20 @@ public interface UserInfoService {
     Either<GeneralError, UserPreferenceUpdateResponse> updateUserInfoPreference(UserInfoPreferenceUpdateRequest userInfoPreferenceUpdateRequest);
     Either<GeneralError, Set<BookPreviewResponse>> getFavouriteBooks(String email);
     Either<GeneralError, Set<UUID>> getFavouriteBooksIds(String email);
-    Either<GeneralError, Integer> addBookToFavourites(FavouriteBookRequest favouriteBookRequest);
+    Either<GeneralError, Integer> addBookToFavourites(BookCollectionRequest bookCollectionRequest);
     @Async
-    void removeBookFromFavourites(FavouriteBookRequest favouriteBookRequest);
+    void removeBookFromFavourites(BookCollectionRequest bookCollectionRequest);
     @Async
     void removeBookFromFavouritesForAllUsers(UUID bookId);
     Either<GeneralError, FavouriteBookMergerResponse> mergeFavouriteBooks(FavouriteBookMergerRequest mergerRequest);
+    Either<GeneralError, Set<BookPreviewResponse>> getSubscribedBooks(String email);
+    Either<GeneralError, Set<UUID>> getSubscribedBooksIds(String email);
+    Either<GeneralError, Integer> addBookToSubscribed(BookCollectionRequest bookCollectionRequest);
+    @Async
+    void removeBookFromSubscribed(BookCollectionRequest bookCollectionRequest);
+    @Async
+    void removeBookFromSubscribedForAllUsers(UUID bookId);
+    @Async
+    void notifySubscribedUsers(UUID bookId, SubscribedUserNotificationRequest notificationRequest);
+    List<UserTopRankerResponse> getTopUsers();
 }

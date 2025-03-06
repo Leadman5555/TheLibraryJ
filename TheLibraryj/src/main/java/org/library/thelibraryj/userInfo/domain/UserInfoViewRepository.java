@@ -1,5 +1,6 @@
 package org.library.thelibraryj.userInfo.domain;
 
+import java.util.List;
 import java.util.Optional;
 
 interface UserInfoViewRepository {
@@ -10,4 +11,6 @@ interface UserInfoViewRepository {
     Optional<UserInfoDetailsView> getUserInfoDetailsView(String username);
 
     Optional<UserInfoMiniView> getUserInfoMiniView(String email);
+
+    List<UserInfoRankView> getTopRatedUsersRankView(int limit);
 }

@@ -33,6 +33,11 @@ CREATE TABLE IF NOT EXISTS library.favourite_books
     user_info_id UUID NOT NULL,
     book_id      UUID NOT NULL
 );
+CREATE TABLE IF NOT EXISTS library.subscribed_books
+(
+    user_info_email VARCHAR(48) NOT NULL,
+    book_id      UUID NOT NULL
+);
 CREATE TABLE IF NOT EXISTS library.library_chapter_previews
 (
     title          VARCHAR(50),
@@ -42,6 +47,7 @@ CREATE TABLE IF NOT EXISTS library.library_chapter_previews
     created_at     TIMESTAMP,
     updated_at     TIMESTAMP,
     number         INT    NOT NULL,
+    is_spoiler BOOL NOT NULL DEFAULT FALSE,
     CONSTRAINT pk_library_chapter_previews PRIMARY KEY (id)
 );
 CREATE TABLE IF NOT EXISTS library.library_chapters
@@ -77,7 +83,7 @@ CREATE TABLE IF NOT EXISTS library.library_user_info
     created_at      TIMESTAMP,
     updated_at      TIMESTAMP,
     data_updated_at TIMESTAMP,
-    rank            INTEGER            NOT NULL DEFAULT 0,
+    rank            SMALLINT            NOT NULL DEFAULT 0,
     current_score   INTEGER            NOT NULL DEFAULT 0,
     preference      SMALLINT           NOT NULL DEFAULT 0,
     CONSTRAINT pk_library_user_info PRIMARY KEY (id)
@@ -133,3 +139,5 @@ ALTER TABLE library.book_tag
     ADD CONSTRAINT fk_book_tag_on_book_preview FOREIGN KEY (book_preview_id) REFERENCES library.library_book_previews (book_detail_id) ON DELETE CASCADE;
 ALTER TABLE library.favourite_books
     ADD CONSTRAINT fk_favourite_books_on_user_info FOREIGN KEY (user_info_id) REFERENCES library.library_user_info (id) ON DELETE CASCADE;
+ALTER TABLE library.subscribed_books
+    ADD CONSTRAINT fk_subscribed_books_on_user_info FOREIGN KEY (user_info_email) REFERENCES library.library_user_info (email) ON DELETE CASCADE;

@@ -4,6 +4,7 @@ import org.library.thelibraryj.userInfo.dto.request.UserInfoRequest;
 import org.library.thelibraryj.userInfo.dto.response.UserInfoResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserInfoWithImageResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserProfileResponse;
+import org.library.thelibraryj.userInfo.dto.response.UserTopRankerResponse;
 import org.library.thelibraryj.userInfo.dto.response.UserUsernameUpdateResponse;
 import org.mapstruct.Mapper;
 
@@ -18,6 +19,8 @@ interface UserInfoMapper {
     UserProfileResponse userInfoToUserProfileResponse(UserInfo userInfo, byte[] profileImage);
 
     UserInfo userInfoRequestToUserInfo(UserInfoRequest userInfoRequest);
+
+    UserTopRankerResponse userInfoRankViewToUserTopRankerResponse(UserInfoRankView userInfoRankView, byte[] profileImage);
 
     UserUsernameUpdateResponse dataToUserUsernameUpdateResponse(String newUsername, Instant dataUpdatedAt);
     default LocalDateTime map(Instant value){

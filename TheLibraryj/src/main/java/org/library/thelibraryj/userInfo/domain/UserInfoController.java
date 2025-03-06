@@ -15,7 +15,7 @@ import org.library.thelibraryj.book.dto.bookDto.response.BookPreviewResponse;
 import org.library.thelibraryj.infrastructure.error.ErrorHandling;
 import org.library.thelibraryj.infrastructure.validators.fileValidators.imageFile.ValidImageFormat;
 import org.library.thelibraryj.userInfo.UserInfoService;
-import org.library.thelibraryj.userInfo.dto.request.FavouriteBookRequest;
+import org.library.thelibraryj.userInfo.dto.request.BookCollectionRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoImageUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoPreferenceUpdateRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
@@ -214,7 +214,7 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "User not found"),
     })
-    @GetMapping(value = "/book")
+    @GetMapping(value = "/book/favourite")
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
     public ResponseEntity<String> getFavouriteBooksForUser(@RequestParam("email") @Email String email, @RequestParam(value = "onlyIds", required = false) @Nullable Boolean onlyIds) {
         if (onlyIds != null && onlyIds) return handle(userInfoService.getFavouriteBooksIds(email), HttpStatus.OK);
@@ -230,11 +230,11 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "User not found or book not found"),
     })
-    @PostMapping(value = "/book")
+    @PostMapping(value = "/book/favourite")
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
     public ResponseEntity<String> addBookToFavouritesForUser(@RequestParam("email") @Email String email,
                                                              @RequestParam("bookId") @NotNull UUID bookId) {
-        return handle(userInfoService.addBookToFavourites(new FavouriteBookRequest(email, bookId)), HttpStatus.OK);
+        return handle(userInfoService.addBookToFavourites(new BookCollectionRequest(email, bookId)), HttpStatus.OK);
     }
 
     @Operation(
@@ -246,11 +246,88 @@ class UserInfoController implements ErrorHandling {
             @ApiResponse(responseCode = "401", description = "Authentication failure"),
             @ApiResponse(responseCode = "404", description = "User not found or book not found"),
     })
-    @DeleteMapping(value = "/book")
+    @DeleteMapping(value = "/book/favourite")
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
     public ResponseEntity<String> removeBookFromFavouritesForUser(@RequestParam("email") @Email String email,
                                                                   @RequestParam("bookId") @NotNull UUID bookId) {
-        userInfoService.removeBookFromFavourites(new FavouriteBookRequest(email, bookId));
+        userInfoService.removeBookFromFavourites(new BookCollectionRequest(email, bookId));
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Fetch previews of books (or Ids if 'onlyIds' param is true) that user is subscribed to.",
+            tags = {"book", "user"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Ids fetched successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = UUID.class))
+                    )
+            ),
+            @ApiResponse(responseCode = "200",
+                    description = "Book previews fetched successfully",
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = BookPreviewResponse.class))
+                    )
+            ),
+            @ApiResponse(responseCode = "200", description = "Previews or Ids fetched successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+    })
+    @GetMapping(value = "/book/subscribed")
+    @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
+    public ResponseEntity<String> getSubscribedBooksForUser(@RequestParam("email") @Email String email, @RequestParam(value = "onlyIds", required = false) @Nullable Boolean onlyIds) {
+        if (onlyIds != null && onlyIds) return handle(userInfoService.getSubscribedBooksIds(email), HttpStatus.OK);
+        return handle(userInfoService.getSubscribedBooks(email), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Add a book to user's subscribed books. Returns current subscribed book count on success.",
+            tags = {"book", "user"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Book added successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "404", description = "User not found or book not found"),
+    })
+    @PostMapping(value = "/book/subscribed")
+    @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
+    public ResponseEntity<String> addBookToSubscribedForUser(@RequestParam("email") @Email String email,
+                                                             @RequestParam("bookId") @NotNull UUID bookId) {
+        return handle(userInfoService.addBookToSubscribed(new BookCollectionRequest(email, bookId)), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Remove a book from user's subscribed books.",
+            tags = {"book", "user"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Book removed successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication failure"),
+            @ApiResponse(responseCode = "404", description = "User not found or book not found"),
+    })
+    @DeleteMapping(value = "/book/subscribed")
+    @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
+    public ResponseEntity<String> removeBookFromSubscribedForUser(@RequestParam("email") @Email String email,
+                                                                  @RequestParam("bookId") @NotNull UUID bookId) {
+        userInfoService.removeBookFromSubscribed(new BookCollectionRequest(email, bookId));
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Verify is the user can author books.",
+            tags = {"user", "book"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "User is eligible to author books."),
+            @ApiResponse(responseCode = "403", description = "User is not eligible to author books")
+    })
+    @PostMapping("/verify/{email}")
+    public ResponseEntity<String> verifyWritingEligibility(@PathVariable("email") @NotNull @Email String email) {
+        if (userInfoService.checkWritingEligibility(email)) return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 }

@@ -11,5 +11,6 @@ class BookProperties {
     private int chapter_max_length;
     private int chapter_max_number;
     private int description_max_length;
+    private char spoiler_mark;
 }
 

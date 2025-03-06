@@ -12,10 +12,15 @@
   </div>
   <div id="contentDiv">
     @if (this.showImage){
-      <img ngSrc="/japan-rising-sun-bamboo-forest-kyoto.jpg" style="width: 100%; height: auto; opacity: 0.9;" alt="Bamboo forest"
-           height="699" width="1047" priority>
+        <img
+          ngSrc="/images/wangHui_scrollThree_3.jpg"
+          alt="The Kangxi Emperor's Southern Inspection Tour, Scroll Three"
+          fill
+          priority
+        >
+    } @else {
+      <router-outlet></router-outlet>
     }
-    <router-outlet></router-outlet>
   </div>
   <div id="previewContainer">
     <div class="column">

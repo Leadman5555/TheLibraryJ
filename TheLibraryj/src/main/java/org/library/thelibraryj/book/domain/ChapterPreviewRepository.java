@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Repository
-interface ChapterPreviewRepository extends BaseJpaRepository<ChapterPreview, UUID>, ChapterPreviewViewRepository {
+interface ChapterPreviewRepository extends BaseJpaRepository<ChapterPreview, UUID> {
     @Query("""
             select c from  chapterPreview c
             where c.bookDetail.id = :id

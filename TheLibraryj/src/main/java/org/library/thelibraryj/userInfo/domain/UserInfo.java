@@ -45,7 +45,7 @@ class UserInfo extends AbstractEntity {
     @Min(0)
     @Max(10)
     @Column(nullable = false)
-    private int rank;
+    private short rank;
 
     @Column(nullable = false)
     private int currentScore;
@@ -68,8 +68,14 @@ class UserInfo extends AbstractEntity {
     @Column(name = "book_id")
     private Set<UUID> favouriteBookIds = new HashSet<>();
 
+    @JsonIgnore
+    @ElementCollection(targetClass = UUID.class, fetch = FetchType.LAZY)
+    @CollectionTable(name = "subscribed_books", joinColumns =  @JoinColumn(name = "user_info_email", referencedColumnName = "email"))
+    @Column(name = "book_id")
+    private Set<UUID> subscribedBookIds = new HashSet<>();
+
     @Builder
-    public UserInfo(UUID id, Long version, Instant createdAt, Instant updatedAt, Instant dataUpdatedAt, String username, String email, int rank, UUID userAuthId, int currentScore, short preference, String status) {
+    public UserInfo(UUID id, Long version, Instant createdAt, Instant updatedAt, Instant dataUpdatedAt, String username, String email, short rank, UUID userAuthId, int currentScore, short preference, String status) {
         super(id, version, createdAt, updatedAt);
         this.dataUpdatedAt = dataUpdatedAt;
         this.username = username;
@@ -93,5 +99,19 @@ class UserInfo extends AbstractEntity {
     public int addBookIdToFavourites(Set<UUID> bookIds){
         this.favouriteBookIds.addAll(bookIds);
         return this.favouriteBookIds.size();
+    }
+
+    @Transient
+    @JsonIgnore
+    public int addBookIdToSubscribed(UUID bookId){
+        this.subscribedBookIds.add(bookId);
+        return this.subscribedBookIds.size();
+    }
+
+    @Transient
+    @JsonIgnore
+    public int addBookIdToSubscribed(Set<UUID> bookIds){
+        this.subscribedBookIds.addAll(bookIds);
+        return this.subscribedBookIds.size();
     }
 }

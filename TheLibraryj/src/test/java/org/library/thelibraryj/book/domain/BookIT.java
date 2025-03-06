@@ -1,10 +1,14 @@
 package org.library.thelibraryj.book.domain;
 
+import com.icegreen.greenmail.configuration.GreenMailConfiguration;
+import com.icegreen.greenmail.junit5.GreenMailExtension;
+import com.icegreen.greenmail.util.ServerSetupTest;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
@@ -44,6 +48,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
 @ContextConfiguration
@@ -67,6 +74,10 @@ public class BookIT {
     private static final String validBookTitle7 = TestProperties.bookTitle2;
     private static final String validBookTitle1 = TestProperties.bookTitle1;
 
+    @RegisterExtension
+    static final GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
+            .withConfiguration(GreenMailConfiguration.aConfig().withUser("username", "password"))
+            .withPerMethodLifecycle(false);
 
     @BeforeEach
     public void setUp() {
@@ -392,10 +403,10 @@ public class BookIT {
     public void testUpsertChapters_createAndUpdateChapters() throws Exception {
         List<MockFile> fileList = List.of(
                 new MockFile("100 - Valid1.txt", 100, MediaType.TEXT_PLAIN_VALUE),
-                new MockFile("200 - Valid2.docx", 1000, wordType2),
+                new MockFile("200 - $Valid2.docx", 1000, wordType2),
                 new MockFile("300.odt", 500, libreOfficeType)
         );
-        var response = upsertChaptersRequest(fileList);
+        ResponseEntity<String> response = upsertChaptersRequest(fileList);
         Assertions.assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
         JSONArray body = new JSONArray(response.getBody());
         assert body.length() == 3;
@@ -405,6 +416,9 @@ public class BookIT {
         Assertions.assertEquals("Valid1", body.getJSONObject(0).getString("title"));
         Assertions.assertEquals("Valid2", body.getJSONObject(1).getString("title"));
         Assertions.assertEquals("No title", body.getJSONObject(2).getString("title"));
+        Assertions.assertFalse(body.getJSONObject(0).getBoolean("isSpoiler"));
+        Assertions.assertTrue(body.getJSONObject(1).getBoolean("isSpoiler"));
+        Assertions.assertFalse(body.getJSONObject(2).getBoolean("isSpoiler"));
 
         Connection connection = dataSource.getConnection();
         Statement checkCreatedChapters = connection.createStatement();
@@ -414,42 +428,80 @@ public class BookIT {
         Assertions.assertEquals(100, resultSet.getInt("number"));
         Assertions.assertEquals("Valid1", resultSet.getString("title"));
         Assertions.assertEquals(fileList.getFirst().content, resultSet.getString("text"));
+        Assertions.assertFalse(resultSet.getBoolean("is_spoiler"));
         resultSet.next();
         Assertions.assertEquals(200, resultSet.getInt("number"));
         Assertions.assertEquals("Valid2", resultSet.getString("title"));
         Assertions.assertEquals(fileList.get(1).content, resultSet.getString("text"));
+        Assertions.assertTrue(resultSet.getBoolean("is_spoiler"));
         resultSet.next();
         Assertions.assertEquals(300, resultSet.getInt("number"));
         Assertions.assertEquals("No title", resultSet.getString("title"));
         Assertions.assertEquals(fileList.get(2).content, resultSet.getString("text"));
+        Assertions.assertFalse(resultSet.getBoolean("is_spoiler"));
+        Assertions.assertFalse(resultSet.next());
         connection.close();
 
+        await().atMost(10, TimeUnit.SECONDS).until(
+                () -> greenMail.getReceivedMessagesForDomain(authorEmail1).length == 1
+        );
+
         List<MockFile> updateFileList = List.of(
-                new MockFile("100 - newValid1.docx", 100, wordType2),
-                new MockFile("400.txt", 1000, MediaType.TEXT_PLAIN_VALUE),
-                new MockFile("300 - chapter3.txt", 500, MediaType.TEXT_PLAIN_VALUE)
+                new MockFile("200 - newValid1.docx", 100, wordType2),
+                new MockFile("300 - chapter3.txt", 500, MediaType.TEXT_PLAIN_VALUE),
+                new MockFile("400.txt", 1000, MediaType.TEXT_PLAIN_VALUE)
         );
         response = upsertChaptersRequest(updateFileList);
         Assertions.assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
+        body = new JSONArray(response.getBody());
+        assert body.length() == 3;
+        Assertions.assertEquals(200, body.getJSONObject(0).getInt("number"));
+        Assertions.assertEquals(300, body.getJSONObject(1).getInt("number"));
+        Assertions.assertEquals(400, body.getJSONObject(2).getInt("number"));
+        Assertions.assertEquals("newValid1", body.getJSONObject(0).getString("title"));
+        Assertions.assertEquals("chapter3", body.getJSONObject(1).getString("title"));
+        Assertions.assertEquals("No title", body.getJSONObject(2).getString("title"));
+        Assertions.assertFalse(body.getJSONObject(0).getBoolean("isSpoiler"));
+        Assertions.assertFalse(body.getJSONObject(1).getBoolean("isSpoiler"));
+        Assertions.assertFalse(body.getJSONObject(2).getBoolean("isSpoiler"));
 
         connection = dataSource.getConnection();
         checkCreatedChapters = connection.createStatement();
         checkCreatedChapters.execute(chapterFetchQuery);
         resultSet = checkCreatedChapters.getResultSet();
         resultSet.next();
-        Assertions.assertEquals(100, resultSet.getInt("number"));
+        Assertions.assertTrue(resultSet.next());
+        Assertions.assertEquals(200, resultSet.getInt("number"));
         Assertions.assertEquals("newValid1", resultSet.getString("title"));
         Assertions.assertEquals(updateFileList.getFirst().content, resultSet.getString("text"));
-        resultSet.next();
+        Assertions.assertFalse(resultSet.getBoolean("is_spoiler"));
         resultSet.next();
         Assertions.assertEquals(300, resultSet.getInt("number"));
         Assertions.assertEquals("chapter3", resultSet.getString("title"));
-        Assertions.assertEquals(updateFileList.get(2).content, resultSet.getString("text"));
+        Assertions.assertEquals(updateFileList.get(1).content, resultSet.getString("text"));
+        Assertions.assertFalse(resultSet.getBoolean("is_spoiler"));
         resultSet.next();
         Assertions.assertEquals(400, resultSet.getInt("number"));
         Assertions.assertEquals("No title", resultSet.getString("title"));
-        Assertions.assertEquals(updateFileList.get(1).content, resultSet.getString("text"));
+        Assertions.assertEquals(updateFileList.get(2).content, resultSet.getString("text"));
+        Assertions.assertFalse(resultSet.getBoolean("is_spoiler"));
         connection.close();
+
+        await().atMost(10, TimeUnit.SECONDS).until(
+                () -> greenMail.getReceivedMessagesForDomain(authorEmail1).length == 2
+        );
+
+        List<MockFile> updateFileList2 = List.of(
+                new MockFile("100 - someNewTitle.docx", 100, wordType2),
+                new MockFile("400 - $someNewTitle.txt", 1000, MediaType.TEXT_PLAIN_VALUE),
+                new MockFile("300 - someNewTitle.txt", 500, MediaType.TEXT_PLAIN_VALUE)
+        );
+        response = upsertChaptersRequest(updateFileList2);
+        Assertions.assertEquals(HttpStatus.CREATED.value(), response.getStatusCode().value());
+
+        await().atMost(10, TimeUnit.SECONDS).until(
+                () -> greenMail.getReceivedMessagesForDomain(authorEmail1).length == 2
+        );
     }
 
     @Test
@@ -461,6 +513,26 @@ public class BookIT {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
         fileList = List.of(
                 new MockFile("100_invalid.txt", 100, MediaType.TEXT_PLAIN_VALUE)
+        );
+        response = upsertChaptersRequest(fileList);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        fileList = List.of(
+                new MockFile("100 - .txt", 100, MediaType.TEXT_PLAIN_VALUE)
+        );
+        response = upsertChaptersRequest(fileList);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        fileList = List.of(
+                new MockFile("100 - $.txt", 100, MediaType.TEXT_PLAIN_VALUE)
+        );
+        response = upsertChaptersRequest(fileList);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        fileList = List.of(
+                new MockFile("100 - invalid$.txt", 100, MediaType.TEXT_PLAIN_VALUE)
+        );
+        response = upsertChaptersRequest(fileList);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
+        fileList = List.of(
+                new MockFile("100 - $invalid$.txt", 100, MediaType.TEXT_PLAIN_VALUE)
         );
         response = upsertChaptersRequest(fileList);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
@@ -490,7 +562,7 @@ public class BookIT {
         response = upsertChaptersRequest(fileList);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());
         fileList = List.of(
-                new MockFile("100 - valid.txt", 20000, MediaType.TEXT_PLAIN_VALUE)
+                new MockFile("100 - $valid.txt", 20000, MediaType.TEXT_PLAIN_VALUE)
         );
         response = upsertChaptersRequest(fileList);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCode().value());

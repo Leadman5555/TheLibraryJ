@@ -41,7 +41,17 @@
 
 #contentDiv {
   grid-area: contentDiv;
+  min-height: 70vh;
   border: 0.2em solid darkgoldenrod;
-  padding: 0.5em;
+  position: relative;
   background-color: rgba(202, 210, 243, 0.36);
+}
+
+@media (max-width: 1850px) {
+  #topBarDiv {
+    font-size: 3.5em;
+  }
+  .previewsColumn {
+    font-size: 0.8em;
+  }
 }

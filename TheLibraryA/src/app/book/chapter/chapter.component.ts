@@ -4,14 +4,15 @@ import {BookService} from '../shared/book-service';
 import {ChapterContent} from '../shared/models/chapter-content';
 import {FormGroup, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {TimesMaxPipe} from '@app/shared/pipes/times-max.pipe';
-import { NgStyle } from '@angular/common';
+import {NgClass, NgStyle} from '@angular/common';
 
 @Component({
   selector: 'app-chapter',
   imports: [
     ReactiveFormsModule,
     TimesMaxPipe,
-    NgStyle
+    NgStyle,
+    NgClass
   ],
   templateUrl: './chapter.component.html',
   standalone: true,

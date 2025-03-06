@@ -15,6 +15,8 @@ import {AuthorGuard} from './user/account/userAuth/author.guard';
 import {AuthorTabCreateComponent} from './book/author-tab/author-tab-create/author-tab-create.component';
 import {AuthorTabEditComponent} from './book/author-tab/author-tab-edit/author-tab-edit.component';
 import {FavouriteBooksComponent} from '@app/book/favourite-books/favourite-books.component';
+import {PavilionOfGloryComponent} from '@app/user/pavilion-of-glory/pavilion-of-glory.component';
+import {BookSubscriptionsComponent} from '@app/book/book-subscriptions/book-subscriptions.component';
 
 export const routes: Routes = [
   {path: '', component: HomeComponent},
@@ -35,6 +37,8 @@ export const routes: Routes = [
       {path: 'edit', component: AuthorTabEditComponent}
     ]
   },
+  {path: 'pavilion-of-glory', component: PavilionOfGloryComponent},
+  {path: 'book-subscriptions', component: BookSubscriptionsComponent, canActivate: [AuthGuard]},
   {path: '*', component: HomeComponent}
 ];
 

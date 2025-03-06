@@ -14,4 +14,6 @@ public class OffsetKeyGenerator implements KeyGenerator {
     public Object generate(@NonNull Object target, @NonNull Method method, @NonNull Object... params) {
         return StringUtils.arrayToDelimitedString(params, "_");
     }
+
+    public static final String OFFSET_KEY_GENERATOR = "offsetKeyGenerator";
 }

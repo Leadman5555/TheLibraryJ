@@ -52,7 +52,6 @@ export class AuthorTabEditComponent implements OnInit, OnDestroy {
   updateBookFrom?: FormGroup;
 
   ngOnInit(): void {
-    console.log('authorTabEditComponent.ngOnInit() called.')
     const book: BookResponse | null = this.authorTabDataService.getCurrentlyEditedBook();
     if (book !== null) {
       sessionStorage.setItem(emailKey, this.authorTabDataService.authorEmail);

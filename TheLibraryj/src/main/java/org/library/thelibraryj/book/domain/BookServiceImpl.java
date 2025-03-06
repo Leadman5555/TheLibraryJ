@@ -5,15 +5,16 @@ import com.blazebit.persistence.PagedList;
 import io.vavr.control.Either;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.bookDto.request.BookCreationModel;
 import org.library.thelibraryj.book.dto.bookDto.request.BookCreationRequest;
+import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateModel;
+import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.bookDto.response.BookDetailResponse;
 import org.library.thelibraryj.book.dto.bookDto.response.BookPreviewResponse;
 import org.library.thelibraryj.book.dto.bookDto.response.BookResponse;
-import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateModel;
-import org.library.thelibraryj.book.dto.bookDto.request.BookUpdateRequest;
 import org.library.thelibraryj.book.dto.chapterDto.request.ChapterBatchRequest;
 import org.library.thelibraryj.book.dto.chapterDto.response.ChapterPreviewResponse;
 import org.library.thelibraryj.book.dto.chapterDto.response.ChapterResponse;
@@ -24,6 +25,8 @@ import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
 import org.library.thelibraryj.book.dto.ratingDto.RatingResponse;
 import org.library.thelibraryj.book.dto.sharedDto.request.ContentRemovalRequest;
 import org.library.thelibraryj.book.dto.sharedDto.response.ContentRemovalSuccess;
+import org.library.thelibraryj.infrastructure.cache.CacheRegister;
+import org.library.thelibraryj.infrastructure.cache.OffsetKeyGenerator;
 import org.library.thelibraryj.infrastructure.error.errorTypes.BookError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.GeneralError;
 import org.library.thelibraryj.infrastructure.error.errorTypes.ServiceError;
@@ -33,6 +36,7 @@ import org.library.thelibraryj.infrastructure.textParsers.inputParsers.HtmlEscap
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.domain.BookCreationUserView;
 import org.library.thelibraryj.userInfo.domain.RatingUpsertView;
+import org.library.thelibraryj.userInfo.dto.request.SubscribedUserNotificationRequest;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoScoreUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -71,18 +75,24 @@ class BookServiceImpl implements BookService {
     private final BookMapper mapper;
     private final BookImageHandler bookImageHandler;
     private final BookBlazeRepository bookBlazeRepository;
+    private final BookViewRepository bookViewRepository;
     private final BookProperties bookProperties;
     private UserInfoService userInfoService;
-    private final Pattern chapterTitleMatcher = Pattern.compile("^([0-9])+(\\s-\\s(?=.*[a-zA-Z0-9]+)[a-zA-Z0-9\\s'_\"!.-]*)?$");
     private final TextParser textParser;
     private final HtmlEscaper htmlEscaper;
+    private Pattern chapterTitleMatcher;
+
+    @PostConstruct
+    void init() {
+        chapterTitleMatcher = Pattern.compile("^\\d+(?:\\s-\\s(?=.*[a-zA-Z0-9])" + Pattern.quote(String.valueOf(bookProperties.getSpoiler_mark())) + "?[a-zA-Z0-9\\s'_\"!.-]*)?$");
+    }
 
     @Autowired
     public void setUserInfoService(@Lazy UserInfoService userInfoService) {
         this.userInfoService = userInfoService;
     }
 
-    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, @Qualifier("bookMapperImpl") BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository, BookImageHandler bookImageHandler, BookBlazeRepository bookBlazeRepository, BookProperties bookProperties, TextParser textParser, HtmlEscaper htmlEscaper) {
+    public BookServiceImpl(BookDetailRepository bookDetailRepository, BookPreviewRepository bookPreviewRepository, @Qualifier("bookMapperImpl") BookMapper mapper, RatingRepository ratingRepository, ChapterPreviewRepository chapterPreviewRepository, ChapterRepository chapterRepository, BookImageHandler bookImageHandler, BookBlazeRepository bookBlazeRepository, BookProperties bookProperties, TextParser textParser, HtmlEscaper htmlEscaper, BookViewRepository bookViewRepository) {
         this.bookDetailRepository = bookDetailRepository;
         this.bookPreviewRepository = bookPreviewRepository;
         this.mapper = mapper;
@@ -91,6 +101,7 @@ class BookServiceImpl implements BookService {
         this.chapterRepository = chapterRepository;
         this.bookImageHandler = bookImageHandler;
         this.bookBlazeRepository = bookBlazeRepository;
+        this.bookViewRepository = bookViewRepository;
         this.bookProperties = bookProperties;
         this.textParser = textParser;
         this.htmlEscaper = htmlEscaper;
@@ -291,13 +302,13 @@ class BookServiceImpl implements BookService {
 
     @Override
     public Either<GeneralError, ChapterResponse> getChapterByBookIdAndNumber(UUID bookId, int chapterNumber) {
-        ChapterPreviewTitleView fetchedData = chapterPreviewRepository.findChapterPreviewTitleAndIdByBookIdAndNumber(bookId, chapterNumber);
+        ChapterPreviewContentView fetchedData = bookViewRepository.findChapterPreviewContentByBookIdAndNumber(bookId, chapterNumber);
         return Try.of(() -> chapterRepository.getChapterContentById(fetchedData.getId()))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
                 .flatMap(optionalEntity -> optionalEntity.toEither(new BookError.ChapterNotFound(bookId, chapterNumber)))
-                .map(value -> mapper.chapterDataToChapterResponse(value, fetchedData.getTitle()));
+                .map(value -> mapper.chapterDataToChapterResponse(value, fetchedData.getTitle(), fetchedData.isSpoiler()));
     }
 
     Either<GeneralError, BookDetail> getDetailAndValidateUUIDs(UUID bookId, String authorEmail) {
@@ -310,13 +321,14 @@ class BookServiceImpl implements BookService {
         return bookDetailE;
     }
 
-    private record ChapterDraft(String escapedTitle, int number, String escapedText) {
+    private record ChapterDraft(String escapedTitle, int number, String escapedText, boolean isSpoiler) {
         ChapterDraft(String escapedText, ChapterUpsertResponse draft) {
-            this(draft.title(), draft.number(), escapedText);
+            this(draft.title(), draft.number(), escapedText, draft.isSpoiler());
         }
     }
 
-    private record FetchedChapterData(ChapterPreview chapterPreview, Chapter chapter) { }
+    private record FetchedChapterData(ChapterPreview chapterPreview, Chapter chapter) {
+    }
 
     @Async
     @Transactional
@@ -328,6 +340,7 @@ class BookServiceImpl implements BookService {
                 .title(chapterDraft.escapedTitle)
                 .number(chapterDraft.number)
                 .bookDetail(bookDetailReference)
+                .isSpoiler(chapterDraft.isSpoiler)
                 .build();
         chapterToSave.setChapterPreview(chapterPreviewRepository.persist(previewToSave));
         chapterRepository.persist(chapterToSave);
@@ -336,10 +349,16 @@ class BookServiceImpl implements BookService {
     @Async
     @Transactional
     void updateChapter(ChapterDraft chapterDraft, FetchedChapterData fetchedChapterData) {
-        if (!fetchedChapterData.chapterPreview.getTitle().equals(chapterDraft.escapedTitle)) {
+        boolean chapterPreviewChanged = false;
+        if (!fetchedChapterData.chapterPreview.getTitle().equals(chapterDraft.escapedTitle)){
             fetchedChapterData.chapterPreview.setTitle(chapterDraft.escapedTitle);
-            chapterPreviewRepository.update(fetchedChapterData.chapterPreview);
+            chapterPreviewChanged = true;
         }
+        if(fetchedChapterData.chapterPreview.isSpoiler() != chapterDraft.isSpoiler){
+            fetchedChapterData.chapterPreview.setSpoiler(chapterDraft.isSpoiler);
+            chapterPreviewChanged = true;
+        }
+        if (chapterPreviewChanged) chapterPreviewRepository.update(fetchedChapterData.chapterPreview);
         if (fetchedChapterData.chapter != null) {
             if (!fetchedChapterData.chapter.getText().equals(chapterDraft.escapedText)) {
                 fetchedChapterData.chapter.setText(chapterDraft.escapedText);
@@ -357,6 +376,11 @@ class BookServiceImpl implements BookService {
     private static PriorityQueue<FetchedChapterData> mergeChapterData(List<ChapterPreview> existingChapterPreviews, List<Chapter> existingChapters) {
         PriorityQueue<FetchedChapterData> fetchedChapterData = new PriorityQueue<>(Comparator.comparingInt(data -> data.chapterPreview.getNumber()));
         if (existingChapterPreviews.size() != existingChapters.size()) {
+            if(existingChapters.isEmpty()) {
+                for (ChapterPreview existingChapterPreview : existingChapterPreviews)
+                    fetchedChapterData.add(new FetchedChapterData(existingChapterPreview, null));
+                return fetchedChapterData;
+            }
             for (int i = 0; i < existingChapterPreviews.size(); i++)
                 if (!existingChapterPreviews.get(i).getId().equals(existingChapters.get(i).getId()))
                     fetchedChapterData.add(new FetchedChapterData(existingChapterPreviews.get(i), null));
@@ -379,7 +403,8 @@ class BookServiceImpl implements BookService {
                 createChapter(mergedList.get(currentIndex++), bookDetailRef);
             updateChapter(mergedList.get(currentIndex++), fetched);
         }
-        for (; currentIndex < mergedList.size(); currentIndex++) createChapter(mergedList.get(currentIndex), bookDetailRef);
+        for (; currentIndex < mergedList.size(); currentIndex++)
+            createChapter(mergedList.get(currentIndex), bookDetailRef);
     }
 
     private Either<GeneralError, List<ChapterUpsertResponse>> validateAndParseChapterRequests(List<MultipartFile> chapterFiles, UUID forBookId, Set<Integer> numbers) {
@@ -389,9 +414,9 @@ class BookServiceImpl implements BookService {
             if (name == null || name.isBlank())
                 return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, ""));
             String fileName;
-            try{
+            try {
                 fileName = Paths.get(file.getOriginalFilename()).getFileName().toString();
-            }catch (InvalidPathException _){
+            } catch (InvalidPathException _) {
                 return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, file.getOriginalFilename()));
             }
             fileName = fileName.substring(0, fileName.lastIndexOf('.'));
@@ -401,15 +426,20 @@ class BookServiceImpl implements BookService {
             if (numberEnd > bookProperties.getChapter_max_number())
                 return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, fileName));
             String chapterTitle;
+            boolean isSpoiler = false;
             int chapterNumber;
-            if (numberEnd != -1){
+            if (numberEnd != -1) {
                 chapterTitle = fileName.substring(numberEnd + 3);
+                if (chapterTitle.charAt(0) == bookProperties.getSpoiler_mark()) {
+                    isSpoiler = true;
+                    chapterTitle = chapterTitle.substring(1);
+                }
                 try {
                     chapterNumber = Integer.parseInt(fileName.substring(0, numberEnd));
                 } catch (NumberFormatException _) {
                     return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, fileName));
                 }
-            }else{
+            } else {
                 try {
                     chapterNumber = Integer.parseInt(fileName);
                 } catch (NumberFormatException _) {
@@ -420,7 +450,7 @@ class BookServiceImpl implements BookService {
             if (numbers.contains(chapterNumber))
                 return Either.left(new BookError.DuplicateChapter(forBookId, chapterNumber));
             numbers.add(chapterNumber);
-            chapterEntries.add(new ChapterUpsertResponse(chapterNumber, chapterTitle));
+            chapterEntries.add(new ChapterUpsertResponse(chapterNumber, chapterTitle, isSpoiler));
         }
         return Either.right(chapterEntries);
     }
@@ -445,7 +475,8 @@ class BookServiceImpl implements BookService {
         UUID bookId = chapterBatchRequest.bookId();
         for (int i = 0; i < chapterFiles.size(); i++) {
             String parsedText = textParser.parseTextFile(chapterFiles.get(i));
-            if(parsedText == null) return Either.left(new BookError.MalformedChapterText(bookId, chapterEntries.get(i).number()));
+            if (parsedText == null)
+                return Either.left(new BookError.MalformedChapterText(bookId, chapterEntries.get(i).number()));
             String escapedText = htmlEscaper.escapeHtml(parsedText);
             if (escapedText.length() > bookProperties.getChapter_max_length())
                 return Either.left(new BookError.InvalidChapterTextLength(bookId, chapterEntries.get(i).number()));
@@ -454,10 +485,29 @@ class BookServiceImpl implements BookService {
         mergedList.sort(Comparator.comparingInt(ChapterDraft::number));
 
         List<ChapterPreview> existingChapterPreviews = bookBlazeRepository.getSortedChapterPreviews(bookId, chapterNumbers);
-        if (!existingChapterPreviews.isEmpty()) updateAndCreate(existingChapterPreviews, mergedList, bookDetail);
-        else for (ChapterDraft draft : mergedList) createChapter(draft, bookDetail);
-        bookPreviewRepository.changeChapterCount(bookId, mergedList.size() - existingChapterPreviews.size());
-
+        List<SubscribedUserNotificationRequest.ChapterNotificationData> chapterNotifications = new ArrayList<>();
+        if (!existingChapterPreviews.isEmpty()) {
+            for (ChapterDraft draft : mergedList)
+                chapterNotifications.add(new SubscribedUserNotificationRequest.ChapterNotificationData(draft.escapedTitle, draft.number, draft.isSpoiler));
+            updateAndCreate(existingChapterPreviews, mergedList, bookDetail);
+        } else for (ChapterDraft draft : mergedList) {
+            chapterNotifications.add(new SubscribedUserNotificationRequest.ChapterNotificationData(draft.escapedTitle, draft.number, draft.isSpoiler));
+            createChapter(draft, bookDetail);
+        }
+        int chapterCountChange = mergedList.size() - existingChapterPreviews.size();
+        if (chapterCountChange > 0) {
+            //if chapterCountChange is 0, no new chapters were added, only existing ones were updated
+            bookPreviewRepository.changeChapterCount(bookId, chapterCountChange);
+            NotificationEssentialsView notificationEssentials = bookViewRepository.findNotificationEssentialsViewByBookId(bookId);
+            SubscribedUserNotificationRequest notificationRequest = new SubscribedUserNotificationRequest(
+                    chapterNotifications,
+                    notificationEssentials.getTitle(),
+                    bookDetail.getAuthor(),
+                    bookImageHandler.fetchCoverImage(notificationEssentials.getTitle()),
+                    notificationEssentials.getChapterCount() + chapterCountChange
+            );
+            userInfoService.notifySubscribedUsers(bookId, notificationRequest);
+        }
         return Either.right(chapterEntries);
     }
 
@@ -494,6 +544,7 @@ class BookServiceImpl implements BookService {
         ratingRepository.deleteBook(removalRequest.bookId());
         bookDetailRepository.deleteById(removalRequest.bookId());
         userInfoService.removeBookFromFavouritesForAllUsers(removalRequest.bookId());
+        userInfoService.removeBookFromSubscribedForAllUsers(removalRequest.bookId());
         log.info("Book {} has been deleted", removalRequest.bookId());
         return Either.right(new ContentRemovalSuccess(removalRequest.bookId(), removalRequest.userEmail()));
     }
@@ -564,14 +615,14 @@ class BookServiceImpl implements BookService {
 
 
     @Override
-    @Cacheable(value = "bookPreviewsKeySet")
+    @Cacheable(value = CacheRegister.BOOK_PREVIEW_KEYSET_CACHE)
     public PagedBookPreviewsResponse getKeySetPagedBookPreviewResponses(KeysetPage lastPage, int page) {
         PagedList<BookPreview> pagedList = bookBlazeRepository.getKeySetPagedBookPreviewNext(lastPage, page);
         return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()));
     }
 
     @Override
-    @Cacheable(value = "bookPreviewsOffset", keyGenerator = "offsetKeyGenerator")
+    @Cacheable(value = CacheRegister.BOOK_PREVIEW_OFFSET_CACHE, keyGenerator = OffsetKeyGenerator.OFFSET_KEY_GENERATOR)
     public PagedBookPreviewsResponse getOffsetPagedBookPreviewResponses(int pageSize, int page) {
         PagedList<BookPreview> pagedList = bookBlazeRepository.getOffsetBookPreviewPaged(pageSize, page);
         return new PagedBookPreviewsResponse(pagedList.stream().map(this::mapPreviewWithCover).toList(), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()));
@@ -596,7 +647,7 @@ class BookServiceImpl implements BookService {
     }
 
     @Override
-    @Cacheable(value = "chapterPreviewOffset", keyGenerator = "offsetKeyGenerator")
+    @Cacheable(value = CacheRegister.CHAPTER_PREVIEW_OFFSET_CACHE, keyGenerator = OffsetKeyGenerator.OFFSET_KEY_GENERATOR)
     public PagedChapterPreviewResponse getOffsetPagedChapterPreviewResponses(int pageSize, int page, UUID bookId) {
         PagedList<ChapterPreview> pagedList = bookBlazeRepository.getOffsetChapterPreviewPaged(pageSize, page, bookId);
         return new PagedChapterPreviewResponse(mapper.chapterPreviewsToChapterPreviewResponseList(pagedList), new PageInfo(page, pagedList.getTotalPages(), pagedList.getKeysetPage()), bookId);
@@ -610,8 +661,8 @@ class BookServiceImpl implements BookService {
 
 
     @Override
-    @CacheEvict(value = {"bookPreviewsOffset", "bookPreviewsKeySet", "chapterPreviewOffset"}, allEntries = true)
-    @Scheduled(cron = "0 */${library.caching.bookPreviewTTL} * * * *")
+    @CacheEvict(value = {CacheRegister.BOOK_PREVIEW_OFFSET_CACHE, CacheRegister.BOOK_PREVIEW_KEYSET_CACHE, CacheRegister.CHAPTER_PREVIEW_OFFSET_CACHE}, allEntries = true)
+    @Scheduled(cron = "0 */${library.book.cache.book_preview_minutes} * * * *")
     public void resetBookPreviewsCache() {
         bookPreviewRepository.flush();
         ratingRepository.flush();

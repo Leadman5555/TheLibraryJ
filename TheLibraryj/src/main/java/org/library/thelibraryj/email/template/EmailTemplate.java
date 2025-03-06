@@ -5,7 +5,11 @@ import lombok.Getter;
 import java.util.Map;
 
 @Getter
-public abstract sealed class EmailTemplate implements EmailTemplateInterface permits AccountActivationTemplate, PasswordResetTemplate, FavouriteBookTokenTemplate{
+public abstract sealed class EmailTemplate implements EmailTemplateInterface permits
+        AccountActivationTemplate,
+        PasswordResetTemplate,
+        FavouriteBookTokenTemplate,
+        SubscribedBookNotificationTemplate {
 
     private final String templateName;
     protected Map<String, Object> parameters;

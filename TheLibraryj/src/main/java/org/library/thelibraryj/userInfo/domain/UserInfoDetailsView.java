@@ -6,7 +6,7 @@ import java.time.Instant;
 
 @EntityView(UserInfo.class)
 public interface UserInfoDetailsView {
-    int getRank();
+    short getRank();
     int getCurrentScore();
     Instant getDataUpdatedAt();
     Instant getCreatedAt();
