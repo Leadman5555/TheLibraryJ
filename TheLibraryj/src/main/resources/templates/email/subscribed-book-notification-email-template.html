@@ -1,10 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
+<style>
+    body {
+        background-color: cadetblue;
+        font-family: "Bell MT", sans-serif;
+    }
+
+    .column {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .outerBox {
+        border: 10px double darkgoldenrod;
+        padding: 10px;
+        margin-top: 10px;
+    }
+
+    p {
+        font-size: 15px;
+    }
+
+    .centerVH {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .title {
+        text-align: center;
+        font-size: 25px;
+        border: none;
+        font-style: italic;
+    }
+
+    img {
+        border: none;
+        align-content: center;
+    }
+</style>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title th:text="${subject}"></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
 <body>
-
+<div class="centerVH">
+    <span class="title">One of your subscribed to scriptures has been expanded.</span>
+</div>
+<div class="outerBox column">
+    <div class="column">
+        <p>
+            Daoist <span th:text="${book_author}">[Author lost in transmission]</span> has recently added improved one
+            of their creations, "<b th:text="${book_title}">[Title lost in transmission]</b>" to be exact.<br>
+            It currently has <span th:text="${chapter_count}">[Chapter count lost in transmission]</span> chapters, with
+            the newest ones being:
+        </p>
+        <pre th:text="${chapter_data}" style="font-family: 'Bell MT', sans-serif;">
+                [Chapter data lost in transmission]
+        </pre>
+    </div>
+    <span>
+        We await your next visit, fellow Daoist!
+    </span>
+</div>
+<div class="column" style="margin: 10px 0">
+    <span style="font-style: italic">Automated Formation Spirit - created by Formation King Cao Ji</span>
+</div>
+<div class="column">
+    <img th:src="'data:image/jpeg;base64,' + ${image_string}"
+         src="images/default.jpg"
+         alt="[Visual clue lost in transmission]"
+        style="max-height: 40vh; max-width: 30vw;"/>
+    <b th:text="${book_title}">[Title lost in transmission]</b>
+</div>
 </body>
 </html>

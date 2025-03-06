@@ -41,8 +41,9 @@
 
 #contentDiv {
   grid-area: contentDiv;
+  min-height: 70vh;
   border: 0.2em solid darkgoldenrod;
-  padding: 0.5em;
+  position: relative;
   background-color: rgba(202, 210, 243, 0.36);
 }
 

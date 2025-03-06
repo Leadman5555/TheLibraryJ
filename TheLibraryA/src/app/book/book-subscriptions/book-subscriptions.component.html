@@ -1,1 +1,33 @@
-<p>book-subscriptions works!</p>
+<div class="outerBox borderBox">
+  <div class="previewsDiv">
+    @if (subscribedBooks && subscribedBooks.length) {
+      <div class="previewsColumn">
+        @for (bp of subscribedBooks; track bp.title) {
+          <app-book-preview-card [bookPreview]="bp"/>
+        }
+      </div>
+    } @else{
+      <span class="infoMsg centerVH">You aren't subscribed to any books.</span>
+    }
+  </div>
+  <div class="infoDiv column colourlessBorderBox">
+    <span>You are currently subscribed to {{ getSubscribedBookCount() }}.</span>
+    <p>
+      To add or remove the book from subscribed book collection, navigate to its page and click the rosy lantern.
+      Dim lantern means that you are not subscribed to a book and a lit one signifies that you are.<br>
+      When a book you are subscribed to receives an update consisting of at least one new chapter, you will receive an email notifying you about that.
+      The message will also include the numbers and titles of added chapters - spoiler titles will be obscured appropriately.
+    </p>
+    @if (errorFetchingMessage){
+      <span class="errorBox">{{errorFetchingMessage}}</span>
+    }
+  </div>
+  <div class="cornerDiv colourlessBorderBox">
+    <img
+      ngSrc="/images/wangHui_scrollThree_5.jpg"
+      alt="The Kangxi Emperor's Southern Inspection Tour, Scroll Three"
+      fill
+      priority
+    >
+  </div>
+</div>

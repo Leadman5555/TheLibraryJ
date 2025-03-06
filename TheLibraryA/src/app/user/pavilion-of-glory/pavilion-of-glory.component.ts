@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {UserProfileService} from '@app/user/profile/user-profile.service';
 import {TopRankerResponse} from '@app/user/shared/models/top-ranker-response';
-import {findTitle, preferenceArray, rankArray} from '@app/user/profile/shared/rankTitles';
+import {findTitle, rankArray} from '@app/user/profile/shared/rankTitles';
 import {RouterLink} from '@angular/router';
 
 @Component({
