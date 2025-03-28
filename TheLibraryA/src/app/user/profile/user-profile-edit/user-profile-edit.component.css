@@ -1,0 +1,85 @@
+@import "../../../shared/styles/rowCol.css";
+@import "../../../shared/styles/sInput.css";
+@import "../../../shared/styles/sButton.css";
+@import "../../../shared/styles/image34.css";
+@import "../../../shared/styles/textArea.css";
+@import "../../../shared/styles/borderBox.css";
+
+#rankUpAnimation {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  top: 50em;
+  left: 50%;
+  z-index: -1;
+  border-radius: 30em;
+  background: rgb(166, 108, 0);
+  text-align: center;
+  font-style: italic;
+  font-size: 1.2em;
+}
+
+#outerBox {
+  text-align: center;
+  padding: 2em;
+}
+
+#userProfileEditGrid {
+  display: grid;
+  grid-template-columns: 1fr 0.5fr 1fr 1fr 0.5fr 1fr 0.5fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+  gap: 0 0;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "topBarDiv topBarDiv topBarDiv topBarDiv topBarDiv topBarDiv topBarDiv"
+    "imageDiv imageDiv statusDiv statusDiv statusDiv usernameDiv usernameDiv"
+    "imageDiv imageDiv statusDiv statusDiv statusDiv usernameDiv usernameDiv"
+    "imageDiv imageDiv rankDiv rankDiv rankDiv infoDiv infoDiv"
+    "imageDiv imageDiv rankDiv rankDiv rankDiv infoDiv infoDiv";;
+  width: 100%;
+  height: 100%;
+}
+
+#imageDiv {
+  grid-area: imageDiv;
+}
+
+#imageChangeButton::before {
+  margin-top: 0.1em;
+}
+
+:host {
+  --imageDropSize: 0.8em;
+}
+
+#topBarDiv {
+  grid-area: topBarDiv;
+  font-size: 5em;
+  font-weight: bold;
+  font-style: italic;
+}
+
+#statusDiv {
+  grid-area: statusDiv;
+}
+
+#rankDiv {
+  grid-area: rankDiv;
+  font-size: 1.2em;
+}
+
+#dropdownPreferenceList {
+  font-size: 1em;
+  width: fit-content;
+}
+
+#usernameDiv {
+  grid-area: usernameDiv;
+}
+
+#infoDiv {
+  grid-area: infoDiv;
+  overflow-wrap: break-word;
+}

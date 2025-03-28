@@ -1,0 +1,81 @@
+<div class="column">
+  <div class="borderBox filterBox">
+    @if (filterForm){
+      <form [formGroup]="filterForm" (ngSubmit)="handleFilterSubmit()" class="column filterForm">
+        <div class="column">
+
+          <div class="column" id="titleColumn">
+            <div class="input-container">
+              <input placeholder="Enter title here" class="input-field" id="titleLikeInput" type="text" maxlength="20" formControlName="titleLike">
+              <label for="titleLikeInput" class="input-label">Title begins with: </label>
+              <span class="input-highlight"></span>
+            </div>
+            @if (filterForm.get('titleLike')?.invalid && filterForm.get('titleLike')?.dirty){
+              <div class="errorBox">
+                Enter from 3 to 20 allowed characters.
+              </div>
+            }
+          </div>
+          <div class="row">
+            <div class="column">
+              <label for="chapterInput" class="outerLabel">Minimum chapter count: </label>
+              @if (filterForm.get('minChapters')?.invalid && filterForm.get('minChapters')?.dirty) {
+                <div  class="errorBox alignLeft">
+                  Integer value between 0 and 5000
+                </div>
+              }
+            </div>
+            <div class="numberInput-container ">
+              <input placeholder="0" class="input-field" id="chapterInput" type="number" formControlName="minChapters">
+              <label for="chapterInput" class="input-label">At least: </label>
+              <span class="input-highlight"></span>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="column">
+              <label for="ratingInput" class="outerLabel">Minimum average rating:</label>
+
+              @if (filterForm.get('minRating')?.invalid && filterForm.get('minRating')?.dirty){
+                <div  class="errorBox alignLeft">
+                  Value between 0.00 and 10.00
+                </div>
+              }
+            </div>
+            <div class="numberInput-container ">
+              <input placeholder="0" class="input-field" id="ratingInput" type="number" formControlName="minRating">
+              <label for="ratingInput" class="input-label">Rated higher than: </label>
+              <span class="input-highlight"></span>
+            </div>
+          </div>
+
+          <div class="row">
+            <label for="dropdownRatingList" class="outerLabel">Order by rating: </label>
+            <select formControlName="sortAscByRating" id="dropdownRatingList">
+              <option value="null" selected>No order</option>
+              <option value="false">Descending</option>
+              <option value="true">Ascending</option>
+            </select>
+          </div>
+
+
+          <div formGroupName="filterByTags" class="tagsDiv">
+            @for (tag of allTags; let i = $index; track i) {
+              <div class="mt-square3d-custom tagSelector"
+                   style="font-size:0.8em;">
+                <span class="tagName">{{ tag }}</span>
+                <input id="checkMt_{{i}}" type="checkbox" formControlName="{{i}}"/>
+                <label for="checkMt_{{i}}"></label>
+              </div>
+            }
+          </div>
+          <div class="row filterButtons">
+            <button class="sButton disabledHide" type="submit" [disabled]="filterForm.invalid || isFormPristine">Submit</button>
+            <button class="sButton" type="reset" (click)="resetFilterForm()">Reset filters</button>
+          </div>
+        </div>
+      </form>
+    }
+  </div>
+  <img ngSrc="/images/wangHui_scrollThree_2.jpg" height="300" width="400" alt="The Kangxi Emperor's Southern Inspection Tour, Scroll Three" priority>
+</div>

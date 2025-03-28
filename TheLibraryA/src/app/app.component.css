@@ -1,0 +1,117 @@
+@import 'shared/styles/sButton.css';
+@import 'shared/styles/sInput.css';
+@import 'shared/styles/rowCol.css';
+@import 'shared/styles/image34.css';
+@import 'shared/styles/borderBox.css';
+
+#body{
+  z-index: 9;
+  margin-bottom: 0.6em;
+}
+
+#header{
+  font-family: "Bell MT", sans-serif;
+  font-size: 1.2em;
+  background-color: cadetblue;
+  position: relative;
+  margin: 0 0 0.6em;
+  height: fit-content;
+  padding: 0.6em;
+  display: flex;
+  flex-direction: row;
+}
+
+#home{
+  font-weight: bold;
+  font-style: italic;
+  color: goldenrod;
+  font-size: 2.4em;
+  background: rgba(40, 0, 73, 0.7);
+  padding: 0.6em;
+  border: 0.2em solid cornflowerblue;
+  text-decoration: none;
+}
+
+#home:hover{
+  cursor: pointer;
+  border: 0.2em solid goldenrod;
+}
+
+#right{
+    margin-left: auto;
+}
+
+#userInfo{
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: black;
+}
+
+#userInfo:hover{
+  cursor: pointer;
+  color: rgba(77, 1, 209, 0.7);
+}
+
+#username{
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-right: 0.6em;
+}
+
+.inputColumn{
+  width: 70%;
+  padding-right: 0.6em;
+}
+
+@keyframes expand {
+  from{
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.window{
+  animation: expand 0.3s ease-in;
+  position: relative;
+  margin-left: auto;
+  padding: 0.3em;
+  width: fit-content;
+  height: fit-content;
+  z-index: 9;
+}
+
+#logInForm{
+  padding: 1.2em;
+}
+
+.menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%; transform: translateX(-50%);
+  padding: 0;
+  z-index: 9;
+  border-top: none;
+  margin-top: 0.2em;
+}
+
+.dropdown button {
+  display: block;
+  margin: 0.5em 0.3em;
+}
+
+.dropButton{
+  margin-top: 0.5em;
+}
+
+.menu-container:hover .dropdown {
+  display: block;
+}

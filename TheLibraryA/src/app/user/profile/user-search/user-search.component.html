@@ -1,0 +1,28 @@
+<div class="topBar">
+  @if (userSearchForm) {
+    <form class="column" id="userSearchForm" [formGroup]="userSearchForm">
+      <div class="row" style="gap: 1em">
+        <span style="font-size: 1.2em">Find a fellow daoist:</span>
+        <div>
+          <div class="input-container">
+            <input class="input-field" id="userSearchInput"
+                   type="text" maxlength="20" formControlName="username">
+            <label for="userSearchInput" class="input-label">Enter daoist title</label>
+            <span class="input-highlight"></span>
+          </div>
+        </div>
+        <div style="width: 10em; height: 3em; display: flex; align-content: center; justify-content: center;">
+          <button class="sButton sButtonColor disabledHide" id="searchButton" type="submit" form="userSearchForm"
+                  [disabled]="userSearchForm.invalid || isFormPristine" (click)="searchForUser()">Search
+          </button>
+        </div>
+      </div>
+      @if (userSearchForm.get('username')?.invalid && userSearchForm.get('username')?.dirty) {
+        <div class="errorBox">
+          Enter letters ('a-z' and 'A-Z'), digits ('0-9'), hi-fens ('-') or underscores ('_').<br>
+          Enter between between 5 and 20 characters long.
+        </div>
+      }
+    </form>
+  }
+</div>

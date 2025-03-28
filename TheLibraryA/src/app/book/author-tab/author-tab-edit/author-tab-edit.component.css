@@ -1,0 +1,82 @@
+@import "../../../shared/styles/sInput.css";
+@import "../../../shared/styles/sButton.css";
+@import "../../../shared/styles/textArea.css";
+@import "../../../shared/styles/rowCol.css";
+@import "../../../shared/styles/m3Toggle.css";
+@import "../../../shared/styles/horizontalTagSelector.css";
+@import "../../../shared/styles/image34.css";
+@import "../../../shared/styles/floatBox.css";
+@import "../../../shared/styles/borderBox.css";
+
+#outerBox {
+  width: 100%;
+  height: 100%;
+}
+
+#innerBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1.5fr 0.5fr 1fr 1fr 1fr 1fr;
+  gap: 0 0;
+  grid-template-areas:
+    "titleDiv titleDiv infoDiv infoDiv infoDiv"
+    "dropDiv dropDiv infoDiv infoDiv infoDiv"
+    "dropDiv dropDiv descriptionDiv descriptionDiv descriptionDiv"
+    "dropDiv dropDiv descriptionDiv descriptionDiv descriptionDiv"
+    "dropDiv dropDiv tagDiv tagDiv tagDiv"
+    "buttonDiv buttonDiv buttonDiv buttonDiv buttonDiv";
+}
+
+.titleDiv {
+  grid-area: titleDiv;
+  overflow-wrap: break-word;
+  padding-bottom: 0.5em;
+  white-space: normal;
+  word-wrap: anywhere;
+  word-break: break-word;
+}
+
+.dropDiv {
+  grid-area: dropDiv;
+}
+
+.buttonDiv {
+  grid-area: buttonDiv;
+}
+
+.descriptionDiv {
+  grid-area: descriptionDiv;
+}
+
+.textArea {
+  margin-right: 0.5em;
+  margin-left: 0.5em;
+  max-width: min(40em, 100%);
+}
+
+.infoDiv {
+  text-align: center;
+  grid-area: infoDiv;
+}
+
+.sButtonColor::before, .sButtonColor::after {
+  background-color: #86B1BE;
+}
+
+:host {
+  --buttonColor: #86B1BE;
+}
+
+#deleteBookForm {
+  padding: 0.6em;
+  box-shadow: 0 0 0.2em 0;
+}
+
+@media (max-width: 1920px) {
+  .textArea {
+    max-width: 30em;
+  }
+  #innerBox {
+    padding: 1em;
+  }
+}

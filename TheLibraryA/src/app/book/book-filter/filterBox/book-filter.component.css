@@ -1,0 +1,53 @@
+@import '../../../shared/styles/sButton.css';
+@import '../../../shared/styles/m3Toggle.css';
+@import '../../../shared/styles/sInput.css';
+@import '../../../shared/styles/rowCol.css';
+@import "../../../shared/styles/borderBox.css";
+
+.filterBox {
+  padding: 0.6em 0.6em 0.9em;
+  font-family: "Bell MT", serif;
+}
+
+select {
+  width: 60%;
+}
+
+.tagsDiv {
+  padding-top: 0.9em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2em;
+  justify-content: center;
+}
+
+.tagSelector {
+  display: flex;
+  align-items: center;
+}
+
+.tagName {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-right: 0.6em;
+}
+
+.left {
+  align-items: start;
+}
+
+.filterButtons{
+  padding-top: 1em;
+  padding-bottom: 0.48em;
+}
+
+#dropdownRatingList{
+  width: 40%;
+  margin-right: 0;
+}
+
+#titleColumn{
+  margin-bottom: 0.6em;
+}
+
+

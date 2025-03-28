@@ -1,0 +1,59 @@
+<div id="outerBox" class="column">
+  @if (this.tokenValue !== undefined) {
+    <button class="sButton" (click)="attemptAccountActivation()">Token present, activate account</button>
+  } @else {
+    <div id="formBox column">
+      @if (emailInputForm !== undefined) {
+        <span>Enter email address to send account activation email:</span>
+        <form id="emailInputForm" [formGroup]="emailInputForm"
+              (ngSubmit)="sendAccountActivationEmail()">
+          <div class="emailInput">
+            <div class="input-container">
+              <input placeholder="Enter email address" class="input-field" id="emailInput" type="text" maxlength="30"
+                     formControlName="email">
+              <label for="emailInput" class="input-label">Email: </label>
+              <span class="input-highlight"></span>
+            </div>
+            @if (emailInputForm.get('email')?.invalid && emailInputForm.get('email')?.dirty) {
+              <div class="errorBox">
+                Enter a valid email address
+              </div>
+            }
+          </div>
+          <div class="row" style="margin-top:  1em;">
+            <button class="sButton" type="submit" [disabled]="emailInputForm.invalid || isFormPristine">
+              Send account activation email
+            </button>
+          </div>
+        </form>
+      }
+    </div>
+  }
+    @if (this.successSend === true) {
+      <div class="column">
+        <p>Account activation email sent successfully. Click on the link (expires in 24 hours) in the received email to
+          complete the procedure. You can close this page.</p>
+        <button class="sButton" routerLink="">Go to homepage</button>
+      </div>
+    } @else if (this.successSend === false) {
+      <div class="column">
+        <p>Account activation email could not be sent. Please make sure the account for the given email address exists,
+          the account isn't a Google account and
+          the account isn't already activated. Failure details: {{sendErrorMessage}}</p>
+      </div>
+    }
+    @if (this.successActivation === true) {
+      <div class="column">
+        <p>Account has been activated successfully. You can close this page.</p>
+        <button class="sButton" routerLink="">Go to homepage</button>
+      </div>
+    } @else if (this.successActivation === false) {
+      <div class="column">
+        <p>Account activation failed. Please make sure the sent email is no older than 24 hours, the token in the email
+          has
+          not been used, the account isn't a Google account and isn't already activated. Failure details: {{activationErrorMessage}}</p>
+        <button class="sButton" routerLink="/account-activation" (click)="reload()">Try again</button>
+      </div>
+    }
+</div>
+

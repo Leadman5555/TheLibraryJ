@@ -1,0 +1,145 @@
+<div id="outerBox">
+  @if (updateBookFrom) {
+    <form id="innerBox" [formGroup]="updateBookFrom" (ngSubmit)="attemptBookUpdate()">
+      <div class="titleDiv column">
+        <div class="column" style="margin-bottom: 1em">
+          <span><b>Current title</b>: {{this.currentlyEditingBook.title}}</span>
+          <div class="inputColumn">
+            <div class="input-container">
+              <input placeholder="Update the title" class="input-field" id="titleInput" type="text" maxlength="40"
+                     formControlName="title">
+              <label for="titleInput" class="input-label">The new title shall be: </label>
+              <span class="input-highlight"></span>
+            </div>
+            @if (updateBookFrom.get('title')?.invalid && updateBookFrom.get('title')?.dirty) {
+              <div class="errorBox">
+                Enter a valid title, from 5 to 40 characters long. Allowed special characters: '-', ''', '!', '"', '_', and
+                whitespace.
+              </div>
+            }
+          </div>
+        </div>
+        <div class="column">
+          <span><b>Current state</b>: {{this.currentlyEditingBook.bookState}}</span>
+          <div class="column">
+            <select formControlName="state" id="dropdownPreferenceList">
+              @for (bookState of stateArray; track bookState) {
+                <option [ngValue]="bookState">
+                  {{bookState}}
+                </option>
+              }
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="dropDiv column">
+        <b>Current cover image</b>
+        <div class="image34Wrapper">
+          <img class="image34" src="data:image/jpg;base64,{{this.currentlyEditingBook.coverImage}}" alt="Current cover image">
+        </div>
+        <div class="mt-square3d-custom tagSelector"
+             style="font-size:0.8em; margin: 0.5em">
+          <span class="tagName">Change cover image</span>
+          <input #editCoverImage (change)="resetImageForm()"  id="checkMt_cover" type="checkbox" formControlName="editCoverImage"/>
+          <label for="checkMt_cover"></label>
+        </div>
+        @if (editCoverImage.checked){
+          <span>If no image is selected, the cover will be reset to a default one.<br>To cancel, flip the switch above again.</span>
+          <app-image-drop style="font-size: 0.8em" [parentControl]="getCoverImageControl()"></app-image-drop>
+        }
+      </div>
+      <div class="buttonDiv column">
+        <div>
+          @if (bookUpdateErrorMessage) {
+            <span class="errorBox">{{ this.bookUpdateErrorMessage }}</span>
+          }
+          @else if(bookUpdatedSuccessfully)  {
+            <span class="successBox">Book updated successfully. Changes will be reflected on the website after the next 10 minute mark at latest.</span>
+          }
+        </div>
+        <div class="row">
+          <button class="sButton sButtonColor disabledHide" type="submit"
+                  [disabled]="updateBookFrom.invalid">Update book
+          </button>
+          <button class="sButton sButtonColor" type="button" (click)="resetForm()">Reset</button>
+          <button class="sButton sButtonColor" type="button" (click)="showChapterEditForm()">Edit chapters</button>
+          <button class="sButton sButtonColor" type="button" (click)="showDeleteBookForm()">Delete book</button>
+          @if (deleteBookForm) {
+            <div class="floatBox" style="left: 40%">
+              <form id="deleteBookForm" [formGroup]="deleteBookForm" class="column borderBox" (ngSubmit)="attemptBookDeletion()">
+                <span>Enter the confirmation message to proceed:</span>
+                <b style="text-align: center; word-break: break-word; overflow-wrap: break-word;">{{this.deleteBookConfirmation}}</b>
+                <div class="input-container">
+                  <input placeholder="Enter confirmation message" class="input-field" id="confirmationInput" type="text" maxlength="200"
+                         formControlName="confirmDelete">
+                  <label for="confirmationInput" class="input-label">Confirm deletion: </label>
+                  <span class="input-highlight"></span>
+                </div>
+                @if (deleteBookForm.invalid) {
+                  <div class="errorBox">
+                    Repeat the confirmation message.
+                  </div>
+                }
+                <div class="row" style="margin-top: 1em">
+                  <button class="sButton disabledHide" type="submit" [disabled]="deleteBookForm.invalid">Delete book</button>
+                  <button class="sButton" type="button" (click)="closeDeleteBookForm()">Cancel</button>
+                </div>
+                @if (!this.deleteBookSuccess) {
+                  <span class="centerVH errorBox">Book deletion failed</span>
+                }
+              </form>
+            </div>
+          }
+        </div>
+
+      </div>
+      <div class="tagDiv">
+        <span class="tagsInfoText centerVH">Update tags that apply to your book:</span>
+        <div formGroupName="bookTags" class="tagSelectorDiv row">
+          @for (tag of allTags; let i = $index; track i) {
+            <div class="mt-square3d-custom tagSelector" style="font-size:0.8em;">
+              <span class="tagName">{{ tag }}</span>
+              <input id="checkMt_{{i}}" type="checkbox" formControlName="{{i}}"/>
+              <label for="checkMt_{{i}}"></label>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="descriptionDiv column">
+        @if (updateBookFrom.get('description')?.invalid) {
+          <div class="errorBox">
+            Enter between 50 and 700 characters.
+          </div>
+        }
+        <textarea
+          class="textArea"
+          rows="14"
+          cols="50"
+          maxlength="700"
+          formControlName="description"></textarea>
+      </div>
+      <div class="infoDiv column">
+        <div>
+          <b>Update the book</b>
+          <ul style="text-align: left">
+            <li><b>Title</b>: 5-40 characters long. It must be unique, several special characters are allowed. Remember that if your title exceeds a certain length, only a part of it will be shown on the Book preview card.</li>
+            <li><b>Description</b>: 50-700 characters long.</li>
+            <li><b>Cover image</b>: To change the cover flip the switch. If not, no changes to cover will be done. Uploading images in 4:3 ratio is the best choice. Allowed picture formats are: .png, .jpg, .jpeg and .webp, all up to 2MB in size.</li>
+            <li><b>Tags</b>: Choose at least one that applies to your book.</li>
+            <li><b>State</b>: Choose the current state of the book. It may help the readers to know the authors future plans.</li>
+          </ul>
+        </div>
+      </div>
+    </form>
+  } @else {
+    <img
+      ngSrc="/images/wangHui_scrollThree_4.jpg"
+      alt="The Kangxi Emperor's Southern Inspection Tour, Scroll Three"
+      fill
+      priority
+    >
+  }
+  @if (showChapterEdit) {
+    <app-chapter-edit class="floatBox" style="left: 40%" [currentBook]="currentlyEditingBook" (windowClosed)="showChapterEdit=false"></app-chapter-edit>
+  }
+</div>

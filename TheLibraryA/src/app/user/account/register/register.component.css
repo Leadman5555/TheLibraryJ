@@ -1,0 +1,28 @@
+@import "../../../shared/styles/sButton.css";
+@import "../../../shared/styles/rowCol.css";
+@import "../../../shared/styles/sInput.css";
+@import "../../../shared/styles/m3Toggle.css";
+@import "../../../shared/styles/image34.css";
+@import "../../../shared/styles/borderBox.css";
+
+#mainBox{
+  padding: 1.2em;
+  display: flex;
+}
+
+#infoDiv{
+  width: 45%;
+}
+
+.disclaimer{
+  font-size: 1.1em;
+  word-wrap: break-word;
+  text-align: justify;
+}
+
+#formDiv{
+  width: 65%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -1,0 +1,10 @@
+.borderBox{
+  background-color: cadetblue;
+  border: 0.2em solid darkgoldenrod;
+  padding: 1em;
+}
+
+.colourlessBorderBox{
+  border: 0.2em solid darkgoldenrod;
+  padding: 1em;
+}

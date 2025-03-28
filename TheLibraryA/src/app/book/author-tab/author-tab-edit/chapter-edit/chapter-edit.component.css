@@ -1,0 +1,99 @@
+@import "../../../../shared/styles/sButton.css";
+@import "../../../../shared/styles/rowCol.css";
+@import "../../../../shared/styles/borderBox.css";
+@import "../../../../shared/styles/emptyInfoBox.css";
+@import "../../../../shared/styles/sInput.css";
+
+#container {
+  overflow-y: auto;
+  max-height: 90vh;
+  max-width: 90vw;
+}
+
+.outerBox {
+  height: auto;
+  width: 50em;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 0.5fr 1fr 1fr 1fr 0.25fr 1fr;
+  gap: 0.6em 0;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "infoBox infoBox infoBox infoBox infoBox"
+    "infoBox infoBox infoBox infoBox infoBox"
+    "ChapterUploadBox ChapterUploadBox ChapterUploadBox ChapterUploadBox ChapterUploadBox"
+    "ChapterUploadBox ChapterUploadBox ChapterUploadBox ChapterUploadBox ChapterUploadBox"
+    "messageDiv messageDiv messageDiv messageDiv messageDiv"
+    "buttonDiv buttonDiv buttonDiv buttonDiv buttonDiv";
+}
+
+.infoBox {
+  grid-area: infoBox;
+}
+
+.chapterUploadBox{
+  grid-area: ChapterUploadBox;
+}
+
+.dropZone {
+  border:0.18em dashed rgba(40, 0, 73, 0.7);
+  border-radius: 0.6em;
+  padding: 1.2em;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.dropZone.active {
+    background-color: #969db6;
+    border-color: #ac7b03;
+}
+
+.fileGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.6em 0.3em;
+  max-height: calc(5 * (2.4em + 0.7em));
+  overflow-y: auto;
+}
+
+.fileBox {
+  min-width: 5em;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 0.2em solid rgba(32, 128, 0, 0.26);
+  padding: 0.3em;
+  text-align: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  background-color: rgba(128, 128, 0, 0.7);
+  box-shadow: 0.2em 0.2em 0.3em rgba(0, 0, 0, 0.1);
+}
+
+.fileName {
+  flex-grow: 1;
+  font-size: 0.8em;
+  color: bisque;
+}
+
+.fileSquare {
+  min-width: 1em;
+  width: 10%;
+  aspect-ratio: 1/1;
+  padding: 0.1em;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #280049;
+  background-color: rgba(209, 1, 126, 0.62);
+}
+
+.messageDiv {
+  grid-area: messageDiv;
+}
+
+.buttonDiv {
+  grid-area: buttonDiv;
+}

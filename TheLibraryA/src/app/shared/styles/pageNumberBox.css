@@ -1,0 +1,19 @@
+.pageNumberBox {
+  font-size: 1em;
+  padding: 0.6em;
+  cursor: pointer;
+  border: 0.08em solid #a6a4a4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ccc;
+}
+
+.pageNumberBox:hover {
+  background-color: #e3ca6b;
+}
+
+.pageNumberBox.selected {
+  background-color: goldenrod;
+  font-weight: bold;
+}

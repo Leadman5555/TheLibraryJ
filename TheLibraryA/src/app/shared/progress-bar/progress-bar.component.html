@@ -1,0 +1,9 @@
+<div class="column">
+  <div class="progress-bar-container">
+    <div
+      class="progress-bar-fill"
+      [ngStyle]="{ width: getProgressPercentage() + '%' }"
+    ></div>
+  </div>
+  <span>{{current}} of {{ goal }}</span>
+</div>

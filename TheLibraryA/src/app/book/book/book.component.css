@@ -1,0 +1,226 @@
+@import '../../shared/styles/sButton.css';
+@import '../../shared/styles/pageNumberBox.css';
+@import '../../shared/styles/rowCol.css';
+@import '../../shared/styles/image34.css';
+@import '../../shared/styles/textArea.css';
+@import "../../shared/styles/obscuredText.css";
+
+
+.upsertRatingForm {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: fit-content;
+  height: fit-content;
+  background-color: cadetblue;
+  border: 0.25em solid goldenrod;
+  box-shadow: 0 0.3em 0.3em rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 1.2em;
+}
+
+.bookReviews {
+  flex: 0 0 35%;
+  border: 0.2em solid goldenrod;
+  margin-top: 0.3em;
+  padding: 0.6em;
+  background: cadetblue;
+  overflow: auto;
+  max-height: 97.75em;
+}
+
+.reviewElement {
+  max-width: 100%;
+  padding: 0.6em;
+  border: 0.2em dashed goldenrod;
+  background-color: cadetblue;
+  display: flex;
+}
+
+.reviewData {
+  border-right: 0.2em dashed goldenrod;
+  padding-right: 0.3em;
+}
+
+#comment {
+  margin-left: 0.6em;
+}
+
+.userLink {
+  color: bisque;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.userLink:hover {
+  cursor: pointer;
+  color: goldenrod;
+}
+
+#comment {
+  max-width: 20vw;
+  overflow-wrap: break-word;
+}
+
+.outerBox {
+  display: flex;
+  font-family: "Bell MT", serif;
+  width: 90vw;
+}
+
+.bookInfo {
+  flex: 0 0 70%;
+  min-width: 60vw;
+}
+
+.bookCard {
+  background-color: cadetblue;
+  border: 0.2em solid goldenrod;
+  padding: 0.6em;
+  margin: 0.3em;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 0.5fr 1.5fr 0.5fr 1fr 1fr;
+  gap: 0 0;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "coverDiv titleDiv titleDiv titleDiv"
+    "coverDiv ratingDataDiv ratingDataDiv ratingDataDiv"
+    "coverDiv descDiv descDiv descDiv"
+    "infoDiv descDiv descDiv descDiv"
+    "infoDiv descDiv descDiv descDiv"
+    "infoDiv descDiv descDiv descDiv";
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.15em;
+}
+
+.titleDiv {
+  grid-area: titleDiv;
+  font-size: 2em;
+}
+
+.ratingDataDiv {
+  grid-area: ratingDataDiv;
+}
+
+#ratingUpsertInfo{
+  font-size: 1em;
+  padding: 0.3em;
+  text-align: center;
+}
+
+.infoDiv {
+  grid-area: infoDiv;
+}
+
+.coverDiv {
+  padding-top: 0.3em;
+  grid-area: coverDiv;
+  overflow: hidden;
+}
+
+.descDiv {
+  grid-area: descDiv;
+  overflow-wrap: break-word;
+  padding: 1.2em;
+}
+
+.outChapBox {
+  min-width: 60vw;
+  background: cadetblue;
+  padding: 0.6em;
+  margin: 0.3em;
+  border: 0.2em solid goldenrod;
+
+}
+
+.pagingButtons {
+  padding: 0.6em;
+}
+
+.chapterPrevBox {
+  grid-area: chapterPrevBox;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(10, 3.6em);
+  gap: 0.6em;
+  row-gap: 1.2em;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.chapterBox {
+  background-color: #969db6;
+  height: 3.6em;
+  border-radius: 0.3em;
+  padding: 0.3em;
+  border: 0.18em solid gray;
+}
+
+.chapterBox:hover {
+  background: goldenrod;
+  box-shadow: 0.2em 0.2em 0.18em gray;
+  cursor: pointer;
+}
+
+.bold {
+  font-weight: bold;
+  font-size: 1.05em;
+}
+
+#chNumber {
+  font-size: 1.3em;
+  border-right: 0.18em solid gray;
+  flex: 0 0 18%;
+}
+
+#chInfo {
+  flex: 0 0 80%;
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
+}
+
+.tagsDiv {
+  grid-area: tagsDiv;
+  display: flex;
+  gap: 0.2em;
+  flex-wrap: wrap;
+}
+
+.tagBox {
+  border: 0.18em solid goldenrod;
+  border-radius: 0.3em;
+  background-color: goldenrod;
+}
+
+.tagBox:hover {
+  cursor: pointer;
+  background-color: darkgoldenrod;
+  border-color: darkgoldenrod;
+  box-shadow: 0.2em 0.2em .18em gray;
+}
+
+.infoMsg {
+  font-size: 1.2em;
+}
+
+.notActiveDiv{
+  opacity: 0.5;
+  text-align: center;
+  color: black;
+  cursor: pointer;
+}
+
+.activeDiv{
+  text-align: center;
+  opacity: 1;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.notActiveDiv:hover, .activeDiv:hover {
+  opacity: 0.8;
+}

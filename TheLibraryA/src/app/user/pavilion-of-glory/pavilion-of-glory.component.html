@@ -1,0 +1,98 @@
+<div class="centerVH">
+  @if (topRankerList && topRankerList.length >= 6) {
+    @if (showRanking) {
+      <div class="column">
+        <div id="topTitle2" class="topTitle centerVH">
+          <svg width="100%" height="100%" class="centerVH" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="gradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100%" y2="0">
+                <stop offset="0%" stop-color="#daa520"/>
+                <stop offset="50%" stop-color="#a66c00"/>
+                <stop offset="100%" stop-color="#280049"/>
+              </linearGradient>
+            </defs>
+            <text x="50%" y="50%" text-anchor="middle" fill="url(#gradient)">Welcome to the Pavilion of Glory</text>
+          </svg>
+          <span id="musicSource">Music: Reverie Millenary | by: PoKeR、李大白k | Cover: 被遺忘者的哀傷、二蟲w</span>
+        </div>
+        <div class="colourlessBorderBox outerBox">
+          <a class="userShrine column place1" routerLink="/profile/{{topRankerList[0].username}}">
+            <div class="image34Wrapper" style="width: 6em; height: 8em;">
+              <img class="image34" src="data:image/jpg;base64,{{topRankerList[0].profileImage}}" alt="Profile image">
+            </div>
+            <span> {{ findTitle(topRankerList[0].preference).title }},</span>
+            <span class="username">{{ topRankerList[0].username }}</span>
+            <b>{{ rankArray[topRankerList[0].rank] }}</b>
+          </a>
+
+          <a class="userShrine column place2" routerLink="/profile/{{topRankerList[1].username}}">
+            <div class="image34Wrapper" style="width: 6em; height: 8em;">
+              <img class="image34" src="data:image/jpg;base64,{{topRankerList[1].profileImage}}" alt="Profile image">
+            </div>
+            <span> {{ findTitle(topRankerList[1].preference).title }},</span>
+            <span class="username">{{ topRankerList[1].username }}</span>
+            <b>{{ rankArray[topRankerList[1].rank] }}</b>
+          </a>
+
+          <a class="userShrine column place3" routerLink="/profile/{{topRankerList[2].username}}">
+            <div class="image34Wrapper" style="width: 6em; height: 8em;">
+              <img class="image34" src="data:image/jpg;base64,{{topRankerList[2].profileImage}}" alt="Profile image">
+            </div>
+            <span> {{ findTitle(topRankerList[2].preference).title }},</span>
+            <span class="username">{{ topRankerList[2].username }}</span>
+            <b>{{ rankArray[topRankerList[2].rank] }}</b>
+          </a>
+
+          <a class="userShrine column place4" routerLink="/profile/{{topRankerList[3].username}}">
+            <div class="image34Wrapper" style="width: 6em; height: 8em;">
+              <img class="image34" src="data:image/jpg;base64,{{topRankerList[3].profileImage}}" alt="Profile image">
+            </div>
+            <span> {{ findTitle(topRankerList[3].preference).title }},</span>
+            <span class="username">{{ topRankerList[3].username }}</span>
+            <b>{{ rankArray[topRankerList[3].rank] }}</b>
+          </a>
+
+          <a class="userShrine column place5" routerLink="/profile/{{topRankerList[4].username}}">
+            <div class="image34Wrapper" style="width: 6em; height: 8em;">
+              <img class="image34" src="data:image/jpg;base64,{{topRankerList[4].profileImage}}" alt="Profile image">
+            </div>
+            <span> {{ findTitle(topRankerList[4].preference).title }},</span>
+            <span class="username">{{ topRankerList[4].username }}</span>
+            <b>{{ rankArray[topRankerList[4].rank] }}</b>
+          </a>
+
+          <a class="userShrine column place6" routerLink="/profile/{{topRankerList[5].username}}">
+            <div class="image34Wrapper" style="width: 6em; height: 8em;">
+              <img class="image34" src="data:image/jpg;base64,{{topRankerList[5].profileImage}}" alt="Profile image">
+            </div>
+            <span> {{ findTitle(topRankerList[5].preference).title }},</span>
+            <span class="username">{{ topRankerList[5].username }}</span>
+            <b>{{ rankArray[topRankerList[5].rank] }}</b>
+          </a>
+        </div>
+      </div>
+    } @else {
+      <div id="preOpen" class="centerVH" style="width: 90vw; height: 90vh;">
+        <div id="topTitle1" class="column borderBox">
+          <div class="topTitle">
+            <svg width="100%" height="100%" class="centerVH" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="gradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="100%" y2="0">
+                  <stop offset="0%" stop-color="#daa520"/>
+                  <stop offset="50%" stop-color="#a66c00"/>
+                  <stop offset="100%" stop-color="#280049"/>
+                </linearGradient>
+              </defs>
+              <text x="50%" y="50%" text-anchor="middle" fill="url(#gradient)">Welcome to the Pavilion of Glory</text>
+            </svg>
+          </div>
+          <button class="sButton" style="font-size: 1em" (click)="openTheRanking()">Enter inside</button>
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="emptyInfoBox" style="width: 90vw; height: 90vh;">
+      Night sky covered with clouds, stars unseen, connection with the Sect lost. Cannot retrieve ranking information.
+    </div>
+  }
+</div>

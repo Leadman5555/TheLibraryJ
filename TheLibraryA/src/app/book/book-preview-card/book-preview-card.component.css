@@ -1,0 +1,79 @@
+.bookPreviewCard {
+  background-color: cadetblue;
+  border: 0.3em solid goldenrod;
+  height: 100%;
+  max-height: 18em;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 0;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "coverImgDiv coverImgDiv coverImgDiv stateDiv stateDiv"
+    "coverImgDiv coverImgDiv coverImgDiv chapterDiv chapterDiv"
+    "coverImgDiv coverImgDiv coverImgDiv ratingDiv ratingDiv"
+    "coverImgDiv coverImgDiv coverImgDiv ratingDiv ratingDiv"
+    "titleDiv titleDiv titleDiv titleDiv titleDiv";
+  text-align: center;
+  font-weight: 700;
+  font-family: "Bell MT", serif;
+  text-decoration: none;
+  color: black;
+}
+
+.bookPreviewCard:hover {
+  background-color: royalblue;
+  box-shadow: 0.6em 0.6em 0.3em gray;
+}
+
+.coverImgDiv {
+  grid-area: coverImgDiv;
+}
+
+.stateDiv {
+  grid-area: stateDiv;
+  background-color: lightblue;
+  font-size: 0.85em;
+  border-bottom: 0.3em solid goldenrod;
+  border-left: 0.3em solid goldenrod;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chapterDiv {
+  grid-area: chapterDiv;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.8em;
+  border-left: 0.15em solid goldenrod;
+  border-bottom: 0.1em solid goldenrod;
+}
+
+.ratingDiv {
+  grid-area: ratingDiv;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-left: 0.3em solid goldenrod;
+  border-top: 0.16em solid goldenrod;
+}
+
+.titleDiv {
+  grid-area: titleDiv;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 0.3em solid goldenrod;
+  font-size: 1.1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  word-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.5em;
+  max-height: 3em;
+}

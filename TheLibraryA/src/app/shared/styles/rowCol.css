@@ -1,0 +1,24 @@
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  align-items: center;
+  justify-content: center;
+}
+
+.row {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+  justify-content: center;
+}
+
+.centerVH{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.noGap{
+  gap: 0;
+}

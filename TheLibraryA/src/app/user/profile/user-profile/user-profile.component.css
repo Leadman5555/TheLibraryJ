@@ -1,0 +1,97 @@
+@import "../../../shared/styles/sButton.css";
+@import "../../../shared/styles/rowCol.css";
+@import "../../../shared/styles/image34.css";
+@import "../../../shared/styles/previewsColumn.css";
+@import "../../../shared/styles/borderBox.css";
+
+.outerBox {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  text-align: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+
+.userProfileGrid {
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 0.5fr 1fr 1fr 3fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1.2fr 0.8fr;
+  gap: 0 0;
+  grid-auto-flow: row;
+  grid-template-areas:
+    "userBar userBar userBar userBar previewsDiv"
+    "profileImgDiv profileImgDiv rankDiv rankDiv previewsDiv"
+    "profileImgDiv profileImgDiv statusDiv statusDiv previewsDiv"
+    "profileImgDiv profileImgDiv statusDiv statusDiv previewsDiv"
+    "profileImgDiv profileImgDiv statusDiv statusDiv previewsDiv"
+    "lastUpdateDiv lastUpdateDiv  -  - previewsDiv";
+  font-size: 1.1em;
+}
+
+.usernameBar {
+  font-size: 2em;
+  font-weight: bold;
+  font-style: italic;
+  grid-area: userBar;
+  color: rgba(40, 0, 73, 0.7);
+}
+
+.rankDiv {
+  grid-area: rankDiv;
+}
+
+.profileImgDiv {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  grid-area: profileImgDiv;
+}
+
+.statusDiv {
+  grid-area: statusDiv;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.2em;
+  position: relative;
+}
+
+#statusBox {
+  width: 90%;
+  height: 80%;
+  overflow-wrap: break-word;
+  transform-style: preserve-3d;
+  border-radius: 0.3em;
+  color: bisque;
+}
+
+#statusBox::before {
+  content: "";
+  position: absolute;
+  inset: -1.2em;
+  background: conic-gradient(
+    from 90deg at 40% -25%,
+    cadetblue,
+    goldenrod,
+    rgba(40, 0, 73, 0.88),
+    #969DB6FF,
+    aquamarine,
+    lightsteelblue,
+    rosybrown,
+    rgba(40, 0, 73, 0.7),
+    darkgoldenrod,
+    cadetblue
+  );
+  filter: blur(2.1em);
+  transform: translate3d(0px,0px,-1px);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.lastUpdateDiv {
+  grid-area: lastUpdateDiv;
+}
