@@ -62,8 +62,8 @@ export class ChapterComponent implements OnInit {
     const bookId = params.get('bookId');
     const bookTitle = params.get('title');
     if (!chapterNumber || !bookId)
-      if(bookTitle) this.router.navigate([this.bookNav, bookTitle]);
-      else this.router.navigate([this.failureNav]);
+      if(bookTitle) void this.router.navigate([this.bookNav, bookTitle]);
+      else void this.router.navigate([this.failureNav]);
     this.chapterNumber = +chapterNumber!;
     this.bookId = bookId!;
     this.bookTitle = bookTitle!;
@@ -71,9 +71,8 @@ export class ChapterComponent implements OnInit {
       next: (v) => {
         this.chapterContent = v;
       },
-      error: (e) => {
-        console.error(e);
-        this.router.navigate([this.bookNav, bookTitle]);
+      error: (_) => {
+        void this.router.navigate([this.bookNav, bookTitle]);
       }
     });
     this.createFilterForm();
@@ -90,19 +89,19 @@ export class ChapterComponent implements OnInit {
   }
 
   fetchChapter(chapterNumber: number) {
-    if(chapterNumber <= 0) this.router.navigate([this.bookNav, this.bookTitle]);
+    if(chapterNumber <= 0) void this.router.navigate([this.bookNav, this.bookTitle]);
     this.bookService.getChapterContentByNumber(this.bookId, chapterNumber).subscribe({
       next: (v) => {
         this.chapterContent = v;
         this.chapterNumber = chapterNumber;
       },
       error: (_) => {
-        this.router.navigate([this.bookNav, this.bookTitle]);
+        void this.router.navigate([this.bookNav, this.bookTitle]);
       }
     })
   }
 
   routeToBook(){
-    this.router.navigate([this.bookNav, this.bookTitle]);
+    void this.router.navigate([this.bookNav, this.bookTitle]);
   }
 }

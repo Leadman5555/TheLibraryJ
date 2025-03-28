@@ -32,7 +32,7 @@ export class AuthorTabComponent implements OnInit {
     const username = this.userAuthService.getLoggedInUsername();
     const email = this.userAuthService.getLoggedInEmail();
     if(!username || !email){
-      this.router.navigate(['']);
+      void this.router.navigate(['']);
       return;
     }
     this.authorEmail = email;

@@ -30,7 +30,7 @@ export class AuthCallbackComponent implements OnInit{
         console.error('Authorization code not found in callback.');
       }
     });
-    this.router.navigate([this.redirectTo]);
+    void this.router.navigate([this.redirectTo]);
   }
 
   serverRedirect(code: string): void {

@@ -26,9 +26,9 @@ export class UserSearchComponent {
     });
   }
 
-  searchForUser() {
+  async searchForUser() {
     if(this.userSearchForm.pristine || this.userSearchForm.invalid) return;
-    this.router.navigate(['/profile', this.userSearchForm.value.username]);
+    void this.router.navigate(['/profile', this.userSearchForm.value.username]);
     this.userSearchForm.reset();
   }
 

@@ -248,8 +248,8 @@ export class UserProfileEditComponent implements OnInit {
     }
     this.rankUpdateErrorMessage = undefined;
     this.userProfileService.updateRank(this.userData.email).subscribe({
-      next: (response: UserRankUpdateResponse) => {
-        this.triggerRankUpAnimation(response.newRank);
+      next: async (response: UserRankUpdateResponse) => {
+        await this.triggerRankUpAnimation(response.newRank);
         this.userData.rank = response.newRank;
         this.userData.currentScore = response.newScore;
       },

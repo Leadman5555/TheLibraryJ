@@ -49,17 +49,17 @@ export class BookService {
 
   public getChapterPreviewsPageByKeySet(bookId: string, page: number, keySetPage: KeySetPage): Observable<ChapterPreviewPage> {
     const params = BookService.getParamsForKeySetPaging(page);
-    return this.http.post<ChapterPreviewPage>(`${this.baseUrl}/${bookId}/chapter`, keySetPage, {params});
+    return this.http.post<ChapterPreviewPage>(`${this.baseUrl}/${bookId}/chapter`, keySetPage, {params}).pipe(catchError(handleError));
   }
 
   public getBookPreviewsByParamsPageByOffset(filterParams: HttpParams, page: number, pageSize: number): Observable<BookPage> {
     const params = BookService.getParamsForOffsetPaging(page, pageSize, filterParams);
-    return this.http.get<BookPage>(`${this.baseUrl}/filtered`, {params});
+    return this.http.get<BookPage>(`${this.baseUrl}/filtered`, {params}).pipe(catchError(handleError));
   }
 
   public getBookPreviewsByParamsPageByKeySet(filterParams: HttpParams, page: number, keySetPage: KeySetPage): Observable<BookPage> {
     const params = BookService.getParamsForKeySetPaging(page, filterParams);
-    return this.http.post<BookPage>(`${this.baseUrl}/filtered`, keySetPage, {params});
+    return this.http.post<BookPage>(`${this.baseUrl}/filtered`, keySetPage, {params}).pipe(catchError(handleError));
   }
 
   public getBookPreviewsByAuthor(author: string): Observable<BookPreview[]> {
@@ -72,16 +72,16 @@ export class BookService {
   }
 
   public getBook(bookTitle: string): Observable<BookResponse> {
-    return this.http.get<BookResponse>(`${this.baseUrl}/book/${bookTitle}`);
+    return this.http.get<BookResponse>(`${this.baseUrl}/book/${bookTitle}`).pipe(catchError(handleError));
   }
 
   public getChapterContentByNumber(bookId: string, chapterNumber: number): Observable<ChapterContent> {
     const params = new HttpParams().set('bookId', bookId).set('chapterNumber', chapterNumber);
-    return this.http.get<ChapterContent>(`${this.baseUrl}/book/chapter`, {params: params});
+    return this.http.get<ChapterContent>(`${this.baseUrl}/book/chapter`, {params: params}).pipe(catchError(handleError));
   }
 
   public getRatingsForBook(bookId: string): Observable<RatingResponse[]> {
-    return this.http.get<RatingResponse[]>(`${this.baseUrl}/${bookId}/rating`);
+    return this.http.get<RatingResponse[]>(`${this.baseUrl}/${bookId}/rating`).pipe(catchError(handleError));
   }
 
   public upsertRatingForBook(request: RatingRequest): Observable<RatingResponse> {

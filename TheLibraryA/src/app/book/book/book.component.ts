@@ -86,12 +86,11 @@ export class BookComponent implements OnInit {
             this.loadIsSubscribed();
             this.fetchChapterPreviews();
           },
-          error: (e) => {
-            logError(e);
-            this.router.navigate([this.defaultRoute]);
+          error: (_) => {
+            void this.router.navigate([this.defaultRoute]);
           }
         });
-      } else this.router.navigate([this.defaultRoute]);
+      } else void this.router.navigate([this.defaultRoute]);
     }
   }
 
@@ -145,7 +144,7 @@ export class BookComponent implements OnInit {
   private createRatingUpsertForm() {
     const loggedUser = this.userAuthService.getLoggedInUsername();
     if(!loggedUser){
-      this.router.navigate(['']);
+      void this.router.navigate(['']);
       return;
     }
     const foundRating = this.ratings!.find(rating => rating.username === loggedUser);
@@ -189,7 +188,7 @@ export class BookComponent implements OnInit {
     if (this.ratingUpsertForm.invalid) return;
     const userEmail = this.userAuthService.getLoggedInEmail();
     if(!userEmail){
-      this.router.navigate(['']);
+      void this.router.navigate(['']);
       return;
     }
     this.ratingUpsertMessage = undefined;

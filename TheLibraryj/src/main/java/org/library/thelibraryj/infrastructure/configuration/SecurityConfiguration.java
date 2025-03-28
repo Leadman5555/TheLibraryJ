@@ -45,24 +45,6 @@ class SecurityConfiguration {
     @Value("${library.client.base_url}")
     private String clientBaseUrl;
 
-
-//    /**
-//     * Creates a CookieCsrfTokenRepository bean for managing CSRF tokens through browser cookies.
-//     * Configured to automatically attach a XSRF-TOKEN cookie to any authenticated request.
-//     * Checks each incoming authenticated request for:
-//     * 1. XSRF-TOKEN as a cookie
-//     * 2. X-XSRF-TOKEN header with value equal to that of the cookie
-//     * 3. Valid value of the cookie
-//     */
-//    @Profile(value={"development"})
-//    @Bean(name="csrfTokenRepository")
-//    CookieCsrfTokenRepository cookieCsrfTokenRepository() {
-//        final CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
-//        repository.setCookiePath("/");
-//        return repository;
-//    }
-
-
     /**
      * URLs matching the AUTH_WHITELIST pass the filter chain without any checks.
      * Any other URL needs to be validated for the required credentials

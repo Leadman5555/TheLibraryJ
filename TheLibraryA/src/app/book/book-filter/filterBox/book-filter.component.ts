@@ -154,7 +154,7 @@ export class BookFilterComponent implements OnInit {
 
   private redirectToFilterAndPushChanges(){
     this.activeFilters = this.newFilters;
-    this.router.navigate(['/filter'], {
+    void this.router.navigate(['/filter'], {
       queryParams: this.activeFilters,
       queryParamsHandling: 'replace',
     });
@@ -162,7 +162,7 @@ export class BookFilterComponent implements OnInit {
 
   private pushFilterChanges() {
     this.activeFilters = this.newFilters;
-    this.router.navigate([], {
+    void this.router.navigate([], {
       queryParams: this.activeFilters,
       queryParamsHandling: 'replace',
       replaceUrl: true,
@@ -173,7 +173,7 @@ export class BookFilterComponent implements OnInit {
   private clearFilters(){
     this.activeFilters = this.defaultFilters;
     this.newFilters = this.defaultFilters;
-    this.router.navigate([], {
+    void this.router.navigate([], {
       queryParams: null,
       queryParamsHandling: 'replace',
       replaceUrl: true,

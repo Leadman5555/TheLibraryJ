@@ -51,8 +51,8 @@ export class PavilionOfGloryComponent implements OnInit, OnDestroy {
   private readonly pathToSoundFile = '/sounds/Reverie Millenary  by_ PoKeR.mp3';
   private readonly audio = new Audio(this.pathToSoundFile);
 
-  private playLoadSound(){
-    this.audio.play();
+  private async playLoadSound(){
+    await this.audio.play();
   }
 
   ngOnDestroy(): void {
