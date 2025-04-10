@@ -3,6 +3,7 @@ package org.library.thelibraryj.userInfo.domain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.library.thelibraryj.TestContextInitialization;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
@@ -29,7 +30,7 @@ import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
 @ContextConfiguration
-public class UserInfoIT {
+public class UserInfoIT extends TestContextInitialization {
 
 
     @Autowired

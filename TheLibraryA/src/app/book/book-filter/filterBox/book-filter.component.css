@@ -15,15 +15,18 @@ select {
 
 .tagsDiv {
   padding-top: 0.9em;
-  display: flex;
+  margin-right: 0.6em;
+  margin-left: 0.6em;
+  display: grid;
   flex-wrap: wrap;
+  grid-template-columns:  1fr 0.5fr 1fr 0.5fr;
   gap: 1.2em;
-  justify-content: center;
+  justify-items: center;
 }
 
 .tagSelector {
   display: flex;
-  align-items: center;
+  align-items: self-end;
 }
 
 .tagName {

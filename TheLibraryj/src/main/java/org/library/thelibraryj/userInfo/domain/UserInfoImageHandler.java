@@ -14,14 +14,14 @@ import java.util.UUID;
 @Component
 class UserInfoImageHandler {
     @Getter
-    private byte[] defaultImage;
+    private final byte[] defaultImage;
     private final Path basePath;
 
     public UserInfoImageHandler(@Value("${library.user.image_source}") String imageSourcePath) {
         try {
             defaultImage = Files.readAllBytes(Path.of(imageSourcePath, "default.jpg"));
         } catch (IOException e) {
-            defaultImage = null;
+            throw new RuntimeException("Could not load default image for UserInfoImageHandler");
         }
         basePath = Path.of(imageSourcePath);
     }

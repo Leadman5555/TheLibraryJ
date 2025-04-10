@@ -13,14 +13,14 @@ import java.nio.file.StandardCopyOption;
 @Component
 class BookImageHandler {
     @Getter
-    private byte[] defaultImage;
+    private final byte[] defaultImage;
     private final Path basePath;
 
     public BookImageHandler(@Value("${library.book.image_source}") String imageSourcePath) {
         try {
             defaultImage = Files.readAllBytes(Path.of(imageSourcePath, "default.jpg"));
         } catch (IOException e) {
-            defaultImage = null;
+            throw new RuntimeException("Could not load default image for BookImageHandler");
         }
         basePath = Path.of(imageSourcePath);
     }

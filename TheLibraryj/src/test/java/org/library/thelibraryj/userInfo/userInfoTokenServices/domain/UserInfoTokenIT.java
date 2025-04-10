@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.library.thelibraryj.TestContextInitialization;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.userInfo.userInfoTokenServices.dto.request.BookTokenConsummationRequest;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -34,8 +36,8 @@ import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
 @ContextConfiguration
-public class UserInfoTokenIT {
-
+@Import(TestProperties.class)
+public class UserInfoTokenIT extends TestContextInitialization {
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -134,6 +136,7 @@ public class UserInfoTokenIT {
         Assertions.assertEquals(HttpStatus.NOT_FOUND, emailResponse2.getStatusCode());
     }
 
+    private static final String clearFavouriteBooksQuery = "DELETE FROM library.favourite_books WHERE user_info_id= '" + userId + "' OR user_info_id= '" + userId2 + "'";
     private static final String addFavouriteBookQuery = "INSERT INTO library.favourite_books (user_info_id, book_id) VALUES ('" + userId + "', '" + bookId + "'), ('" + userId + "', '" + bookId2 + "'), ('" + userId2 + "', '" + bookId + "') , ('" + userId2 + "', '" + bookId3 + "')";
     private static final UUID validTokenId = UUID.randomUUID();
     private static final String addValidBookTokenForUser1Query = "INSERT INTO library.library_book_tokens (id, token, for_user_id, version, created_at, updated_at, expires_at, use_count) VALUES ('123e4567-e89b-12d3-a456-426614174001', '" + validTokenId + "', '" + userId + "', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,        CURRENT_TIMESTAMP + 10, 0)";
@@ -145,6 +148,7 @@ public class UserInfoTokenIT {
     public void testFavouriteBookMerging() throws Exception {
         Connection connection = dataSource.getConnection();
         Statement fillDb = connection.createStatement();
+        fillDb.execute(clearFavouriteBooksQuery);
         fillDb.execute(addFavouriteBookQuery);
         fillDb.execute(addValidBookTokenForUser1Query);
         connection.close();
