@@ -99,7 +99,7 @@ export class FavouriteBooksComponent implements OnInit {
     const request: BookTokenConsummationRequest = {email: email, token: this.importForm!.value.token};
     this.userProfileService.mergeFavouriteBooksUsingToken(request).subscribe({
       next: (mergerResponse) => {
-        this.importSuccessMessage = `Token belonged to daoist ${mergerResponse.fromUsername}. Attempted to merge ${mergerResponse.attemptedToMergeCount === 1 ? 'one book' : mergerResponse.attemptedToMergeCount + ' books'}  and your favourite collection grew from ${mergerResponse.sizeBeforeMerge} to ${mergerResponse.sizeAfterMerge === 1 ? 'one book' : mergerResponse.sizeAfterMerge + ' books'}.`;
+        this.importSuccessMessage = `Token belonged to Daoist ${mergerResponse.fromUsername}. Attempted to merge ${mergerResponse.attemptedToMergeCount === 1 ? 'one book' : mergerResponse.attemptedToMergeCount + ' books'}  and your favourite collection grew from ${mergerResponse.sizeBeforeMerge} to ${mergerResponse.sizeAfterMerge === 1 ? 'one book' : mergerResponse.sizeAfterMerge + ' books'}.`;
         this.getFavouriteBooksForUser();
       },
       error: (error: string) => this.importErrorMessage = error

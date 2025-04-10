@@ -10,6 +10,11 @@ CREATE TABLE IF NOT EXISTS library.library_book_details
     updated_at  TIMESTAMP,
     CONSTRAINT pk_library_book_details PRIMARY KEY (id)
 );
+CREATE TABLE IF NOT EXISTS library.book_tag
+(
+    book_preview_id UUID     NOT NULL,
+    tag             SMALLINT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS library.library_book_previews
 (
     title          VARCHAR(50) UNIQUE NOT NULL,
@@ -22,11 +27,6 @@ CREATE TABLE IF NOT EXISTS library.library_book_previews
     average_rating FLOAT              NOT NULL,
     book_state     SMALLINT           NOT NULL,
     CONSTRAINT pk_library_book_previews PRIMARY KEY (book_detail_id)
-);
-CREATE TABLE IF NOT EXISTS library.book_tag
-(
-    book_preview_id UUID     NOT NULL,
-    tag             SMALLINT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS library.favourite_books
 (
