@@ -7,9 +7,10 @@ CREATE TABLE library.library_book_previews(book_detail_id UUID         NOT NULL,
 DROP TABLE IF EXISTS library.book_tag;
 CREATE TABLE library.book_tag(book_preview_id UUID NOT NULL,   tag             TINYINT);
 DROP TABLE IF EXISTS library.favourite_books;
-CREATE TABLE library.favourite_books(user_info_id UUID NOT NULL,book_id UUID NOT NULL);
+-- VARCHAR for book_id in favourite and subscribed books beause H2 driver treats it as byte[] otherwise
+CREATE TABLE library.favourite_books(user_info_id UUID NOT NULL,book_id VARCHAR(36) NOT NULL);
 DROP TABLE IF EXISTS library.subscribed_books;
-CREATE TABLE library.subscribed_books (user_info_email VARCHAR(48) NOT NULL,book_id      UUID NOT NULL);
+CREATE TABLE library.subscribed_books (user_info_email VARCHAR(48) NOT NULL,book_id      VARCHAR(36) NOT NULL);
 DROP TABLE IF EXISTS library.library_chapter_previews;
 CREATE TABLE library.library_chapter_previews(id             UUID   NOT NULL,   version        BIGINT NOT NULL DEFAULT 0,created_at     TIMESTAMP,updated_at     TIMESTAMP,title          VARCHAR(255),number         INT    NOT NULL,  is_spoiler BOOL NOT NULL DEFAULT FALSE, book_detail_id UUID   NOT NULL,CONSTRAINT pk_library_chapter_previews PRIMARY KEY (id));
 DROP TABLE IF EXISTS library.library_chapters;

@@ -57,7 +57,6 @@ class PublicBookController implements ErrorHandling {
                             schema = @Schema(implementation = PagedBookPreviewsResponse.class)
                     )
             ),
-            @ApiResponse(responseCode = "200", description = ""),
             @ApiResponse(responseCode = "400", description = "Invalid paging data provided"),
             @ApiResponse(responseCode = "404", description = "Requested page not found")
     })

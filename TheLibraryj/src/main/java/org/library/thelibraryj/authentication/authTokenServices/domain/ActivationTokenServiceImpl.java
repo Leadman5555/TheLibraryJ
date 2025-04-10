@@ -55,12 +55,12 @@ class ActivationTokenServiceImpl implements ActivationTokenService {
 
     @Transactional
     @Override
-    public Either<GeneralError, Boolean> consumeActivationToken(UUID tokenId) {
-        Either<GeneralError, AuthToken> fetched = Try.of(() -> authTokenRepository.findByToken(tokenId))
+    public Either<GeneralError, Boolean> consumeActivationToken(UUID token) {
+        Either<GeneralError, AuthToken> fetched = Try.of(() -> authTokenRepository.findByToken(token))
                 .toEither()
                 .map(Option::ofOptional)
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
-                .flatMap(optionalEntity -> optionalEntity.toEither(new ActivationError.ActivationTokenNotFound(tokenId)));
+                .flatMap(optionalEntity -> optionalEntity.toEither(new ActivationError.ActivationTokenNotFound(token)));
         if(fetched.isLeft()) return Either.left(fetched.getLeft());
         AuthToken authToken = fetched.get();
         if(authToken.hasExpired()) return Either.left(new ActivationError.ActivationTokenExpired(authToken.getToken()));

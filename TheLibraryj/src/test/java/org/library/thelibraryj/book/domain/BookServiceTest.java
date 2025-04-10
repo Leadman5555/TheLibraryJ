@@ -80,6 +80,7 @@ public class BookServiceTest {
 
     @BeforeEach
     public void setUp() {
+        bookService.init();
         bookService.setUserInfoService(userInfoService);
         bookId = UUID.randomUUID();
         authorId = UUID.randomUUID();

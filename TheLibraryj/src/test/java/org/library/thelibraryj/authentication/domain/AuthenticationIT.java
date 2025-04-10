@@ -230,7 +230,7 @@ public class AuthenticationIT {
         UUID newToken = resultSet.getObject("token", UUID.class);
 
         MultiValueMap<String, String> params2 = new LinkedMultiValueMap<>();
-        params2.add("tokenId", newToken.toString());
+        params2.add("token", newToken.toString());
         HttpEntity<MultiValueMap<String, String>> request2 = new HttpEntity<>(params2, headers);
 
         ResponseEntity<String> activationResponse = restTemplate.exchange(

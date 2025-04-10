@@ -5,14 +5,14 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.4</version>
+        <version>3.3.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>org.library</groupId>
     <artifactId>TheLibraryj</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>TheLibraryj</name>
-    <description>TheLibraryj</description>
+    <version>0.9</version>
+    <name>TheLibrary</name>
+    <description>lace at which Chinese literature readers will find themselves right at home.</description>
     <url/>
     <licenses>
         <license/>
@@ -27,7 +27,7 @@
         <url/>
     </scm>
     <properties>
-        <java.version>23</java.version>
+        <java.version>21</java.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -115,7 +115,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webflux</artifactId>
-            <version>6.1.11</version>
+            <version>6.1.14</version>
         </dependency>
         <dependency>
             <groupId>com.auth0</groupId>
@@ -283,8 +283,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>22</source>
+                    <target>22</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <annotationProcessorPaths>
                         <path>

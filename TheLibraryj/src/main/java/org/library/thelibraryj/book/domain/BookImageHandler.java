@@ -37,7 +37,7 @@ class BookImageHandler {
         try {
             Files.copy(image.getInputStream(), basePath.resolve(forTitle + ".jpg"), StandardCopyOption.REPLACE_EXISTING);
             return image.getBytes();
-        } catch (IOException _) {
+        } catch (IOException e) {
             return defaultImage;
         }
     }
@@ -46,7 +46,7 @@ class BookImageHandler {
         try {
             Files.deleteIfExists(basePath.resolve(forTitle + ".jpg"));
             return true;
-        } catch (IOException _) {
+        } catch (IOException e) {
             return false;
         }
     }

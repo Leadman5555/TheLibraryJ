@@ -99,7 +99,7 @@ class PublicAuthenticationController implements ErrorHandling {
     }
 
     @Operation(
-            summary = "Resends an activation email for given email address on success. Creates new activation token fr the user",
+            summary = "Resends an activation email for given email address on success. Creates new activation token for the user",
             tags = {"authentication", "activation", "no auth required"}
     )
     @ApiResponses({
@@ -111,7 +111,7 @@ class PublicAuthenticationController implements ErrorHandling {
     public ResponseEntity<String> resendActivationEmail(@RequestParam @NotNull @Email String email) {
         return authenticationService.resendActivationEmail(email).fold(
                 this::handleError,
-                _ -> ResponseEntity.noContent().build()
+                any -> ResponseEntity.noContent().build()
         );
     }
 

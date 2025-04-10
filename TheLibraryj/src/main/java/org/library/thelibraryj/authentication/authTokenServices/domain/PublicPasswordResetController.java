@@ -35,7 +35,7 @@ record PublicPasswordResetController(PasswordResetTokenService passwordResetToke
     public ResponseEntity<String> startPasswordResetProcedure(@PathVariable @Email String email) {
         return passwordResetTokenService.startPasswordResetProcedure(email).fold(
                 this::handleError,
-                _ -> ResponseEntity.noContent().build()
+                any -> ResponseEntity.noContent().build()
         );
     }
 
@@ -52,7 +52,7 @@ record PublicPasswordResetController(PasswordResetTokenService passwordResetToke
     public ResponseEntity<String> consumePasswordResetToken(@RequestBody @Valid PasswordResetRequest passwordResetRequest) {
         return passwordResetTokenService.consumePasswordResetToken(passwordResetRequest).fold(
                 this::handleError,
-                _ -> ResponseEntity.noContent().build()
+                any -> ResponseEntity.noContent().build()
         );
     }
 

@@ -342,7 +342,9 @@ class UserInfoServiceImpl implements UserInfoService {
     public Either<GeneralError, Set<BookPreviewResponse>> getFavouriteBooks(String email) {
         Either<GeneralError, UUID> fetchedE = getUserInfoIdByEmail(email);
         if(fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
-        return Either.right(bookService.getBookPreviewsByIdsAsSet(userInfoRepository.fetchUserFavouriteBookIds(fetchedE.get())));
+        Set<UUID> favouriteBookIds = userInfoRepository.fetchUserFavouriteBookIds(fetchedE.get());
+        if(favouriteBookIds.isEmpty()) return Either.right(Set.of());
+        return Either.right(bookService.getBookPreviewsByIdsAsSet(favouriteBookIds));
     }
 
     @Override
@@ -404,7 +406,9 @@ class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public Either<GeneralError, Set<BookPreviewResponse>> getSubscribedBooks(String email) {
-        return Either.right(bookService.getBookPreviewsByIdsAsSet(userInfoRepository.fetchUserFavouriteSubscribedBookIds((email))));
+        Set<UUID> subscribedBookIds = userInfoRepository.fetchUserFavouriteSubscribedBookIds((email));
+        if(subscribedBookIds.isEmpty()) return Either.right(Set.of());
+        return Either.right(bookService.getBookPreviewsByIdsAsSet(subscribedBookIds));
     }
 
     @Override

@@ -27,7 +27,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
     public JwtFilter(@Nullable String[] authWhiteList, JwtService jwtService) {
-        if (authWhiteList == null) this.whileListMatcher = _ -> false;
+        if (authWhiteList == null) this.whileListMatcher = any -> false;
         else this.whileListMatcher = new OrRequestMatcher(
                 Arrays.stream(authWhiteList)
                         .map(AntPathRequestMatcher::new)

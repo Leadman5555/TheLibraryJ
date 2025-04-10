@@ -38,7 +38,7 @@ class UserInfoImageHandler {
         try {
             Files.copy(image.getInputStream(), basePath.resolve(forUUID + ".jpg"), StandardCopyOption.REPLACE_EXISTING);
             return true;
-        } catch (IOException _) {
+        } catch (IOException e) {
             return false;
         }
     }
@@ -47,7 +47,7 @@ class UserInfoImageHandler {
         try {
             Files.deleteIfExists(basePath.resolve(forUUID + ".jpg"));
             return true;
-        } catch (IOException _) {
+        } catch (IOException e) {
             return false;
         }
     }

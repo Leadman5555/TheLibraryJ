@@ -416,7 +416,7 @@ class BookServiceImpl implements BookService {
             String fileName;
             try {
                 fileName = Paths.get(file.getOriginalFilename()).getFileName().toString();
-            } catch (InvalidPathException _) {
+            } catch (InvalidPathException e) {
                 return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, file.getOriginalFilename()));
             }
             fileName = fileName.substring(0, fileName.lastIndexOf('.'));
@@ -436,13 +436,13 @@ class BookServiceImpl implements BookService {
                 }
                 try {
                     chapterNumber = Integer.parseInt(fileName.substring(0, numberEnd));
-                } catch (NumberFormatException _) {
+                } catch (NumberFormatException e) {
                     return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, fileName));
                 }
             } else {
                 try {
                     chapterNumber = Integer.parseInt(fileName);
-                } catch (NumberFormatException _) {
+                } catch (NumberFormatException e) {
                     return Either.left(new BookError.InvalidChapterTitleFormat(forBookId, fileName));
                 }
                 chapterTitle = "No title";

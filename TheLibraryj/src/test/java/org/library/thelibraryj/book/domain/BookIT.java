@@ -236,7 +236,7 @@ public class BookIT {
         Assertions.assertEquals(2, body4.length());
         HttpEntity<MultiValueMap<String, Object>> request5 = new HttpEntity<>(null, headers);
         ResponseEntity<String> response5 = restTemplate.exchange(
-                BASE_URL + "/filtered?hasTags=TAG1&hasTags=TAG2&page=0&pageSize=100",
+                BASE_URL + "/filtered?hasTags=XIANXIA&hasTags=WUXIA&page=0&pageSize=100",
                 HttpMethod.GET,
                 request5,
                 String.class
