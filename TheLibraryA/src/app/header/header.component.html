@@ -1,0 +1,109 @@
+<div id="body">
+    <div id="header">
+      <a id="home" routerLink="" (click)="hideWindows()">
+        The Library
+      </a>
+      <div id="right" class="row">
+        @if (this.showLoggedIn) {
+          <a id="userInfo" (click)="hideWindows()" [routerLink]="['/profile', this.userMini?.username]">
+            <span id="username">{{ this.userMini?.username }}</span>
+            <div class="image34Wrapper" style="height: 4.8em; width: 3.6em">
+              <img src="data:image/jpg;base64,{{this.userMini?.profileImage}}" alt="Profile image" class="image34">
+            </div>
+          </a>
+        }
+        <button class="sButton" (click)="toggleMenu()">
+          @if (this.showLoggedIn) {
+            Profile
+          } @else {
+            Log in
+          }
+        </button>
+        <button class="sButton" (click)="toggleOptions()">Options</button>
+      </div>
+    </div>
+    @if (this.showMenu) {
+      <div class="window borderBox">
+        @if (this.showLoggedIn) {
+          <div class="column">
+            <button class="sButton" (click)="hideWindows()" [routerLink]="['/profile', this.userMini?.username]">
+              See profile
+            </button>
+            <button class="sButton" (click)="hideWindows()" [routerLink]="['/profile-edit']">Edit profile</button>
+            <button class="sButton" (click)="logOut()">Log out</button>
+          </div>
+        } @else {
+          @if (this.logInForm) {
+            <form id="logInForm" [formGroup]="logInForm" (ngSubmit)="handleLogInSubmit()">
+              @if (this.errorMessage) {
+                <p class="errorBox" style="width: 100%; word-break: break-word">{{ errorMessage }}</p>
+              }
+              <div class="row" style="margin-bottom: 0.2em">
+                <div class="inputColumn">
+                  <div class="input-container">
+                    <input placeholder="Enter email here" class="input-field" id="emailInput" type="text" maxlength="30"
+                           formControlName="email">
+                    <label for="emailInput" class="input-label">Email: </label>
+                    <span class="input-highlight"></span>
+                  </div>
+                  @if (logInForm.get('email')?.invalid && logInForm.get('email')?.dirty) {
+                    <div class="errorBox">
+                      Enter a valid email address
+                    </div>
+                  }
+                </div>
+                <button class="sButton" type="button" (click)="resetForm()">
+                  Reset form
+                </button>
+              </div>
+              <div class="row">
+                <div class="inputColumn">
+                  <div class="input-container">
+                    <input placeholder="Password" class="input-field" id="passwordInput"
+                           [type]="showPassword ? 'text' : 'password'" maxlength="30" formControlName="password">
+                    <label for="passwordInput" class="input-label">Password: </label>
+                    <span class="input-highlight"></span>
+                  </div>
+                  @if (logInForm.get('password')?.invalid && logInForm.get('password')?.dirty){
+                    <div class="errorBox">
+                      Password is required and at least 8 characters long.
+                    </div>
+                  }
+                </div>
+                <button class="sButton" type="button" (click)="toggleShowPassword()">
+                  {{ showPassword ? 'Hide' : 'Show' }} Password
+                </button>
+              </div>
+              <div class="row" style="margin-top: 0.6em; margin-bottom: 0.3em">
+                <button class="sButton" type="submit" [disabled]="logInForm.invalid || isFormPristine">Log in</button>
+                <img id="googleLogIn" ngSrc="/images/google_logIn.png" width="189" height="40" alt="Google sign in" priority
+                     (click)="logInWithGoogle()">
+              </div>
+              <div class="row" style="margin-top:0.2em;">
+                <button class="sButton" (click)="this.showMenu=false" routerLink="/register">Register</button>
+                <div class="menu-container">
+                  <button class="menu-button sButton">Trouble logging in?</button>
+                  <div class="dropdown borderBox">
+                    <button class="sButton dropButton" (click)="this.showMenu=false" routerLink="/password-recovery">Reset
+                      password
+                    </button>
+                    <button class="sButton dropButton" (click)="this.showMenu=false" routerLink="/activate-account">
+                      Activate account
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          }
+        }
+      </div>
+    } @else if (this.showOptions) {
+      <div class="window column borderBox" style="padding: 0.5em">
+        <app-user-search (click)="this.showMenu = false"></app-user-search>
+        <button class="sButton" (click)="hideWindows()" [disabled]="!showLoggedIn" routerLink="/author-tab">Author Tab</button>
+        <button class="sButton" (click)="hideWindows()" routerLink="/favourite-books">Favourite book collection</button>
+        <button class="sButton" (click)="hideWindows()" [disabled]="!showLoggedIn" routerLink="/book-subscriptions">Book subscriptions</button>
+        <button class="sButton" (click)="hideWindows()" routerLink="/pavilion-of-glory">Pavilion of Glory</button>
+      </div>
+    }
+  </div>
