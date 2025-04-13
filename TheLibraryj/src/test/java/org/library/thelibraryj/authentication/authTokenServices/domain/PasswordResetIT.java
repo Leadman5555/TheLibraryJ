@@ -47,11 +47,6 @@ public class PasswordResetIT extends TestContextInitialization {
     private static final String user1email = TestProperties.userEmail1;
     private static final UUID user1Id = TestProperties.userId1;
 
-    @RegisterExtension
-    static final GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
-            .withConfiguration(GreenMailConfiguration.aConfig().withUser("username", "password"))
-            .withPerMethodLifecycle(false);
-
     @BeforeEach
     public void setUp() {
         ResourceDatabasePopulator scriptExecutor = new ResourceDatabasePopulator();
