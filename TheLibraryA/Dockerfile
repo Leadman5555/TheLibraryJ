@@ -1,11 +1,12 @@
-FROM node:18 AS build
+FROM node:20-alpine AS build
 WORKDIR /angular_client
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm ci
-COPY . .
+COPY . ./
 RUN npm run build --omit-dev
 
-FROM nginx:alpine
-COPY --from=build /angular_client/dist/the-library-a /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
+FROM node:20-alpine
+WORKDIR /angular_client
+COPY --from=build /angular_client/dist/the-library-a ./
+CMD node server/server.mjs
+EXPOSE 4000
