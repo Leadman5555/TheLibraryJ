@@ -1,6 +1,7 @@
 package org.library.thelibraryj.infrastructure.configuration;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.authentication.jwtAuth.JwtService;
 import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,11 +26,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Configuration
 @EnableMethodSecurity
 @EnableWebSecurity
+@Slf4j
 class SecurityConfiguration {
     /** URLs allowed passing without any authentication **/
     private static final String[] AUTH_WHITELIST = {
@@ -66,6 +69,10 @@ class SecurityConfiguration {
                 .authenticationProvider(daoAuthenticationProvider())
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+        log.info("Security filter chain configured");
+        for (String url : AUTH_WHITELIST) {
+            log.info("URL {} is whitelisted", url);
+        }
         return http.build();
     }
 
@@ -81,6 +88,7 @@ class SecurityConfiguration {
         configuration.setExposedHeaders(List.of("access_token"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+        Objects.requireNonNull(configuration.getAllowedOrigins()).forEach(origin -> log.info("Allowed origin: {}", origin));
         return source;
     }
 

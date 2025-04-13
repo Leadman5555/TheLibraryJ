@@ -24,11 +24,6 @@ select {
   justify-items: center;
 }
 
-.tagSelector {
-  display: flex;
-  align-items: self-end;
-}
-
 .tagName {
   font-weight: bold;
   font-size: 1.2em;

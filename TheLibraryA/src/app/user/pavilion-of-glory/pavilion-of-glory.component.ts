@@ -33,7 +33,7 @@ export class PavilionOfGloryComponent implements OnInit, OnDestroy {
   }
 
   openTheRanking(){
-    this.playLoadSound();
+    void this.playLoadSound();
     setTimeout(() => {this.showRanking = true;}, 1000);
   }
 
