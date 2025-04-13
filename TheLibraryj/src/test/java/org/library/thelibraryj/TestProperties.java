@@ -6,7 +6,6 @@ import org.springframework.util.MultiValueMap;
 
 import java.util.UUID;
 
-
 public class TestProperties {
     public static final String BASE_URL = "";
     public static final String BASE_AUTH_FREE_URL = BASE_URL + "/na";
@@ -47,4 +46,5 @@ public class TestProperties {
         headers.add("X-XSRF-TOKEN", token);
         headers.add(HttpHeaders.SET_COOKIE, "XSRF-TOKEN=" + token + "; Path=/");
     }
+
 }

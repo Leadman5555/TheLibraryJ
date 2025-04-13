@@ -46,7 +46,11 @@ VALUES ('123e4567-e89b-12d3-a456-426614174000', 0, CURRENT_TIMESTAMP - INTERVAL 
        ('123e4567-e89b-12d3-a456-426614174001', 0, CURRENT_TIMESTAMP - INTERVAL '2 day', CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP, 'status2' ,'USER2', 'sample.email2@gmail.com', 0, 1, '123e4567-e89b-12d3-a456-426614174001', 0),
        ('123e4567-e89b-12d3-a456-426614174002', 0, CURRENT_TIMESTAMP - INTERVAL '2 day', CURRENT_TIMESTAMP,
-        CURRENT_TIMESTAMP, NULL ,'USER_GOOGLE3', 'sample.email3@gmail.com', 0, 0, '123e4567-e89b-12d3-a456-426614174002', 0);
+        CURRENT_TIMESTAMP, NULL ,'USER_GOOGLE3', 'sample.email3@gmail.com', 0, 0, '123e4567-e89b-12d3-a456-426614174002', 0),
+       ('123e4567-e89b-12d3-a456-426614174003', 0, CURRENT_TIMESTAMP - INTERVAL '2 day', CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP, NULL ,'USER_4', 'sample.email4@gmail.com', 3, 12, '123e4567-e89b-12d3-a456-426614174003', 1),
+       ('123e4567-e89b-12d3-a456-426614174004', 0, CURRENT_TIMESTAMP - INTERVAL '2 day', CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP, NULL ,'User 5', 'sample.email5@gmail.com', 2, 10, '123e4567-e89b-12d3-a456-426614174004', 2);
 INSERT INTO library.library_user_auth(id, version, created_at, updated_at, password, email, role, is_enabled, is_google)
 VALUES ('123e4567-e89b-12d3-a456-426614174000', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,
         '$2a$12$TFze7zTS9rzioXQId.v6L.ernC12Rf0p5uCMyvaAGhxdtyRlzfOvu', 'sample.email1@gmail.com', 'ROLE_ADMIN', true,
@@ -54,7 +58,12 @@ VALUES ('123e4567-e89b-12d3-a456-426614174000', 0, CURRENT_TIMESTAMP, CURRENT_TI
        ('123e4567-e89b-12d3-a456-426614174001', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,
         '$2a$12$TFze7zTS9rzioXQId.v6L.ernC12Rf0p5uCMyvaAGhxdtyRlzfOvu', 'sample.email2@gmail.com', 'ROLE_USER', true, false),
        ('123e4567-e89b-12d3-a456-426614174002', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, NULL,
-        'sample.email3@gmail.com', 'ROLE_ADMIN', true, true);
+        'sample.email3@gmail.com', 'ROLE_ADMIN', true, true),
+       ('123e4567-e89b-12d3-a456-426614174003', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '$2a$12$TFze7zTS9rzioXQId.v6L.ernC12Rf0p5uCMyvaAGhxdtyRlzfOvu',
+        'sample.email4@gmail.com', 'ROLE_USER', true, false),
+       ('123e4567-e89b-12d3-a456-426614174004', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '$2a$12$TFze7zTS9rzioXQId.v6L.ernC12Rf0p5uCMyvaAGhxdtyRlzfOvu',
+        'sample.email5@gmail.com', 'ROLE_USER', true, false);
+-- password for all users is 'password' (without the quotes)
 INSERT INTO library.book_tag(BOOK_PREVIEW_ID, TAG)
 VALUES ('123e4567-e89b-12d3-a456-426614174000', 1),
        ('123e4567-e89b-12d3-a456-426614174001', 2),

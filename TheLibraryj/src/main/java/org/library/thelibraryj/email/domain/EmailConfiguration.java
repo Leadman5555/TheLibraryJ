@@ -1,6 +1,9 @@
 package org.library.thelibraryj.email.domain;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.Transport;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -11,16 +14,26 @@ import org.thymeleaf.templatemode.TemplateMode;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 class EmailConfiguration {
     private final EmailProperties emailProperties;
 
+
     @Bean
-    protected JavaMailSender getJavaMailSender() {
+    protected JavaMailSender getJavaMailSender() throws MessagingException {
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
         sender.setPort(emailProperties.getPort());
         sender.setHost(emailProperties.getHost());
         sender.setPassword(emailProperties.getPassword());
         sender.setUsername(emailProperties.getUsername());
+        sender.getJavaMailProperties().setProperty("mail.smtp.port", emailProperties.getPort().toString());
+        Transport transport = sender.getSession().getTransport("smtp");
+        transport.connect(
+                emailProperties.getHost(),
+                emailProperties.getUsername(),
+                emailProperties.getPassword()
+        );
+        log.info("Successfully connected to email server on port {} with username {}", emailProperties.getPort(), emailProperties.getUsername());
         return sender;
     }
 

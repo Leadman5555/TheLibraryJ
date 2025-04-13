@@ -1,0 +1,58 @@
+version: "3.9"
+services:
+  spring-server:
+    image: the_library-spring-server:latest
+    container_name: spring-boot-server
+    volumes:
+      - ./images:/app/images
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/library_db
+      - SPRING_DATASOURCE_USERNAME=${LIBRARY_DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${LIBRARY_DB_PASSWORD}
+    secrets:
+      - library_email_pass
+      - library_google_client_id
+      - library_google_secret
+      - library_jwt_prvk
+      - library_jwt_pubk
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+
+  db:
+    image: postgres:15.4
+    container_name: library-db
+    environment:
+      POSTGRES_USER: ${LIBRARY_DB_USERNAME}
+      POSTGRES_PASSWORD: ${LIBRARY_DB_PASSWORD}
+      POSTGRES_DB: library_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  angular-client:
+    image: the_library-angular-client:latest
+    container_name: angular-client
+    ports:
+      - "8080:4000"
+    restart: always
+
+secrets:
+  library_email_pass:
+    external: true
+  library_google_client_id:
+    external: true
+  library_google_secret:
+    external: true
+  library_jwt_prvk:
+    external: true
+  library_jwt_pubk:
+    external: true
+
+volumes:
+  postgres_data:

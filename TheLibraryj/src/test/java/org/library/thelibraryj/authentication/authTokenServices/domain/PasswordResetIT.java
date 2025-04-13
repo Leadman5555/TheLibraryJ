@@ -7,6 +7,7 @@ import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.library.thelibraryj.TestContextInitialization;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.authentication.authTokenServices.dto.password.PasswordResetRequest;
@@ -35,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
 @ContextConfiguration(classes = TheLibraryJApplication.class)
-public class PasswordResetIT {
+public class PasswordResetIT extends TestContextInitialization {
     @Autowired
     private TestRestTemplate restTemplate;
 
@@ -45,11 +46,6 @@ public class PasswordResetIT {
     private static final String BASE_URL = TestProperties.BASE_AUTH_FREE_URL + "/auth/password";
     private static final String user1email = TestProperties.userEmail1;
     private static final UUID user1Id = TestProperties.userId1;
-
-    @RegisterExtension
-    static final GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
-            .withConfiguration(GreenMailConfiguration.aConfig().withUser("username", "password"))
-            .withPerMethodLifecycle(false);
 
     @BeforeEach
     public void setUp() {

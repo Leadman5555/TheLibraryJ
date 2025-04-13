@@ -22,7 +22,7 @@ class DocxParser {
                 stringBuilder.append('\n');
             }
             return stringBuilder.append(paragraphs.get(paragraphCount).getText()).toString();
-        } catch (IOException | UnsupportedFileFormatException _) {
+        } catch (IOException | UnsupportedFileFormatException e) {
             return null;
         }
     }

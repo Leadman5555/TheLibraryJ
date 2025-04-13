@@ -10,7 +10,7 @@ class TxtParser {
     public static String parseTxtTextFile(MultipartFile textFile) {
         try {
             return new String(textFile.getBytes());
-        } catch (IOException _) {
+        } catch (IOException e) {
            return null;
         }
     }

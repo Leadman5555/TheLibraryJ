@@ -2,6 +2,7 @@ package org.library.thelibraryj.infrastructure.validators;
 
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
+import org.library.thelibraryj.TestContextInitialization;
 import org.library.thelibraryj.infrastructure.validators.batchSize.ValidBatchSize;
 import org.library.thelibraryj.infrastructure.validators.passwordCharacters.ValidPasswordCharacters;
 import org.library.thelibraryj.infrastructure.validators.titleCharacters.ValidTitleCharacters;
@@ -18,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
-public class ValidatorsTest {
+public class ValidatorsTest extends TestContextInitialization {
 
     @SuppressWarnings("EmptyMethod")
     @Validated

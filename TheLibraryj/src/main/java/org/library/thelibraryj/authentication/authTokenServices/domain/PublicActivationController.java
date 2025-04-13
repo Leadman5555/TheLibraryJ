@@ -36,7 +36,7 @@ record PublicActivationController(ActivationTokenService activationTokenService)
     public ResponseEntity<String> consumeActivationToken(@RequestParam("token") @NotNull UUID token) {
         return activationTokenService.consumeActivationToken(token).fold(
                 this::handleError,
-                _ -> ResponseEntity.noContent().build()
+                any -> ResponseEntity.noContent().build()
         );
     }
 }

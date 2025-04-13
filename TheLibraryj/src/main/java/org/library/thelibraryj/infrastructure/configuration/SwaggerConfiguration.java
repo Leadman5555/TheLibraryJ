@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Bean;
 @OpenAPIDefinition(
         info = @Info(
                 title = "The Library",
-                version = "1.0",
-                description = "The best library"
+                version = "0.9",
+                description = "Place at which Chinese literature readers will find themselves right at home."
         ),
         security = {
                 @SecurityRequirement(name = "bearerAuth")
@@ -27,13 +27,6 @@ import org.springframework.context.annotation.Bean;
         bearerFormat = "JWT",
         in = SecuritySchemeIn.HEADER
 )
-//@SecurityScheme(
-//        name = "xsrfAuth",
-//        description = "XSRF token sent in header and in cookie",
-//        scheme = "cookie",
-//        type = SecuritySchemeType.APIKEY,
-//        in = SecuritySchemeIn.HEADER
-//)
 class SwaggerConfiguration {
     @Bean
     public OpenAPI TheLibraryAPI() {

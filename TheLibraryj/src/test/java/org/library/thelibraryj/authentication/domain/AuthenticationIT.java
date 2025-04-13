@@ -1,13 +1,10 @@
 package org.library.thelibraryj.authentication.domain;
 
-import com.icegreen.greenmail.configuration.GreenMailConfiguration;
-import com.icegreen.greenmail.junit5.GreenMailExtension;
-import com.icegreen.greenmail.util.ServerSetupTest;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.library.thelibraryj.TestContextInitialization;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.authentication.dto.request.AuthenticationRequest;
@@ -17,12 +14,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
@@ -42,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
 @ContextConfiguration(classes = TheLibraryJApplication.class)
-public class AuthenticationIT {
+public class AuthenticationIT extends TestContextInitialization {
     @Autowired
     private TestRestTemplate restTemplate;
 
@@ -55,11 +47,6 @@ public class AuthenticationIT {
     static final String existingEmail = TestProperties.userEmail1;
     static final String existingNonEnabledEmail = TestProperties.notEnabledUserEmail2;
     final char[] validPassword = TestProperties.allUserPassword.toCharArray();
-
-    @RegisterExtension
-    static final GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
-            .withConfiguration(GreenMailConfiguration.aConfig().withUser("username", "password"))
-            .withPerMethodLifecycle(false);
 
     @BeforeEach
     public void setUp() {
@@ -230,7 +217,7 @@ public class AuthenticationIT {
         UUID newToken = resultSet.getObject("token", UUID.class);
 
         MultiValueMap<String, String> params2 = new LinkedMultiValueMap<>();
-        params2.add("tokenId", newToken.toString());
+        params2.add("token", newToken.toString());
         HttpEntity<MultiValueMap<String, String>> request2 = new HttpEntity<>(params2, headers);
 
         ResponseEntity<String> activationResponse = restTemplate.exchange(

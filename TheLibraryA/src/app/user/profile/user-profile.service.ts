@@ -149,13 +149,12 @@ export class UserProfileService {
         tap(countOnServer => {
           if(!this.storageService.addBookToLoggedSubBooks(bookId, countOnServer)){
             console.log('Subscribed book count on server differs from local count. Updating local stash.')
-            this.updateLocalFavouriteBookIds(userEmail);
+            this.updateLocalSubscribedBookIds(userEmail);
           }
         }),
         catchError(handleError)
       );
   }
-
 
   private updateLocalSubscribedBookIds(email: string){
     this.http.get<string[]>(`${this.baseAuthUrl}/book/subscribed`, {params: new HttpParams().set('email', email).set('onlyIds', 'true')}).subscribe({

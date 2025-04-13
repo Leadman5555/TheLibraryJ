@@ -1,11 +1,8 @@
 package org.library.thelibraryj.email.domain;
 
-import com.icegreen.greenmail.configuration.GreenMailConfiguration;
-import com.icegreen.greenmail.junit5.GreenMailExtension;
-import com.icegreen.greenmail.util.ServerSetupTest;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import org.library.thelibraryj.TestContextInitialization;
 import org.library.thelibraryj.email.EmailService;
 import org.library.thelibraryj.email.dto.EmailRequest;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
@@ -25,11 +22,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-public class EmailServiceTest {
-    @RegisterExtension
-    static final GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
-            .withConfiguration(GreenMailConfiguration.aConfig().withUser("username", "password"))
-            .withPerMethodLifecycle(false);
+public class EmailServiceTest extends TestContextInitialization {
 
     @Autowired
     private EmailService emailService;

@@ -37,7 +37,7 @@ public class PublicActivationControllerTest {
         UUID tokenId = UUID.randomUUID();
         when(activationTokenService.consumeActivationToken(tokenId)).thenReturn(Either.right(true));
         mockMvc.perform(patch(URL_BASE + "/auth/activation")
-                        .param("tokenId", tokenId.toString())
+                        .param("token", tokenId.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());

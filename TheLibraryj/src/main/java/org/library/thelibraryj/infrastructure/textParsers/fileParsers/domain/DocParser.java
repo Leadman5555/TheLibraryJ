@@ -20,7 +20,7 @@ class DocParser {
                 stringBuilder.append('\n');
             }
             return stringBuilder.append(range.getParagraph(paragraphCount).text()).toString();
-        } catch (IOException | IllegalArgumentException _) {
+        } catch (IOException | IllegalArgumentException e) {
             return null;
         }
     }

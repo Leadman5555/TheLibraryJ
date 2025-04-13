@@ -59,11 +59,10 @@
           </div>
 
 
-          <div formGroupName="filterByTags" class="tagsDiv">
+          <div formGroupName="filterByTags" class="tagsDiv" style="font-size:0.8em;">
             @for (tag of allTags; let i = $index; track i) {
-              <div class="mt-square3d-custom tagSelector"
-                   style="font-size:0.8em;">
-                <span class="tagName">{{ tag }}</span>
+             <span class="tagName">{{ tag }}</span>
+              <div class="mt-square3d-custom">
                 <input id="checkMt_{{i}}" type="checkbox" formControlName="{{i}}"/>
                 <label for="checkMt_{{i}}"></label>
               </div>

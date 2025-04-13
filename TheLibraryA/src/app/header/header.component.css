@@ -1,8 +1,8 @@
-@import 'shared/styles/sButton.css';
-@import 'shared/styles/sInput.css';
-@import 'shared/styles/rowCol.css';
-@import 'shared/styles/image34.css';
-@import 'shared/styles/borderBox.css';
+@import '../shared/styles/sButton.css';
+@import '../shared/styles/sInput.css';
+@import '../shared/styles/rowCol.css';
+@import '../shared/styles/image34.css';
+@import '../shared/styles/borderBox.css';
 
 #body{
   z-index: 9;
@@ -38,7 +38,7 @@
 }
 
 #right{
-    margin-left: auto;
+  margin-left: auto;
 }
 
 #userInfo{

@@ -1,3 +1,12 @@
-export type BookTag = 'UNTAGGED' | 'TAG1' | 'TAG2'| 'TAG3'| 'TAG4'| 'TAG5'| 'TAG6'| 'TAG7'| 'TAG8';
-export const allTags: BookTag[] = ['TAG1', 'TAG2', 'TAG3', 'TAG4', 'TAG5', 'TAG6', 'TAG7', 'TAG8', 'UNTAGGED'];
+export type BookTag =
+  'XIANXIA'
+  | 'WUXIA'
+  | 'COMEDY'
+  | 'DRAMA'
+  | 'ACTION'
+  | 'FANTASY'
+  | 'MYSTERY'
+  | 'HISTORICAL'
+  | 'UNTAGGED';
+export const allTags: BookTag[] = ['XIANXIA', 'WUXIA', 'HISTORICAL', 'DRAMA', 'ACTION', 'FANTASY', 'MYSTERY', 'COMEDY', 'UNTAGGED'];
 export const allTagsAsString: string[] = allTags.map(tag => tag.toString());

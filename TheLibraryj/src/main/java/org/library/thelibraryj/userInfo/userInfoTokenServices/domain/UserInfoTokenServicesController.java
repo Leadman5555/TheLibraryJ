@@ -94,7 +94,7 @@ class UserInfoTokenServicesController implements ErrorHandling {
     public ResponseEntity<String> sendExistingFavouriteBookTokenToOwnerEmail(@RequestBody @Valid BookTokenConsummationRequest bookTokenConsummationRequest) {
         return userInfoTokenService.sendTokenToEmail(bookTokenConsummationRequest).fold(
                 this::handleError,
-                _ -> ResponseEntity.noContent().build()
+                any -> ResponseEntity.noContent().build()
         );
     }
 }

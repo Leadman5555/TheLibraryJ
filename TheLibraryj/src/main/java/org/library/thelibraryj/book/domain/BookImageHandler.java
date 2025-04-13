@@ -13,14 +13,14 @@ import java.nio.file.StandardCopyOption;
 @Component
 class BookImageHandler {
     @Getter
-    private byte[] defaultImage;
+    private final byte[] defaultImage;
     private final Path basePath;
 
     public BookImageHandler(@Value("${library.book.image_source}") String imageSourcePath) {
         try {
             defaultImage = Files.readAllBytes(Path.of(imageSourcePath, "default.jpg"));
         } catch (IOException e) {
-            defaultImage = null;
+            throw new RuntimeException("Could not load default image for BookImageHandler");
         }
         basePath = Path.of(imageSourcePath);
     }
@@ -37,7 +37,7 @@ class BookImageHandler {
         try {
             Files.copy(image.getInputStream(), basePath.resolve(forTitle + ".jpg"), StandardCopyOption.REPLACE_EXISTING);
             return image.getBytes();
-        } catch (IOException _) {
+        } catch (IOException e) {
             return defaultImage;
         }
     }
@@ -46,7 +46,7 @@ class BookImageHandler {
         try {
             Files.deleteIfExists(basePath.resolve(forTitle + ".jpg"));
             return true;
-        } catch (IOException _) {
+        } catch (IOException e) {
             return false;
         }
     }
