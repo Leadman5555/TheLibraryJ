@@ -15,12 +15,12 @@ import java.time.ZoneOffset;
 @Mapper(componentModel = "spring")
 interface UserInfoMapper {
     UserInfoResponse userInfoToUserInfoResponse(UserInfo userInfo);
-    UserInfoWithImageResponse userInfoToUserInfoWithImageResponse(UserInfo userInfo, byte[] profileImage);
-    UserProfileResponse userInfoToUserProfileResponse(UserInfo userInfo, byte[] profileImage);
+    UserInfoWithImageResponse userInfoToUserInfoWithImageResponse(UserInfo userInfo, String profileImageUrl);
+    UserProfileResponse userInfoToUserProfileResponse(UserInfo userInfo, String profileImageUrl);
 
     UserInfo userInfoRequestToUserInfo(UserInfoRequest userInfoRequest);
 
-    UserTopRankerResponse userInfoRankViewToUserTopRankerResponse(UserInfoRankView userInfoRankView, byte[] profileImage);
+    UserTopRankerResponse userInfoRankViewToUserTopRankerResponse(UserInfoRankView userInfoRankView, String profileImageUrl);
 
     UserUsernameUpdateResponse dataToUserUsernameUpdateResponse(String newUsername, Instant dataUpdatedAt);
     default LocalDateTime map(Instant value){

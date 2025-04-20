@@ -121,7 +121,7 @@ class UserInfoServiceImpl implements UserInfoService {
     public Either<GeneralError, UserProfileResponse> getUserProfileById(UUID userId) {
         Either<GeneralError, UserInfo> fetched = getUserInfoLazyById(userId);
         if (fetched.isLeft()) return Either.left(fetched.getLeft());
-        return Either.right(userInfoMapper.userInfoToUserProfileResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(userId)));
+        return Either.right(userInfoMapper.userInfoToUserProfileResponse(fetched.get(), userInfoImageHandler.fetchImageUrl(userId.toString())));
     }
 
     @Override
@@ -132,7 +132,7 @@ class UserInfoServiceImpl implements UserInfoService {
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
                 .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundByUsername(username)));
         if (fetched.isLeft()) return Either.left(fetched.getLeft());
-        return Either.right(userInfoMapper.userInfoToUserProfileResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(fetched.get().getId())));
+        return Either.right(userInfoMapper.userInfoToUserProfileResponse(fetched.get(), userInfoImageHandler.fetchImageUrl(fetched.get().getId().toString())));
     }
 
     @Override
@@ -143,7 +143,7 @@ class UserInfoServiceImpl implements UserInfoService {
                 .<GeneralError>mapLeft(ServiceError.DatabaseError::new)
                 .flatMap(e -> e.toEither(new UserInfoError.UserInfoEntityNotFoundByEmail(email)));
         if (fetched.isLeft()) return Either.left(fetched.getLeft());
-        return Either.right(userInfoMapper.userInfoToUserProfileResponse(fetched.get(), userInfoImageHandler.fetchProfileImage(fetched.get().getId())));
+        return Either.right(userInfoMapper.userInfoToUserProfileResponse(fetched.get(), userInfoImageHandler.fetchImageUrl(fetched.get().getId().toString())));
 
     }
 
@@ -153,7 +153,7 @@ class UserInfoServiceImpl implements UserInfoService {
                 .map(view ->
                         Either.<GeneralError, UserInfoMiniResponse>right(
                                 new UserInfoMiniResponse(view.getUsername(),
-                                        userInfoImageHandler.fetchProfileImage(view.getId())))
+                                        userInfoImageHandler.fetchImageUrl(view.getId().toString())))
                 )
                 .orElse(Either.left(new UserInfoError.UserInfoEntityNotFoundByEmail(email)));
 
@@ -211,9 +211,9 @@ class UserInfoServiceImpl implements UserInfoService {
     @Override
     public UserInfoWithImageResponse createUserInfoWithImage(UserInfoRequest userInfoRequest, @Nullable MultipartFile profileImage) {
         UserInfo created = createUserInfoInternal(userInfoRequest);
-        boolean customProfileImage = false;
+        String customProfileImageUrl = userInfoImageHandler.getDefaultImageUrl();
         if (profileImage != null)
-            customProfileImage = userInfoImageHandler.upsertProfileImageImage(created.getId(), profileImage);
+            customProfileImageUrl = userInfoImageHandler.upsertImage(created.getId().toString(), profileImage, true);
         return new UserInfoWithImageResponse(
                 created.getUsername(),
                 created.getEmail(),
@@ -221,7 +221,7 @@ class UserInfoServiceImpl implements UserInfoService {
                 created.getCurrentScore(),
                 created.getStatus(),
                 created.getPreference(),
-                customProfileImage ? userInfoImageHandler.fetchProfileImage(created.getId()) : userInfoImageHandler.getDefaultImage()
+                customProfileImageUrl
         );
     }
 
@@ -302,13 +302,14 @@ class UserInfoServiceImpl implements UserInfoService {
         Either<GeneralError, UUID> fetchedE = getUserInfoIdByEmail(userInfoImageUpdateRequest.email());
         if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         if (userInfoImageUpdateRequest.newImage() == null) {
-            if (!userInfoImageHandler.removeExistingProfileImage(fetchedE.get()))
+            if (!userInfoImageHandler.removeExistingImage(fetchedE.get().toString()))
                 return Either.left(new UserInfoError.ProfileImageUpdateFailed(userInfoImageUpdateRequest.email()));
-            return Either.right(new UserProfileImageUpdateResponse(userInfoImageHandler.getDefaultImage()));
+            return Either.right(new UserProfileImageUpdateResponse(userInfoImageHandler.getDefaultImageUrl()));
         } else {
-            if (!userInfoImageHandler.upsertProfileImageImage(fetchedE.get(), userInfoImageUpdateRequest.newImage()))
+            final String newImageUrl = userInfoImageHandler.upsertImage(fetchedE.get().toString(), userInfoImageUpdateRequest.newImage(), false);
+            if (newImageUrl == null)
                 return Either.left(new UserInfoError.ProfileImageUpdateFailed(userInfoImageUpdateRequest.email()));
-            return Either.right(new UserProfileImageUpdateResponse(userInfoImageUpdateRequest.newImage().getBytes()));
+            return Either.right(new UserProfileImageUpdateResponse(newImageUrl));
         }
     }
 
@@ -454,7 +455,7 @@ class UserInfoServiceImpl implements UserInfoService {
     public List<UserTopRankerResponse> getTopUsers() {
         return userInfoRepository.getTopRatedUsersRankView(userInfoProperties.getTop_rated().getLimit())
                 .stream()
-                .map(rankView -> userInfoMapper.userInfoRankViewToUserTopRankerResponse(rankView, userInfoImageHandler.fetchProfileImage(rankView.getId())))
+                .map(rankView -> userInfoMapper.userInfoRankViewToUserTopRankerResponse(rankView, userInfoImageHandler.fetchImageUrl(rankView.getId().toString())))
                 .toList();
     }
 
