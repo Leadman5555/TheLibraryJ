@@ -3,6 +3,6 @@ export interface UserCreationResponse {
   email: string;
   currentScore: number;
   rank: number;
-  profileImage: string;
+  profileImageUrl: string;
   dataUpdatedAt: string;
 }

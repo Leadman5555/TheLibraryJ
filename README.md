@@ -144,14 +144,15 @@ With an account old enough, anyone can become an author by accessing the *Author
 
 .env file for Docker deployment in the same folder as `docker-compose`:
 
-- LIBRARY_USER_IMAGES=/app/images/user [prefix /app/images referencing mounted volume in docker-compose]
-- LIBRARY_BOOK_IMAGES=/app/images/book [prefix /app/images referencing mounted volume in docker-compose]
+- LIBRARY_IMAGES_BASE=/app/images
+- LIBRARY_USER_IMAGES=user [prefix /app/images referencing mounted volume in docker-compose]
+- LIBRARY_BOOK_IMAGES=book [prefix /app/images referencing mounted volume in docker-compose]
 - LIBRARY_CLIENT_BASE=[Base url for client, can be 'http://localhost:8080' for local development]
+- LIBRARY_SERVER_BASE=[Url at which the server is located, can be 'http://localhost:8082' for local development]
 - LIBRARY_DOMAIN=[Server domain, can be 'localhost' for development]
 - LIBRARY_EMAIL_FROM=noreply@library.com [email address from which the system emails are sent]
 - LIBRARY_EMAIL_HOST=[Email host, can be the address of the machine running the container if run with a local Greenmail sandbox]
 - LIBRARY_EMAIL_PORT=[SMTP port, can be 3025 for a Greenmail sandbox]
-- LIBRARY_JWT_AUD=[Auditor for JWT, can be 'http://localhost:8082' for local development]
 - LIBRARY_JWT_CLIENTID=[Client ID for JWT]
 
 Docker secrets:

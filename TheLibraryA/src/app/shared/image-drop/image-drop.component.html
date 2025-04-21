@@ -7,12 +7,12 @@
     [class.active]="isDropZoneActive"
   >
     @if (!imagePreview) {
-      <p>Drag and drop your profile image here, or click to browse.</p>
+      <p>Drag and drop your image here, or click to browse.</p>
     }
     <div class="image34Wrapper">
       @if (imagePreview) {
         <!--suppress AngularNgOptimizedImage -->
-        <img src="{{imagePreview}}" alt="Default profile image" class="image34"/>
+        <img src="{{imagePreview}}" alt="Image preview" class="image34"/>
       }
     </div>
     <input

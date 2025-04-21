@@ -3,5 +3,5 @@ export interface TopRankerResponse {
   rank: number;
   currentScore: number;
   preference: number;
-  profileImage: string;
+  profileImageUrl: string;
 }

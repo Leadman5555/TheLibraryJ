@@ -1,12 +1,14 @@
 package org.library.thelibraryj.email.domain;
 
 import jakarta.mail.MessagingException;
+import jakarta.mail.Transport;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.library.thelibraryj.email.dto.EmailRequest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -50,6 +52,22 @@ class EmailServiceImpl implements org.library.thelibraryj.email.EmailService {
             mailSender.send(mailToSend);
         }catch (MailException | MessagingException e){
             log.error("Error sending mail: {}", e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean testConnection() {
+        try{
+            JavaMailSenderImpl sender = (JavaMailSenderImpl) mailSender;
+            Transport transport = sender.getSession().getTransport("smtp");
+            transport.connect(
+                    sender.getHost(),
+                    sender.getUsername(),
+                    sender.getPassword()
+            );
+            return true;
+        } catch (MessagingException e){
+            return false;
         }
     }
 }

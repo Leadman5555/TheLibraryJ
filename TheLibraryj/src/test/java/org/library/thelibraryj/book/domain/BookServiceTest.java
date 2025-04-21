@@ -131,7 +131,7 @@ public class BookServiceTest {
 
     @Test
     public void testGetBookPreviewResponses() {
-        when(bookImageHandler.fetchCoverImage(anyString())).thenReturn(null);
+        when(bookImageHandler.fetchImageUrl(anyString())).thenReturn(null);
         List<BookPreview> baseList = List.of(BookPreview.builder().title(title + '1').build(), BookPreview.builder().title(title + '2').build());
         int page = 0;
         int defPageSize = 20;
@@ -148,7 +148,7 @@ public class BookServiceTest {
 
     @Test
     public void testCreateAndUpdateBook() {
-        when(bookImageHandler.fetchCoverImage(anyString())).thenReturn(null);
+        when(bookImageHandler.fetchImageUrl(anyString())).thenReturn(null);
         when(bookProperties.getDescription_max_length()).thenReturn(750);
         BookCreationRequest bookCreationRequest = new BookCreationRequest(
                 new BookCreationModel(title, description, List.of()),
@@ -194,7 +194,7 @@ public class BookServiceTest {
 
     @Test
     public void testGetBook() {
-        when(bookImageHandler.fetchCoverImage(anyString())).thenReturn(null);
+        when(bookImageHandler.fetchImageUrl(anyString())).thenReturn(null);
         bookDetail.setId(bookId);
         bookPreview.setId(bookId);
         when(bookPreviewRepository.findByTitleEager(title)).thenReturn(Optional.ofNullable(bookPreview));

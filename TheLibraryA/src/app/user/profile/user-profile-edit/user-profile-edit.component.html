@@ -1,5 +1,5 @@
 <div id="rankUpAnimation" [@rankUpAnimation]="animationState" class="centerVH">
-  @if (userData.rank === 10) {
+  @if (userData && userData.rank === 10) {
     Heaven's Will is merciless,<br>Sea of Bitterness endless,<br>path to Ascension forever blocked...
   } @else {
     Heaven's Will is generous,<br>Sea of Bitterness not without a shore,
@@ -25,7 +25,7 @@
         <form class="column" [formGroup]="imageUpdateForm" (ngSubmit)="updateProfileImage()">
           <span>Current profile image</span>
           <div class="image34Wrapper">
-            <img class="image34" src="data:image/jpg;base64,{{this.userData.profileImage}}" alt="Current profile image">
+            <img class="image34" src="{{this.userData.profileImageUrl}}" alt="Current profile image">
           </div>
           <span>Updated profile image</span>
           <app-image-drop [parentControl]="imageControl"></app-image-drop>

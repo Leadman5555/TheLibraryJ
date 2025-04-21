@@ -17,5 +17,5 @@ public record BookResponse(UUID id,
                            int ratingCount,
                            @ArraySchema(schema = @Schema(implementation = BookTag.class)) List<BookTag> bookTags,
                            BookState bookState,
-                           byte[] coverImage) {
+                           String coverImageUrl) {
 }

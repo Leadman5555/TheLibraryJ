@@ -2,7 +2,7 @@ package org.library.thelibraryj.infrastructure.validators;
 
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
-import org.library.thelibraryj.TestContextInitialization;
+import org.library.thelibraryj.ITTestContextInitialization;
 import org.library.thelibraryj.infrastructure.validators.batchSize.ValidBatchSize;
 import org.library.thelibraryj.infrastructure.validators.passwordCharacters.ValidPasswordCharacters;
 import org.library.thelibraryj.infrastructure.validators.titleCharacters.ValidTitleCharacters;
@@ -18,8 +18,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
-public class ValidatorsTest extends TestContextInitialization {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class ValidatorsITTest extends ITTestContextInitialization {
 
     @SuppressWarnings("EmptyMethod")
     @Validated
@@ -37,7 +37,6 @@ public class ValidatorsTest extends TestContextInitialization {
         ToValidate getToValidateBean(){
             return new ToValidate();
         }
-
     }
 
     @Autowired

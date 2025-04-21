@@ -3,7 +3,6 @@ package org.library.thelibraryj.book.domain;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
-import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.bookDto.response.BookDetailResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PreviewKeySet;
@@ -31,11 +30,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 @WithMockUser(roles = "ADMIN")
 public class BookControllerTest {
+
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private JwtFilter disabledFilter;
 
     @MockBean
     private BookService bookService;
