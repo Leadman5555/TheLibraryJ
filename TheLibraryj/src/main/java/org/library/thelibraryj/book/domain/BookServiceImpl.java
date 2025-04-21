@@ -188,7 +188,7 @@ class BookServiceImpl implements BookService {
         bookDetailRepository.persist(detail);
         bookPreviewRepository.persist(preview);
         if (bookCreationRequest.coverImage() != null)
-            return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.upsertImage(model.title(), bookCreationRequest.coverImage(), true)));
+            return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.upsertAndFetchImage(model.title(), bookCreationRequest.coverImage())));
         return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.getDefaultImageUrl()));
     }
 
@@ -237,7 +237,7 @@ class BookServiceImpl implements BookService {
             bookImageHandler.removeExistingImage(preview.getTitle());
             return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.getDefaultImageUrl()));
         } else if (bookUpdateRequest.coverImage() != null)
-            return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.upsertImage(preview.getTitle(), bookUpdateRequest.coverImage(), true)));
+            return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.upsertAndFetchImage(preview.getTitle(), bookUpdateRequest.coverImage())));
         return Either.right(getEagerBookResponse(detail, preview));
     }
 
@@ -503,7 +503,7 @@ class BookServiceImpl implements BookService {
                     chapterNotifications,
                     notificationEssentials.getTitle(),
                     bookDetail.getAuthor(),
-                    bookImageHandler.fetchImageAsBytes(notificationEssentials.getTitle()),
+                    bookImageHandler.fetchImageOrDefaultAsBytes(notificationEssentials.getTitle()),
                     notificationEssentials.getChapterCount() + chapterCountChange
             );
             userInfoService.notifySubscribedUsers(bookId, notificationRequest);

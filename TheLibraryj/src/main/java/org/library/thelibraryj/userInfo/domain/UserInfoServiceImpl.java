@@ -213,7 +213,7 @@ class UserInfoServiceImpl implements UserInfoService {
         UserInfo created = createUserInfoInternal(userInfoRequest);
         String customProfileImageUrl = userInfoImageHandler.getDefaultImageUrl();
         if (profileImage != null)
-            customProfileImageUrl = userInfoImageHandler.upsertImage(created.getId().toString(), profileImage, true);
+            customProfileImageUrl = userInfoImageHandler.upsertAndFetchImage(created.getId().toString(), profileImage);
         return new UserInfoWithImageResponse(
                 created.getUsername(),
                 created.getEmail(),
@@ -298,7 +298,7 @@ class UserInfoServiceImpl implements UserInfoService {
 
     @Transactional
     @Override
-    public Either<GeneralError, UserProfileImageUpdateResponse> updateProfileImage(UserInfoImageUpdateRequest userInfoImageUpdateRequest) throws IOException {
+    public Either<GeneralError, UserProfileImageUpdateResponse> updateProfileImage(UserInfoImageUpdateRequest userInfoImageUpdateRequest) {
         Either<GeneralError, UUID> fetchedE = getUserInfoIdByEmail(userInfoImageUpdateRequest.email());
         if (fetchedE.isLeft()) return Either.left(fetchedE.getLeft());
         if (userInfoImageUpdateRequest.newImage() == null) {
@@ -306,10 +306,9 @@ class UserInfoServiceImpl implements UserInfoService {
                 return Either.left(new UserInfoError.ProfileImageUpdateFailed(userInfoImageUpdateRequest.email()));
             return Either.right(new UserProfileImageUpdateResponse(userInfoImageHandler.getDefaultImageUrl()));
         } else {
-            final String newImageUrl = userInfoImageHandler.upsertImage(fetchedE.get().toString(), userInfoImageUpdateRequest.newImage(), false);
-            if (newImageUrl == null)
-                return Either.left(new UserInfoError.ProfileImageUpdateFailed(userInfoImageUpdateRequest.email()));
-            return Either.right(new UserProfileImageUpdateResponse(newImageUrl));
+            return userInfoImageHandler.upsertImage(fetchedE.get().toString(), userInfoImageUpdateRequest.newImage())
+                    .map(newImageUrl -> Either.<GeneralError, UserProfileImageUpdateResponse>right(new UserProfileImageUpdateResponse(newImageUrl)))
+                    .orElseGet(() -> Either.left(new UserInfoError.ProfileImageUpdateFailed(userInfoImageUpdateRequest.email())));
         }
     }
 
