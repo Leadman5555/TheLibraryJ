@@ -78,6 +78,7 @@ public abstract class ITTestContextInitialization {
     static void cleanupFileStorage() {
         if (fileStorage != null) {
             try(Stream<Path> files = Files.walk(fileStorage)){
+                //noinspection RedundantStreamOptionalCall
                 Assertions.assertTrue(files.sorted(Comparator.reverseOrder()).allMatch(p -> p.toFile().delete()));
             }catch (Exception e){
                 throw new RuntimeException("Error cleaning up file storage", e);
