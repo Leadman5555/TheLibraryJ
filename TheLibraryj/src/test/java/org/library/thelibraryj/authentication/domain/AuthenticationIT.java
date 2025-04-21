@@ -4,23 +4,22 @@ import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.library.thelibraryj.TestContextInitialization;
+import org.library.thelibraryj.ITTestContextInitialization;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.authentication.dto.request.AuthenticationRequest;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.*;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -33,13 +32,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
-@ContextConfiguration(classes = TheLibraryJApplication.class)
-public class AuthenticationIT extends TestContextInitialization {
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    @Autowired
-    private DataSource dataSource;
+public class AuthenticationIT extends ITTestContextInitialization {
 
     private static final String BASE_URL = TestProperties.BASE_AUTH_FREE_URL + "/auth";
     private static final UUID notEnabledUserId = TestProperties.notEnabledUserId2;
@@ -50,11 +43,7 @@ public class AuthenticationIT extends TestContextInitialization {
 
     @BeforeEach
     public void setUp() {
-        ResourceDatabasePopulator scriptExecutor = new ResourceDatabasePopulator();
-        scriptExecutor.addScript(new ClassPathResource("schema.sql"));
-        scriptExecutor.addScript(new ClassPathResource("dataInit.sql"));
-        scriptExecutor.setSeparator("@@");
-        scriptExecutor.execute(this.dataSource);
+        seedDB();
     }
 
     @Test
