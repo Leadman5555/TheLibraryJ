@@ -52,7 +52,7 @@ export class UserAuthService {
           map((userProfile: FetchedUserMini) => {
             this.setUserData({
               username: userProfile.username,
-              profileImage: userProfile.profileImage,
+              profileImageUrl: userProfile.profileImageUrl,
               email: request.email
             }, response.token);
             this.eventBus.emit(new EventData(LOGIN_EVENT, null));
@@ -96,7 +96,7 @@ export class UserAuthService {
       next: (userProfile) => {
         this.setUserData({
           username: userProfile.username,
-          profileImage: userProfile.profileImage,
+          profileImageUrl: userProfile.profileImageUrl,
           email: response.email
         }, response.token);
         this.eventBus.emit(new EventData(LOGIN_EVENT, null));

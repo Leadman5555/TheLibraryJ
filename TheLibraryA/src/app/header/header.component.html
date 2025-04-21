@@ -8,7 +8,7 @@
           <a id="userInfo" (click)="hideWindows()" [routerLink]="['/profile', this.userMini?.username]">
             <span id="username">{{ this.userMini?.username }}</span>
             <div class="image34Wrapper" style="height: 4.8em; width: 3.6em">
-              <img src="data:image/jpg;base64,{{this.userMini?.profileImage}}" alt="Profile image" class="image34">
+              <img class="image34" src="{{this.userMini?.profileImageUrl}}" alt="Profile image">
             </div>
           </a>
         }

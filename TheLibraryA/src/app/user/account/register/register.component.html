@@ -177,9 +177,9 @@
           <div class="column">
             <span>Profile Image:</span>
             <div class="image34Wrapper">
-              @if (createdUser?.profileImage) {
-                <img src="data:image/jpg;base64,{{createdUser?.profileImage}}"
-                     alt="Profile Image" class="image34">
+              @if (createdUser?.profileImageUrl) {
+                <img class="image34" src="{{createdUser?.profileImageUrl}}"
+                     alt="Profile Image">
               }
             </div>
           </div>

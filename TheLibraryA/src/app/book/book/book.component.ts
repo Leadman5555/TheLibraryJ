@@ -74,7 +74,7 @@ export class BookComponent implements OnInit {
               bookTags: v.bookTags,
               averageRating: v.averageRating,
               chapterCount: v.chapterCount,
-              coverImage: v.coverImage,
+              coverImageUrl: v.coverImageUrl,
               ratingCount: v.ratingCount,
               bookState: v.bookState,
             };

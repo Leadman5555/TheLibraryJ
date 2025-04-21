@@ -36,7 +36,7 @@ export class StorageService {
     const userMini = localStorage.getItem(USER_MINI_KEY);
     if(!userMini) return false;
     const parsedMini: UserMini = JSON.parse(userMini);
-    parsedMini.profileImage = image;
+    parsedMini.profileImageUrl = image;
     this.setUserMini(parsedMini);
     return true;
   }
