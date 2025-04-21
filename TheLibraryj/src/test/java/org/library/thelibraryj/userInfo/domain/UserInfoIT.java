@@ -3,24 +3,18 @@ package org.library.thelibraryj.userInfo.domain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.library.thelibraryj.TestContextInitialization;
+import org.library.thelibraryj.ITTestContextInitialization;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoUsernameUpdateRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.test.context.ContextConfiguration;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -29,15 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
-@ContextConfiguration
-public class UserInfoIT extends TestContextInitialization {
-
-
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    @Autowired
-    private DataSource dataSource;
+public class UserInfoIT extends ITTestContextInitialization {
 
     private static final String BASE_URL = TestProperties.BASE_URL + "/user";
     private static final String BASE_AUTH_FREE_URL = TestProperties.BASE_AUTH_FREE_URL;
@@ -49,12 +35,7 @@ public class UserInfoIT extends TestContextInitialization {
 
     @BeforeEach
     public void setUp() {
-        ResourceDatabasePopulator scriptExecutor = new ResourceDatabasePopulator();
-        scriptExecutor.addScript(new ClassPathResource(TestProperties.SCHEMA_FILE_NAME));
-        scriptExecutor.addScript(new ClassPathResource(TestProperties.DATA_FILE_NAME));
-        scriptExecutor.setSeparator("@@");
-        scriptExecutor.execute(this.dataSource);
-        TestProperties.fillHeadersForUser1();
+        seedDB();
     }
 
     @Test

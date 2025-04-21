@@ -148,16 +148,16 @@ export class UserProfileEditComponent implements OnInit {
   updateProfileImage() {
     if (this.imageUpdateForm.invalid) return;
     const image = this.imageUpdateForm.value.newImage;
-    if (image === this.userData.profileImage) return;
+    if (image === this.userData.profileImageUrl) return;
     const formData = new FormData();
     formData.set('newImage', image);
     formData.set('email', this.userData.email);
     this.profileImageUpdateErrorMessage = undefined;
     this.userProfileService.updateProfileImage(formData).subscribe({
       next: (response: UserProfileImageUpdateResponse) => {
-        this.userData.profileImage = response.newProfileImage;
+        this.userData.profileImageUrl = response.newProfileImageUrl;
         this.imageUpdateForm.reset();
-        this.userAuthService.updateUserMiniDataImage(response.newProfileImage);
+        this.userAuthService.updateUserMiniDataImage(response.newProfileImageUrl);
       },
       error: (_) => {
         this.profileImageUpdateErrorMessage = 'Profile image update failed. Make sure you are sending a file in an an allowed format.';

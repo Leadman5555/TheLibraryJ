@@ -126,7 +126,7 @@ class BookServiceImpl implements BookService {
     public Either<GeneralError, BookPreviewResponse> getBookPreviewResponse(UUID detailId) {
         Either<GeneralError, BookPreview> fetched = getBookPreviewEager(detailId);
         if (fetched.isRight())
-            return Either.right(mapper.bookPreviewWithCoverToBookPreviewResponse(fetched.get(), bookImageHandler.fetchCoverImage(fetched.get().getTitle())));
+            return Either.right(mapper.bookPreviewWithCoverToBookPreviewResponse(fetched.get(), bookImageHandler.fetchImageUrl(fetched.get().getTitle())));
         return Either.left(fetched.getLeft());
     }
 
@@ -137,12 +137,12 @@ class BookServiceImpl implements BookService {
 
     @Override
     public List<BookPreviewResponse> getBookPreviewsByIds(Set<UUID> bookIds) {
-        return bookPreviewRepository.getBookPreviewsEagerByIds(bookIds).stream().map(bookPreview -> mapper.bookPreviewWithCoverToBookPreviewResponse(bookPreview, bookImageHandler.fetchCoverImage(bookPreview.getTitle()))).toList();
+        return bookPreviewRepository.getBookPreviewsEagerByIds(bookIds).stream().map(bookPreview -> mapper.bookPreviewWithCoverToBookPreviewResponse(bookPreview, bookImageHandler.fetchImageUrl(bookPreview.getTitle()))).toList();
     }
 
     @Override
     public Set<BookPreviewResponse> getBookPreviewsByIdsAsSet(Set<UUID> bookIds) {
-        return bookPreviewRepository.getBookPreviewsEagerByIds(bookIds).stream().map(bookPreview -> mapper.bookPreviewWithCoverToBookPreviewResponse(bookPreview, bookImageHandler.fetchCoverImage(bookPreview.getTitle()))).collect(Collectors.toSet());
+        return bookPreviewRepository.getBookPreviewsEagerByIds(bookIds).stream().map(bookPreview -> mapper.bookPreviewWithCoverToBookPreviewResponse(bookPreview, bookImageHandler.fetchImageUrl(bookPreview.getTitle()))).collect(Collectors.toSet());
     }
 
     Either<GeneralError, BookPreview> getBookPreviewLazy(UUID previewId) {
@@ -188,8 +188,8 @@ class BookServiceImpl implements BookService {
         bookDetailRepository.persist(detail);
         bookPreviewRepository.persist(preview);
         if (bookCreationRequest.coverImage() != null)
-            return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.upsertCoverImage(model.title(), bookCreationRequest.coverImage())));
-        return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.getDefaultImage()));
+            return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.upsertAndFetchImage(model.title(), bookCreationRequest.coverImage())));
+        return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.getDefaultImageUrl()));
     }
 
     @Transactional
@@ -234,10 +234,10 @@ class BookServiceImpl implements BookService {
         if (previewChanged) preview = bookPreviewRepository.update(preview);
 
         if (model.resetCoverImage()) {
-            bookImageHandler.removeExistingCoverImage(preview.getTitle());
-            return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.getDefaultImage()));
+            bookImageHandler.removeExistingImage(preview.getTitle());
+            return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.getDefaultImageUrl()));
         } else if (bookUpdateRequest.coverImage() != null)
-            return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.upsertCoverImage(preview.getTitle(), bookUpdateRequest.coverImage())));
+            return Either.right(getLazyBookResponse(detail, preview, bookImageHandler.upsertAndFetchImage(preview.getTitle(), bookUpdateRequest.coverImage())));
         return Either.right(getEagerBookResponse(detail, preview));
     }
 
@@ -503,7 +503,7 @@ class BookServiceImpl implements BookService {
                     chapterNotifications,
                     notificationEssentials.getTitle(),
                     bookDetail.getAuthor(),
-                    bookImageHandler.fetchCoverImage(notificationEssentials.getTitle()),
+                    bookImageHandler.fetchImageOrDefaultAsBytes(notificationEssentials.getTitle()),
                     notificationEssentials.getChapterCount() + chapterCountChange
             );
             userInfoService.notifySubscribedUsers(bookId, notificationRequest);
@@ -577,11 +577,11 @@ class BookServiceImpl implements BookService {
                 bookPreviewEager.getRatingCount(),
                 bookPreviewEager.getBookTags(),
                 bookPreviewEager.getBookState(),
-                bookImageHandler.fetchCoverImage(bookPreviewEager.getTitle())
+                bookImageHandler.fetchImageUrl(bookPreviewEager.getTitle())
         );
     }
 
-    private static BookResponse getLazyBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager, byte[] coverImage) {
+    private static BookResponse getLazyBookResponse(BookDetail bookDetail, BookPreview bookPreviewEager, String coverImageUrl) {
         return new BookResponse(
                 bookPreviewEager.getId(),
                 bookPreviewEager.getTitle(),
@@ -592,7 +592,7 @@ class BookServiceImpl implements BookService {
                 bookPreviewEager.getRatingCount(),
                 bookPreviewEager.getBookTags(),
                 bookPreviewEager.getBookState(),
-                coverImage
+                coverImageUrl
         );
     }
 
@@ -672,6 +672,6 @@ class BookServiceImpl implements BookService {
     }
 
     private BookPreviewResponse mapPreviewWithCover(BookPreview bookPreview) {
-        return mapper.bookPreviewWithCoverToBookPreviewResponse(bookPreview, bookImageHandler.fetchCoverImage(bookPreview.getTitle()));
+        return mapper.bookPreviewWithCoverToBookPreviewResponse(bookPreview, bookImageHandler.fetchImageUrl(bookPreview.getTitle()));
     }
 }

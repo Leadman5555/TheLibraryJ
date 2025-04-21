@@ -54,9 +54,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Tag(name = "Book", description = "Book endpoints that require valid credentials to access - mostly related to author activities.")
 class BookController implements ErrorHandling {
+
     private final BookService bookService;
-
-
 
     @Operation(
             summary = "Create new chapter entries in batch. Batch size is limited to 50, distinct number entries. " +

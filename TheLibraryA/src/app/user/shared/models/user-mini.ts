@@ -1,5 +1,5 @@
 export interface UserMini {
   username?: string;
-  profileImage?: string;
+  profileImageUrl?: string;
   email?: string;
 }

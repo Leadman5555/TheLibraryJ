@@ -6,4 +6,5 @@ import org.springframework.scheduling.annotation.Async;
 public interface EmailService {
     @Async
     void sendEmail(EmailRequest emailRequest);
+    boolean testConnection();
 }

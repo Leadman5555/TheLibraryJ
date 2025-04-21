@@ -17,8 +17,8 @@ import java.util.List;
 interface BookMapper {
     BookDetailResponse bookDetailToBookDetailResponse(BookDetail bookDetail);
 
-    BookPreviewResponse bookPreviewToBookPreviewResponse(BookPreview bookPreview, byte[] coverImage);
-    BookPreviewResponse bookPreviewWithCoverToBookPreviewResponse(BookPreview bookPreview, byte[] coverImage);
+    BookPreviewResponse bookPreviewToBookPreviewResponse(BookPreview bookPreview, String coverImageUrl);
+    BookPreviewResponse bookPreviewWithCoverToBookPreviewResponse(BookPreview bookPreview, String coverImageUrl);
 
     List<ChapterPreviewResponse> chapterPreviewsToChapterPreviewResponseList(List<ChapterPreview> chapterPreviews);
 

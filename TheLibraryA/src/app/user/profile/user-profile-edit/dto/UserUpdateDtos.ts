@@ -8,7 +8,7 @@ export interface UserPreferenceUpdateRequest {
 }
 
 export interface UserProfileImageUpdateResponse {
-  newProfileImage: string;
+  newProfileImageUrl: string;
 }
 
 export interface UserRankUpdateResponse {

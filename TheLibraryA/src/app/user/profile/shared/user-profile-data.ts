@@ -5,7 +5,7 @@ export interface UserProfileData {
   createdAt: string;
   email: string;
   status: string;
-  profileImage: string;
+  profileImageUrl: string;
   rank: number;
   currentScore: number;
 }

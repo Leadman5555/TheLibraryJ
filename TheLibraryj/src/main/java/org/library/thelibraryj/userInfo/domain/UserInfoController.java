@@ -43,7 +43,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -186,7 +185,7 @@ class UserInfoController implements ErrorHandling {
     @PatchMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN') or #email == authentication.principal.username")
     public ResponseEntity<String> updateUserProfileImage(@RequestParam("email") @Email String email,
-                                                         @RequestPart(value = "newImage", required = false) @Nullable @ValidImageFormat MultipartFile newImage) throws IOException {
+                                                         @RequestPart(value = "newImage", required = false) @Nullable @ValidImageFormat MultipartFile newImage) {
         return handle(userInfoService.updateProfileImage(new UserInfoImageUpdateRequest(email, newImage)), HttpStatus.OK);
     }
 

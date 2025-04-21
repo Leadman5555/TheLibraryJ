@@ -9,5 +9,5 @@ export interface BookPreview {
   id: string;
   bookState: BookState;
   bookTags: BookTag[];
-  coverImage: string;
+  coverImageUrl: string;
 }

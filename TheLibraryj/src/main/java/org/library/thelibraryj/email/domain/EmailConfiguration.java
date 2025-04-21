@@ -16,8 +16,8 @@ import org.thymeleaf.templatemode.TemplateMode;
 @RequiredArgsConstructor
 @Slf4j
 class EmailConfiguration {
-    private final EmailProperties emailProperties;
 
+    private final EmailProperties emailProperties;
 
     @Bean
     protected JavaMailSender getJavaMailSender() throws MessagingException {

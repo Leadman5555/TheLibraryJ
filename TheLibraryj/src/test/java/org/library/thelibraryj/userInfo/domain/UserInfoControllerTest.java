@@ -3,7 +3,6 @@ package org.library.thelibraryj.userInfo.domain;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
 import org.library.thelibraryj.TestProperties;
-import org.library.thelibraryj.authentication.jwtAuth.domain.JwtFilter;
 import org.library.thelibraryj.infrastructure.error.errorTypes.UserInfoError;
 import org.library.thelibraryj.userInfo.UserInfoService;
 import org.library.thelibraryj.userInfo.dto.request.UserInfoRankUpdateRequest;
@@ -33,9 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserInfoControllerTest {
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private JwtFilter disabledFilter;
 
     @MockBean
     private UserInfoService userInfoService;

@@ -11,5 +11,5 @@ export interface BookResponse {
   ratingCount: number;
   bookTags: BookTag[],
   bookState: BookState;
-  coverImage: string;
+  coverImageUrl: string;
 }

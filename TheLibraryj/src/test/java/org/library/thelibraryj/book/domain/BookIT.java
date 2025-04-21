@@ -6,27 +6,26 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.library.thelibraryj.TestContextInitialization;
+import org.library.thelibraryj.ITTestContextInitialization;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
 import org.library.thelibraryj.book.dto.ratingDto.RatingRequest;
 import org.library.thelibraryj.book.dto.sharedDto.request.ContentRemovalRequest;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.PathResource;
-import org.springframework.http.*;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,14 +44,7 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
-@ContextConfiguration
-public class BookIT extends TestContextInitialization {
-
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    @Autowired
-    private DataSource dataSource;
+public class BookIT extends ITTestContextInitialization {
 
     @TempDir
     private Path temporaryDir;
@@ -68,12 +60,7 @@ public class BookIT extends TestContextInitialization {
 
     @BeforeEach
     public void setUp() {
-        ResourceDatabasePopulator scriptExecutor = new ResourceDatabasePopulator();
-        scriptExecutor.addScript(new ClassPathResource(TestProperties.SCHEMA_FILE_NAME));
-        scriptExecutor.addScript(new ClassPathResource(TestProperties.DATA_FILE_NAME));
-        scriptExecutor.setSeparator("@@");
-        scriptExecutor.execute(this.dataSource);
-        TestProperties.fillHeadersForUser1();
+        seedDB();
     }
 
     @Test
