@@ -3,6 +3,7 @@ package org.library.thelibraryj.authentication.authTokenServices.domain;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.library.thelibraryj.EndpointsRegistry;
 import org.library.thelibraryj.ITTestContextInitialization;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
@@ -27,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
 public class PasswordResetIT extends ITTestContextInitialization {
 
-    private static final String BASE_URL = TestProperties.BASE_AUTH_FREE_URL + "/auth/password";
+    private static final String BASE_URL = EndpointsRegistry.PUBLIC_AUTH_PASSWORD_URL;
     private static final String user1email = TestProperties.userEmail1;
     private static final UUID user1Id = TestProperties.userId1;
 
@@ -59,7 +60,6 @@ public class PasswordResetIT extends ITTestContextInitialization {
         final MimeMessage[] receivedMessages = greenMail.getReceivedMessagesForDomain(user1email);
         assertEquals(1, receivedMessages.length);
         assertEquals(new PasswordResetTemplate("", Instant.now()).getSubject(), receivedMessages[0].getSubject());
-
 
 
         Statement checkCreatedToken = connection.createStatement();

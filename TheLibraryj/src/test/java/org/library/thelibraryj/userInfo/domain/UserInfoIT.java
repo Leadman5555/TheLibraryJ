@@ -3,6 +3,7 @@ package org.library.thelibraryj.userInfo.domain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.library.thelibraryj.EndpointsRegistry;
 import org.library.thelibraryj.ITTestContextInitialization;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
@@ -25,8 +26,8 @@ import java.util.UUID;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
 public class UserInfoIT extends ITTestContextInitialization {
 
-    private static final String BASE_URL = TestProperties.BASE_URL + "/user";
-    private static final String BASE_AUTH_FREE_URL = TestProperties.BASE_AUTH_FREE_URL;
+    private static final String PROFILE_URL = EndpointsRegistry.PRIVATE_USER_PROFILE_URL;
+    private static final String USER_BOOK_URL = EndpointsRegistry.PRIVATE_USER_BOOK_URL;
     private static final UUID bookId = TestProperties.bookId1;
     private static final UUID bookId2 = TestProperties.bookId2;
     private static final UUID userId = TestProperties.userId1;
@@ -36,18 +37,20 @@ public class UserInfoIT extends ITTestContextInitialization {
     @BeforeEach
     public void setUp() {
         seedDB();
+        fillAuthHeadersForUser1();
     }
 
     @Test
     public void shouldUpdateUserUsernameAndBookDetailAuthor() throws Exception {
         final String newUsername = "newUsername";
+        final String profileUsername = PROFILE_URL + "/username";
         UserInfoUsernameUpdateRequest request = new UserInfoUsernameUpdateRequest(
                 email,
                 newUsername
         );
         HttpEntity<UserInfoUsernameUpdateRequest> requestEntity = new HttpEntity<>(request, TestProperties.headers);
         ResponseEntity<String> usernameChangeResponse = restTemplate.exchange(
-                BASE_URL + "/profile/username", HttpMethod.PATCH, requestEntity, String.class
+                profileUsername, HttpMethod.PATCH, requestEntity, String.class
         );
         Assertions.assertEquals(HttpStatus.OK, usernameChangeResponse.getStatusCode());
         Assertions.assertNotNull(usernameChangeResponse.getBody());
@@ -55,14 +58,14 @@ public class UserInfoIT extends ITTestContextInitialization {
         Assertions.assertEquals(newUsername, object.getString("newUsername"));
 
         ResponseEntity<String> userBookDetailResponse = restTemplate.getForEntity(
-                 BASE_AUTH_FREE_URL + "/books/" + bookId, String.class);
+                EndpointsRegistry.PUBLIC_BOOKS_URL + '/' + bookId, String.class);
         Assertions.assertEquals(HttpStatus.OK.value(), userBookDetailResponse.getStatusCode().value());
         Assertions.assertNotNull(userBookDetailResponse.getBody());
         JSONObject object2 = new JSONObject(userBookDetailResponse.getBody());
         Assertions.assertEquals(newUsername, object2.getString("author"));
 
         ResponseEntity<String> usernameAlreadyExistingResponse = restTemplate.exchange(
-                BASE_URL + "/profile/username", HttpMethod.PATCH, requestEntity, String.class
+                profileUsername, HttpMethod.PATCH, requestEntity, String.class
         );
         Assertions.assertEquals(HttpStatus.CONFLICT.value(), usernameAlreadyExistingResponse.getStatusCode().value());
 
@@ -72,7 +75,7 @@ public class UserInfoIT extends ITTestContextInitialization {
         );
         HttpEntity<UserInfoUsernameUpdateRequest> requestEntity2 = new HttpEntity<>(request2, TestProperties.headers);
         ResponseEntity<String> usernameOnCooldownChangeResponse = restTemplate.exchange(
-                BASE_URL + "/profile/username", HttpMethod.PATCH, requestEntity2, String.class
+                profileUsername, HttpMethod.PATCH, requestEntity2, String.class
         );
         Assertions.assertEquals(HttpStatus.BAD_REQUEST.value(), usernameOnCooldownChangeResponse.getStatusCode().value());
     }
@@ -88,7 +91,7 @@ public class UserInfoIT extends ITTestContextInitialization {
         Assertions.assertFalse(resultSet.next());
         connection.close();
 
-        final String url = BASE_URL + "/book/favourite?email=" + email;
+        final String url = USER_BOOK_URL + "/favourite?email=" + email;
         HttpEntity<String> requestEntity = new HttpEntity<>(null, TestProperties.headers);
 
         ResponseEntity<String> fetchFavouriteBooks = restTemplate.exchange(
@@ -100,13 +103,13 @@ public class UserInfoIT extends ITTestContextInitialization {
         Assertions.assertEquals(0, fetchedPreviews.length());
 
         ResponseEntity<String> addBookToFavouritesRequest1 = restTemplate.exchange(
-                url+"&bookId="+bookId, HttpMethod.POST, requestEntity, String.class
+                url + "&bookId=" + bookId, HttpMethod.POST, requestEntity, String.class
         );
         Assertions.assertEquals(HttpStatus.OK, addBookToFavouritesRequest1.getStatusCode());
         Assertions.assertNotNull(addBookToFavouritesRequest1.getBody());
         Assertions.assertEquals(1, Integer.parseInt(addBookToFavouritesRequest1.getBody()));
         ResponseEntity<String> addBookToFavouritesRequest2 = restTemplate.exchange(
-                url+"&bookId="+bookId2, HttpMethod.POST, requestEntity, String.class
+                url + "&bookId=" + bookId2, HttpMethod.POST, requestEntity, String.class
         );
         Assertions.assertEquals(HttpStatus.OK, addBookToFavouritesRequest2.getStatusCode());
         Assertions.assertNotNull(addBookToFavouritesRequest2.getBody());
@@ -120,7 +123,8 @@ public class UserInfoIT extends ITTestContextInitialization {
         fetchedPreviews = new JSONArray(fetchFavouriteBooks2.getBody());
         Assertions.assertEquals(2, fetchedPreviews.length());
         List<String> sortedIdList = new ArrayList<>();
-        sortedIdList.add(fetchedPreviews.getJSONObject(0).getString("id")); sortedIdList.add(fetchedPreviews.getJSONObject(1).getString("id"));
+        sortedIdList.add(fetchedPreviews.getJSONObject(0).getString("id"));
+        sortedIdList.add(fetchedPreviews.getJSONObject(1).getString("id"));
         sortedIdList.sort(String::compareTo);
         Assertions.assertEquals(bookId.toString(), sortedIdList.get(0));
         Assertions.assertEquals(bookId2.toString(), sortedIdList.get(1));
@@ -137,7 +141,7 @@ public class UserInfoIT extends ITTestContextInitialization {
         connection.close();
 
         ResponseEntity<String> removeBooksFromFavouriteRequest = restTemplate.exchange(
-               url+"&bookId="+bookId2, HttpMethod.DELETE, requestEntity, String.class
+                url + "&bookId=" + bookId2, HttpMethod.DELETE, requestEntity, String.class
         );
         Assertions.assertEquals(HttpStatus.NO_CONTENT, removeBooksFromFavouriteRequest.getStatusCode());
         Thread.sleep(100); //delete is async, wait for it to finish
@@ -162,7 +166,7 @@ public class UserInfoIT extends ITTestContextInitialization {
         Assertions.assertFalse(resultSet.next());
         connection.close();
 
-        final String url = BASE_URL + "/book/subscribed?email=" + emailWithNoSubscriptions;
+        final String url = USER_BOOK_URL + "/subscribed?email=" + emailWithNoSubscriptions;
         HttpEntity<String> requestEntity = new HttpEntity<>(null, TestProperties.headers);
 
         ResponseEntity<String> fetchSubscribedBooks = restTemplate.exchange(
@@ -174,13 +178,13 @@ public class UserInfoIT extends ITTestContextInitialization {
         Assertions.assertEquals(0, fetchedPreviews.length());
 
         ResponseEntity<String> addBookToSubscribedRequest1 = restTemplate.exchange(
-                url+"&bookId="+bookId, HttpMethod.POST, requestEntity, String.class
+                url + "&bookId=" + bookId, HttpMethod.POST, requestEntity, String.class
         );
         Assertions.assertEquals(HttpStatus.OK, addBookToSubscribedRequest1.getStatusCode());
         Assertions.assertNotNull(addBookToSubscribedRequest1.getBody());
         Assertions.assertEquals(1, Integer.parseInt(addBookToSubscribedRequest1.getBody()));
         ResponseEntity<String> addBookToSubscribedRequest2 = restTemplate.exchange(
-                url+"&bookId="+bookId2, HttpMethod.POST, requestEntity, String.class
+                url + "&bookId=" + bookId2, HttpMethod.POST, requestEntity, String.class
         );
         Assertions.assertEquals(HttpStatus.OK, addBookToSubscribedRequest2.getStatusCode());
         Assertions.assertNotNull(addBookToSubscribedRequest2.getBody());
@@ -194,7 +198,8 @@ public class UserInfoIT extends ITTestContextInitialization {
         fetchedPreviews = new JSONArray(fetchSubscribedBooks2.getBody());
         Assertions.assertEquals(2, fetchedPreviews.length());
         List<String> sortedIdList = new ArrayList<>();
-        sortedIdList.add(fetchedPreviews.getJSONObject(0).getString("id")); sortedIdList.add(fetchedPreviews.getJSONObject(1).getString("id"));
+        sortedIdList.add(fetchedPreviews.getJSONObject(0).getString("id"));
+        sortedIdList.add(fetchedPreviews.getJSONObject(1).getString("id"));
         sortedIdList.sort(String::compareTo);
         Assertions.assertEquals(bookId.toString(), sortedIdList.get(0));
         Assertions.assertEquals(bookId2.toString(), sortedIdList.get(1));
@@ -211,7 +216,7 @@ public class UserInfoIT extends ITTestContextInitialization {
         connection.close();
 
         ResponseEntity<String> removeBooksFromSubscribedRequest = restTemplate.exchange(
-                url+"&bookId="+bookId2, HttpMethod.DELETE, requestEntity, String.class
+                url + "&bookId=" + bookId2, HttpMethod.DELETE, requestEntity, String.class
         );
         Assertions.assertEquals(HttpStatus.NO_CONTENT, removeBooksFromSubscribedRequest.getStatusCode());
         Thread.sleep(100); //delete is async, wait for it to finish

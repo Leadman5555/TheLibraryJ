@@ -6,7 +6,8 @@ import org.springframework.web.util.HtmlUtils;
 
 /**
  * Most current frontend clients escape HTML themselves during field interpolation (for example, {{}} in Angular).
- * As such, HTML escaping can be disabled depending on client framework - if not, some characters will not be rendered properly in browser.
+ * As such, HTML escaping can be disabled depending on the client framework -
+ * if not, some characters will not be rendered properly in the browser.
  * **/
 @Component
 public class HtmlEscaper {

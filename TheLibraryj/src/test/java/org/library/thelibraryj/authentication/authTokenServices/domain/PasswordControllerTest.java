@@ -2,7 +2,7 @@ package org.library.thelibraryj.authentication.authTokenServices.domain;
 
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
-import org.library.thelibraryj.TestProperties;
+import org.library.thelibraryj.EndpointsRegistry;
 import org.library.thelibraryj.authentication.authTokenServices.dto.password.PasswordResetRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,7 +24,7 @@ public class PasswordControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private static final String URL_BASE = TestProperties.BASE_AUTH_FREE_URL + "/auth/password";
+    private static final String URL_BASE = EndpointsRegistry.PUBLIC_AUTH_PASSWORD_URL;
 
     @MockBean
     private PasswordResetTokenServiceImpl passwordResetService;

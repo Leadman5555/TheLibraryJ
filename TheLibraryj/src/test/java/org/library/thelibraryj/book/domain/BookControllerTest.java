@@ -2,7 +2,7 @@ package org.library.thelibraryj.book.domain;
 
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
-import org.library.thelibraryj.TestProperties;
+import org.library.thelibraryj.EndpointsRegistry;
 import org.library.thelibraryj.book.BookService;
 import org.library.thelibraryj.book.dto.bookDto.response.BookDetailResponse;
 import org.library.thelibraryj.book.dto.pagingDto.PreviewKeySet;
@@ -37,7 +37,7 @@ public class BookControllerTest {
     @MockBean
     private BookService bookService;
 
-    private static final String URL_BASE = TestProperties.BASE_AUTH_FREE_URL + "/books";
+    private static final String URL_BASE = EndpointsRegistry.PUBLIC_BOOKS_URL;
     private static final UUID bookId = UUID.randomUUID();
 
     @Test

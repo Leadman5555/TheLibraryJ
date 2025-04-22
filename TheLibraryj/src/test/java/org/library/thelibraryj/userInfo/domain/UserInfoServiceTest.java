@@ -61,7 +61,7 @@ public class UserInfoServiceTest {
         userId = UUID.randomUUID();
         username = "sample username";
         userEmail = "sample@example.com";
-        Instant oldTime = (LocalDateTime.of(2000,10, 1,1,1).toInstant(ZoneOffset.UTC));
+        Instant oldTime = (LocalDateTime.of(2000, 10, 1, 1, 1).toInstant(ZoneOffset.UTC));
         UUID bookId = UUID.randomUUID();
         userInfo = UserInfo.builder()
                 .id(userId)
@@ -94,7 +94,7 @@ public class UserInfoServiceTest {
 
 
     @Test
-    public void testGetAndValidateAuthorData(){
+    public void testGetAndValidateAuthorData() {
         when(userInfoRepository.getBookCreationUserView(userEmail)).thenReturn(Optional.of(new BookCreationUserView() {
             @Override
             public UUID getAuthorId() {
@@ -136,18 +136,18 @@ public class UserInfoServiceTest {
     }
 
     @Test
-    public void testUpdateRank(){
+    public void testUpdateRank() {
         userInfo.setCurrentScore(600);
         when(userInfoRepository.getByEmail(userEmail)).thenReturn(Optional.ofNullable(userInfo));
         Either<GeneralError, UserRankUpdateResponse> response = userInfoService.updateRank(userEmail);
         Assertions.assertTrue(response.isRight());
-        Assertions.assertEquals(8 , response.get().newRank());
+        Assertions.assertEquals(8, response.get().newRank());
         Assertions.assertEquals(240, response.get().newScore());
         verify(userInfoRepository).update(userInfo);
     }
 
     @Test
-    public void testForceUpdateRank(){
+    public void testForceUpdateRank() {
         when(userInfoRepository.getByEmail(userEmail)).thenReturn(Optional.ofNullable(userInfo));
         UserInfoRankUpdateRequest request = new UserInfoRankUpdateRequest(userEmail, 10);
         Either<GeneralError, UserRankUpdateResponse> response = userInfoService.forceUpdateRank(request);
@@ -157,7 +157,7 @@ public class UserInfoServiceTest {
     }
 
     @Test
-    public void testUpdateUserInfoUsername(){
+    public void testUpdateUserInfoUsername() {
         final String newUsername = "new username";
         when(userInfoRepository.existsByUsername(newUsername)).thenReturn(false);
         when(userInfoRepository.getByEmail(userEmail)).thenReturn(Optional.ofNullable(userInfo));
@@ -180,7 +180,7 @@ public class UserInfoServiceTest {
     }
 
     @Test
-    public void shouldMergeFavouriteBooks(){
+    public void shouldMergeFavouriteBooks() {
         when(userInfoRepository.fetchUserInfoEagerById(userId)).thenReturn(Optional.of(userInfo));
         when(userInfoRepository.fetchUserInfoEagerByEmail(userEmail2)).thenReturn(Optional.of(userInfo2));
         int sizeBeforeMerge = userInfo2.getFavouriteBookIds().size();
@@ -204,7 +204,7 @@ public class UserInfoServiceTest {
     }
 
     @Test
-    public void shouldFailToMergeFavouriteBooks(){
+    public void shouldFailToMergeFavouriteBooks() {
         when(userInfoRepository.fetchUserInfoEagerById(userId)).thenReturn(Optional.of(userInfo));
         when(userInfoRepository.fetchUserInfoEagerByEmail(userEmail)).thenReturn(Optional.of(userInfo));
 

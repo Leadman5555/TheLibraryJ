@@ -9,7 +9,7 @@ import org.library.thelibraryj.email.EmailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,7 +33,7 @@ class EmailController {
             @ApiResponse(responseCode = "403", description = "Permission lacking"),
             @ApiResponse(responseCode = "503", description = "Failed to connect to the email service")
     })
-    @PostMapping(value = "/test")
+    @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> testEmailServerConnection() {
         if(emailService.testConnection())

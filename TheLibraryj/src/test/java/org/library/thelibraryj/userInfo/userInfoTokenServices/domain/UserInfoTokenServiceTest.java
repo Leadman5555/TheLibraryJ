@@ -184,7 +184,7 @@ public class UserInfoTokenServiceTest {
     }
 
     @Test
-    void shouldConsumeAndUpdateBookToken(){
+    void shouldConsumeAndUpdateBookToken() {
         String email = "test@example.com";
         UUID token = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
@@ -213,7 +213,7 @@ public class UserInfoTokenServiceTest {
     }
 
     @Test
-    void shouldSendEmailWithValidToken(){
+    void shouldSendEmailWithValidToken() {
         String email = "test@example.com";
         UUID token = UUID.randomUUID();
         UUID userId = UUID.randomUUID();
