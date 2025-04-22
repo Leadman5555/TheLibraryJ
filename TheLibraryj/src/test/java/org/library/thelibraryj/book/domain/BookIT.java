@@ -51,7 +51,6 @@ public class BookIT extends ITTestContextInitialization {
     private Path temporaryDir;
 
     private static final String BASE_URL = EndpointsRegistry.PUBLIC_BOOKS_URL;
-    private static final String BASE_AUTH_URL = EndpointsRegistry.PRIVATE_BOOKS_URL;
     private static final String RATING_URL = EndpointsRegistry.PRIVATE_BOOKS_RATING_URL;
     private static final String PREVIEW_URL = EndpointsRegistry.PUBLIC_BOOKS_PREVIEW_URL;
     private static final String FILTER_URL = EndpointsRegistry.PUBLIC_BOOKS_FILTER_URL;

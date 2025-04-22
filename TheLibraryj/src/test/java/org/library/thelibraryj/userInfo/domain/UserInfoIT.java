@@ -26,7 +26,6 @@ import java.util.UUID;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
 public class UserInfoIT extends ITTestContextInitialization {
 
-    private static final String BASE_URL = EndpointsRegistry.PRIVATE_USER_URL;
     private static final String PROFILE_URL = EndpointsRegistry.PRIVATE_USER_PROFILE_URL;
     private static final String USER_BOOK_URL = EndpointsRegistry.PRIVATE_USER_BOOK_URL;
     private static final UUID bookId = TestProperties.bookId1;
