@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.authentication.userAuth.domain.UserRole;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -35,8 +36,8 @@ class JwtServiceTest {
     @Spy
     private final JwtProperties jwtProperties = new JwtProperties();
 
-    static final String publicKey = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEHMberk3xVepnUlc1p17905sSBmYJ+9IS6UKHgsfm8kYGe4QsYASumkY6vG0WtQc77Mqot9jXQaYqVxHYinNYXg==";
-    static final String privateKey = "MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCCJo7IN6eWnORQPrc8+TdICImuwtZK/+KhY+Bf9EYaMKA==";
+    static final String publicKey = TestProperties.TEST_JWT_PUBK;
+    static final String privateKey = TestProperties.TEST_JWT_PRVK;
     @Spy
     private final Algorithm jwtSigningAlgorithm = Algorithm.ECDSA256(
             (ECPublicKey) KeyFactory.getInstance("EC").generatePublic(new X509EncodedKeySpec(Base64.decodeBase64(publicKey))),
@@ -49,7 +50,7 @@ class JwtServiceTest {
     private JwtServiceImpl jwtService;
 
     private String token;
-    private static final String subject = "sample.email1@gmail.com";
+    private static final String subject = TestProperties.userEmail1;
 
     JwtServiceTest() throws InvalidKeySpecException, NoSuchAlgorithmException {
     }
@@ -57,7 +58,7 @@ class JwtServiceTest {
     @BeforeEach
     void setUp() {
         jwtProperties.setExpiration_time_ms(10000000);
-        jwtProperties.setClient_id("d14ac166d8e4a37e663ea46dad662eb9f12ec4d2d3625ecf7be447917665eff8");
+        jwtProperties.setClient_id(TestProperties.TEST_JWT_CLIENT_ID);
         jwtProperties.setAud("http://localhost:8082");
         token = jwtService.generateToken(subject).token();
     }
@@ -110,7 +111,7 @@ class JwtServiceTest {
                 .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getExpiration_time_ms()))
                 .sign(Algorithm.ECDSA512(
                         (ECPublicKey) KeyFactory.getInstance("EC").generatePublic(new X509EncodedKeySpec(Base64.decodeBase64(publicKey))),
-                        (ECPrivateKey) KeyFactory.getInstance("EC").generatePrivate(new PKCS8EncodedKeySpec(Base64.decodeBase64("MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCCmlFCeDJxkd5HI4BEDJsO1YBPLVuOHRNbgwn+nwv0IuA==")))));
+                        (ECPrivateKey) KeyFactory.getInstance("EC").generatePrivate(new PKCS8EncodedKeySpec(Base64.decodeBase64("MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCCmlFCeDJxkd5HI4BEDJsO1YBPLVuOHRNbgwn+nwv0IuA=="))))); //random valid key
         Assertions.assertThrows(Exception.class, () -> jwtService.validateToken(wrongPKAlgorithmToken));
         final String wrongSigningAlgorithmToken = JWT.create()
                 .withIssuedAt(new Date())
@@ -118,7 +119,7 @@ class JwtServiceTest {
                 .withIssuer(jwtProperties.getClient_id())
                 .withAudience(jwtProperties.getAud())
                 .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getExpiration_time_ms()))
-                .sign(Algorithm.HMAC256("a381e4279f8649639c217e95b98fc2a05557cc16acdd6ccf1c305df268d3cb83"));
+                .sign(Algorithm.HMAC256("a381e4279f8649639c217e95b98fc2a05557cc16acdd6ccf1c305df268d3cb83")); //random valid secret
         Assertions.assertThrows(Exception.class, () -> jwtService.validateToken(wrongSigningAlgorithmToken));
         final String nonExistingSubject = "otherSubject";
         when(userDetailsService.loadUserByUsername(nonExistingSubject)).thenThrow(new UsernameNotFoundException(nonExistingSubject));

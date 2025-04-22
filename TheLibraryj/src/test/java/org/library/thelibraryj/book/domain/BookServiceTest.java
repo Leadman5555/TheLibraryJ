@@ -122,7 +122,7 @@ public class BookServiceTest {
     }
 
     @Test
-    public void testGetBookRatings(){
+    public void testGetBookRatings() {
         List<RatingResponse> mappedRatings = bookMapper.ratingsToRatingResponseList(List.of(rating));
         when(ratingRepository.getAllRatingsForBook(bookId)).thenReturn(List.of(rating));
         List<RatingResponse> fetched = bookService.getRatingResponsesForBook(bookId);
@@ -345,7 +345,7 @@ public class BookServiceTest {
         assertEquals(bookId, ((BookError.DuplicateChapter) error).bookId());
         assertEquals(1, ((BookError.DuplicateChapter) error).chapterNumber());
     }
-    
+
     private static MultipartFile createMockFile(String name) {
         MultipartFile mockFile = org.mockito.Mockito.mock(MultipartFile.class);
         when(mockFile.getOriginalFilename()).thenReturn(name);
@@ -353,12 +353,12 @@ public class BookServiceTest {
     }
 
     @SuppressWarnings({"unchecked", "ReturnOfNull"})
-    private Either<GeneralError, List<ChapterUpsertResponse>> validateAndParseChapterRequests(List<MultipartFile> chapterFiles, UUID bookId, Set<Integer> chapterNumbers){
+    private Either<GeneralError, List<ChapterUpsertResponse>> validateAndParseChapterRequests(List<MultipartFile> chapterFiles, UUID bookId, Set<Integer> chapterNumbers) {
         try {
             Method method = BookServiceImpl.class.getDeclaredMethod("validateAndParseChapterRequests", List.class, UUID.class, Set.class);
             method.setAccessible(true);
             return (Either<GeneralError, List<ChapterUpsertResponse>>) method.invoke(bookService, chapterFiles, bookId, chapterNumbers);
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }

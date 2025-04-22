@@ -7,8 +7,6 @@ import org.springframework.util.MultiValueMap;
 import java.util.UUID;
 
 public class TestProperties {
-    public static final String BASE_URL = "";
-    public static final String BASE_AUTH_FREE_URL = BASE_URL + "/na";
     public static final MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
     public static final String SCHEMA_FILE_NAME = "schema.sql";
     public static final String DATA_FILE_NAME = "dataInit.sql";
@@ -28,8 +26,11 @@ public class TestProperties {
     public static final UUID googleUserId3 = UUID.fromString("123e4567-e89b-12d3-a456-426614174002");
     public static final String googleUserEmail3 = "sample.email3@gmail.com";
     public static final String alwaysValidTokenForUser3 = "eyJhbGciOiJFUzI1NiJ9.eyJpYXQiOjE3MzE2MTQ0OTEsInN1YiI6InNhbXBsZS5lbWFpbDNAZ21haWwuY29tIiwiaXNzIjoiYTM4MWU0Mjc5Zjg2NDk2MzljMjE3ZTk1Yjk4ZmMyYTA1NTU3Y2MxNmFjZGQ2Y2NmMWMzMDVkZjI2OGQzY2I4MyIsImF1ZCI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MiIsImV4cCI6OTk5OTk5OTk5OX0.pnvkgeXO-AfrIPUrVBT-enGVjeiZ0GME1eaqGDBzpbBtu8UX7QGNWgLYCcv3u1ahjG2ZPhf_-A-ewNBtM2XuyQ";
-
     public static final String allUserPassword = "password";
+
+    public static final String TEST_JWT_PRVK = "MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCCJo7IN6eWnORQPrc8+TdICImuwtZK/+KhY+Bf9EYaMKA==";
+    public static final String TEST_JWT_PUBK = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEHMberk3xVepnUlc1p17905sSBmYJ+9IS6UKHgsfm8kYGe4QsYASumkY6vG0WtQc77Mqot9jXQaYqVxHYinNYXg==";
+    public static final String TEST_JWT_CLIENT_ID = "d14ac166d8e4a37e663ea46dad662eb9f12ec4d2d3625ecf7be447917665eff8";
 
     public static void fillHeadersForUser1() {
         headers.clear();

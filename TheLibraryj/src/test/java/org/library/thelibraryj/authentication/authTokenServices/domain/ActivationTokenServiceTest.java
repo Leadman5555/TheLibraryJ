@@ -77,7 +77,7 @@ public class ActivationTokenServiceTest {
     }
 
     @Test
-    public void testConsumeActivationTokenErrorUsed(){
+    public void testConsumeActivationTokenErrorUsed() {
         AuthToken activationAuthTokenUsed = AuthToken.builder()
                 .token(UUID.randomUUID())
                 .id(UUID.randomUUID())
@@ -92,7 +92,7 @@ public class ActivationTokenServiceTest {
     }
 
     @Test
-    public void testConsumeActivationTokenErrorExpired(){
+    public void testConsumeActivationTokenErrorExpired() {
         AuthToken activationAuthTokenExpired = AuthToken.builder()
                 .token(UUID.randomUUID())
                 .id(UUID.randomUUID())
@@ -107,7 +107,7 @@ public class ActivationTokenServiceTest {
     }
 
     @Test
-    public void testConsumeActivationTokenErrorNotFound(){
+    public void testConsumeActivationTokenErrorNotFound() {
         UUID tokenId = UUID.randomUUID();
         when(activationAuthTokenRepository.findByToken(tokenId)).thenReturn(Optional.empty());
         Either<GeneralError, Boolean> result = activationService.consumeActivationToken(tokenId);

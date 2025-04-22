@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.library.thelibraryj.EndpointsRegistry;
 import org.library.thelibraryj.ITTestContextInitialization;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
@@ -49,8 +50,13 @@ public class BookIT extends ITTestContextInitialization {
     @TempDir
     private Path temporaryDir;
 
-    private static final String BASE_URL = TestProperties.BASE_AUTH_FREE_URL + "/books";
-    private static final String BASE_AUTH_URL = TestProperties.BASE_URL + "/books";
+    private static final String BASE_URL = EndpointsRegistry.PUBLIC_BOOKS_URL;
+    private static final String BASE_AUTH_URL = EndpointsRegistry.PRIVATE_BOOKS_URL;
+    private static final String RATING_URL = EndpointsRegistry.PRIVATE_BOOKS_RATING_URL;
+    private static final String PREVIEW_URL = EndpointsRegistry.PUBLIC_BOOKS_PREVIEW_URL;
+    private static final String FILTER_URL = EndpointsRegistry.PUBLIC_BOOKS_FILTER_URL;
+    private static final String BOOKS_URL = EndpointsRegistry.PRIVATE_BOOKS_BOOK_URL;
+    private static final String CHAPTER_URL = EndpointsRegistry.PRIVATE_BOOKS_CHAPTER_URL;
     private static final UUID bookId = TestProperties.bookId1;
     private static final UUID chapterBookId = TestProperties.noChapterBookId;
     private static final String authorEmail1 = TestProperties.userEmail1;
@@ -61,6 +67,7 @@ public class BookIT extends ITTestContextInitialization {
     @BeforeEach
     public void setUp() {
         seedDB();
+        fillAuthHeadersForUser1();
     }
 
     @Test
@@ -83,7 +90,7 @@ public class BookIT extends ITTestContextInitialization {
         );
         HttpEntity<RatingRequest> requestEntity = new HttpEntity<>(updateRatingRequest, TestProperties.headers);
         ResponseEntity<String> ratingResponse = restTemplate.exchange(
-                BASE_AUTH_URL + "/rating", HttpMethod.PUT, requestEntity, String.class
+                RATING_URL, HttpMethod.PUT, requestEntity, String.class
         );
         Assertions.assertEquals(HttpStatus.OK.value(), ratingResponse.getStatusCode().value());
         Assertions.assertNotNull(ratingResponse.getBody());
@@ -95,7 +102,7 @@ public class BookIT extends ITTestContextInitialization {
         );
         HttpEntity<RatingRequest> requestEntity2 = new HttpEntity<>(createRatingRequest, TestProperties.headers);
         ResponseEntity<String> ratingResponse2 = restTemplate.exchange(
-                BASE_AUTH_URL + "/rating", HttpMethod.PUT, requestEntity2, String.class
+                RATING_URL, HttpMethod.PUT, requestEntity2, String.class
         );
         Assertions.assertEquals(HttpStatus.OK.value(), ratingResponse2.getStatusCode().value());
         Assertions.assertNotNull(ratingResponse2.getBody());
@@ -108,14 +115,14 @@ public class BookIT extends ITTestContextInitialization {
         TestProperties.fillHeadersForUser2();
         HttpEntity<RatingRequest> requestEntity3 = new HttpEntity<>(createRatingRequest2, TestProperties.headers);
         ResponseEntity<String> ratingResponse3 = restTemplate.exchange(
-                BASE_AUTH_URL + "/rating", HttpMethod.PUT, requestEntity3, String.class
+                RATING_URL, HttpMethod.PUT, requestEntity3, String.class
         );
         Assertions.assertEquals(HttpStatus.OK.value(), ratingResponse3.getStatusCode().value());
         Assertions.assertNotNull(ratingResponse3.getBody());
 
 
         ResponseEntity<String> previewResponse = restTemplate.getForEntity(
-                BASE_URL + "/preview/" + bookId, String.class
+                PREVIEW_URL + '/' + bookId, String.class
         );
         Assertions.assertEquals(HttpStatus.OK.value(), previewResponse.getStatusCode().value());
         Assertions.assertNotNull(previewResponse.getBody());
@@ -129,7 +136,7 @@ public class BookIT extends ITTestContextInitialization {
         ContentRemovalRequest request = new ContentRemovalRequest(bookId, authorEmail1);
         HttpEntity<ContentRemovalRequest> requestEntity = new HttpEntity<>(request, TestProperties.headers);
         ResponseEntity<String> response = restTemplate.exchange(
-                BASE_AUTH_URL + "/book", HttpMethod.DELETE, requestEntity, String.class
+                BOOKS_URL, HttpMethod.DELETE, requestEntity, String.class
         );
         Assertions.assertEquals(HttpStatus.OK.value(), response.getStatusCode().value());
 
@@ -137,12 +144,12 @@ public class BookIT extends ITTestContextInitialization {
                 BASE_URL + '/' + bookId, String.class);
         Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), responseDetail.getStatusCode().value());
         ResponseEntity<String> responsePreview = restTemplate.getForEntity(
-                BASE_URL + "/preview/" + bookId, String.class);
+                PREVIEW_URL + '/' + bookId, String.class);
         Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), responsePreview.getStatusCode().value());
         ContentRemovalRequest requestChapter = new ContentRemovalRequest(bookId, authorEmail1);
         HttpEntity<ContentRemovalRequest> requestEntityChapter = new HttpEntity<>(requestChapter, TestProperties.headers);
         ResponseEntity<String> responseChapter = restTemplate.exchange(
-                BASE_AUTH_URL + "/chapter/" + 1, HttpMethod.DELETE, requestEntityChapter, String.class
+                CHAPTER_URL + '/' + 1, HttpMethod.DELETE, requestEntityChapter, String.class
         );
         Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), responseChapter.getStatusCode().value());
 
@@ -160,7 +167,7 @@ public class BookIT extends ITTestContextInitialization {
         params.add("pageSize", 100);
         HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(params, headers);
         ResponseEntity<String> response = restTemplate.exchange(
-                BASE_URL + "/filtered",
+                FILTER_URL,
                 HttpMethod.GET,
                 request,
                 String.class
@@ -176,7 +183,7 @@ public class BookIT extends ITTestContextInitialization {
         params2.add("pageSize", 100);
         HttpEntity<MultiValueMap<String, Object>> request2 = new HttpEntity<>(params2, headers);
         ResponseEntity<String> response2 = restTemplate.exchange(
-                BASE_URL + "/filtered",
+                FILTER_URL,
                 HttpMethod.GET,
                 request2,
                 String.class
@@ -188,7 +195,7 @@ public class BookIT extends ITTestContextInitialization {
 
         HttpEntity<MultiValueMap<String, Object>> request3 = new HttpEntity<>(null, headers);
         ResponseEntity<String> response3 = restTemplate.exchange(
-                BASE_URL + "/filtered?page=0&pageSize=100",
+                FILTER_URL + "?page=0&pageSize=100",
                 HttpMethod.GET,
                 request3,
                 String.class
@@ -199,7 +206,7 @@ public class BookIT extends ITTestContextInitialization {
         Assertions.assertEquals(3, body3.length());
         HttpEntity<MultiValueMap<String, String>> request4 = new HttpEntity<>(null, headers);
         ResponseEntity<String> response4 = restTemplate.exchange(
-                BASE_URL + "/filtered?state=HIATUS&page=0&pageSize=100",
+                FILTER_URL + "?state=HIATUS&page=0&pageSize=100",
                 HttpMethod.GET,
                 request4,
                 String.class
@@ -210,7 +217,7 @@ public class BookIT extends ITTestContextInitialization {
         Assertions.assertEquals(2, body4.length());
         HttpEntity<MultiValueMap<String, Object>> request5 = new HttpEntity<>(null, headers);
         ResponseEntity<String> response5 = restTemplate.exchange(
-                BASE_URL + "/filtered?hasTags=XIANXIA&hasTags=WUXIA&page=0&pageSize=100",
+                FILTER_URL + "?hasTags=XIANXIA&hasTags=WUXIA&page=0&pageSize=100",
                 HttpMethod.GET,
                 request5,
                 String.class
@@ -369,7 +376,7 @@ public class BookIT extends ITTestContextInitialization {
         for (MockFile file : fileList) parts.add("chapterBatch", new PathResource(file.path));
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(parts, headers);
         return restTemplate.exchange(
-                BASE_AUTH_URL + "/book/" + chapterBookId + "/chapter", HttpMethod.PUT, requestEntity, String.class
+                BOOKS_URL + '/' + chapterBookId + "/chapter", HttpMethod.PUT, requestEntity, String.class
         );
     }
 

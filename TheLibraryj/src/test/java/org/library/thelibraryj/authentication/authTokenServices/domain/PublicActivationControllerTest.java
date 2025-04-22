@@ -2,7 +2,7 @@ package org.library.thelibraryj.authentication.authTokenServices.domain;
 
 import io.vavr.control.Either;
 import org.junit.jupiter.api.Test;
-import org.library.thelibraryj.TestProperties;
+import org.library.thelibraryj.EndpointsRegistry;
 import org.library.thelibraryj.authentication.authTokenServices.ActivationTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,13 +26,13 @@ public class PublicActivationControllerTest {
     @MockBean
     private ActivationTokenService activationTokenService;
 
-    private static final String URL_BASE = TestProperties.BASE_AUTH_FREE_URL;
+    private static final String URL_BASE = EndpointsRegistry.PUBLIC_AUTH_ACTIVATION_URL;
 
     @Test
     public void testConsumeActivationToken() throws Exception {
         UUID tokenId = UUID.randomUUID();
         when(activationTokenService.consumeActivationToken(tokenId)).thenReturn(Either.right(true));
-        mockMvc.perform(patch(URL_BASE + "/auth/activation")
+        mockMvc.perform(patch(URL_BASE)
                         .param("token", tokenId.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

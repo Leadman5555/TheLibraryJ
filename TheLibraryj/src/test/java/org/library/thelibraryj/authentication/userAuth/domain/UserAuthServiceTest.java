@@ -97,7 +97,7 @@ public class UserAuthServiceTest {
     }
 
     @Test
-    public void testEnableUser(){
+    public void testEnableUser() {
         when(userAuthRepository.findById(id)).thenReturn(Optional.ofNullable(userAuth));
         Assertions.assertFalse(userAuth.isEnabled());
         Either<GeneralError, Boolean> response = userAuthService.enableUser(id);
@@ -108,7 +108,7 @@ public class UserAuthServiceTest {
     }
 
     @Test
-    public void testDisableUser(){
+    public void testDisableUser() {
         when(userAuthRepository.findById(id)).thenReturn(Optional.ofNullable(userAuth));
         userAuth.setEnabled(true);
         Either<GeneralError, Boolean> response = userAuthService.disableUser(id);

@@ -6,7 +6,7 @@ import com.icegreen.greenmail.util.ServerSetupTest;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.library.thelibraryj.TestProperties;
+import org.library.thelibraryj.EndpointsRegistry;
 import org.library.thelibraryj.email.EmailService;
 import org.library.thelibraryj.email.dto.EmailRequest;
 import org.library.thelibraryj.email.template.AccountActivationTemplate;
@@ -32,13 +32,13 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(EmailController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @Import(value = {EmailServiceImpl.class, EmailConfiguration.class, EmailProperties.class})
-public class EmailServiceIT {
+public class EmailIT {
 
     @Autowired
     private EmailService emailService;
@@ -51,12 +51,12 @@ public class EmailServiceIT {
     @Autowired
     private MockMvc mockMvc;
 
-    private static final String URL_BASE = TestProperties.BASE_URL + "/email";
+    private static final String URL_BASE = EndpointsRegistry.PRIVATE_EMAIL_URL;
 
     @Test
     @WithMockUser(roles = "ADMIN")
     public void testCheckConnection() throws Exception {
-        mockMvc.perform(post(URL_BASE + "/test")
+        mockMvc.perform(get(URL_BASE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
@@ -87,7 +87,7 @@ public class EmailServiceIT {
             );
             final MimeMessage[] receivedMessages = greenMail.getReceivedMessagesForDomain(recipient);
             assertEquals(finalCurrentEmailCount, receivedMessages.length);
-            assertEquals(subject, receivedMessages[finalCurrentEmailCount-1].getSubject());
+            assertEquals(subject, receivedMessages[finalCurrentEmailCount - 1].getSubject());
         }
     }
 

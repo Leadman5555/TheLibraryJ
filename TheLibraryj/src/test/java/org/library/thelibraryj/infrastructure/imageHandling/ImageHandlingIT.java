@@ -2,8 +2,8 @@ package org.library.thelibraryj.infrastructure.imageHandling;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.library.thelibraryj.EndpointsRegistry;
 import org.library.thelibraryj.ITTestContextInitialization;
-import org.library.thelibraryj.TestProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ImageHandlingIT extends ITTestContextInitialization {
 
-    private static final String URL_BASE = TestProperties.BASE_AUTH_FREE_URL + "/image/";
+    private static final String URL_BASE = EndpointsRegistry.PUBLIC_IMAGE_URL + '/';
 
     @Test
     public void shouldReturnDefaultImage() {
