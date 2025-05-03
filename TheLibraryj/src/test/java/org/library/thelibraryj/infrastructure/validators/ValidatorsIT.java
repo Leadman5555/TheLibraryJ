@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ValidatorsITTest extends ITTestContextInitialization {
+public class ValidatorsIT extends ITTestContextInitialization {
 
     @SuppressWarnings("EmptyMethod")
     @Validated
