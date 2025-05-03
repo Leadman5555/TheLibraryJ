@@ -39,7 +39,7 @@ services:
     image: the_library-angular-client:latest
     container_name: angular-client
     ports:
-      - "8080:4000"
+      - "4000:4000"
     restart: always
 
 secrets:

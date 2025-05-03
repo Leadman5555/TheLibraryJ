@@ -4,6 +4,7 @@ import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.library.thelibraryj.EndpointsRegistry;
 import org.library.thelibraryj.ITTestContextInitialization;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
@@ -34,7 +35,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
 public class AuthenticationIT extends ITTestContextInitialization {
 
-    private static final String BASE_URL = TestProperties.BASE_AUTH_FREE_URL + "/auth";
+    private static final String LOGIN_URL = EndpointsRegistry.PUBLIC_AUTH_LOGIN_URL;
+    private static final String REFRESH_URL = EndpointsRegistry.PUBLIC_AUTH_REFRESH_TOKEN_URL;
+    private static final String REGISTER_URL = EndpointsRegistry.PUBLIC_AUTH_REGISTER_URL;
+    private static final String ACTIVATION_URL = EndpointsRegistry.PUBLIC_AUTH_ACTIVATION_URL;
     private static final UUID notEnabledUserId = TestProperties.notEnabledUserId2;
 
     static final String existingEmail = TestProperties.userEmail1;
@@ -59,7 +63,7 @@ public class AuthenticationIT extends ITTestContextInitialization {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(multipartRequest, headers);
         ResponseEntity<String> registerResponse = restTemplate.postForEntity(
-                BASE_URL + "/register",
+                REGISTER_URL,
                 requestEntity,
                 String.class
         );
@@ -98,21 +102,23 @@ public class AuthenticationIT extends ITTestContextInitialization {
 
     @Test
     public void testFailWithInvalidLogin() {
+
+
         AuthenticationRequest invalidRequest = new AuthenticationRequest(existingEmail, ("invalidPassword").toCharArray());
         ResponseEntity<String> authResponse2 = restTemplate.postForEntity(
-                BASE_URL+"/login", invalidRequest, String.class
+                LOGIN_URL, invalidRequest, String.class
         );
         assertEquals(HttpStatus.UNAUTHORIZED.value(), authResponse2.getStatusCode().value());
 
         AuthenticationRequest invalidRequest2 = new AuthenticationRequest("nonexistant@email.com", validPassword);
         ResponseEntity<String> authResponse3 = restTemplate.postForEntity(
-                BASE_URL+"/login", invalidRequest2, String.class
+                LOGIN_URL, invalidRequest2, String.class
         );
         assertEquals(HttpStatus.NOT_FOUND.value(), authResponse3.getStatusCode().value());
 
         AuthenticationRequest notEnabledRequest = new AuthenticationRequest(existingNonEnabledEmail, validPassword);
         ResponseEntity<String> authResponse4 = restTemplate.postForEntity(
-                BASE_URL+"/login", notEnabledRequest, String.class
+                LOGIN_URL, notEnabledRequest, String.class
         );
         assertEquals(HttpStatus.BAD_REQUEST.value(), authResponse4.getStatusCode().value());
     }
@@ -121,7 +127,7 @@ public class AuthenticationIT extends ITTestContextInitialization {
     public void testReturnTokenAndCookieAfterSuccessfulAuthentication() throws Exception {
         AuthenticationRequest requestEntity = new AuthenticationRequest(existingEmail, validPassword);
         ResponseEntity<String> authResponse = restTemplate.postForEntity(
-                BASE_URL+"/login", requestEntity, String.class
+                LOGIN_URL, requestEntity, String.class
         );
         assertEquals(HttpStatus.OK.value(), authResponse.getStatusCode().value());
         assertNotNull(authResponse.getBody());
@@ -141,7 +147,7 @@ public class AuthenticationIT extends ITTestContextInitialization {
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                BASE_URL + "/refresh",
+                REFRESH_URL,
                 HttpMethod.GET,
                 httpEntity,
                 String.class
@@ -158,7 +164,7 @@ public class AuthenticationIT extends ITTestContextInitialization {
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                BASE_URL + "/refresh",
+                REFRESH_URL,
                 HttpMethod.GET,
                 httpEntity,
                 String.class
@@ -167,7 +173,6 @@ public class AuthenticationIT extends ITTestContextInitialization {
         assertEquals(HttpStatus.NO_CONTENT.value(), response.getStatusCode().value());
         assertTrue(response.getHeaders().containsKey("access_token"));
     }
-
 
 
     @Test
@@ -187,7 +192,7 @@ public class AuthenticationIT extends ITTestContextInitialization {
         headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         ResponseEntity<String> registerResponse = restTemplate.postForEntity(
-                BASE_URL + "/activation", request, String.class
+                EndpointsRegistry.PUBLIC_AUTH_ACTIVATION_URL, request, String.class
         );
         assertEquals(HttpStatus.NO_CONTENT.value(), registerResponse.getStatusCode().value());
 
@@ -210,7 +215,7 @@ public class AuthenticationIT extends ITTestContextInitialization {
         HttpEntity<MultiValueMap<String, String>> request2 = new HttpEntity<>(params2, headers);
 
         ResponseEntity<String> activationResponse = restTemplate.exchange(
-                BASE_URL + "/activation", HttpMethod.PATCH, request2, String.class
+                ACTIVATION_URL, HttpMethod.PATCH, request2, String.class
         );
         assertEquals(HttpStatus.NO_CONTENT.value(), activationResponse.getStatusCode().value());
 

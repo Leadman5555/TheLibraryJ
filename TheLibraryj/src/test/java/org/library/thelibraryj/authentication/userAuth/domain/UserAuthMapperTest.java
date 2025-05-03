@@ -38,6 +38,6 @@ public class UserAuthMapperTest {
                 () -> Assertions.assertEquals(userAuth.isEnabled(), mapped.isEnabled()),
                 () -> Assertions.assertEquals(userInfo.rank(), mapped.rank()),
                 () -> Assertions.assertEquals(userInfo.currentScore(), mapped.currentScore())
-                );
+        );
     }
 }

@@ -147,7 +147,7 @@ With an account old enough, anyone can become an author by accessing the *Author
 - LIBRARY_IMAGES_BASE=/app/images
 - LIBRARY_USER_IMAGES=user [prefix /app/images referencing mounted volume in docker-compose]
 - LIBRARY_BOOK_IMAGES=book [prefix /app/images referencing mounted volume in docker-compose]
-- LIBRARY_CLIENT_BASE=[Base url for client, can be 'http://localhost:8080' for local development]
+- LIBRARY_CLIENT_BASE=[Base url for client, can be 'http://localhost:4000' for local development]
 - LIBRARY_SERVER_BASE=[Url at which the server is located, can be 'http://localhost:8082' for local development]
 - LIBRARY_DOMAIN=[Server domain, can be 'localhost' for development]
 - LIBRARY_EMAIL_FROM=noreply@library.com [email address from which the system emails are sent]
@@ -181,7 +181,7 @@ docker stack rm library_stack
 <center>
 
 Using the sample settings:  
-### **Client available under `localhost:8080`**  
+### **Client available under `localhost:4000`**  
 ### **Server available under `localhost:8082`, with documentation under `localhost:8082/v0.9/swagger-ui/index.html`**
 </center>
 

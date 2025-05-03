@@ -3,6 +3,7 @@ package org.library.thelibraryj.userInfo.userInfoTokenServices.domain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.library.thelibraryj.EndpointsRegistry;
 import org.library.thelibraryj.ITTestContextInitialization;
 import org.library.thelibraryj.TestProperties;
 import org.library.thelibraryj.TheLibraryJApplication;
@@ -26,11 +27,11 @@ import static org.awaitility.Awaitility.await;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TheLibraryJApplication.class)
 public class UserInfoTokenIT extends ITTestContextInitialization {
 
-    private static final String BASE_URL = TestProperties.BASE_URL + "/user/book/token";
+    private static final String BASE_URL = EndpointsRegistry.PRIVATE_USER_BOOK_TOKEN_URL;
 
     private static final UUID bookId = TestProperties.bookId1;
     private static final UUID bookId2 = TestProperties.bookId2;
-    private static final UUID bookId3 = UUID.randomUUID();
+    private static final UUID bookId3 = UUID.fromString("923e4567-e89b-12d3-a456-426614174009");
     private static final String email = TestProperties.userEmail1;
     private static final UUID userId = TestProperties.userId1;
     private static final UUID userId2 = TestProperties.googleUserId3;
@@ -39,6 +40,7 @@ public class UserInfoTokenIT extends ITTestContextInitialization {
     @BeforeEach
     public void setUp() {
         seedDB();
+        fillAuthHeadersForUser1();
     }
 
     private static final String checkBookTokensQuery = "SELECT * FROM library.library_book_tokens WHERE for_user_id= '" + userId + "'";
@@ -111,8 +113,8 @@ public class UserInfoTokenIT extends ITTestContextInitialization {
     private static final String addFavouriteBookQuery = "INSERT INTO library.favourite_books (user_info_id, book_id) VALUES ('" + userId + "', '" + bookId + "'), ('" + userId + "', '" + bookId2 + "'), ('" + userId2 + "', '" + bookId + "') , ('" + userId2 + "', '" + bookId3 + "')";
     private static final UUID validTokenId = UUID.randomUUID();
     private static final String addValidBookTokenForUser1Query = "INSERT INTO library.library_book_tokens (id, token, for_user_id, version, created_at, updated_at, expires_at, use_count) VALUES ('123e4567-e89b-12d3-a456-426614174001', '" + validTokenId + "', '" + userId + "', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,        CURRENT_TIMESTAMP + 10, 0)";
-    private static final String checkFavouriteBooksQueryForUser2 = "SELECT book_id FROM library.favourite_books WHERE user_info_id= '" + userId2 + "' ORDER BY book_id";
     private static final String checkFavouriteBooksQueryForUser1 = "SELECT book_id FROM library.favourite_books WHERE user_info_id= '" + userId + "' ORDER BY book_id";
+    private static final String checkFavouriteBooksQueryForUser2 = "SELECT book_id FROM library.favourite_books WHERE user_info_id= '" + userId2 + "' ORDER BY book_id";
 
 
     @Test

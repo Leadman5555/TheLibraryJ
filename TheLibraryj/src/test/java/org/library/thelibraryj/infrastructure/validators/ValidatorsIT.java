@@ -19,22 +19,31 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ValidatorsITTest extends ITTestContextInitialization {
+public class ValidatorsIT extends ITTestContextInitialization {
 
     @SuppressWarnings("EmptyMethod")
     @Validated
     static class ToValidate {
-        public void checkUsername(@ValidUsernameCharacters String username){}
-        public void checkTitle(@ValidTitleCharacters String title){}
-        public void checkPassword(@ValidPasswordCharacters String password){}
-        public void checkPassword(@ValidPasswordCharacters char[] password){}
-        public void checkBatchSize(@ValidBatchSize List<?> list){}
+        public void checkUsername(@ValidUsernameCharacters String username) {
+        }
+
+        public void checkTitle(@ValidTitleCharacters String title) {
+        }
+
+        public void checkPassword(@ValidPasswordCharacters String password) {
+        }
+
+        public void checkPassword(@ValidPasswordCharacters char[] password) {
+        }
+
+        public void checkBatchSize(@ValidBatchSize List<?> list) {
+        }
     }
 
     @org.springframework.boot.test.context.TestConfiguration
     static class TestConfiguration {
         @Bean
-        ToValidate getToValidateBean(){
+        ToValidate getToValidateBean() {
             return new ToValidate();
         }
     }
@@ -45,10 +54,10 @@ public class ValidatorsITTest extends ITTestContextInitialization {
     @Test
     public void testBatchSizeValidation() {
         List<Integer> list = new ArrayList<>();
-        for(int i = 0; i < 55; i++) list.add(i);
+        for (int i = 0; i < 55; i++) list.add(i);
         assertThrows(ConstraintViolationException.class, () -> toValidate.checkBatchSize(list));
         List<Integer> list2 = new ArrayList<>();
-        for(int i = 0; i < 30; i++) list2.add(i);
+        for (int i = 0; i < 30; i++) list2.add(i);
         assertDoesNotThrow(() -> toValidate.checkBatchSize(list2));
         assertThrows(ConstraintViolationException.class, () -> toValidate.checkBatchSize(list));
     }

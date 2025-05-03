@@ -50,13 +50,13 @@ public abstract class ITTestContextInitialization {
     private static final String HANDLER_NAME = "someHandlerName";
 
     @DynamicPropertySource
-    static void addFileStoringEnv (DynamicPropertyRegistry registry) throws IOException {
+    static void addFileStoringEnv(DynamicPropertyRegistry registry) throws IOException {
         registry.add("library.image.base", fileStorage::toString);
         content = new byte[100];
         Arrays.fill(content, (byte) 1);
         String[] properties_to_fill = {"library.user.image_source", "library.book.image_source"};
         for (String property : properties_to_fill) {
-            String currentHandlerName = HANDLER_NAME + '_' + (handlerDirs.size()+1);
+            String currentHandlerName = HANDLER_NAME + '_' + (handlerDirs.size() + 1);
             handlerDirs.add(fileStorage.resolve(currentHandlerName));
             registry.add(property, () -> currentHandlerName);
         }
@@ -65,7 +65,7 @@ public abstract class ITTestContextInitialization {
 
     @BeforeAll
     static void setupFileStorage() throws IOException {
-        if(fileStorage == null){
+        if (fileStorage == null) {
             Path systemTempDir = Paths.get(System.getProperty("java.io.tmpdir"));
             fileStorage = systemTempDir.resolve("library_IT_file_storage");
         }
@@ -77,10 +77,10 @@ public abstract class ITTestContextInitialization {
     @AfterAll
     static void cleanupFileStorage() {
         if (fileStorage != null) {
-            try(Stream<Path> files = Files.walk(fileStorage)){
+            try (Stream<Path> files = Files.walk(fileStorage)) {
                 //noinspection RedundantStreamOptionalCall
                 Assertions.assertTrue(files.sorted(Comparator.reverseOrder()).allMatch(p -> p.toFile().delete()));
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new RuntimeException("Error cleaning up file storage", e);
             }
             Assertions.assertFalse(Files.exists(fileStorage));
@@ -89,7 +89,7 @@ public abstract class ITTestContextInitialization {
 
     private static void seedFileStorage() throws IOException {
         for (Path handlerDir : handlerDirs) {
-            if(!Files.exists(handlerDir)){
+            if (!Files.exists(handlerDir)) {
                 Files.createDirectories(handlerDir);
                 Assertions.assertTrue(Files.exists(handlerDir));
                 Path filePath = handlerDir.resolve("default.jpg");
@@ -105,12 +105,12 @@ public abstract class ITTestContextInitialization {
     }
 
     protected static String getHandlerName(int index) {
-        if (index < 0 ||  index > handlerDirs.size()) throw new IllegalArgumentException("Invalid index");
-        return HANDLER_NAME + '_' + (index+1);
+        if (index < 0 || index > handlerDirs.size()) throw new IllegalArgumentException("Invalid index");
+        return HANDLER_NAME + '_' + (index + 1);
     }
 
-    protected static byte[] storeFile(String filename, int handlerIndex, byte fillByte) throws IOException{
-        if (handlerIndex < 0 ||  handlerIndex > handlerDirs.size()) throw new IllegalArgumentException("Invalid index");
+    protected static byte[] storeFile(String filename, int handlerIndex, byte fillByte) throws IOException {
+        if (handlerIndex < 0 || handlerIndex > handlerDirs.size()) throw new IllegalArgumentException("Invalid index");
         Path filePath = handlerDirs.get(handlerIndex).resolve(filename);
         Assertions.assertFalse(Files.exists(filePath));
         byte[] file = new byte[100];
@@ -120,13 +120,16 @@ public abstract class ITTestContextInitialization {
         return file;
     }
 
+    protected static void fillAuthHeadersForUser1() {
+        TestProperties.fillHeadersForUser1();
+    }
+
     protected void seedDB() {
         ResourceDatabasePopulator scriptExecutor = new ResourceDatabasePopulator();
         scriptExecutor.addScript(new ClassPathResource(TestProperties.SCHEMA_FILE_NAME));
         scriptExecutor.addScript(new ClassPathResource(TestProperties.DATA_FILE_NAME));
         scriptExecutor.setSeparator("@@");
         scriptExecutor.execute(this.dataSource);
-        TestProperties.fillHeadersForUser1();
     }
 
 }
